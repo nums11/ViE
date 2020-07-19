@@ -46,6 +46,7 @@
     "qr-code-scanner": "^1.0.7",
     "qrcode": "^1.4.4",
     "react-device-detect": "^1.11.14",
+    "throng": "^4.0.0",
     "video.js": "^7.7.6",
     "vue": "^2.6.10",
     "vue-axios": "^2.1.5",
