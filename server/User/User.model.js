@@ -28,10 +28,6 @@ let User = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Section'
 	}],
-	submissions: [{
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Submission'
-	}]
 });
 
 module.exports = mongoose.model('User', User);
