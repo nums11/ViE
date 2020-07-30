@@ -7,10 +7,6 @@ let Event = require('../Event/Event.model');
 
 //Define collection and schema for User
 let Section = new Schema({
-	course: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Course'
-	},
 	number: Number,
 	students: {
 		type: [mongoose.Schema.Types.ObjectId],
