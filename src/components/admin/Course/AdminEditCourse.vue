@@ -19,7 +19,7 @@
           </div>
           <div class="col-md-6">
             <div class="form-group">
-              <label>dept</label>
+              <label>Number</label>
               <input type="number" class="form-control" v-model="course.course_number" rows="5">
             </div>
           </div>
@@ -38,6 +38,33 @@
         </div>
     </form>
 
+    <!-- Add Section -->
+    <h4 style="margin-top: 2rem;">Add Section</h4>
+    <form @submit.prevent="addSection">
+      <div style="margin: auto;" class="col-md-5">
+        <input type="number" placeholder="New Section number" class="form-control" v-model="new_section.number">
+      </div>
+      <button class="btn btn-primary">Add</button>
+    </form>
+
+    <!-- Sections -->
+    <h4 style="margin-top: 2rem;">Sections</h4>
+    <table style="margin-bottom: 2rem;" class="table table-hover">
+        <thead>
+        <tr>
+          <th>Number</th>
+          <th># of students</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr v-for="section in course.sections" :key="section._id">
+              <td>{{ section.number }}</td>
+              <td>{{ section.students.length }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Instructors -->
     <Instructors v-on:select-instructor="selectInstructor" />
   </div>
 </template>
@@ -55,28 +82,26 @@
     data() {
       return {
         course: {},
-        instructor: {}
+        instructor: {},
+        new_section: {},
       }
     },
     created() {
-      this.getCurrentCourse()
+      this.course_id = this.$route.params.id
+      this.getCourse()
     },
     methods: {
-      async getCurrentCourse() {
-        let course_id = this.$route.params.id
-        const response = await CourseAPI.getCourse(course_id)
+      async getCourse() {
+        const response = await CourseAPI.getCourse(this.course_id)
         this.course = response.data
-        this.getCurrentCourseInstructor()
       },
-      async getCurrentCourseInstructor(){
-        const response = await CourseAPI.getInstructor(this.course._id)
-        if(response.data)
-          this.instructor = response.data
+      async addSection () {
+        const response = await CourseAPI.addSectionToCourse(this.course_id, this.new_section)
       },
       async updateCourse() {
         let course_id = this.$route.params.id
         this.course.instructor = this.instructor
-        const response = await CourseAPI.updateCourse(course_id, this.course)
+        const response = await CourseAPI.updateCourse(this.course_id, this.course)
         this.$router.push({name: 'courses'})
       }, 
       selectInstructor(instructor){

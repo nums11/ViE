@@ -6,11 +6,16 @@ export default {
   },
   addCourse(course) {
     return API().post('courses/add', {
-      course: course // add our data to the request body
+      course: course
+    })
+  },
+  addSectionToCourse(course_id, section) {
+    return API().post('courses/add_section/' + course_id, {
+      section: section
     })
   },
   getCourse(id) {
-    return API().get('courses/edit/' + id)
+    return API().get('courses/get/' + id)
   },
   updateCourse(id, course){
     return API().post('courses/update/' + id, {

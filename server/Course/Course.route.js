@@ -18,6 +18,32 @@ courseRoutes.route('/add').post(function (req, res) {
     });
 });
 
+courseRoutes.route('/add_section/:course_id').post(function (req, res) {
+	let course_id = req.params.course_id
+  let section = new Section(req.body.section);
+  console.log("course id", req.params.course_id)
+  section.save()
+    .then(() => {
+    	Course.updateOne(
+    		{_id: course_id},
+    	  {$push: {sections: [section]}},
+    	  function (err, course) {
+    	    if (err || course == null) {
+    	      console.log("<ERROR> Adding section to course with ID:",course_id)
+    	      res.json(err);
+    	    } else {
+    	      console.log("<SUCCESS> Adding section to course with ID:",course_id,)
+    	      res.json(course);
+    	    }
+    	  }
+    	);
+    })
+    .catch(() => {
+      console.log("<ERROR> Creating section to add to course with id:",course_id)
+      res.status(400).send("unable to add section to course");
+    });
+});
+
 courseRoutes.route('/').get(function (req, res) {
   Course.find(function (err, courses) {
     if (err || courses == null) {
@@ -30,15 +56,31 @@ courseRoutes.route('/').get(function (req, res) {
   });
 });
 
-courseRoutes.route('/edit/:id').get(function (req, res) {
+courseRoutes.route('/get/:id').get(function (req, res) {
   let id = req.params.id;
   Course.findById(id, function (err, course) {
     if (err || course == null) {
       console.log("<ERROR> Getting course with ID:",id)
-      res.json(err);
+      res.status(404).json(err);
     } else {
-      console.log("<SUCCESS> Getting course with ID:",id)
-      res.json(course);
+    	User.findById(course.instructor, (error, instructor) => {
+    		if(error || instructor == null) {
+    			console.log("<ERROR> Getting instructor for course with ID:",id)
+    			res.status(404).json(err);
+    		} else {
+    			course.instructor = instructor;
+    			Section.find({'_id': {$in: course.sections}}, (error, sections) => {
+    				if(error || sections == null) {
+    					console.log("<ERROR> Getting sectinos for course with ID:",id)
+    					res.status(404).json(err);
+    				} else {
+    					course.sections = sections
+        			console.log("<SUCCESS> Getting course by ID:",id)
+    					res.json(course)
+    				}
+    			})
+    		}
+    	});
     }
   });
 });
@@ -51,7 +93,8 @@ courseRoutes.route('/update/:id').post(function (req, res) {
       name: updated_course.name,
       dept: updated_course.dept,
       course_number: updated_course.course_number,
-      instructor: updated_course.instructor
+      instructor: updated_course.instructor,
+      sections: updated_course.sections
     },
     function (err, course) {
       if (err || course == null) {
