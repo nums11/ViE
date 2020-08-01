@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Users</h2>
+    <h2 v-if="is_users_view">Users</h2>
       <table class="table table-hover">
           <thead>
           <tr>
@@ -16,13 +16,16 @@
                 <td>{{ user.is_instructor }}</td>
                 <td>{{ user.email }}</td>
                 <td>{{ user.password }}</td>
-                <td><router-link :to="{name: 'edit_user', params: { id: user._id }}" class="btn btn-primary">Edit</router-link></td>
-                <td><button class="btn btn-danger" @click.prevent="deleteUser(user._id)">Delete</button></td>
+                <div v-if="is_users_view">
+                  <td><router-link :to="{name: 'edit_user', params: { id: user._id }}" class="btn btn-primary">Edit</router-link></td>
+                  <td><button class="btn btn-danger" @click.prevent="deleteUser(user._id)">Delete</button></td>
+                </div>
+                <div v-else>
+                  <td><button class="btn btn-secondary" @click.prevent="$emit('select-user', user)">Select</button></td>
+                </div>
               </tr>
           </tbody>
       </table>
-
-      <button @click="logout">Log out</button>
   </div>
 </template>
 
@@ -33,10 +36,12 @@
     data(){
       return {
         user:{},
-        users: []
+        users: [],
+        is_users_view: false
       }
     },
     created() {
+      this.is_users_view = this.$route.name === "admin_users"
       this.loadUsers();
     },
     methods: {

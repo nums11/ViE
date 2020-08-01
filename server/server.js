@@ -55,6 +55,7 @@ function start() {
   const userRouter = require('./User/User.route')
   const courseRouter = require('./Course/Course.route')
   const sectionRouter = require('./Section/Section.route')
+  const orgRouter = require('./Organization/Organization.route')
   // const eventRouter = require('./Event/Event.route')
   // const submissionRouter = require('./Submission/Submission.route')
   // const lectureRouter = require('./Lecture/Lecture.route')
@@ -103,6 +104,7 @@ function start() {
   app.use('/users', userRouter);
   app.use('/courses', courseRouter);
   app.use('/sections', sectionRouter);
+  app.use('/orgs', orgRouter);
   // app.use('/auth', authRouter);
   // app.use('/users', jwtVerify, userRouter);
   // app.use('/courses', jwtVerify, courseRouter);
