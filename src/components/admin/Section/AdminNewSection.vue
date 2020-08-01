@@ -41,8 +41,8 @@
   import SectionAPI from '@/services/SectionAPI.js';
   import UserAPI from '@/services/UserAPI.js';
   import CourseAPI from '@/services/CourseAPI.js';
-  import Courses from '@/components/admin/Course/Courses'
-  import Instructors from '@/components/admin/User/Instructors';
+  import Courses from '@/components/admin/Course/AdminCourses'
+  import Instructors from '@/components/admin/User/AdminInstructors';
   import AdminSections from '@/components/admin/Section/AdminSections';
 
   export default {

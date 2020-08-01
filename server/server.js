@@ -51,15 +51,15 @@ function start() {
     process.exit(1);
   }
 
-  const authRouter = require('./Auth/Auth.route')
+  // const authRouter = require('./Auth/Auth.route')
   const userRouter = require('./User/User.route')
   const courseRouter = require('./Course/Course.route')
-  const sectionRouter = require('./Section/Section.route')
-  const eventRouter = require('./Event/Event.route')
-  const submissionRouter = require('./Submission/Submission.route')
-  const lectureRouter = require('./Lecture/Lecture.route')
-  const lectureSubmissionRouter = require('./LectureSubmission/LectureSubmission.route')
-  const pollRouter = require('./PlaybackPoll/PlaybackPoll.route')
+  // const sectionRouter = require('./Section/Section.route')
+  // const eventRouter = require('./Event/Event.route')
+  // const submissionRouter = require('./Submission/Submission.route')
+  // const lectureRouter = require('./Lecture/Lecture.route')
+  // const lectureSubmissionRouter = require('./LectureSubmission/LectureSubmission.route')
+  // const pollRouter = require('./PlaybackPoll/PlaybackPoll.route')
 
   // Connect to the database before starting the application server.
   mongoose.connect(process.env.MONGODB_URI || config.DB, function (err, client) {
@@ -100,14 +100,16 @@ function start() {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  app.use('/auth', authRouter);
-  app.use('/users', jwtVerify, userRouter);
-  app.use('/courses', jwtVerify, courseRouter);
-  app.use('/sections', jwtVerify, sectionRouter);
-  app.use('/events', jwtVerify, eventRouter);
-  app.use('/submissions', jwtVerify, submissionRouter);
-  app.use('/lectures', jwtVerify, lectureRouter);
-  app.use('/polls', jwtVerify, pollRouter);
-  app.use('/lecturesubmissions', jwtVerify, lectureSubmissionRouter);
+  app.use('/users', userRouter);
+  app.use('/courses', courseRouter);
+  // app.use('/auth', authRouter);
+  // app.use('/users', jwtVerify, userRouter);
+  // app.use('/courses', jwtVerify, courseRouter);
+  // app.use('/sections', jwtVerify, sectionRouter);
+  // app.use('/events', jwtVerify, eventRouter);
+  // app.use('/submissions', jwtVerify, submissionRouter);
+  // app.use('/lectures', jwtVerify, lectureRouter);
+  // app.use('/polls', jwtVerify, pollRouter);
+  // app.use('/lecturesubmissions', jwtVerify, lectureSubmissionRouter);
 
 }

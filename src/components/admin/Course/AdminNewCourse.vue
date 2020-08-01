@@ -48,7 +48,7 @@
 
 <script>
   import CourseAPI from '@/services/CourseAPI.js';
-  import Instructors from '../User/Instructors'
+  import Instructors from '@/components/admin/User/AdminInstructors'
 
   export default {
     name: 'Course',
@@ -69,7 +69,7 @@
         if(typeof this.instructor.first_name !== 'undefined')
           this.course.instructor = this.instructor;
         const response = await CourseAPI.addCourse(this.course);
-        this.$router.push({name: 'courses'});
+        this.$router.push({name: 'admin_courses'});
       },
       selectInstructor(instructor){
         this.instructor = instructor

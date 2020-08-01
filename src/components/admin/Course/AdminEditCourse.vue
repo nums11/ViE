@@ -45,7 +45,7 @@
 <script>
   import CourseAPI from '@/services/CourseAPI.js';
   import UserAPI from '@/services/UserAPI.js';
-  import Instructors from '../User/Instructors'
+  import Instructors from '@/components/admin/User/AdminInstructors'
 
   export default {
     name: 'EditCourse',

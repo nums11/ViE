@@ -53,8 +53,8 @@
 <script>
   import CourseAPI from '@/services/CourseAPI.js';
   import UserAPI from '@/services/UserAPI.js';
-  import Instructors from '../User/Instructors'
-  import Courses from './Courses'
+  import Instructors from '@/components/admin/User/AdminInstructors'
+  import Courses from '@/components/admin/Course/AdminCourses'
 
   export default {
     name: 'Course',

@@ -98,7 +98,7 @@
 <script>
 import UserAPI from "@/services/UserAPI.js";
 import SectionAPI from "@/services/SectionAPI.js";
-import Courses from "../Course/Courses";
+import Courses from "@/components/admin/Course/AdminCourses";
 
 export default {
   name: "EditUser",

@@ -61,9 +61,9 @@
 
 <script>
   import SectionAPI from '@/services/SectionAPI.js';
-  import Courses from '../Course/Courses';
-  import Instructors from '../User/Instructors';
-  import Students from '../User/Students';
+  import Courses from '@/components/admin/Course/AdminCourses';
+  import Instructors from '@/components/admin/User/AdminInstructors';
+  import Students from '@/components/admin/User/AdminStudents';
 
   export default {
     name: 'AdminEditSection',
