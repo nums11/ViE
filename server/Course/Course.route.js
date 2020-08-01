@@ -71,7 +71,7 @@ courseRoutes.route('/get/:id').get(function (req, res) {
     			course.instructor = instructor;
     			Section.find({'_id': {$in: course.sections}}, (error, sections) => {
     				if(error || sections == null) {
-    					console.log("<ERROR> Getting sectinos for course with ID:",id)
+    					console.log("<ERROR> Getting sections for course with ID:",id)
     					res.status(404).json(err);
     				} else {
     					course.sections = sections
@@ -94,7 +94,6 @@ courseRoutes.route('/update/:id').post(function (req, res) {
       dept: updated_course.dept,
       course_number: updated_course.course_number,
       instructor: updated_course.instructor,
-      sections: updated_course.sections
     },
     function (err, course) {
       if (err || course == null) {

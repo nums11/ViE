@@ -159,8 +159,8 @@ const router = new VueRouter({
       path: '/admin/edit_section/:id',
       component: AdminEditSection,
       meta: {
-        requiresAuth: true,
-        requiresAdmin: true
+        // requiresAuth: true,
+        // requiresAdmin: true
       }
     },
     {

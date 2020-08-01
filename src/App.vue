@@ -14,6 +14,7 @@ import Footer from "./components/Footer.vue";
 import LectureAPI from './services/LectureAPI';
 import {getLiveLectures,getUpcomingLectures,getPastLectures} from './services/GlobalFunctions.js'
 import '@/assets/css/venue.css';
+import axios from 'axios'
 
 export default {
   watch: {
@@ -31,6 +32,7 @@ export default {
     }
   },
   created() {
+    axios.defaults.headers.common['Access-Control-Allow-Methods'] = ["GET, POST, DELETE"]
     let self = this
     var waitForUser = setInterval(function(){
       if (self.$store.state.user && self.$store.state.user.current_user) {

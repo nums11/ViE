@@ -60,6 +60,7 @@
             <tr v-for="section in course.sections" :key="section._id">
               <td>{{ section.number }}</td>
               <td>{{ section.students.length }}</td>
+              <td><router-link :to="{name: 'admin_edit_section', params: { id: section._id }}" class="btn btn-primary">Edit</router-link></td>
             </tr>
         </tbody>
     </table>
@@ -97,12 +98,11 @@
       },
       async addSection () {
         const response = await CourseAPI.addSectionToCourse(this.course_id, this.new_section)
+        this.$router.go()
       },
       async updateCourse() {
-        let course_id = this.$route.params.id
-        this.course.instructor = this.instructor
         const response = await CourseAPI.updateCourse(this.course_id, this.course)
-        this.$router.push({name: 'courses'})
+        this.$router.go()
       }, 
       selectInstructor(instructor){
         this.instructor = instructor
