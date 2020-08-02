@@ -39,7 +39,7 @@
           <th>First Name</th>
           <th>Last Name</th>
           <th>is_instructor</th>
-          <th>is_ta</th>
+          <th>user_id</th>
         </tr>
         </thead>
         <tbody>
@@ -47,7 +47,7 @@
               <td>{{ student.first_name }}</td>
               <td>{{ student.last_name }}</td>
               <td>{{ student.is_instructor }}</td>
-              <td>{{ student.is_ta }}</td>
+              <td>{{ student.user_id }}</td>
               <td><button class="btn btn-danger" @click.prevent="removeStudent(student)">Remove</button></td>
               <!-- <td v-if="is_section_view"><button class="btn btn-secondary" @click.prevent="$emit('select-student', student)">Select</button></td> -->
             </tr>
