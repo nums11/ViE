@@ -1,6 +1,9 @@
 <template>
   <div>
     <h2>Edit Organization</h2>
+    <router-link :to="{name: 'org_new_meeting', params: { org_id: org._id }}" tabindex="-1">
+      <button class="inline-block"tabindex="0">Create New Meeting for {{ org.name }}</button>
+    </router-link>
     <form @submit.prevent="updateOrg">
       <div class="row">
         <div class="col-md-6">

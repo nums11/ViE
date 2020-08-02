@@ -1,6 +1,9 @@
 <template>
   <div>
     <h2>Edit Course</h2>
+    <router-link :to="{name: 'course_new_meeting', params: { course_id: course._id }}" tabindex="-1">
+      <button class="inline-block"tabindex="0">Create New Meeting for {{ course.dept }} {{ course.course_number }}</button>
+    </router-link>
     <form @submit.prevent="updateCourse">
       <div class="row">
         <div class="col-md-6">
