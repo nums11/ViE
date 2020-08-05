@@ -4,7 +4,7 @@
     <h1 v-if="for_course">New Meeting For {{ course.name }}</h1>
     <h1 v-else>New Meeting For {{ org.name }}</h1>
 
-    <!-- Attendance Modals -->
+    <!-- Live Attendance Modal -->
     <div class="attendance-modal" id="live-modal" v-if="show_live_attendance_modal">
       <div class="attendance-modal-header">
         <button class="exit-modal-btn" @click="hideLiveAttendanceModal">X</button>
@@ -35,10 +35,11 @@
         <div v-else-if="show_live_poll_inputs">
           Poll stuff
         </div>
-        <button style="margin-top:2rem;" class="btn btn-primary">Add</button>
+        <button style="margin-top:2rem;" class="btn btn-primary" :disabled="disableAddLiveButton">Add</button>
       </form>
     </div>
 
+    <!-- Async Attendance Modal -->
     <div class="attendance-modal" id="async-modal" v-if="show_async_attendance_modal">
       <div class="attendance-modal-header">
         <button class="exit-modal-btn" @click="hideAsyncAttendanceModal">X</button>
@@ -49,9 +50,9 @@
     <!-- New Meeting Form -->
     <form class="new-lecture-form" @submit.prevent="createMeeting">
       <div class="form-group">
-        <!-- Lecture Info -->
+        <!-- Meeting Info -->
         <div class="input-wrapper">
-          <label id="title_label">Lecture Title</label>
+          <label id="title_label">Meeting Title</label>
           <input
             type="text"
             class="form-control new-lecture-input"
@@ -66,7 +67,7 @@
         <Sections v-if="for_course" v-bind:sections="course.sections" v-on:select-section="addSection" :disable_tabbing="(modal_open ? true : false)"/>
         <div class="input-wrapper">
           <label>Section(s):</label>
-          <input v-for="(section,i) in lecture_sections" :key="i" type="text" class="form-control new-lecture-input" v-model="section.number" readonly :tabindex="(modal_open ? '-1' : '0')"/>
+          <input v-for="(section,i) in meeting.sections" :key="i" type="text" class="form-control new-lecture-input" v-model="section.number" readonly :tabindex="(modal_open ? '-1' : '0')"/>
         </div>
 
         <!-- Start & End Time Inputs -->
@@ -130,13 +131,14 @@ export default {
     return {
       meeting: {
         has_live_attendance: false,
-        has_async_attendance: false
+        has_async_attendance: false,
+        sections: []
       },
       meeting_times_are_valid: false,
+      qr_checkin_times_are_valid: false,
       course: {},
       org: {},
       lecture: {},
-      lecture_sections: [],
       course_sections: [],
       course_sections_have_loaded: false,
       selected_geofence: [],
@@ -163,14 +165,12 @@ export default {
       qr_checkin: {}
     };
   },
-  // computed: {
-  //   meetingTimesAreValid: function () {
-  //     let meeting_times_are_valid = this.meeting.start_time && this.meeting.end_time && this.meeting.start_time < this.meeting.end_time
-  //     console.log("meeting_times_are_valid", meeting_times_are_valid)
-  //     return meeting_times_are_valid
-  //     // return this.meeting.start_time && this.meeting.end_time && this.meeting.start_time < this.meeting.end_time
-  //   }
-  // },
+  computed: {
+    // TODO: Update this to handle the custom checkin time windows
+    disableAddLiveButton: function () {
+      return !this.show_qr_checkin_inputs && !this.show_live_poll_inputs
+    }
+  },
   created() {
     this.getCourseOrOrg()
     this.setDateInputs()
@@ -197,7 +197,6 @@ export default {
           minDate: Date.now(),
           minuteIncrement: 1,
           onChange: function(selectedDates, dateStr, instance) {
-            console.log("Onchagne got called")
             self.meeting.start_time = Date.parse(dateStr)
             // Set the new min end time to 15 minutes after the new start time
             let new_min_end_time = new Date(self.meeting.start_time)
@@ -227,6 +226,48 @@ export default {
         })
       })
     },
+    setQRCheckinDateInputs() {
+      console.log("In this function")
+      // this.$nextTick(() => {
+        let self = this
+      setTimeout(() => {
+        console.log(document.getElementById("submission_start"))
+        let submission_start_picker = flatpickr(document.getElementById("submission_start"),{
+          enableTime: true,
+          dateFormat: "h:i K, M d, Y",
+          minDate: Date.now(),
+          minuteIncrement: 1,
+          onChange: function(selectedDates, dateStr, instance) {
+            self.qr_checkin.qr_checkin_start_time = Date.parse(dateStr)
+            // Set the new min end time to 5 minutes after the new start time
+            let new_min_end_time = new Date(self.meeting.start_time)
+            new_min_end_time.setMinutes(new_min_end_time.getMinutes() + 5)
+            submission_end_picker.set("minDate",new_min_end_time)
+            // Update end time if invalid
+            let five_mins = 60 * 5 * 1000
+            if(self.qr_checkin.qr_checkin_start_time > self.qr_checkin.qr_checkin_end_time || !self.qr_checkin.qr_checkin_end_time) {
+              self.qr_checkin.qr_checkin_end_time = Date.parse(dateStr)
+              submission_end_picker.setDate(self.qr_checkin.qr_checkin_start_time + five_mins)
+            }
+            // Keep the dates 5 minutes apart
+            if((self.qr_checkin.qr_checkin_start_time + five_mins) > self.qr_checkin.qr_checkin_end_time) {
+              submission_end_picker.setDate(self.qr_checkin.qr_checkin_start_time + five_mins)
+            }
+            self.qr_checkin_times_are_valid = true
+          }
+        })
+        let submission_end_picker = flatpickr(document.getElementById("submission_end"),{
+          enableTime: true,
+          dateFormat: "h:i K, M d, Y",
+          minDate: Date.now(),
+          minuteIncrement: 1,
+          onChange: function(selectedDates, dateStr, instance) {
+            self.qr_checkin.qr_checkin_end_time = Date.parse(dateStr)
+          }
+        })
+      }, 3000)
+      // })
+    },
     showLiveAttendanceModal() {
       this.show_live_attendance_modal = true
     },
@@ -241,8 +282,6 @@ export default {
     },
     hideAsyncAttendanceModal() {
       this.show_async_attendance_modal = false
-    },
-    addLiveAttendance() {
     },
     showQRCheckinInputs() {
       this.show_qr_checkin_inputs = true
@@ -261,10 +300,9 @@ export default {
     },
     useCustomCheckinTime() {
       this.random_checkin_time = false
+      // this.setQRCheckinDateInputs()
     },
     addLiveAttendance() {
-      if(!this.show_qr_checkin_inputs && !this.show_live_poll_inputs)
-        return
       let is_qr_checkin = this.show_qr_checkin_inputs
       this.show_live_attendance_modal = false
       this.show_qr_checkin_inputs = false
@@ -294,13 +332,9 @@ export default {
       }
       return result;
     },
-    async getCourse() {
-      const response = await CourseAPI.getCourse(this.course_id);
-      this.course = response.data;
-    },
     addSection(section) {
-      if(!this.lecture_sections.includes(section))
-        this.lecture_sections.push(section)
+      if(!this.meeting.sections.includes(section))
+        this.meeting.sections.push(section)
     },
     setErrorMessage(error) {
       this.input_error_message = "ERROR: "+error
