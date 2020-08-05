@@ -205,11 +205,12 @@ export default {
             // Update end time if invalid
             let fifteen_mins = 60 * 15 * 1000
             if(self.meeting.start_time > self.meeting.end_time || !self.meeting.end_time ) {
-              self.meeting.end_time = Date.parse(dateStr)
+              self.meeting.end_time = self.meeting.start_time + fifteen_mins
               end_time_picker.setDate(self.meeting.start_time + fifteen_mins)
             }
             // Keep the dates 15 minutes apart
             if((self.meeting.start_time + fifteen_mins) > self.meeting.end_time) {
+              self.meeting.end_time = self.meeting.start_time + fifteen_mins
               end_time_picker.setDate(self.meeting.start_time + fifteen_mins)
             }
             self.meeting_times_are_valid = true
@@ -309,8 +310,9 @@ export default {
       this.show_live_poll_inputs = false
       if(is_qr_checkin) {
         if(this.random_checkin_time) {
-          // Calculate a random time
-          console.log("Calculating a random time")
+          // Generate a random start time within the window
+          // 5 mins after start and 5 mins before end
+          this.generateRandomCheckinTime()
         } else {
           console.log("Using custom time")
         }
@@ -323,6 +325,14 @@ export default {
       }
       this.random_checkin_time = true
       this.meeting.has_live_attendance = true
+    },
+    generateRandomCheckinTime() {
+      let five_mins = 60 * 5 * 1000
+      let five_mins_after_start = new Date(this.meeting.start_time + five_mins)
+      let five_mins_before_end = new Date(this.meeting.end_time - five_mins)
+      this.qr_checkin.qr_checkin_start_time = new Date(five_mins_after_start.getTime() + Math.random() *
+          (five_mins_before_end.getTime() - five_mins_after_start.getTime()))
+      this.qr_checkin.qr_checkin_end_time = new Date(this.qr_checkin.qr_checkin_start_time.getTime() + five_mins)
     },
     generateRandomCode() {
       const alnums = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
