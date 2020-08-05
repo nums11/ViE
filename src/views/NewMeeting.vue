@@ -72,15 +72,15 @@
         <!-- Start & End Times -->
         <div class="input-wrapper">
           <label id="start_time_label">Start Time</label>
-          <input id="lecture_start" aria-labelledby="start_time_label" type="datetime-local"/>
+          <input id="lecture_start" aria-labelledby="start_time_label" type="datetime-local" v-model="meeting.start_time"/>
           <br>
           <label id="end_time_label">End Time</label>
-          <input id="lecture_end"aria-labelledby="end_time_label" type="datetime-local"/>
+          <input id="lecture_end"aria-labelledby="end_time_label" type="datetime-local" v-model="meeting.end_time"/>
         </div>
 
-        <!-- Live Attendance -->
+        <!-- Live Attendance Button & Info -->
         <div class="input-wrapper">
-          <button type="button" class="btn btn-secondary" @click="showLiveAttendanceModal">Add Live Attendance</button>
+          <button type="button" class="btn btn-secondary" @click="showLiveAttendanceModal" :disabled="!meetingTimesAreValid">Add Live Attendance</button>
         </div>
 
         <div class="input-wrapper">
@@ -90,8 +90,10 @@
           </div>
         </div>
 
+
+        <!-- Async Attendance Button & Info -->
         <div class="input-wrapper">
-          <button type="button" class="btn btn-secondary" @click="showAsyncAttendanceModal">Add Asynchronous Attendance</button>
+          <button type="button" class="btn btn-secondary" @click="showAsyncAttendanceModal" :disabled="!meetingTimesAreValid">Add Asynchronous Attendance</button>
         </div>
 
 
@@ -103,7 +105,7 @@
         </div> -->
 
         <!-- Times -->
-        <div v-if="allow_live_submissions">
+<!--         <div v-if="allow_live_submissions">
           <div class="input-wrapper">
             <label id="start_time_label">Start Time</label>
             <input id="lecture_start" aria-labelledby="start_time_label" :tabindex="(modal_open ? '-1' : '0')" type="datetime-local"/>
@@ -137,11 +139,11 @@
               <button type="button" class="btn btn-secondary" @click="handleAddCheckin" :tabindex="(modal_open ? '-1' : '0')">Add another attendance check-in</button>
             </div>
           </div>
-        </div>
+        </div> -->
         <!-- Playback video adder -->
 <!--         <LectureUploadModal ref="uploadmodal" v-if="allow_playback_submissions" :lecture="lecture" :update_lecture="false" :shown="modal_open" @openstatus="handleModalChange"/> -->
         <p class="error_msg" v-if="input_error_message!=''">{{input_error_message}}</p>
-        <button class="btn btn-primary create-lecture-btn" :tabindex="(modal_open ? '-1' : '0')">Create Lecture</button>
+        <button class="btn btn-primary create-lecture-btn" :tabindex="(modal_open ? '-1' : '0')" :disabled="!meetingTimesAreValid">Create Meeting</button>
       </div>
     </form>
   </div>
@@ -205,6 +207,13 @@ export default {
       live_polls: [],
       qr_checkin: {}
     };
+  },
+  computed: {
+    // a computed getter
+    meetingTimesAreValid: function () {
+      // `this` points to the vm instance
+      return this.meeting.start_time && this.meeting.end_time && this.meeting.start_time < this.meeting.end_time
+    }
   },
   created() {
     this.getCourseOrOrg()
@@ -305,12 +314,13 @@ export default {
       },(7*1000))
     },
     async createMeeting() {
+      console.log("meeting",this.meeting)
      if(!this.meeting.has_live_attendance && !this.meeting.has_async_attendance) {
       console.log("Error. Need Live or async attendance")
       return
      } 
 
-    const response = await MeetingAPI.addMeeting(this.meeting)
+    // const response = await MeetingAPI.addMeeting(this.meeting)
 
     },
     handleAttemptSubmit(evt) {
