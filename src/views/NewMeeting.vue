@@ -204,12 +204,12 @@ export default {
             new_min_end_time.setMinutes(new_min_end_time.getMinutes() + 15)
             end_time_picker.set("minDate",new_min_end_time)
             // Update end time if invalid
+            let fifteen_mins = 60 * 15 * 1000
             if(self.meeting.start_time > self.meeting.end_time || !self.meeting.end_time ) {
               self.meeting.end_time = Date.parse(dateStr)
-              end_time_picker.setDate(self.meeting.start_time)
+              end_time_picker.setDate(self.meeting.start_time + fifteen_mins)
             }
             // Keep the dates 15 minutes apart
-            let fifteen_mins = 60 * 15 * 1000
             if((self.meeting.start_time + fifteen_mins) > self.meeting.end_time) {
               end_time_picker.setDate(self.meeting.start_time + fifteen_mins)
             }
