@@ -69,18 +69,18 @@
           <input v-for="(section,i) in lecture_sections" :key="i" type="text" class="form-control new-lecture-input" v-model="section.number" readonly :tabindex="(modal_open ? '-1' : '0')"/>
         </div>
 
-        <!-- Start & End Times -->
+        <!-- Start & End Time Inputs -->
         <div class="input-wrapper">
           <label id="start_time_label">Start Time</label>
-          <input id="lecture_start" aria-labelledby="start_time_label" type="datetime-local" v-model="meeting.start_time"/>
+          <input id="meeting_start" aria-labelledby="start_time_label" type="datetime-local"/>
           <br>
           <label id="end_time_label">End Time</label>
-          <input id="lecture_end"aria-labelledby="end_time_label" type="datetime-local" v-model="meeting.end_time"/>
+          <input id="meeting_end"aria-labelledby="end_time_label" type="datetime-local"/>
         </div>
 
         <!-- Live Attendance Button & Info -->
         <div class="input-wrapper">
-          <button type="button" class="btn btn-secondary" @click="showLiveAttendanceModal" :disabled="!meetingTimesAreValid">Add Live Attendance</button>
+          <button type="button" class="btn btn-secondary" @click="showLiveAttendanceModal" :disabled="!meeting_times_are_valid">Add Live Attendance</button>
         </div>
 
         <div class="input-wrapper">
@@ -90,60 +90,14 @@
           </div>
         </div>
 
-
         <!-- Async Attendance Button & Info -->
         <div class="input-wrapper">
-          <button type="button" class="btn btn-secondary" @click="showAsyncAttendanceModal" :disabled="!meetingTimesAreValid">Add Asynchronous Attendance</button>
+          <button type="button" class="btn btn-secondary" @click="showAsyncAttendanceModal" :disabled="!meeting_times_are_valid">Add Asynchronous Attendance</button>
         </div>
 
-
-<!--         <div class="input-wrapper">
-          <input @click="setAllowLiveSubmissions" type="checkbox" name="live_submission" v-model="allow_live_submissions" aria-labelledby="live_submission_label" :tabindex="(modal_open ? '-1' : '0')">
-          <label id="live_submission_label">Lecture DOES have Live Submissions and Show Associated Options</label><br>
-          <input @click="setAllowPlaybackSubmissions" type="checkbox" name="playback_submission" v-model="allow_playback_submissions" aria-labelledby="playback_submission_label" :tabindex="(modal_open ? '-1' : '0')">
-          <label id="playback_submission_label">Lecture DOES NOT have Live Submissions and Show Associated Options</label><br>
-        </div> -->
-
-        <!-- Times -->
-<!--         <div v-if="allow_live_submissions">
-          <div class="input-wrapper">
-            <label id="start_time_label">Start Time</label>
-            <input id="lecture_start" aria-labelledby="start_time_label" :tabindex="(modal_open ? '-1' : '0')" type="datetime-local"/>
-            <br>
-            <label id="end_time_label">End Time</label>
-            <input id="lecture_end" aria-labelledby="end_time_label" :tabindex="(modal_open ? '-1' : '0')" type="datetime-local"/>
-          </div>
-          <div class="input-wrapper">
-            <input @click="setAllowRandom" type="checkbox" v-model="random_times" aria-labelledby="random_times" :tabindex="(modal_open ? '-1' : '0')"/>
-            <label id="random_times">Use randomized check-in times and show associated options</label><br>
-            <input @click="setAllowCustom" type="checkbox" v-model="custom_times" aria-labelledby="custom_times" :tabindex="(modal_open ? '-1' : '0')"/>
-            <label id="custom_times">Use custom check-in times and show associated options</label><br>
-          </div>
-          <div v-if="random_times">
-            <div class="input-wrapper">
-              <label id="random_checkin_count">Number of check-in times</label>
-              <input class="random_input" type="number" min="1" max="10" v-model.lazy="random_checkin_count" aria-labelledby="random_checkin_count" :tabindex="(modal_open ? '-1' : '0')"/>
-              <label id="random_checkin_length">Minutes for each check-in</label>
-              <input class="random_input" type="number" min="1" max="10" v-model.lazy="random_checkin_length" aria-labelledby="random_checkin_length" :tabindex="(modal_open ? '-1' : '0')"/>
-            </div>
-          </div>
-          <div v-else-if="custom_times">
-            <div v-for="(checkin,i) in checkins" :key="i" class="input-wrapper" id="submission-time-wrapper">
-              <label :id="'submission_start_label_'+i">Submission Start Time</label>
-              <input :id="'submission_start_'+i" :aria-labelledby="'submission_start_label_'+i" :tabindex="(modal_open ? '-1' : '0')"/>
-              <label :id="'submission_end_label_'+i">Submission End Time</label>
-              <input :id="'submission_end_'+i" :aria-labelledby="'submission_end_label_'+i" :tabindex="(modal_open ? '-1' : '0')"/>
-              <button v-if="checkins.length > 1" type="button" class="btn btn-danger" @click="handleRemoveCheckin(i)" :aria-label="'Remove submission window '+(i+1)" :tabindex="(modal_open ? '-1' : '0')">X</button>
-            </div>
-            <div class="input-wrapper">
-              <button type="button" class="btn btn-secondary" @click="handleAddCheckin" :tabindex="(modal_open ? '-1' : '0')">Add another attendance check-in</button>
-            </div>
-          </div>
-        </div> -->
-        <!-- Playback video adder -->
-<!--         <LectureUploadModal ref="uploadmodal" v-if="allow_playback_submissions" :lecture="lecture" :update_lecture="false" :shown="modal_open" @openstatus="handleModalChange"/> -->
+        <!-- Error Mesage and Create Meeting Button -->
         <p class="error_msg" v-if="input_error_message!=''">{{input_error_message}}</p>
-        <button class="btn btn-primary create-lecture-btn" :tabindex="(modal_open ? '-1' : '0')" :disabled="!meetingTimesAreValid">Create Meeting</button>
+        <button class="btn btn-primary create-lecture-btn" :tabindex="(modal_open ? '-1' : '0')" :disabled="true">Create Meeting</button>
       </div>
     </form>
   </div>
@@ -178,6 +132,7 @@ export default {
         has_live_attendance: false,
         has_async_attendance: false
       },
+      meeting_times_are_valid: false,
       course: {},
       org: {},
       lecture: {},
@@ -208,15 +163,17 @@ export default {
       qr_checkin: {}
     };
   },
-  computed: {
-    // a computed getter
-    meetingTimesAreValid: function () {
-      // `this` points to the vm instance
-      return this.meeting.start_time && this.meeting.end_time && this.meeting.start_time < this.meeting.end_time
-    }
-  },
+  // computed: {
+  //   meetingTimesAreValid: function () {
+  //     let meeting_times_are_valid = this.meeting.start_time && this.meeting.end_time && this.meeting.start_time < this.meeting.end_time
+  //     console.log("meeting_times_are_valid", meeting_times_are_valid)
+  //     return meeting_times_are_valid
+  //     // return this.meeting.start_time && this.meeting.end_time && this.meeting.start_time < this.meeting.end_time
+  //   }
+  // },
   created() {
     this.getCourseOrOrg()
+    this.setDateInputs()
   },
   methods: {
     async getCourseOrOrg() {
@@ -230,6 +187,45 @@ export default {
         const response = await OrgAPI.getOrg(this.org_id)
         this.org = response.data
       }
+    },
+    setDateInputs() {
+      this.$nextTick(() => {
+        let self = this
+        let start_time_picker = flatpickr(document.getElementById("meeting_start"),{
+          enableTime: true,
+          dateFormat: "h:i K, M d, Y",
+          minDate: Date.now(),
+          minuteIncrement: 1,
+          onChange: function(selectedDates, dateStr, instance) {
+            console.log("Onchagne got called")
+            self.meeting.start_time = Date.parse(dateStr)
+            // Set the new min end time to 15 minutes after the new start time
+            let new_min_end_time = new Date(self.meeting.start_time)
+            new_min_end_time.setMinutes(new_min_end_time.getMinutes() + 15)
+            end_time_picker.set("minDate",new_min_end_time)
+            // Update end time if invalid
+            if(self.meeting.start_time > self.meeting.end_time || !self.meeting.end_time ) {
+              self.meeting.end_time = Date.parse(dateStr)
+              end_time_picker.setDate(self.meeting.start_time)
+            }
+            // Keep the dates 15 minutes apart
+            let fifteen_mins = 60 * 15 * 1000
+            if((self.meeting.start_time + fifteen_mins) > self.meeting.end_time) {
+              end_time_picker.setDate(self.meeting.start_time + fifteen_mins)
+            }
+            self.meeting_times_are_valid = true
+          }
+        })
+        let end_time_picker = flatpickr(document.getElementById("meeting_end"),{
+          enableTime: true,
+          dateFormat: "h:i K, M d, Y",
+          minDate: Date.now(),
+          minuteIncrement: 1,
+          onChange: function(selectedDates, dateStr, instance) {
+            self.meeting.end_time = Date.parse(dateStr)
+          }
+        })
+      })
     },
     showLiveAttendanceModal() {
       this.show_live_attendance_modal = true
