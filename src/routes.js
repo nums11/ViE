@@ -91,8 +91,8 @@ const router = new VueRouter({
       path: '/admin/onboard_user',
       component: OnboardUser,
       meta: {
-        requiresAuth: true,
-        requiresAdmin: true
+        // requiresAuth: true,
+        // requiresAdmin: true
       }
     },
     {
@@ -253,8 +253,8 @@ const router = new VueRouter({
       path: '/course_info/:id',
       component: CourseInfo,
       meta: {
-        title: "Venue - Course Info",
-        requiresAuth: true
+        title: "Venue - Course Info"
+        // requiresAuth: true
       }
     },
     {

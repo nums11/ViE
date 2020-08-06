@@ -51,7 +51,7 @@ function start() {
     process.exit(1);
   }
 
-  // const authRouter = require('./Auth/Auth.route')
+  const authRouter = require('./Auth/Auth.route')
   const userRouter = require('./User/User.route')
   const courseRouter = require('./Course/Course.route')
   const sectionRouter = require('./Section/Section.route')
@@ -107,7 +107,7 @@ function start() {
   app.use('/sections', sectionRouter);
   app.use('/orgs', orgRouter);
   app.use('/meetings', meetingRouter);
-  // app.use('/auth', authRouter);
+  app.use('/auth', authRouter);
   // app.use('/users', jwtVerify, userRouter);
   // app.use('/courses', jwtVerify, courseRouter);
   // app.use('/sections', jwtVerify, sectionRouter);

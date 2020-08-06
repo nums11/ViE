@@ -226,6 +226,17 @@ export default {
       try{
         const response = await MeetingAPI.addMeeting(this.meeting)
         console.log("Added Meeting")
+        if(this.$route.name === "course_new_meeting"){
+          this.$router.push({
+            name: "course_info",
+            params: { id: this.course_id }
+          })
+        } else {
+          this.$router.push({
+            name: "org_info",
+            params: { id: this.org_id }
+          })
+        }
       }
       catch(err){
         console.log(err)
