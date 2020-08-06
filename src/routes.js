@@ -64,8 +64,8 @@ const router = new VueRouter({
       path: '/admin/new_user',
       component: AdminNewUser,
       meta: {
-        // requiresAuth: true,
-        // requiresAdmin: true
+        requiresAuth: true,
+        requiresAdmin: true
       }
     },
     {
@@ -73,8 +73,8 @@ const router = new VueRouter({
       path: '/admin/users',
       component: AdminUsers,
       meta: {
-        // requiresAuth: true,
-        // requiresAdmin: true
+        requiresAuth: true,
+        requiresAdmin: true
       }
     },
     {
@@ -91,8 +91,8 @@ const router = new VueRouter({
       path: '/admin/onboard_user',
       component: OnboardUser,
       meta: {
-        // requiresAuth: true,
-        // requiresAdmin: true
+        requiresAuth: true,
+        requiresadmIn: true
       }
     },
     {
@@ -118,8 +118,8 @@ const router = new VueRouter({
       path: '/admin/new_course',
       component: AdminNewCourse,
       meta: {
-        // requiresAuth: true,
-        // requiresAdmin: true
+        requiresautH: true,
+        requiresadmIn: true
       }
     },
     {
@@ -136,8 +136,8 @@ const router = new VueRouter({
       path: '/admin/edit_course/:id',
       component: AdminEditCourse,
       meta: {
-        // requiresAuth: true,
-        // requiresAdmin: true
+        requiresautH: true,
+        requiresadmIn: true
       }
     },
     {
@@ -145,8 +145,8 @@ const router = new VueRouter({
       path: '/admin/courses',
       component: AdminCourses,
       meta: {
-        // requiresAuth: true,
-        // requiresAdmin: true
+        requiresautH: true,
+        requiresadmIn: true
       }
     },
     {
@@ -163,8 +163,8 @@ const router = new VueRouter({
       path: '/admin/edit_section/:id',
       component: AdminEditSection,
       meta: {
-        // requiresAuth: true,
-        // requiresAdmin: true
+        requiresautH: true,
+        requiresadmIn: true
       }
     },
     {
@@ -344,8 +344,8 @@ const router = new VueRouter({
       path: '/admin/new_org',
       component: AdminNewOrg,
       meta: {
-        // requiresAuth: true,
-        // requiresAdmin: true
+        requiresautH: true,
+        requiresadmIn: true
       }
     },
     {
@@ -353,8 +353,8 @@ const router = new VueRouter({
       path: '/admin/orgs',
       component: AdminOrgs,
       meta: {
-        // requiresAuth: true,
-        // requiresAdmin: true
+        requiresautH: true,
+        requiresadmIn: true
       }
     },
     {
@@ -362,8 +362,8 @@ const router = new VueRouter({
       path: '/admin/edit_org/:id',
       component: AdminEditOrg,
       meta: {
-        // requiresAuth: true,
-        // requiresAdmin: true
+        requiresautH: true,
+        requiresadmIn: true
       }
     },
     {
@@ -371,8 +371,8 @@ const router = new VueRouter({
       path: '/course_new_meeting/:course_id',
       component: NewMeeting,
       meta: {
-        // requiresAuth: true,
-        // requiresAdmin: true
+        requiresautH: true,
+        requiresadmIn: true
       }
     },
     {
@@ -380,8 +380,8 @@ const router = new VueRouter({
       path: '/org_new_meeting/:org_id',
       component: NewMeeting,
       meta: {
-        // requiresAuth: true,
-        // requiresAdmin: true
+        requiresautH: true,
+        requiresadmIn: true
       }
     },
   ]
