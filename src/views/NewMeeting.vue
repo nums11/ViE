@@ -74,6 +74,7 @@ import QRCode from "qrcode";
 import GoogleMap from "@/components/GoogleMap";
 import LectureUploadModal from "@/components/LectureUploadModal";
 import AddAttendanceModal from "@/components/AddAttendanceModal";
+import AttendanceContainerList from "@/components/AttendanceContainerList";
 import flatpickr from "flatpickr";
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 require("flatpickr/dist/themes/material_blue.css");
@@ -86,7 +87,8 @@ export default {
   components: {
     Sections,
     GoogleMap,
-    AddAttendanceModal
+    AddAttendanceModal,
+    AttendanceContainerList
   },
   data() {
     return {
