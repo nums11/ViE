@@ -43,12 +43,7 @@
           <button type="button" class="btn btn-secondary" @click="showLiveAttendanceModal" :disabled="!meeting_times_are_valid">Add Live Attendance</button>
         </div>
 
-        <div class="input-wrapper">
-          <div style="border:black solid; margin:auto; margin-top:1rem;width:70%; height: 5rem; border-radius:5px;" v-for="qr_checkin in qr_checkins">
-            <p>Start: {{new Date(qr_checkin.qr_checkin_start_time)}}</p>
-            <p>End: {{new Date(qr_checkin.qr_checkin_end_time)}}</p>
-          </div>
-        </div>
+        <AttendanceContainerList :attendance_list="qr_checkins" v-on:remove-attendance="removeAttendance"/>
 
         <!-- Async Attendance Button & Info -->
         <div class="input-wrapper">
@@ -211,6 +206,12 @@ export default {
     addSectionToMeeting(section) {
       if(!this.meeting.sections.includes(section))
         this.meeting.sections.push(section)
+    },
+    removeAttendance(attendance) {
+      for(let i = 0; i < this.qr_checkins.length; i++) {
+        if(this.qr_checkins[i].code === attendance.code)
+          this.qr_checkins.splice(i,1)
+      }
     },
     async createMeeting() {
       console.log("meeting",this.meeting)

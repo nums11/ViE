@@ -1,10 +1,11 @@
 <template>
   <div>
-    <div class="input-wrapper">
-      <div style="border:black solid; margin:auto; margin-top:1rem;width:70%; height: 5rem; border-radius:5px;" v-for="attendance in attendance_list">
+    <div class="input-wrapper" v-for="attendance in attendance_list">
+      <div style="border:black solid; margin:auto; margin-top:1rem;width:70%; height: 5rem; border-radius:5px; display: inline-block;" >
         <p>Start: {{new Date(attendance.qr_checkin_start_time)}}</p>
         <p>End: {{new Date(attendance.qr_checkin_end_time)}}</p>
       </div>
+      <h1 @click="$emit('remove-attendance',attendance)" style="display:inline-block; cursor: pointer;"> X</h1>
     </div>
   </div>
 </template>
