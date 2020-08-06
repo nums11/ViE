@@ -222,10 +222,14 @@ export default {
     },
     async createMeeting() {
       console.log("meeting",this.meeting)
-     if(!this.meeting.has_live_attendance && !this.meeting.has_async_attendance) {
-      console.log("Error. Need Live or async attendance")
-      return
-     } 
+      this.meeting.qr_checkins = this.qr_checkins
+      try{
+        const response = await MeetingAPI.addMeeting(this.meeting)
+        console.log("Added Meeting")
+      }
+      catch(err){
+        console.log(err)
+      }
     }
   }
 };

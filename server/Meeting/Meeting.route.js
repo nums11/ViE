@@ -2,37 +2,51 @@ const express = require('express');
 const meetingRoutes = express.Router();
 
 let Meeting = require('./Meeting.model');
+let LiveAttendance = require('../LiveAttendance/LiveAttendance.model');
 let QRCheckin = require('../QRCheckin/QRCheckin.model');
 let Poll = require('../Poll/Poll.model');
 let User = require('../User/User.model');
 
-meetingRoutes.route('/add').post(function (req, res) {
-  let meeting = new Meeting(req.body.meeting);
-  if(meeting.has_live_attendance){
-    let new_qr_checkins = []
-    meeting.qr_checkins.forEach(async qr_checkin => {
-      try{
-        let new_qr_checkin = new QRCheckin(qr_checkin)
-        await new_qr_checkin.save()
-        new_qr_checkins.push(new_qr_checkin)
-        console.log("<SUCCESS> Adding checkin:",meeting)
-      } catch(error) {
-        console.log("<ERROR> saving checkin for meeting")
-        res.json(error)
+meetingRoutes.route('/add').post(async (req, res) => {
+  // let meeting = new Meeting(req.body.meeting)
+  // Maybe I need to save the QR Checkins first
+  let meeting = req.body.meeting
+  console.log("Received meeting",meeting)
+  let new_qr_checkins = []
+  for(let i = 0; i < meeting.qr_checkins.length; i++){
+    let qr_checkin = meeting.qr_checkins[i]
+    let new_qr_checkin = new QRCheckin(qr_checkin)
+    new_qr_checkin.save().then(() => {
+      new_qr_checkins.push(new_qr_checkin)
+      if(i == meeting.qr_checkins.length-1){
+        let new_live_attendance = new LiveAttendance(
+          {qr_checkins: new_qr_checkins})
+        new_live_attendance.save().then(() => {
+          meeting.live_attendance = new_live_attendance
+          let new_meeting = new Meeting(meeting)
+          new_meeting.save().then(() => {
+            console.log("<SUCCESS> Adding meeting:",new_meeting)
+            res.status(200).json(new_meeting)
+          })
+          .catch(() => {
+            console.log("<ERROR> Adding new meeting:",new_meeting)
+            res.status(400).send("unable to save checkin to database");
+            return
+          });
+        })
+        .catch(() => {
+          console.log("<ERROR> Adding live attendance:",new_live_attendance)
+          res.status(400).send("unable to save checkin to database");
+          return
+        });
       }
+    })
+    .catch(() => {
+      console.log("<ERROR> Adding qr_checkin:",new_qr_checkin)
+      res.status(400).send("unable to save checkin to database");
+      return
     });
-    meeting.qr_checkins = new_qr_checkins
-    meeting.save()
-      .then(() => {
-        console.log("<SUCCESS> Adding meeting:",meeting)
-        res.status(200).json(meeting);
-      })
-      .catch(() => {
-        console.log("<ERROR> Adding meeting:",meeting)
-        res.status(400).send("unable to save meeting to database");
-      });
   }
-
 });
 
 meetingRoutes.route('/').get(function (req, res) {
