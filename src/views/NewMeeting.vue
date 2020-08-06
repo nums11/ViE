@@ -52,7 +52,7 @@
 
         <!-- Error Mesage and Create Meeting Button -->
         <!-- <p class="error_msg" v-if="input_error_message!=''">{{input_error_message}}</p> -->
-        <button class="btn btn-primary create-lecture-btn" :disabled="true">Create Meeting</button>
+        <button class="btn btn-primary create-lecture-btn" :disabled="!meetingCanBeCreated">Create Meeting</button>
       </div>
     </form>
   </div>
@@ -106,6 +106,11 @@ export default {
   created() {
     this.getCourseOrOrg()
     this.setDateInputs()
+  },
+  computed: {
+    meetingCanBeCreated: function() {
+      return this.meeting.has_live_attendance || this.meeting.has_async_attendance
+    }
   },
   methods: {
     async getCourseOrOrg() {
@@ -212,6 +217,8 @@ export default {
         if(this.qr_checkins[i].code === attendance.code)
           this.qr_checkins.splice(i,1)
       }
+      if(this.qr_checkins.length == 0)
+        this.meeting.has_live_attendance = false
     },
     async createMeeting() {
       console.log("meeting",this.meeting)
