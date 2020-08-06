@@ -4,48 +4,8 @@
     <h1 v-if="for_course">New Meeting For {{ course.name }}</h1>
     <h1 v-else>New Meeting For {{ org.name }}</h1>
 
-    <!-- Live Attendance Modal -->
-    <div class="attendance-modal" id="live-modal" v-if="show_live_attendance_modal">
-      <div class="attendance-modal-header">
-        <button class="exit-modal-btn" @click="hideLiveAttendanceModal">X</button>
-        <h2>Add Live Attendance</h2>
-      </div>
-      <form @submit.prevent="addLiveAttendance">
-        <!-- Attendance Type Radio Buttons -->
-        <p>Attendance Type</p>
-        <input @click="showQRCheckinInputs" type="radio" id="qr_checkin" name="live_attendance_type" value="qr_checkin">
-        <label for="qr_checkin">QR Checkin</label><br>
-        <input @click="showLivePollInputs" type="radio" id="live_poll" name="live_attendance_type" value="live_poll">
-        <label for="live_poll">Live Poll</label><br>
-        <div v-if="show_qr_checkin_inputs">
-          <!-- QR Checkin Time Type Radio Buttons -->
-          <div class="input-wrapper">
-            <input @click="useRandomCheckinTime" type="radio" id="random_time" name="qr_checkin_time_type" checked />
-            <label for="random_time">Use randomized check-in time</label><br>
-            <input @click="useCustomCheckinTime" type="radio" id="custom_time" name="qr_checkin_time_type" />
-            <label for="custom_times">Use custom check-in time</label><br>
-          </div>
-          <div v-if="!random_checkin_time">
-            <label id="'submission_start_label">Submission Start Time</label>
-            <input id="'submission_start" v-model="qr_checkin.qr_checkin_start_time" aria-labelledby="submission_start_time_label" type="datetime-local"/>
-            <label id="'submission_end_label">Submission End Time</label>
-            <input id="'submission_end" v-model="qr_checkin.qr_checkin_end_time" aria-labelledby="submission_end_time_label" type="datetime-local"/>
-          </div>
-        </div>
-        <div v-else-if="show_live_poll_inputs">
-          Poll stuff
-        </div>
-        <button style="margin-top:2rem;" class="btn btn-primary" :disabled="disableAddLiveButton">Add</button>
-      </form>
-    </div>
-
-    <!-- Async Attendance Modal -->
-    <div class="attendance-modal" id="async-modal" v-if="show_async_attendance_modal">
-      <div class="attendance-modal-header">
-        <button class="exit-modal-btn" @click="hideAsyncAttendanceModal">X</button>
-        <h2>Add Async Attendance</h2>
-      </div>
-    </div>
+    <AddAttendanceModal v-if="show_live_attendance_modal" is_live v-on:hide-attendance-modal="hideAttendanceModal" v-on:add-live-attendance="addLiveAttendance"/>
+    <AddAttendanceModal v-if="show_async_attendance_modal" v-on:hide-attendance-modal="hideAttendanceModal" v-on:add-async-attendance="addAsyncAttendance"/>
 
     <!-- New Meeting Form -->
     <form class="new-lecture-form" @submit.prevent="createMeeting">
@@ -57,17 +17,16 @@
             type="text"
             class="form-control new-lecture-input"
             placeholder="e.g. Meeting 1"
-            v-model="lecture.title"
+            v-model="meeting.title"
             aria-labelledby="title_label"
-            :tabindex="(modal_open ? '-1' : '0')"
           />
         </div>
 
         <!-- Sections selection -->
-        <Sections v-if="for_course" v-bind:sections="course.sections" v-on:select-section="addSectionToMeeting" :disable_tabbing="(modal_open ? true : false)"/>
+        <Sections v-if="for_course" v-bind:sections="course.sections" v-on:select-section="addSectionToMeeting"/>
         <div class="input-wrapper">
           <label>Section(s):</label>
-          <input v-for="(section,i) in meeting.sections" :key="i" type="text" class="form-control new-lecture-input" v-model="section.number" readonly :tabindex="(modal_open ? '-1' : '0')"/>
+          <input v-for="(section,i) in meeting.sections" :key="i" type="text" class="form-control new-lecture-input" v-model="section.number" readonly />
         </div>
 
         <!-- Start & End Time Inputs -->
@@ -97,8 +56,8 @@
         </div>
 
         <!-- Error Mesage and Create Meeting Button -->
-        <p class="error_msg" v-if="input_error_message!=''">{{input_error_message}}</p>
-        <button class="btn btn-primary create-lecture-btn" :tabindex="(modal_open ? '-1' : '0')" :disabled="true">Create Meeting</button>
+        <!-- <p class="error_msg" v-if="input_error_message!=''">{{input_error_message}}</p> -->
+        <button class="btn btn-primary create-lecture-btn" :disabled="true">Create Meeting</button>
       </div>
     </form>
   </div>
@@ -114,6 +73,7 @@ import Sections from "@/components/Sections";
 import QRCode from "qrcode";
 import GoogleMap from "@/components/GoogleMap";
 import LectureUploadModal from "@/components/LectureUploadModal";
+import AddAttendanceModal from "@/components/AddAttendanceModal";
 import flatpickr from "flatpickr";
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 require("flatpickr/dist/themes/material_blue.css");
@@ -122,10 +82,11 @@ require("flatpickr/dist/themes/material_blue.css");
 // "dark","airbnb","confetti"
 
 export default {
-  name: "NewLecture",
+  name: "NewMeeting",
   components: {
     Sections,
-    GoogleMap
+    GoogleMap,
+    AddAttendanceModal
   },
   data() {
     return {
@@ -134,42 +95,16 @@ export default {
         has_async_attendance: false,
         sections: []
       },
+      show_live_attendance_modal: false,
+      show_async_attendance_modal: false,
       meeting_times_are_valid: false,
       qr_checkin_times_are_valid: false,
       course: {},
       org: {},
-      lecture: {},
-      course_sections: [],
-      course_sections_have_loaded: false,
-      selected_geofence: [],
-      allow_live_submissions: false,
-      allow_playback_submissions: false,
-      checkins: [],
-      checkin_pickers: [],
-      random_checkins: [],
-      times_added: 0,
-      random_times: true,
-      custom_times: false,
-      random_checkin_count: 1,
-      random_checkin_length: 5,
-      input_error_message: "",
-      modal_open: false,
-      for_course: false,
-      show_live_attendance_modal: false,
-      show_async_attendance_modal: false,
-      show_qr_checkin_inputs: false,
-      show_live_poll_inputs: false,
       random_checkin_time: true,
       qr_checkins: [],
-      live_polls: [],
-      qr_checkin: {}
+      live_polls: []
     };
-  },
-  computed: {
-    // TODO: Update this to handle the custom checkin time windows
-    disableAddLiveButton: function () {
-      return !this.show_qr_checkin_inputs && !this.show_live_poll_inputs
-    }
   },
   created() {
     this.getCourseOrOrg()
@@ -227,112 +162,41 @@ export default {
         })
       })
     },
-    setQRCheckinDateInputs() {
-      console.log("In this function")
-      // this.$nextTick(() => {
-        let self = this
-      setTimeout(() => {
-        console.log(document.getElementById("submission_start"))
-        let submission_start_picker = flatpickr(document.getElementById("submission_start"),{
-          enableTime: true,
-          dateFormat: "h:i K, M d, Y",
-          minDate: Date.now(),
-          minuteIncrement: 1,
-          onChange: function(selectedDates, dateStr, instance) {
-            self.qr_checkin.qr_checkin_start_time = Date.parse(dateStr)
-            // Set the new min end time to 5 minutes after the new start time
-            let new_min_end_time = new Date(self.meeting.start_time)
-            new_min_end_time.setMinutes(new_min_end_time.getMinutes() + 5)
-            submission_end_picker.set("minDate",new_min_end_time)
-            // Update end time if invalid
-            let five_mins = 60 * 5 * 1000
-            if(self.qr_checkin.qr_checkin_start_time > self.qr_checkin.qr_checkin_end_time || !self.qr_checkin.qr_checkin_end_time) {
-              self.qr_checkin.qr_checkin_end_time = Date.parse(dateStr)
-              submission_end_picker.setDate(self.qr_checkin.qr_checkin_start_time + five_mins)
-            }
-            // Keep the dates 5 minutes apart
-            if((self.qr_checkin.qr_checkin_start_time + five_mins) > self.qr_checkin.qr_checkin_end_time) {
-              submission_end_picker.setDate(self.qr_checkin.qr_checkin_start_time + five_mins)
-            }
-            self.qr_checkin_times_are_valid = true
-          }
-        })
-        let submission_end_picker = flatpickr(document.getElementById("submission_end"),{
-          enableTime: true,
-          dateFormat: "h:i K, M d, Y",
-          minDate: Date.now(),
-          minuteIncrement: 1,
-          onChange: function(selectedDates, dateStr, instance) {
-            self.qr_checkin.qr_checkin_end_time = Date.parse(dateStr)
-          }
-        })
-      }, 3000)
-      // })
-    },
     showLiveAttendanceModal() {
       this.show_live_attendance_modal = true
     },
     showAsyncAttendanceModal() {
       this.show_async_attendance_modal = true
     },
-    hideLiveAttendanceModal() {
+    hideAttendanceModal() {
       this.show_live_attendance_modal = false
-      this.show_qr_checkin_inputs = false
-      this.show_live_poll_inputs = false
-      this.random_checkin_time = true
-    },
-    hideAsyncAttendanceModal() {
       this.show_async_attendance_modal = false
     },
-    showQRCheckinInputs() {
-      this.show_qr_checkin_inputs = true
-      this.show_live_poll_inputs = false
-    },
-    showLivePollInputs() {
-      this.show_live_poll_inputs = true
-      this.show_qr_checkin_inputs = false
-    },
-    showLivePollInputs() {
-      this.show_live_poll_inputs = true
-      this.show_qr_checkin_inputs = false
-    },
-    useRandomCheckinTime() {
-      this.random_checkin_time = true
-    },
-    useCustomCheckinTime() {
-      this.random_checkin_time = false
-      // this.setQRCheckinDateInputs()
-    },
-    addLiveAttendance() {
-      let is_qr_checkin = this.show_qr_checkin_inputs
-      this.show_live_attendance_modal = false
-      this.show_qr_checkin_inputs = false
-      this.show_live_poll_inputs = false
+    addLiveAttendance(is_qr_checkin, qr_or_poll) {
+      this.hideAttendanceModal()
       if(is_qr_checkin) {
-        if(this.random_checkin_time) {
+        let qr_checkin = qr_or_poll
+        if(qr_checkin.has_random_checkin_time) {
           // Generate a random start time within the window
           // 5 mins after start and 5 mins before end
-          this.generateRandomCheckinTime()
+          this.generateRandomCheckinTimes(qr_checkin)
         } else {
-          console.log("Using custom time")
+          console.log("Using custom time for qr",qr_checkin)
         }
-        this.qr_checkin.code = this.generateRandomCode()
-        this.qr_checkins.push(this.qr_checkin)
-        this.qr_checkin = {}
-        console.log("qr checkins", this.qr_checkins)
+        qr_checkin.code = this.generateRandomCode()
+        this.qr_checkins.push(qr_checkin)
       } else {
 
       }
-      this.random_checkin_time = true
       this.meeting.has_live_attendance = true
     },
-    generateRandomCheckinTime() {
+    generateRandomCheckinTimes(qr_checkin) {
       let five_mins = 60 * 5 * 1000
       let five_mins_after_start = new Date(this.meeting.start_time + five_mins)
       let five_mins_before_end = new Date(this.meeting.end_time - five_mins)
-      this.qr_checkin.qr_checkin_start_time = new Date(five_mins_after_start.getTime() + Math.random() *
+      qr_checkin.qr_checkin_start_time = new Date(five_mins_after_start.getTime() + Math.random() *
           (five_mins_before_end.getTime() - five_mins_after_start.getTime()))
-      this.qr_checkin.qr_checkin_end_time = new Date(this.qr_checkin.qr_checkin_start_time.getTime() + five_mins)
+      qr_checkin.qr_checkin_end_time = new Date(qr_checkin.qr_checkin_start_time.getTime() + five_mins)
     },
     generateRandomCode() {
       const alnums = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
