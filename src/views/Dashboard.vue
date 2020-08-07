@@ -1,6 +1,6 @@
 <template>
   <div id="dashboard-container">
-    <div class="spinner-border" role="status" v-if="!live_lectures_loaded && !playback_lectures_loaded && !recent_lectures_loaded && !upcoming_lectures_loaded">
+<!--     <div class="spinner-border" role="status" v-if="!live_lectures_loaded && !playback_lectures_loaded && !recent_lectures_loaded && !upcoming_lectures_loaded">
       <span class="sr-only">Loading...</span>
     </div>
     <div v-else>
@@ -8,7 +8,7 @@
       <DashboardSection lecture_type="Playback" :lecture_list="playback_lectures" />
       <DashboardSection lecture_type="Recent" :lecture_list="recent_lectures" />
       <DashboardSection lecture_type="Upcoming" :lecture_list="upcoming_lectures" />
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -77,7 +77,7 @@
       this.playback_lectures_loaded = false
 
       this.getCurrentUser()
-      this.getAllLecturesForUser()
+      // this.getAllLecturesForUser()
     },
     methods: {
       getColor (course_info) {

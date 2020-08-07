@@ -17,7 +17,7 @@
                 <td>{{ user.email }}</td>
                 <td>{{ user.password }}</td>
                 <div v-if="is_users_view">
-                  <td><router-link :to="{name: 'edit_user', params: { id: user._id }}" class="btn btn-primary">Edit</router-link></td>
+                  <td><router-link :to="{name: 'admin_edit_user', params: { id: user._id }}" class="btn btn-primary">Edit</router-link></td>
                   <td><button class="btn btn-danger" @click.prevent="deleteUser(user._id)">Delete</button></td>
                 </div>
                 <div v-else>
@@ -33,6 +33,7 @@
   import UserAPI from '@/services/UserAPI.js';
 
   export default {
+    name: "AdminUsers",
     data(){
       return {
         user:{},

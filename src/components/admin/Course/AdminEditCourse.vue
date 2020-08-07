@@ -31,8 +31,8 @@
           <div class="col-md-6">
             <div class="form-group">
               <label>instructor</label>
-                <input class="form-control" v-model="instructor.first_name" rows="5" readonly>
-                <input class="form-control" v-model="instructor.last_name" rows="5" readonly>
+                <input class="form-control" v-model="course.instructor.first_name" rows="5" readonly>
+                <input class="form-control" v-model="course.instructor.last_name" rows="5" readonly>
             </div>
           </div>
         </div>
@@ -79,14 +79,13 @@
   import Instructors from '@/components/admin/User/AdminInstructors'
 
   export default {
-    name: 'EditCourse',
+    name: 'AdminEditCourse',
     components: {
       Instructors
     },
     data() {
       return {
         course: {},
-        instructor: {},
         new_section: {},
       }
     },
@@ -98,6 +97,7 @@
       async getCourse() {
         const response = await CourseAPI.getCourse(this.course_id)
         this.course = response.data
+        console.log(this.course)
       },
       async addSection () {
         const response = await CourseAPI.addSectionToCourse(this.course_id, this.new_section)

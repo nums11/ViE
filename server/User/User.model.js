@@ -12,6 +12,10 @@ let User = new Schema({
 	email: String,
 	temp_password: String,
 	password: String,
+	instructor_courses: [{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Course'
+	}],
 	connect_sid: {
 		type: String,
 		default: ""

@@ -37,7 +37,7 @@ export default {
     var waitForUser = setInterval(function(){
       if (self.$store.state.user && self.$store.state.user.current_user) {
         self.current_user = self.$store.state.user.current_user
-        self.afterUser()
+        // self.afterUser()
         clearInterval(waitForUser);
       }
     }, 100);

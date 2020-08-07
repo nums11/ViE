@@ -118,7 +118,7 @@ const router = new VueRouter({
       path: '/admin/new_course',
       component: AdminNewCourse,
       meta: {
-        requiresautH: true,
+        requiresAuth: true,
         requiresadmIn: true
       }
     },
@@ -136,7 +136,7 @@ const router = new VueRouter({
       path: '/admin/edit_course/:id',
       component: AdminEditCourse,
       meta: {
-        requiresautH: true,
+        requiresAuth: true,
         requiresadmIn: true
       }
     },
@@ -145,7 +145,7 @@ const router = new VueRouter({
       path: '/admin/courses',
       component: AdminCourses,
       meta: {
-        requiresautH: true,
+        requiresAuth: true,
         requiresadmIn: true
       }
     },
@@ -163,7 +163,7 @@ const router = new VueRouter({
       path: '/admin/edit_section/:id',
       component: AdminEditSection,
       meta: {
-        requiresautH: true,
+        requiresAuth: true,
         requiresadmIn: true
       }
     },
@@ -344,7 +344,7 @@ const router = new VueRouter({
       path: '/admin/new_org',
       component: AdminNewOrg,
       meta: {
-        requiresautH: true,
+        requiresAuth: true,
         requiresadmIn: true
       }
     },
@@ -353,7 +353,7 @@ const router = new VueRouter({
       path: '/admin/orgs',
       component: AdminOrgs,
       meta: {
-        requiresautH: true,
+        requiresAuth: true,
         requiresadmIn: true
       }
     },
@@ -362,7 +362,7 @@ const router = new VueRouter({
       path: '/admin/edit_org/:id',
       component: AdminEditOrg,
       meta: {
-        requiresautH: true,
+        requiresAuth: true,
         requiresadmIn: true
       }
     },
@@ -371,7 +371,7 @@ const router = new VueRouter({
       path: '/course_new_meeting/:course_id',
       component: NewMeeting,
       meta: {
-        requiresautH: true,
+        requiresAuth: true,
         requiresadmIn: true
       }
     },
@@ -380,7 +380,7 @@ const router = new VueRouter({
       path: '/org_new_meeting/:org_id',
       component: NewMeeting,
       meta: {
-        requiresautH: true,
+        requiresAuth: true,
         requiresadmIn: true
       }
     },
