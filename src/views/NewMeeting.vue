@@ -22,13 +22,6 @@
           />
         </div>
 
-        <!-- Sections selection -->
-        <Sections v-if="for_course" v-bind:sections="course.sections" v-on:select-section="addSectionToMeeting"/>
-        <div class="input-wrapper">
-          <label>Section(s):</label>
-          <input v-for="(section,i) in meeting.sections" :key="i" type="text" class="form-control new-lecture-input" v-model="section.number" readonly />
-        </div>
-
         <!-- Start & End Time Inputs -->
         <div class="input-wrapper">
           <label id="start_time_label">Start Time</label>
@@ -100,7 +93,8 @@ export default {
       org: {},
       random_checkin_time: true,
       qr_checkins: [],
-      live_polls: []
+      live_polls: [],
+      for_course: false
     };
   },
   created() {
@@ -109,7 +103,7 @@ export default {
   },
   computed: {
     meetingCanBeCreated: function() {
-      return this.meeting.has_live_attendance || this.meeting.has_async_attendance
+      return (this.meeting.has_live_attendance || this.meeting.has_async_attendance) && this.meeting.title
     }
   },
   methods: {
@@ -208,10 +202,6 @@ export default {
       }
       return result;
     },
-    addSectionToMeeting(section) {
-      if(!this.meeting.sections.includes(section))
-        this.meeting.sections.push(section)
-    },
     removeAttendance(attendance) {
       for(let i = 0; i < this.qr_checkins.length; i++) {
         if(this.qr_checkins[i].code === attendance.code)
@@ -221,26 +211,25 @@ export default {
         this.meeting.has_live_attendance = false
     },
     async createMeeting() {
-      console.log("meeting",this.meeting)
-      this.meeting.qr_checkins = this.qr_checkins
-      try{
-        const response = await MeetingAPI.addMeeting(this.meeting)
-        console.log("Added Meeting")
-        if(this.$route.name === "course_new_meeting"){
-          this.$router.push({
-            name: "course_info",
-            params: { id: this.course_id }
-          })
-        } else {
-          this.$router.push({
-            name: "org_info",
-            params: { id: this.org_id }
-          })
-        }
-      }
-      catch(err){
-        console.log(err)
-      }
+    console.log("meeting",this.meeting)
+    this.meeting.qr_checkins = this.qr_checkins
+    if(this.for_course){
+      const response = await MeetingAPI.addMeeting(this.meeting,true,this.course_id)
+    }else{
+      const response = await MeetingAPI.addMeeting(this.meeting,false,this.org_id)
+    }
+    console.log("Added Meeting")
+    if(this.$route.name === "course_new_meeting"){
+      this.$router.push({
+        name: "course_info",
+        params: { id: this.course_id }
+      })
+    } else {
+      this.$router.push({
+        name: "org_info",
+        params: { id: this.org_id }
+      })
+    }
     }
   }
 };

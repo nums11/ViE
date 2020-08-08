@@ -4,8 +4,9 @@ export default {
   getMeetings() {
     return API().get('meetings')
   },
-  addMeeting(meeting) {
-    return API().post('meetings/add', {
+  addMeeting(meeting, for_course, course_or_org_id) {
+    return API().post('meetings/add' + '/' + for_course
+      + '/' + course_or_org_id, {
       meeting: meeting
     })
   },

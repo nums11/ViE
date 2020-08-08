@@ -4,49 +4,109 @@ const meetingRoutes = express.Router();
 let Meeting = require('./Meeting.model');
 let LiveAttendance = require('../LiveAttendance/LiveAttendance.model');
 let QRCheckin = require('../QRCheckin/QRCheckin.model');
+let Course = require('../Course/Course.model');
 let Poll = require('../Poll/Poll.model');
 let User = require('../User/User.model');
 
-meetingRoutes.route('/add').post(async (req, res) => {
-  // let meeting = new Meeting(req.body.meeting)
-  // Maybe I need to save the QR Checkins first
-  let meeting = req.body.meeting
-  console.log("Received meeting",meeting)
-  let new_qr_checkins = []
-  for(let i = 0; i < meeting.qr_checkins.length; i++){
-    let qr_checkin = meeting.qr_checkins[i]
-    let new_qr_checkin = new QRCheckin(qr_checkin)
-    new_qr_checkin.save().then(() => {
-      new_qr_checkins.push(new_qr_checkin)
-      if(i == meeting.qr_checkins.length-1){
-        let new_live_attendance = new LiveAttendance(
-          {qr_checkins: new_qr_checkins})
-        new_live_attendance.save().then(() => {
-          meeting.live_attendance = new_live_attendance
-          let new_meeting = new Meeting(meeting)
-          new_meeting.save().then(() => {
-            console.log("<SUCCESS> Adding meeting:",new_meeting)
-            res.status(200).json(new_meeting)
-          })
-          .catch(() => {
-            console.log("<ERROR> Adding new meeting:",new_meeting)
-            res.status(400).send("unable to save checkin to database");
-            return
-          });
-        })
-        .catch(() => {
-          console.log("<ERROR> Adding live attendance:",new_live_attendance)
-          res.status(400).send("unable to save checkin to database");
-          return
-        });
-      }
-    })
-    .catch(() => {
-      console.log("<ERROR> Adding qr_checkin:",new_qr_checkin)
-      res.status(400).send("unable to save checkin to database");
-      return
-    });
+meetingRoutes.route('/add/:for_course/:course_or_org_id').post(async (req, res) => {
+  let meeting = req.body.meeting;
+  let for_course = false
+  let course_id = ""
+  let org_id = ""
+  if(req.params.for_course === "true"){
+    for_course = true
+    course_id = req.params.course_or_org_id
+    console.log("Was for course", course_id)
+  } else {
+    org_id = req.params.course_or_org_id
+    console.log("Was for org", org_id)
   }
+
+  // Create the QR Checkins
+  let qr_promises = []
+  meeting.qr_checkins.forEach(qr_checkin => {
+    qr_promises.push(new Promise(async (resolve,reject) => {
+      let new_qr_checkin = new QRCheckin(qr_checkin)
+      try {
+        let saved_qr_checkin = await new_qr_checkin.save()
+        resolve(saved_qr_checkin)
+      } catch (error) {
+        console.log("<ERROR> (meetings/add) saving qr_checkin:",new_qr_checkin,error)
+        res.json(error)
+      }
+    }))
+  })
+
+  try {
+    // Create the meeting
+    let saved_qr_checkins = await Promise.all(qr_promises)
+    let live_attendance = new LiveAttendance({
+      qr_checkins: saved_qr_checkins
+    })
+    let saved_live_attendance = await live_attendance.save()
+    let new_meeting = new Meeting(meeting)
+    new_meeting.live_attendance = saved_live_attendance
+    let saved_meeting = await new_meeting.save()
+    if(for_course) {
+
+      //Update the Course and it's students & instructors
+      Course.findByIdAndUpdate(course_id,
+        {$push: {meetings: saved_meeting._id}},
+        (error,course) => {
+          if(error || course == null) {
+            console.log("<ERROR> (meetings/add) Updating course with id",
+              course_id, err)
+            res.json(error);
+          } else {
+            User.findByIdAndUpdate(course.instructor,
+              {$push: {meetings: saved_meeting._id}},
+              async (error, user) => {
+                if(error || user == null) {
+                  console.log("<ERROR> (meetings/add) Updating instructor with id",
+                    course.instructor, error)
+                  res.json(error);
+                } else {
+                  let student_promises = []
+                  course.students.forEach(student => {
+                    student_promises.push(new Promise(async (resolve, reject) => {
+                      User.findByIdAndUpdate(student,
+                        {$push: {meetings: saved_meeting._id}},
+                        (error, user) => {
+                          if(error || user == null) {
+                            console.log("<ERROR> (meetings/add) Updating student with id",
+                              student, error)
+                            res.json(error);
+                          } else {
+                            resolve(user)
+                          }
+                        })
+                    }))
+                  })
+                  try {
+                    let updated_students = await Promise.all(student_promises)
+                    console.log("<SUCCESS> (meetings/add) Creating meeting and updating"
+                      + " course instructor and students")
+                    res.json(saved_meeting)
+                  } catch (error) {
+                    console.log("<ERROR> (meetings/add) Updating students", error)
+                    res.json(error)
+                  }
+                }
+              })
+          }
+        })
+
+    } else {
+      //Update the Course and it's board & general members
+
+
+    }
+
+  } catch(error) {
+    console.log("<ERROR> (meetings/add) saving meeting:",error)
+    res.json(error)
+  }
+
 });
 
 meetingRoutes.route('/').get(function (req, res) {
