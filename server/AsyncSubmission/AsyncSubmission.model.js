@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 let PollAnswers = require('../PollAnswers/PollAnswers.model');
 
-let AsyncSubmisson = new Schema({
+let AsyncSubmission = new Schema({
 	submitter: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
@@ -26,4 +26,4 @@ let AsyncSubmisson = new Schema({
 	file_or_link_submission_time: Date,
 });
 
-module.exports = mongoose.model('AsyncSubmisson', AsyncSubmisson);
+module.exports = mongoose.model('AsyncSubmission', AsyncSubmission);

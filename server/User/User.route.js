@@ -69,10 +69,15 @@ userRoutes.route('/get/:id').get(function (req, res) {
   let id = req.params.id;
   User.findById(id).
   populate('instructor_courses').
+  populate('student_courses').
+  populate('user_orgs').
+  populate('meetings').
+  populate('live_submissions').
+  populate('async_submissions').
   exec((error,user) => {
     if(error || user == null){
-      console.log("<ERROR> Getting user with ID:",id)
-      res.status(404).json(err);
+      console.log("<ERROR> Getting user with ID:",id,error)
+      res.status(404).json(error);
     } else {
       console.log("<SUCCESS> Getting user by ID:",id)
       res.json(user);
