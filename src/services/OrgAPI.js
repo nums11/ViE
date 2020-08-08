@@ -17,6 +17,10 @@ export default {
     return API().post('orgs/add_general_member/'
       + org_id + '/' + user_id + '/' + is_board_member, {})
   },
+  removeMemberFromOrg(org_id, user_id, is_board_member) {
+    return API().post('orgs/remove_member/'
+      + org_id + '/' + user_id + '/' + is_board_member, {})
+  },
   getOrg(id) {
     return API().get('orgs/get/' + id)
   },

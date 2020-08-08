@@ -128,21 +128,13 @@
           this.$router.go()
         }
       },
-      removeBoardMember(user) {
-        let index = 0
-        for(let i = 0; i < this.board_members.length; i++) {
-          if(user._id == this.board_members[i]._id)
-            index = i
-        }
-        this.board_members.splice(index,1)
+      async removeBoardMember(user) {
+        await OrgAPI.removeMemberFromOrg(this.org_id, user._id, true)
+        this.$router.go()
       },
-      removeGeneralMember(user) {
-        let index = 0
-        for(let i = 0; i < this.general_members.length; i++) {
-          if(user._id == this.general_members[i]._id)
-            index = i
-        }
-        this.general_members.splice(index,1)
+      async removeGeneralMember(user) {
+        await OrgAPI.removeMemberFromOrg(this.org_id, user._id, false)
+        this.$router.go()
       },
       isBoardMember(user) {
         let user_in_board = false
