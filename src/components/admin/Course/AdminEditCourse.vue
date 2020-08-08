@@ -125,8 +125,9 @@
           alert("Student already in course")
         }
       },
-      removeStudent(student){
-        this.course.students.splice(this.course.students.indexOf(student),1)
+      async removeStudent(student){
+        const response = await CourseAPI.removeStudentFromCourse(this.course_id, student._id)
+        this.$router.go()
       },
       instructorIsNull(){
         return this.instructor == null

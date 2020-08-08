@@ -33,20 +33,20 @@ courseRoutes.route('/add_student/:course_id/:student_id').post(function (req, re
     {$push: {students: student_id}},
     function (err, course) {
       if (err || course == null) {
-        console.log("<ERROR> Updating course with id",course_id,
-          "with student",student_id,err)
+        console.log("<ERROR> (courses/add_student) Updating course with id",
+          course_id, err)
         res.status(400).json(err);
       } else {
         User.findByIdAndUpdate(student_id,
         {$push: {student_courses: course}},
         (error, user) => {
           if (err || user == null) {
-            console.log("<ERROR> Updating user with id",student_id,
-            "while trying to update course by ID:",course_,err)
+            console.log("<ERROR> (courses/add_student) Updating user with id",student_id,
+              err)
             res.status(400).json(err);
           } else {
-            console.log("<SUCCESS> Adding student with id",student_id,
-              " to course with ID:",course_id)
+            console.log("<SUCCESS> (courses/add_student) Adding student with id",student_id,
+              "to course with ID:",course_id)
             res.status(200).json(course);
           }
         })
@@ -54,6 +54,36 @@ courseRoutes.route('/add_student/:course_id/:student_id').post(function (req, re
     }
   );
 });
+
+courseRoutes.route('/remove_student/:course_id/:student_id').post(function (req, res) {
+  let course_id = req.params.course_id;
+  let student_id = req.params.student_id;
+  Course.findByIdAndUpdate(course_id,
+    {$pull: {students: student_id}},
+    function (err, course) {
+      if (err || course == null) {
+        console.log("<ERROR> (courses/remove_student) Updating course with id",
+          course_id,err)
+        res.status(400).json(err);
+      } else {
+        User.findByIdAndUpdate(student_id,
+        {$pull: {student_courses: course_id}},
+        (error, user) => {
+          if (err || user == null) {
+            console.log("<ERROR> (courses/remove_student) Updating user with id",
+              student_id,err)
+            res.status(400).json(err);
+          } else {
+            console.log("<SUCCESS> (courses/remove_student) Removing student with id",student_id,
+              "from course with ID:",course_id)
+            res.status(200).json(course);
+          }
+        })
+      }
+    }
+  );
+});
+
 
 courseRoutes.route('/add_section/:course_id').post(function (req, res) {
 	let course_id = req.params.course_id
@@ -100,10 +130,10 @@ courseRoutes.route('/get/:id').get(function (req, res) {
   populate('students').
   exec((error,course) => {
     if(error || course == null){
-      console.log("<ERROR> Getting course with ID:",id)
-      res.status(404).json(err);
+      console.log("<ERROR> (courses/get) Getting course with ID:",id, error)
+      res.status(404).json(error);
     } else {
-      console.log("<SUCCESS> Getting course by ID:",id)
+      console.log("<SUCCESS> (courses/get) Getting course by ID:",id)
       res.json(course)
     }
   })
