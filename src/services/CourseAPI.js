@@ -14,6 +14,9 @@ export default {
       section: section
     })
   },
+  addStudentToCourse(course_id, student_id) {
+    return API().post('courses/add_student/' + course_id + '/' + student_id, {})
+  },
   getCourse(id) {
     return API().get('courses/get/' + id)
   },

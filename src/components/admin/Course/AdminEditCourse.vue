@@ -4,7 +4,10 @@
     <router-link :to="{name: 'course_new_meeting', params: { course_id: course._id }}" tabindex="-1">
       <button class="inline-block"tabindex="0">Create New Meeting for {{ course.dept }} {{ course.course_number }}</button>
     </router-link>
-    <form @submit.prevent="updateCourse">
+    <div class="spinner-border" role="status" v-if="!course_has_loaded">
+      <span class="sr-only">Loading...</span>
+    </div>
+    <form v-else @submit.prevent="updateCourse">
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
@@ -41,35 +44,30 @@
         </div>
     </form>
 
-    <!-- Add Section -->
-    <h4 style="margin-top: 2rem;">Add Section</h4>
-    <form @submit.prevent="addSection">
-      <div style="margin: auto;" class="col-md-5">
-        <input type="number" placeholder="New Section number" class="form-control" v-model="new_section.number">
-      </div>
-      <button class="btn btn-primary">Add</button>
-    </form>
+    <Instructors v-on:select-instructor="selectInstructor" />
 
-    <!-- Sections -->
-    <h4 style="margin-top: 2rem;">Sections</h4>
+    <!-- Course Students -->
+    <h4 style="margin-top: 2rem;">Course Students</h4>
     <table style="margin-bottom: 2rem;" class="table table-hover">
         <thead>
         <tr>
-          <th>Number</th>
-          <th># of students</th>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>User ID</th>
         </tr>
         </thead>
         <tbody>
-            <tr v-for="section in course.sections" :key="section._id">
-              <td>{{ section.number }}</td>
-              <td>{{ section.students.length }}</td>
-              <td><router-link :to="{name: 'admin_edit_section', params: { id: section._id }}" class="btn btn-primary">Edit</router-link></td>
+            <tr v-for="student in course.students" :key="student._id">
+              <td>{{ student.first_name }}</td>
+              <td>{{ student.last_name }}</td>
+              <td>{{ student.user_id }}</td>
+              <td><button class="btn btn-danger" @click.prevent="removeStudent(student)">Remove</button></td>
             </tr>
         </tbody>
     </table>
 
-    <!-- Instructors -->
-    <Instructors v-on:select-instructor="selectInstructor" />
+    <Students v-on:select-student="addStudent" />
+
   </div>
 </template>
 
@@ -77,16 +75,19 @@
   import CourseAPI from '@/services/CourseAPI.js';
   import UserAPI from '@/services/UserAPI.js';
   import Instructors from '@/components/admin/User/AdminInstructors'
+  import Students from '@/components/admin/User/AdminStudents'
 
   export default {
     name: 'AdminEditCourse',
     components: {
-      Instructors
+      Instructors,
+      Students
     },
     data() {
       return {
         course: {},
         new_section: {},
+        course_has_loaded: false
       }
     },
     created() {
@@ -97,7 +98,7 @@
       async getCourse() {
         const response = await CourseAPI.getCourse(this.course_id)
         this.course = response.data
-        console.log(this.course)
+        this.course_has_loaded = true
       },
       async addSection () {
         const response = await CourseAPI.addSectionToCourse(this.course_id, this.new_section)
@@ -110,6 +111,22 @@
       selectInstructor(instructor){
         this.instructor = instructor
         this.course.instructor = instructor
+      },
+      async addStudent(student) {
+        let student_in_course = false
+        this.course.students.forEach(course_student => {
+          if(student._id == course_student._id)
+            student_in_course = true
+        })
+        if(!student_in_course){
+          const response = await CourseAPI.addStudentToCourse(this.course_id, student._id)
+          this.$router.go()
+        } else {
+          alert("Student already in course")
+        }
+      },
+      removeStudent(student){
+        this.course.students.splice(this.course.students.indexOf(student),1)
       },
       instructorIsNull(){
         return this.instructor == null
