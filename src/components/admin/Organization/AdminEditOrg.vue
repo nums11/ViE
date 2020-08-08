@@ -116,15 +116,16 @@
           this.$router.go()
         }
       },
-      addGeneralMember(user){
+      async addGeneralMember(user){
         if(this.isGeneralMember(user)) {
           alert("User is already a general member")
           return
-        } else if(this.isBoardMember(userg)) {
-          this.removeBoardMember(user)
-          this.general_members.push(user)
+        } else if(this.isBoardMember(user)) {
+          await OrgAPI.addGeneralMemberToOrg(this.org_id, user._id, true)
+          this.$router.go()
         } else {
-          this.general_members.push(user)
+          await OrgAPI.addGeneralMemberToOrg(this.org_id, user._id, false)
+          this.$router.go()
         }
       },
       removeBoardMember(user) {

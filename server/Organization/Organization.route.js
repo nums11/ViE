@@ -72,6 +72,61 @@ orgRoutes.route('/add_board_member/:org_id/:user_id/:is_general_member').post(fu
   }
 });
 
+orgRoutes.route('/add_general_member/:org_id/:user_id/:is_board_member').post(function (req, res) {
+  let org_id = req.params.org_id;
+  let user_id = req.params.user_id;
+  let is_board_member = false
+  if(req.params.is_board_member === "true")
+    is_board_member = true
+
+  if(is_board_member) {
+    Org.findByIdAndUpdate(org_id,
+      {
+        $pull: {board_members: user_id},
+        $push: {general_members: user_id}
+      },
+      function (err, org) {
+        if (err || org == null) {
+          console.log("<ERROR> (orgs/add_general_member) Updating org with id",
+            org_id,err)
+          res.status(400).json(err);
+        } else {
+          console.log("<SUCCESS> (orgs/add_general_member) Adding board member",user_id,
+            "to org",org_id)
+          res.status(200).json(org);
+        }
+      }
+    );
+  } else {
+    Org.findByIdAndUpdate(org_id,
+      {
+        $push: {general_members: user_id}
+      },
+      function (err, org) {
+        if (err || org == null) {
+          console.log("<ERROR> (orgs/add_general_member) Updating org with id",
+            org_id,err)
+          res.status(400).json(err);
+        } else {
+          User.findByIdAndUpdate(user_id,
+            {$push: {user_orgs: org_id}},
+            (error, user) => {
+              if(error || user == null) {
+                console.log("<ERROR> (orgs/add_general_member) Updating user with id",user_id,err)
+                res.json(err);
+              } else {
+                console.log("<SUCCESS> (orgs/add_general_member) Adding board member",user_id,
+                  "to org",org_id)
+                res.status(200).json(org);
+              }
+            }
+          )
+        }
+      }
+    );
+  }
+});
+
 orgRoutes.route('/').get(function (req, res) {
   Org.find(function (err, orgs) {
     if (err || orgs == null) {
