@@ -9,6 +9,14 @@ export default {
       org: org
     })
   },
+  addBoardMemberToOrg(org_id, user_id, is_general_member) {
+    return API().post('orgs/add_board_member/'
+      + org_id + '/' + user_id + '/' + is_general_member, {})
+  },
+  addGeneralMemberToOrg(org_id, user_id, is_board_member) {
+    return API().post('orgs/add_board_member/'
+      + org_id + '/' + user_id + '/' + is_board_member, {})
+  },
   getOrg(id) {
     return API().get('orgs/get/' + id)
   },

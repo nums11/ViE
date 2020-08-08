@@ -104,21 +104,23 @@
         const response = await OrgAPI.updateOrg(this.org_id, this.org)
         this.$router.go()
       }, 
-      addBoardMember(user){
+      async addBoardMember(user){
         if(this.isBoardMember(user)) {
+          alert("User is already a board member")
           return
         } else if(this.isGeneralMember(user)) {
-          this.removeGeneralMember(user)
-          this.board_members.push(user)
+          await OrgAPI.addBoardMemberToOrg(this.org_id, user._id, true)
+          this.$router.go()
         } else {
-          this.board_members.push(user)
+          await OrgAPI.addBoardMemberToOrg(this.org_id, user._id, false)
+          this.$router.go()
         }
       },
       addGeneralMember(user){
-        console.log("Trying to add user", user._id)
         if(this.isGeneralMember(user)) {
+          alert("User is already a general member")
           return
-        } else if(this.isBoardMember(user)) {
+        } else if(this.isBoardMember(userg)) {
           this.removeBoardMember(user)
           this.general_members.push(user)
         } else {
