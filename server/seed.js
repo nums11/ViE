@@ -23,9 +23,10 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 		"./Submission/Submission.model",
 		"./Lecture/Lecture.model",
 		"./LectureSubmission/LectureSubmission.model",
-		"./Poll/Poll.model"
+		"./Poll/Poll.model",
+		"./Organization/Organization.model"
 	]);
-	seeder.clearModels(['Course', 'User', 'Section', 'Event', 'Submission', 'Lecture', 'LectureSubmission', 'Poll'], function () {
+	seeder.clearModels(['Course', 'User', 'Organization', 'Section', 'Event', 'Submission', 'Lecture', 'LectureSubmission', 'Poll'], function () {
 
 		let users = []
 		let courses = []

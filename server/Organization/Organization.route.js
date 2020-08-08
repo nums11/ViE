@@ -8,11 +8,11 @@ orgRoutes.route('/add').post(function (req, res) {
   let org = new Org(req.body.org);
   org.save()
     .then(() => {
-      console.log("<SUCCESS> Adding org:",org)
+      console.log("<SUCCESS> (orgs/add) Adding org:",org)
       res.status(200).json(org);
     })
-    .catch(() => {
-      console.log("<ERROR> Adding org:",org)
+    .catch((error) => {
+      console.log("<ERROR> (orgs/add) Adding org:",org, error)
       res.status(400).send("unable to save org to database");
     });
 });

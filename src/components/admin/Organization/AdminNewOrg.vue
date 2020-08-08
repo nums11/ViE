@@ -11,7 +11,7 @@
         </div>
     </form>
 
-    <h4>Board Members</h4>
+<!--     <h4>Board Members</h4>
     <table class="table table-hover">
         <thead>
         <tr>
@@ -33,7 +33,7 @@
     </table>
 
     <h4 style="margin-top:2rem;">Add Board Members</h4>
-    <AdminUsers v-on:select-user="addBoardMember" />
+    <AdminUsers v-on:select-user="addBoardMember" /> -->
 
   </div>
 </template>
@@ -50,14 +50,13 @@
     data(){
       return {
         org: {},
-        board_members: []
       }
     },
     created() {
     },
     methods: {
       async addOrg(){
-        this.org.board_members = this.board_members
+        // this.org.board_members = this.board_members
         const response = await OrgAPI.addOrg(this.org);
         this.$router.push({name: 'admin_orgs'});
       },
