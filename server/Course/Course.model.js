@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 let User = require('../User/User.model');
-let Section = require('../Section/Section.model');
+let Meeting = require('../Meeting/Meeting.model');
 
 //Define collection and schema for User
 let Course = new Schema({
@@ -13,9 +13,13 @@ let Course = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
 	},
-	sections: [{
+	students: [{
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Section'
+		ref: 'User'
+	}],
+	meetings: [{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Meeting'
 	}]
 });
 
