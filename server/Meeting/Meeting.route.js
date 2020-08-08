@@ -5,6 +5,7 @@ let Meeting = require('./Meeting.model');
 let LiveAttendance = require('../LiveAttendance/LiveAttendance.model');
 let QRCheckin = require('../QRCheckin/QRCheckin.model');
 let Course = require('../Course/Course.model');
+let Org = require('../Organization/Organization.model');
 let Poll = require('../Poll/Poll.model');
 let User = require('../User/User.model');
 
@@ -97,11 +98,59 @@ meetingRoutes.route('/add/:for_course/:course_or_org_id').post(async (req, res) 
         })
 
     } else {
-      //Update the Course and it's board & general members
 
+      //Update the Org and it's board & general members
+      Org.findByIdAndUpdate(org_id,
+        {$push: {meetings: saved_meeting._id}},
+        async (error, org) => {
+          if(error || org == null) {
+            console.log("<ERROR> (meetings/add) Updating org with id org_id", error)
+            res.json(error);
+          } else {
+            let member_promises = []
+            org.board_members.forEach(board_member => {
+              member_promises.push(new Promise(async (resolve, reject) => {
+                User.findByIdAndUpdate(board_member,
+                  {$push: {meetings: saved_meeting._id}},
+                  (error, user) => {
+                    if(error || user == null) {
+                      console.log("<ERROR> (meetings/add) Updating board member with id",
+                        board_member, error)
+                      res.json(error);
+                    } else {
+                      resolve(user)
+                    }
+                  })
+              }))
+            })
+            org.general_members.forEach(general_member => {
+              member_promises.push(new Promise(async (resolve, reject) => {
+                User.findByIdAndUpdate(general_member,
+                  {$push: {meetings: saved_meeting._id}},
+                  (error, user) => {
+                    if(error || user == null) {
+                      console.log("<ERROR> (meetings/add) Updating board member with id",
+                        general_member, error)
+                      res.json(error);
+                    } else {
+                      resolve(user)
+                    }
+                  })
+              }))
+            })
+            try {
+              let updated_members = await Promise.all(member_promises)
+              console.log("<SUCCESS> (meetings/add) Creating meeting and updating"
+                + " org board and general members")
+              res.json(saved_meeting)
+            } catch (error) {
+              console.log("<ERROR> (meetings/add) Updating org members", error)
+              res.json(error)
+            }
+          }
+        })
 
     }
-
   } catch(error) {
     console.log("<ERROR> (meetings/add) saving meeting:",error)
     res.json(error)
