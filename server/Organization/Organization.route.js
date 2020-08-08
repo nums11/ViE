@@ -64,15 +64,13 @@ orgRoutes.route('/update/:id').post(function (req, res) {
   Org.findByIdAndUpdate(id,
     {
       name: updated_org.name,
-      board_members: updated_org.board_members,
-      general_members: updated_org.general_members,
     },
     function (err, org) {
       if (err || org == null) {
-        console.log("<ERROR> Updating org by ID:",id,"with:",updated_org)
-        res.status(404).send("org not found");
+        console.log("<ERROR> (orgs/update) Updating org by ID:",id,err)
+        res.status(400).json(err)
       } else {
-        console.log("<SUCCESS> Updating org by ID:",id,"with:",updated_org)
+        console.log("<SUCCESS> (orgs/update) Updating org by ID:",id)
         res.json(org);
       }
     }
