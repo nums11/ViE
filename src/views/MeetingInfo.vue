@@ -19,7 +19,9 @@
       <h2 style="margin-top:5rem; text-decoration:underline;">Live Attendance</h2>
       <h3 style="text-decoration:underline;">QR Checkins</h3>
       <div class="qr-checkin-box" v-for="qr_checkin in meeting.live_attendance.qr_checkins">
-        <button v-if="checkinWindowOpen(qr_checkin)" @click="showQRCode(qr_checkin.code)">Show QR</button>
+        <p style="font-weight:bold;" v-if="getCheckinWindowStatus(qr_checkin) === 'upcoming'">Upcoming</p>
+        <button v-else-if="getCheckinWindowStatus(qr_checkin) === 'open'" @click="showQRCode(qr_checkin.code)">Show QR</button>
+        <p style="font-weight:bold;" v-else>Closed</p>
         <h4>checkin start: {{ new Date(qr_checkin.qr_checkin_start_time) }}</h4>
         <h4>checkin end: {{ new Date(qr_checkin.qr_checkin_end_time) }}</h4>
         <h4 style="text-decoration:underline;">Submissions</h4>
@@ -66,10 +68,18 @@
         this.for_course = this.meeting.for_course
         this.meeting_has_loaded = true
       },
-      checkinWindowOpen(qr_checkin) {
+      getCheckinWindowStatus(qr_checkin) {
         let current_time = new Date()
-        return (current_time >= new Date(qr_checkin.qr_checkin_start_time) && 
-          current_time <= new Date(qr_checkin.qr_checkin_end_time))
+        let checkin_start = new Date(qr_checkin.qr_checkin_start_time)
+        let checkin_end = new Date(qr_checkin.qr_checkin_end_time)
+        let checkin_window_status = ""
+        if(current_time > checkin_end)
+          checkin_window_status = "closed"
+        else if(current_time < checkin_start)
+          checkin_window_status = "upcoming"
+        else
+          checkin_window_status = "open"
+        return checkin_window_status
       },
       showQRCode(code) {
         this.current_qr_code = code
