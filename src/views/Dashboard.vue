@@ -8,7 +8,16 @@
       <DashboardSection lecture_type="Playback" :lecture_list="playback_lectures" />
       <DashboardSection lecture_type="Recent" :lecture_list="recent_lectures" />
       <DashboardSection lecture_type="Upcoming" :lecture_list="upcoming_lectures" />
+
     </div> -->
+    <div class="spinner-border" role="status" v-if="!user_has_loaded">
+    </div>
+    <div v-else>
+      <div class="row">
+        <div class="col-md dashboard-section"> I'm live</div>
+        <div class="col-md dashboard-section"> I'm Async</div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -47,6 +56,7 @@
     data(){
       return {
         current_user: {},
+        user_has_loaded: false,
         all_lectures: [],
         live_lectures: [],
         live_lectures_exist: Boolean,
@@ -80,6 +90,14 @@
       // this.getAllLecturesForUser()
     },
     methods: {
+      async getCurrentUser() {
+        this.current_user = this.$store.state.user.current_user
+        this.is_instructor = this.current_user.is_instructor
+        const response = await UserAPI.getUser(this.current_user._id)
+        let user = response.data
+        this.user_has_loaded = true
+
+      },
       getColor (course_info) {
         if (course_info == null || course_info._id == null) return 'grey'
         if (this.courses[ course_info._id ] == null || this.courses[ course_info._id ] == undefined) {
@@ -112,9 +130,6 @@
         })
         this.courses = course_dict
 
-      },
-      getCurrentUser() {
-        this.current_user = this.$store.state.user.current_user
       },
       logOut() {
         this.$store.dispatch('logout')
@@ -212,5 +227,10 @@
   #dashboard-container {
     width: 85%;
     margin: auto;
+    border:black solid;
+  }
+
+  .dashboard-section {
+    border: blue solid;
   }
 </style>

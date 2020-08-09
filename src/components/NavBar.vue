@@ -106,7 +106,6 @@
         this.is_instructor = this.current_user.is_instructor
         const response = await UserAPI.getUser(this.current_user._id)
         let user = response.data
-        console.log(user)
         if(this.is_instructor)
           this.user_courses = user.instructor_courses
         else
