@@ -14,10 +14,10 @@
 
       <h2 style="margin-top:5rem; text-decoration:underline;">Live Attendance</h2>
       <h3 style="text-decoration:underline;">QR Checkins</h3>
-      <div v-for="qr_checkin in meeting.live_attendance.qr_checkins">
-        <h4>code: {{ qr_checkin.code }}</h4>
-        <h4>start time: {{ new Date(qr_checkin.qr_checkin_start_time) }}</h4>
-        <h4>end time: {{ new Date(qr_checkin.qr_checkin_end_time) }}</h4>
+      <div class="qr-checkin-box" v-for="qr_checkin in meeting.live_attendance.qr_checkins">
+        <button v-if="checkinWindowOpen(qr_checkin)">Show QR</button>
+        <h4>checkin start: {{ new Date(qr_checkin.qr_checkin_start_time) }}</h4>
+        <h4>checkin end: {{ new Date(qr_checkin.qr_checkin_end_time) }}</h4>
         <h4 style="text-decoration:underline;">Submissions</h4>
         <h4 v-for="submission in qr_checkin.qr_checkin_submissions">
           <p>{{ submission.submitter.first_name }}</p>
@@ -45,7 +45,8 @@
       return {
         meeting: {},
         meeting_has_loaded: false,
-        for_course: Boolean
+        for_course: Boolean,
+        checkin_window_open: false
       }
     },
     created() {
@@ -58,11 +59,21 @@
         this.meeting = response.data
         this.for_course = this.meeting.for_course
         this.meeting_has_loaded = true
+      },
+      checkinWindowOpen(qr_checkin) {
+        let current_time = new Date()
+        return (current_time >= new Date(qr_checkin.qr_checkin_start_time) && 
+          current_time <= new Date(qr_checkin.qr_checkin_end_time))
       }
     }
   }
 </script>
 
 <style scoped>
+.qr-checkin-box {
+  border: black solid;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
 
 </style>
