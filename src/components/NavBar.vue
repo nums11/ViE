@@ -16,7 +16,7 @@
         </div>
         <!-- Courses Link -->
         <div class="venue-nav-link-container dropdown-link">
-          <a data-toggle="collapse" href="#collapseExample" class="venue-nav-link" :class="{'active-link':is_course_info}" style="cursor:pointer;">Courses ▼</a>
+          <a data-toggle="collapse" href="#course-collapse" class="venue-nav-link" :class="{'active-link':is_course_info}" style="cursor:pointer;">Courses ▼</a>
           <hide-at breakpoint="mediumAndBelow">
             <div class="dropdown-content">
               <router-link v-for="course in user_courses" :key="course._id" :to="{name: 'course_info', params: { id: course._id }}">
@@ -27,7 +27,12 @@
           <div v-if="is_course_info" class="active-link-underline"></div>
         </div>
         <div class="venue-nav-link-container dropdown-link">
-          <a data-toggle="collapse" href="#collapseExample" class="venue-nav-link" :class="{'active-link':is_course_info}" style="cursor:pointer;">Organizations ▼</a>
+          <hide-at breakpoint="mediumAndBelow">
+            <a data-toggle="collapse" href="#org-collapse" class="venue-nav-link" :class="{'active-link':is_course_info}" style="cursor:pointer;">Organizations ▼</a>
+          </hide-at>
+          <show-at breakpoint="mediumAndBelow">
+              <a data-toggle="collapse" href="#org-collapse" class="venue-nav-link" :class="{'active-link':is_course_info}" style="cursor:pointer;">Orgs ▼</a>
+          </show-at>
           <hide-at breakpoint="mediumAndBelow">
             <div class="dropdown-content">
               <router-link v-for="org in user_orgs" :key="org._id" :to="{name: 'org_info', params: { id: org._id }}">
@@ -60,11 +65,23 @@
     </nav>
     <!-- Mobile Course Dropdown -->
     <show-at breakpoint="mediumAndBelow">
-      <div class="collapse" id="collapseExample">
+      <div class="collapse" id="course-collapse">
         <ul class="mobile-course-list">
           <li class="mobile-course-link" v-for="course in user_courses" :key="course._id">
             <router-link :to="{name: 'course_info', params: { id: course._id }}">
               <p class="mobile-course-link-name">{{ course.name }}</p>
+            </router-link>
+          </li>
+        </ul>
+      </div>
+    </show-at>
+    <!-- Mobile Org Dropdown -->
+    <show-at breakpoint="mediumAndBelow">
+      <div class="collapse" id="org-collapse">
+        <ul class="mobile-course-list">
+          <li class="mobile-course-link" v-for="org in user_orgs" :key="org._id">
+            <router-link :to="{name: 'org_info', params: { id: org._id }}">
+              <p class="mobile-course-link-name">{{ org.name }}</p>
             </router-link>
           </li>
         </ul>
