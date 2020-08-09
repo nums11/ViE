@@ -15,7 +15,7 @@
           <div v-if="is_dashboard" class="active-link-underline"></div>
         </div>
         <!-- Courses Link -->
-        <div class="venue-nav-link-container" id="course-dropdown">
+        <div class="venue-nav-link-container dropdown-link">
           <a data-toggle="collapse" href="#collapseExample" class="venue-nav-link" :class="{'active-link':is_course_info}" style="cursor:pointer;">Courses ▼</a>
           <hide-at breakpoint="mediumAndBelow">
             <div class="dropdown-content">
@@ -25,6 +25,17 @@
             </div>
           </hide-at>
           <div v-if="is_course_info" class="active-link-underline"></div>
+        </div>
+        <div class="venue-nav-link-container dropdown-link">
+          <a data-toggle="collapse" href="#collapseExample" class="venue-nav-link" :class="{'active-link':is_course_info}" style="cursor:pointer;">Organizations ▼</a>
+          <hide-at breakpoint="mediumAndBelow">
+            <div class="dropdown-content">
+              <router-link v-for="org in user_orgs" :key="org._id" :to="{name: 'org_info', params: { id: org._id }}">
+                <p>{{ org.name }}</p>
+              </router-link>
+            </div>
+          </hide-at>
+          <div v-if="is_org_info" class="active-link-underline"></div>
         </div>
         <!-- Statistics Link -->
 <!--         <div v-if="is_instructor" class="venue-nav-link-container">
@@ -79,7 +90,10 @@
       },
       is_statistics: function () {
         return this.$route.name === 'statistics'
-      }
+      },
+      is_org_info: function () {
+        return this.$route.name === 'org_info'
+      },
     },
     components: {
       hideAt,
@@ -111,6 +125,7 @@
         else
           this.user_courses = user.student_courses
         this.user_orgs = user.user_orgs
+        console.log(this.user_orgs)
       },
       async getInstructorCourses() {
         const response = await CourseAPI.getInstructorCourses(this.current_user._id)
@@ -154,7 +169,12 @@
     display: inline-block;
   }
 
-  #course-dropdown {
+  .dropdown-link {
+    position: relative;
+    border-radius: 5px;
+  }
+
+  #org-dropdown {
     position: relative;
     border-radius: 5px;
   }
@@ -188,7 +208,7 @@
     transition: all 150ms linear;
   }
 
-  #course-dropdown:hover .dropdown-content {
+  .dropdown-link:hover .dropdown-content {
     max-height: 300px;
   }
 

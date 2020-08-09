@@ -10,14 +10,14 @@
       <DashboardSection lecture_type="Upcoming" :lecture_list="upcoming_lectures" />
 
     </div> -->
-    <div class="spinner-border" role="status" v-if="!user_has_loaded">
+<!--     <div class="spinner-border" role="status" v-if="!user_has_loaded">
     </div>
     <div v-else>
       <div class="row">
         <div class="col-md dashboard-section"> I'm live</div>
         <div class="col-md dashboard-section"> I'm Async</div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -227,7 +227,7 @@
   #dashboard-container {
     width: 85%;
     margin: auto;
-    border:black solid;
+    /*border:black solid;*/
   }
 
   .dashboard-section {

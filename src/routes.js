@@ -258,6 +258,15 @@ const router = new VueRouter({
       }
     },
     {
+      name: 'org_info',
+      path: '/org_info/:id',
+      component: CourseInfo,
+      meta: {
+        title: "Venue - Org Info"
+        // requiresAuth: true
+      }
+    },
+    {
       name: 'new_event',
       path: '/new_event/:course_id',
       component: NewEvent,
