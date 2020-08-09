@@ -74,6 +74,15 @@ function start() {
     var server = app.listen(process.env.PORT || LOCAL_PORT, function () {
       var port = server.address().port;
       console.log("App is now running on port", port);
+      const io = require('socket.io')(server);
+      io.on('connection', (socket) => {
+
+          socket.on('disconnect', () => {
+              console.log("A user disconnected");
+          });
+          
+          
+      });
     });
   });
 

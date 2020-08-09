@@ -14,7 +14,8 @@ import Footer from "./components/Footer.vue";
 import LectureAPI from './services/LectureAPI';
 import {getLiveLectures,getUpcomingLectures,getPastLectures} from './services/GlobalFunctions.js'
 import '@/assets/css/venue.css';
-import axios from 'axios'
+import axios from 'axios';
+import io from 'socket.io';
 
 export default {
   watch: {
@@ -33,6 +34,25 @@ export default {
   },
   created() {
     axios.defaults.headers.common['Access-Control-Allow-Methods'] = ["GET, POST, DELETE"]
+    console.log("App.vue is loaded")
+
+    // window.onbeforeunload = () => {
+    //     io.emit('leave', this.username);
+    // }
+
+    // io.on('connection', (socket) => {
+    //   console.log('made socket connection');
+    //   socket.on('chat', function(data){
+    //     // io.sockets.emit('chat',data);
+    //     console.log(data);
+    //   });
+    // });
+
+    
+    // io.on('connections', (data) => {
+    //     this.connections = data;
+    // });
+
     let self = this
     var waitForUser = setInterval(function(){
       if (self.$store.state.user && self.$store.state.user.current_user) {
