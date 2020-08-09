@@ -35,6 +35,7 @@ import LecturePlayback from './views/LecturePlayback.vue';
 import WebexTest from './views/WebexTest.vue';
 import NewLecture from './views/NewLecture.vue';
 import LectureInfo from './views/LectureInfo.vue';
+import MeetingInfo from './views/MeetingInfo.vue';
 import Settings from './views/Settings.vue';
 import RedirectCASLogin from './views/RedirectCASLogin.vue';
 import Statistics from './views/Statistics.vue';
@@ -318,6 +319,15 @@ const router = new VueRouter({
       component: LectureInfo,
       meta: {
         title: "Venue - Lecture Info",
+        requiresAuth: true,
+      }
+    },
+    {
+      name: 'meeting_info',
+      path: '/meeting_info/:meeting_id',
+      component: MeetingInfo,
+      meta: {
+        title: "Venue - Meeting Info",
         requiresAuth: true,
       }
     },

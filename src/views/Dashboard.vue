@@ -27,7 +27,9 @@
 
     <h1>Live Meetings</h1>
     <div v-for="meeting in live_meetings">
-      <h3>{{ meeting.title }}</h3>
+      <router-link :to="{name: 'meeting_info', params: { meeting_id: meeting._id }}">
+        <h3>{{ meeting.title }}</h3>
+      </router-link>
       <p>Start time: {{ new Date(meeting.start_time) }}</p>
       <p>End time: {{ new Date(meeting.end_time) }}</p>
     </div>
