@@ -119,7 +119,7 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 
 		organizations.push(new Organization({
 			name: "NSBE",
-			board_members: [users[2], users[3]._id, users[4]._id, users[5]._id],
+			board_members: [users[2]._id, users[3]._id, users[4]._id, users[5]._id],
 			general_members: [users[6],users[7],users[8]]
 		}))
 		users[2].user_orgs.push(organizations[0])
@@ -129,6 +129,21 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 		users[6].user_orgs.push(organizations[0])
 		users[7].user_orgs.push(organizations[0])
 		users[8].user_orgs.push(organizations[0])
+
+		organizations.push(new Organization({
+			name: "BSA",
+			board_members: [users[0]._id, users[1]._id],
+			general_members: [users[2]._id,users[3]._id,users[4]._id,users[5]._id,users[6]._id,users[7]._id]
+		}))
+		users[0].user_orgs.push(organizations[1])
+		users[1].user_orgs.push(organizations[1])
+		users[2].user_orgs.push(organizations[1])
+		users[2].user_orgs.push(organizations[1])
+		users[3].user_orgs.push(organizations[1])
+		users[4].user_orgs.push(organizations[1])
+		users[5].user_orgs.push(organizations[1])
+		users[6].user_orgs.push(organizations[1])
+		users[7].user_orgs.push(organizations[1])
 
 		// Hash user passwords
 
