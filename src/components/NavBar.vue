@@ -19,16 +19,9 @@
           <a data-toggle="collapse" href="#collapseExample" class="venue-nav-link" :class="{'active-link':is_course_info}" style="cursor:pointer;">Courses ▼</a>
           <hide-at breakpoint="mediumAndBelow">
             <div class="dropdown-content">
-              <div v-if="is_instructor">
-                <router-link v-for="course in user_courses" :key="course._id" :to="{name: 'course_info', params: { id: course._id }}">
-                  <p>{{ course.name }}</p>
-                </router-link>
-              </div>
-              <div v-else>
-                <router-link v-for="section in user_sections" :key="section._id" :to="{name: 'course_info', params: { id: section._id }}">
-                  <p>{{ section.course.name }}</p>
-                </router-link>
-              </div>
+              <router-link v-for="course in user_courses" :key="course._id" :to="{name: 'course_info', params: { id: course._id }}">
+                <p>{{ course.name }}</p>
+              </router-link>
             </div>
           </hide-at>
           <div v-if="is_course_info" class="active-link-underline"></div>
@@ -57,17 +50,10 @@
     <!-- Mobile Course Dropdown -->
     <show-at breakpoint="mediumAndBelow">
       <div class="collapse" id="collapseExample">
-        <ul class="mobile-course-list" v-if="is_instructor">
+        <ul class="mobile-course-list">
           <li class="mobile-course-link" v-for="course in user_courses" :key="course._id">
             <router-link :to="{name: 'course_info', params: { id: course._id }}">
               <p class="mobile-course-link-name">{{ course.name }}</p>
-            </router-link>
-          </li>
-        </ul>
-        <ul class="mobile-course-list" v-else>
-          <li class="mobile-course-link" v-for="section in user_sections" :key="section._id">
-            <router-link :to="{name: 'course_info', params: { id: section._id }}">
-              <p class="mobile-course-link-name">{{ section.course.name }}</p>
             </router-link>
           </li>
         </ul>
@@ -104,20 +90,28 @@
         current_user: {},
         is_instructor: Boolean,
         user_courses: [],
-        user_sections: []
+        user_orgs: []
       }
     },
     created() {
       this.getCurrentUser()
-      if(this.is_instructor)
-        this.getInstructorCourses()
-      else
-        this.getSectionsWithCourses()
+      // if(this.is_instructor)
+      //   this.getInstructorCourses()
+      // else
+      //   this.getSectionsWithCourses()
     },
     methods: {
-      getCurrentUser() {
+      async getCurrentUser() {
         this.current_user = this.$store.state.user.current_user
         this.is_instructor = this.current_user.is_instructor
+        const response = await UserAPI.getUser(this.current_user._id)
+        let user = response.data
+        console.log(user)
+        if(this.is_instructor)
+          this.user_courses = user.instructor_courses
+        else
+          this.user_courses = user.student_courses
+        this.user_orgs = user.user_orgs
       },
       async getInstructorCourses() {
         const response = await CourseAPI.getInstructorCourses(this.current_user._id)
