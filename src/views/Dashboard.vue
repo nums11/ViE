@@ -18,6 +18,19 @@
         <div class="col-md dashboard-section"> I'm Async</div>
       </div>
     </div> -->
+    <h1>Meetings</h1>
+    <div v-for="meeting in user_meetings">
+      <h3>{{ meeting.title }}</h3>
+      <p>Start time: {{ new Date(meeting.start_time) }}</p>
+      <p>End time: {{ new Date(meeting.end_time) }}</p>
+    </div>
+
+    <h1>Live Meetings</h1>
+    <div v-for="meeting in live_meetings">
+      <h3>{{ meeting.title }}</h3>
+      <p>Start time: {{ new Date(meeting.start_time) }}</p>
+      <p>End time: {{ new Date(meeting.end_time) }}</p>
+    </div>
   </div>
 </template>
 
@@ -57,6 +70,8 @@
       return {
         current_user: {},
         user_has_loaded: false,
+        user_meetings : [],
+        live_meetings: [],
         all_lectures: [],
         live_lectures: [],
         live_lectures_exist: Boolean,
@@ -96,7 +111,16 @@
         const response = await UserAPI.getUser(this.current_user._id)
         let user = response.data
         this.user_has_loaded = true
-
+        this.user_meetings = user.meetings
+        this.getLiveMeetings()
+      },
+      getLiveMeetings() {
+        let current_time = new Date()
+        this.user_meetings.forEach(meeting => {
+          if(current_time >= new Date(meeting.start_time) && 
+            current_time <= new Date(meeting.end_time))
+            this.live_meetings.push(meeting)
+        })
       },
       getColor (course_info) {
         if (course_info == null || course_info._id == null) return 'grey'
