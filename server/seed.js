@@ -141,7 +141,6 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 		users[0].user_orgs.push(organizations[1])
 		users[1].user_orgs.push(organizations[1])
 		users[2].user_orgs.push(organizations[1])
-		users[2].user_orgs.push(organizations[1])
 		users[3].user_orgs.push(organizations[1])
 		users[4].user_orgs.push(organizations[1])
 		users[5].user_orgs.push(organizations[1])
