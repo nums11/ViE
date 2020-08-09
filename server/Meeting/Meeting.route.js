@@ -172,31 +172,32 @@ meetingRoutes.route('/').get(function (req, res) {
 
 meetingRoutes.route('/get/:id').get(function (req, res) {
   let id = req.params.id;
-  Meeting.findById(id, function (err, meeting) {
-    if (err || meeting == null) {
-      console.log("<ERROR> Getting meeting with ID:",id)
-      res.status(404).json(err);
+  Meeting.findById(id).
+  populate('course').
+  populate('org').
+  populate({
+    path: 'live_attendance',
+    populate: [{
+      path: 'qr_checkins',
+    }, {
+      path: 'live_polls'
+    }]
+  }).
+  populate({
+    path: 'async_attendance',
+    populate: [{
+      path: 'recordings',
+    }]
+  }).
+  exec((error,meeting) => {
+    if(error || meeting == null){
+      console.log("<ERROR> (meetings/get) Getting meeting with ID:",id,error)
+      res.json(error);
     } else {
-		  User.find({'_id': {$in: meeting.board_members}}, (error, board_members) => {
-				if(error || board_members == null) {
-					console.log("<ERROR> Getting board_members for meeting with ID:",id)
-					res.status(404).json(err);
-				} else {
-          meeting.board_members = board_members;
-          User.find({'_id': {$in: meeting.general_members}}, (error, general_members) => {
-            if(error || general_members == null) {
-              console.log("<ERROR> Getting general_members for meeting with ID:",id)
-              res.status(404).json(err);
-            } else {
-              meeting.general_members = general_members
-              console.log("<SUCCESS> Getting meeting with ID:",id);
-              res.json(meeting)
-            }
-          })
-				}
-			});
+      console.log("<SUCCESS> (meetings/get) Getting meeting by ID:",id)
+      res.json(meeting);
     }
-  });
+  })
 });
 
 meetingRoutes.route('/update/:id').post(function (req, res) {
