@@ -112,6 +112,7 @@
         let user = response.data
         this.user_has_loaded = true
         this.user_meetings = user.meetings
+        console.log("user meetings",this.user_meetings)
         this.getLiveMeetings()
       },
       getLiveMeetings() {

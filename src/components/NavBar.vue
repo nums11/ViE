@@ -142,7 +142,6 @@
         else
           this.user_courses = user.student_courses
         this.user_orgs = user.user_orgs
-        console.log(this.user_orgs)
       },
       async getInstructorCourses() {
         const response = await CourseAPI.getInstructorCourses(this.current_user._id)

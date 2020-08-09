@@ -71,7 +71,14 @@ userRoutes.route('/get/:id').get(function (req, res) {
   populate('instructor_courses').
   populate('student_courses').
   populate('user_orgs').
-  populate('meetings').
+  populate({
+    path: 'meetings',
+    populate: [{
+      path: 'course',
+    }, {
+      path: 'org'
+    }]
+  }).
   populate('live_submissions').
   populate('async_submissions').
   exec((error,user) => {
