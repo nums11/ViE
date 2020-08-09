@@ -4,6 +4,10 @@
         <span class="sr-only">Loading...</span>
     </div>
     <div v-else>
+      <div class="hidden" id="qr_modal">
+        <qrcode v-bind:value="current_qr_code" :options="{ width: 600 }"></qrcode>
+        <button class="btn btn-secondary" id="close_qr_btn" @click="hideQR" aria-label="Hide QR">Hide</button>
+      </div>
       <h1>{{ meeting.title }}</h1>
       <h2 v-if="for_course">{{ meeting.course.name }}</h2>
       <h2 v-else>{{ meeting.org.name }}</h2>
@@ -15,7 +19,7 @@
       <h2 style="margin-top:5rem; text-decoration:underline;">Live Attendance</h2>
       <h3 style="text-decoration:underline;">QR Checkins</h3>
       <div class="qr-checkin-box" v-for="qr_checkin in meeting.live_attendance.qr_checkins">
-        <button v-if="checkinWindowOpen(qr_checkin)">Show QR</button>
+        <button v-if="checkinWindowOpen(qr_checkin)" @click="showQRCode(qr_checkin.code)">Show QR</button>
         <h4>checkin start: {{ new Date(qr_checkin.qr_checkin_start_time) }}</h4>
         <h4>checkin end: {{ new Date(qr_checkin.qr_checkin_end_time) }}</h4>
         <h4 style="text-decoration:underline;">Submissions</h4>
@@ -35,18 +39,20 @@
 
 <script>
   import MeetingAPI from '@/services/MeetingAPI.js';
+  import qrcode from '@chenfengyuan/vue-qrcode';
 
   export default {
     name: 'MeetingInfo',
     components: {
-
+      qrcode
     },
     data(){
       return {
         meeting: {},
         meeting_has_loaded: false,
         for_course: Boolean,
-        checkin_window_open: false
+        checkin_window_open: false,
+        current_qr_code: String
       }
     },
     created() {
@@ -64,7 +70,14 @@
         let current_time = new Date()
         return (current_time >= new Date(qr_checkin.qr_checkin_start_time) && 
           current_time <= new Date(qr_checkin.qr_checkin_end_time))
-      }
+      },
+      showQRCode(code) {
+        this.current_qr_code = code
+        document.getElementById("qr_modal").classList.remove("hidden")
+      },
+      hideQR() {
+        document.getElementById("qr_modal").classList.add("hidden")
+      },
     }
   }
 </script>
@@ -74,6 +87,10 @@
   border: black solid;
   margin-top: 2rem;
   margin-bottom: 2rem;
+}
+
+.hidden {
+  display: none;
 }
 
 </style>
