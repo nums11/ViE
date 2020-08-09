@@ -179,6 +179,12 @@ meetingRoutes.route('/get/:id').get(function (req, res) {
     path: 'live_attendance',
     populate: [{
       path: 'qr_checkins',
+      populate: {
+        path: 'qr_checkin_submissions',
+        populate: {
+          path: 'submitter'
+        }
+      }
     }, {
       path: 'live_polls'
     }]
