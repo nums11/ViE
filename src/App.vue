@@ -29,7 +29,7 @@ export default {
   },
   data() {
     return {
-      current_user: null
+      current_user: null,
     }
   },
   created() {

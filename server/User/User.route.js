@@ -83,10 +83,10 @@ userRoutes.route('/get/:id').get(function (req, res) {
   populate('async_submissions').
   exec((error,user) => {
     if(error || user == null){
-      console.log("<ERROR> Getting user with ID:",id,error)
+      console.log("<ERROR> (users/get) Getting user with ID:",id,error)
       res.status(404).json(error);
     } else {
-      console.log("<SUCCESS> Getting user by ID:",id)
+      console.log("<SUCCESS> (users/get) Getting user by ID:",id)
       res.json(user);
     }
   })
