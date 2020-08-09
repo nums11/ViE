@@ -8,6 +8,7 @@ const User = require("./User/User.model")
 const Lecture = require("./Lecture/Lecture.model")
 const LectureSubmission = require("./LectureSubmission/LectureSubmission.model")
 const Poll = require("./Poll/Poll.model")
+const Meeting = require("./Meeting/Meeting.model")
 
 const db = "mongodb://localhost:27017/Venue2v2";
 
@@ -24,9 +25,11 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 		"./Lecture/Lecture.model",
 		"./LectureSubmission/LectureSubmission.model",
 		"./Poll/Poll.model",
-		"./Organization/Organization.model"
+		"./Organization/Organization.model",
+		"./Meeting/Meeting.model"
 	]);
-	seeder.clearModels(['Course', 'User', 'Organization', 'Section', 'Event', 'Submission', 'Lecture', 'LectureSubmission', 'Poll'], function () {
+	seeder.clearModels(['Course', 'User', 'Organization', 'Meeting',
+		'Section', 'Event', 'Submission', 'Lecture', 'LectureSubmission', 'Poll'], function () {
 
 		let users = []
 		let courses = []

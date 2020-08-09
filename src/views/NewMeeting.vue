@@ -113,10 +113,14 @@ export default {
         this.for_course = true
         const response = await CourseAPI.getCourse(this.course_id)
         this.course = response.data
+        this.meeting.for_course = true
+        this.meeting.course = this.course
       } else {
         this.org_id = this.$route.params.org_id;
         const response = await OrgAPI.getOrg(this.org_id)
         this.org = response.data
+        this.meeting.for_course = false
+        this.meeting.org = this.org
       }
     },
     setDateInputs() {
