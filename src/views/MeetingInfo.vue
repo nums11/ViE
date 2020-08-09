@@ -36,9 +36,9 @@
           <h4>checkin end: {{ new Date(qr_checkin.qr_checkin_end_time) }}</h4>
           <h4 style="text-decoration:underline;">Submissions</h4>
           <h4 v-for="submission in qr_checkin.qr_checkin_submissions">
-            <p>{{ submission.submitter.first_name }}</p>
-            <p>{{ submission.submitter.last_name }}</p>
-            <p>{{ submission.submitter.user_id }}</p>
+            <p>
+              {{ submission.submitter.first_name }} {{ submission.submitter.last_name }} ({{ submission.submitter.user_id }})
+            </p>
           </h4>
         </div>
       </div>
@@ -47,7 +47,8 @@
         <div class="qr-checkin-box" v-for="qr_checkin in meeting.live_attendance.qr_checkins">
         <p v-if="getCheckinWindowStatus(qr_checkin) === 'closed'">QR Checkin Closed</p>
         <div v-else-if="getCheckinWindowStatus(qr_checkin) === 'open'">
-          <button @click="showQRScanningWindow">Scan QR</button>
+          <button v-if="!submissionExistsForUser(qr_checkin)" @click="showQRScanningWindow">Scan QR</button>
+          <p style="font-weight:bold;" v-else>Attendance Recorded</p>
           <h4>checkin start: {{ new Date(qr_checkin.qr_checkin_start_time) }}</h4>
           <h4>checkin end: {{ new Date(qr_checkin.qr_checkin_end_time) }}</h4>
         </div>
@@ -76,6 +77,7 @@
     data(){
       return {
         meeting: {},
+        current_user: {},
         meeting_has_loaded: false,
         for_course: Boolean,
         checkin_window_open: false,
@@ -85,7 +87,8 @@
       }
     },
     created() {
-      this.is_instructor = this.$store.state.user.current_user.is_instructor
+      this.current_user = this.$store.state.user.current_user
+      this.is_instructor = this.current_user.is_instructor
       this.getMeeting()
     },
     methods: {
@@ -160,6 +163,17 @@
         alert("Live Submission Recorded")
         this.$router.go()
       },
+      submissionExistsForUser(qr_checkin) {
+        let submissions = qr_checkin.qr_checkin_submissions
+        let user_submission_exists = false
+        for(let i = 0; i < submissions.length; i++){
+          if(submissions[i].user_id === this.current_user.usr_id){
+            user_submission_exists = true
+            break
+          }
+        }
+        return user_submission_exists
+      }
     }
   }
 </script>
