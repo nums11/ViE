@@ -190,6 +190,9 @@ export default {
       }
       this.meeting.has_live_attendance = true
     },
+    addAsyncAttendance() {
+
+    },
     generateRandomCheckinTimes(qr_checkin) {
       let five_mins = 60 * 5 * 1000
       let five_mins_after_start = new Date(this.meeting.start_time + five_mins)
@@ -240,26 +243,6 @@ export default {
 </script>
 
 <style>
-.attendance-modal {
-  border: black solid;
-  background-color: white;
-  z-index: 10;
-  height: 90%;
-  width: 80%;
-  position: absolute;
-  margin-top: 0;
-  margin-left: 10%;
-}
-
-.attendance-modal-header {
-  border: blue solid;
-  height: 10%;
-}
-
-.exit-modal-btn {
-  float: left;
-}
-
 .input-wrapper {
   width: 80%;
   margin: auto;

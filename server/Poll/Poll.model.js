@@ -12,10 +12,6 @@ let Poll = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Recording'
 	},
-	recording_timestamp: {
-		type: Number,
-		default: 0
-	},
 	poll_questions: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'PollQuestion'

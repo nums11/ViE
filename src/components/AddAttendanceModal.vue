@@ -39,22 +39,86 @@
     <div class="attendance-modal" id="async-modal" v-else>
       <div class="attendance-modal-header">
         <button class="exit-modal-btn" @click="$emit('hide-attendance-modal')">X</button>
-        <h2>Add Async Attendance</h2>
+        <form @submit.prevent="$emit('add-async-attendance')">
+          <h2>Add Async Attendance</h2>
+          <input id="video_selector" name="recording" type="file" accept="video/*" class="btn" role="button" tabindex="0" aria-label="Select Video"/>
+          <div v-if="file_selected">
+            <!-- Video Preview -->
+            <video id="video_preview" class="video-js vjs-default-skin" data-setup='{"fluid": true}' controls></video>
+
+            <!-- Add Poll Button -->
+            <button style="margin-top: 3rem;">Add Poll</button>
+  <!--           <div class="row" id="lecture_container">
+              <div class="col">
+                <h2>Add Poll</h2>
+                <div class="poll_card">
+                  <div class="row questionrow">
+                    <label id="question_label">Question</label>
+                    <textarea id="question" class="col" type="text" placeholder="eg. Which of the following...?" aria-labelledby="question_label"/>
+                  </div>
+                  <div class="row">
+                    <div class="col-4">
+                        <label id="hour_label">Hour</label>
+                        <input type="number" id="hour" min="0" max="5" aria-labelledby="hour_label"/>
+                    </div>
+                    <div class="col-4">
+                        <label id="minute_label">Min</label>
+                        <input type="number" id="min" min="0" max="59" aria-labelledby="minute_label"/>
+                    </div>
+                    <div class="col-4">
+                        <label id="seconds_label">Sec</label>
+                        <input type="number" id="sec" min="0" max="59" aria-labelledby="seconds_label"/>
+                    </div>
+                  </div>
+                  <h4 class="row">Possible Answers</h4>
+                  <div class="row">
+                    <label id="spacer1">Number</label>
+                    <label id="a_label">Answer</label>
+                    <label id="correct_label">Correct</label>
+                  </div>
+                  <ol class="row possible_answer">
+                    <li v-for="(current_answer,i) in current_answers" v-bind:key="i">
+                      <input class="answerfield" type="text" v-model.lazy="current_answers[i]" aria-labelledby="a_label"/>
+                      <input class="iscorrectfield" type="checkbox" v-model.lazy="current_is_correct[i]" aria-labelledby="correct_label"/>
+                      <button type="button" class="btn btn-danger removeanswer" @click="current_answers.splice(i,1);current_is_correct.splice(i,1)" :aria-label="'Remove Answer '+(i+1)">X</button>
+                    </li>
+                  </ol>
+                  <div class="row addanswerrow">
+                    <button type="button" id="add_answer_btn" class="btn btn-secondary" @click="current_answers.push('');current_is_correct.push(false)">Add Option</button>
+                  </div>
+                  <div class="row">
+                    <button type="button" id="add_poll_btn" class="btn btn-primary" @click="addPoll()">Save Poll</button>
+                  </div>
+                </div>
+              </div> -->
+              <!-- Each poll question -->
+  <!--             <div class="col">
+                <h2>Current Polls</h2>
+                <label v-if="polls.length > 0" id="pq_label">Question</label>
+                <ol class="row pollrow">
+                  <li v-for="(poll,i) in polls" :key="i" class="row prow">
+                    <p class="polltimestamp">{{secondsToHHMMSS(poll.timestamp)}}</p>
+                    <input class="pollquestion" :value="poll.question" readonly aria-labelledby="pq_label"/>
+                    <button type="button" class="removepollbtn btn btn-danger" @click="polls.splice(i,1)" :aria-label="'Remove Poll '+(i+1)">X</button>
+                  </li>
+                </ol>
+              </div> -->
+            </div>
+            <button style="margin-top:2rem;" type="button" class="btn btn-primary" disabled="disableAddAsyncButton">Add</button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import LectureAPI from "@/services/LectureAPI.js";
 import CourseAPI from "@/services/CourseAPI.js";
 import MeetingAPI from "@/services/MeetingAPI.js";
 import OrgAPI from "@/services/OrgAPI.js";
+import videojs from 'video.js';
 import SectionAPI from "@/services/SectionAPI.js";
 import Sections from "@/components/Sections";
-import QRCode from "qrcode";
-import GoogleMap from "@/components/GoogleMap";
-import LectureUploadModal from "@/components/LectureUploadModal";
 import flatpickr from "flatpickr";
 import '../../node_modules/flatpickr/dist/flatpickr.min.css';
 require("flatpickr/dist/themes/material_blue.css");
@@ -67,7 +131,9 @@ export default {
       show_live_poll_inputs: false,
       qr_checkin: {
         has_random_checkin_time: true
-      }
+      },
+      recording_video: null,
+      file_selected: false
     }
   },
   props: {
@@ -77,15 +143,46 @@ export default {
     }
   },
   created() {
-    console.log("I was created")
+    if(!this.is_live)
+      this.addVideoSelectionListener()
   },
   computed: {
     // TODO: Update this to handle the custom checkin time windows
     disableAddLiveButton: function () {
       return !this.show_qr_checkin_inputs && !this.show_live_poll_inputs
+    },
+    disableAddAsyncButton: function () {
+      return !this.file_selected
     }
   },
   methods: {
+    addVideoSelectionListener() {
+      let self = this
+      this.$nextTick(() => {
+        let video_selector = document.getElementById("video_selector");
+        video_selector.addEventListener("change", () => {
+          if (video_selector.files.length == 0) {
+            // vid_upload_btn.setAttribute("disabled","true");
+            self.file_selected = false;
+            self.recording_video = {}
+          } else {
+            self.file_selected = true;
+            self.$nextTick(() => {
+              if(self.recording_video == null) {
+                videojs("video_preview", {}, function() {
+                  self.recording_video = this
+                  self.recording_video.src({ type: video_selector.files[0].type, src: URL.createObjectURL(video_selector.files[0]) })
+                  self.recording_video.load()
+                })
+              } else {
+                self.recording_video.src({ type: video_selector.files[0].type, src: URL.createObjectURL(video_selector.files[0]) })
+                self.recording_video.load()
+              }
+            })
+          }
+        })
+      })
+    },
     showQRCheckinInputs() {
       this.show_qr_checkin_inputs = true
       this.show_live_poll_inputs = false
@@ -148,5 +245,31 @@ export default {
 </script>
 
 <style>
+.attendance-modal {
+  border: black solid;
+  background-color: white;
+  z-index: 10;
+  height: 90%;
+  width: 80%;
+  position: absolute;
+  margin-top: 0;
+  margin-left: 10%;
+  overflow-y: scroll;
+  margin-bottom: 5rem;
+}
 
+.attendance-modal-header {
+  height: 10%;
+}
+
+.exit-modal-btn {
+  float: left;
+}
+
+#video_preview {
+  margin:auto;
+  border:black solid;
+  width: 70%;
+  /*width: 100%;*/
+}
 </style>
