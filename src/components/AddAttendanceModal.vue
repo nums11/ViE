@@ -47,7 +47,7 @@
             <video id="video_preview" class="video-js vjs-default-skin" data-setup='{"fluid": true}' controls></video>
 
             <!-- Add Poll Button -->
-            <button style="margin-top: 3rem;">Add Poll</button>
+            <!-- <button style="margin-top: 3rem;">Add Poll</button> -->
   <!--           <div class="row" id="lecture_container">
               <div class="col">
                 <h2>Add Poll</h2>
@@ -104,7 +104,7 @@
                 </ol>
               </div> -->
             </div>
-            <button style="margin-top:2rem;" type="button" class="btn btn-primary" disabled="disableAddAsyncButton">Add</button>
+            <button style="margin-top:2rem;" type="button" class="btn btn-primary" :disabled="disableAddAsyncButton">Add</button>
           </form>
         </div>
       </div>
@@ -152,6 +152,7 @@ export default {
       return !this.show_qr_checkin_inputs && !this.show_live_poll_inputs
     },
     disableAddAsyncButton: function () {
+      console.log("File selected", this.file_selected)
       return !this.file_selected
     }
   },
@@ -161,6 +162,7 @@ export default {
       this.$nextTick(() => {
         let video_selector = document.getElementById("video_selector");
         video_selector.addEventListener("change", () => {
+          console.log("I was changed")
           if (video_selector.files.length == 0) {
             // vid_upload_btn.setAttribute("disabled","true");
             self.file_selected = false;
