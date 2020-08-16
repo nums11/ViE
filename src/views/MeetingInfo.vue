@@ -65,7 +65,12 @@
               <button>Watch Recording</button>
             </router-link>
           </div>
-          <p style="font-weight:bold;" v-else>Closed</p>
+          <div style="font-weight:bold;" v-else>
+            <p>Closed</p>
+            <router-link :to="{name: 'watch_recording', params: { recording_id: recording._id }}">
+              <button>Watch Recording</button>
+            </router-link>
+          </div>
           <h4>recording submission start: {{ new Date(recording.recording_submission_start_time) }}</h4>
           <h4>recording submission end: {{ new Date(recording.recording_submission_end_time) }}</h4>
           <h4 style="text-decoration:underline;">Submissions</h4>
