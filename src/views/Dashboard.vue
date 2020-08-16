@@ -18,13 +18,6 @@
         <div class="col-md dashboard-section"> I'm Async</div>
       </div>
     </div> -->
-    <h1>Meetings</h1>
-    <div v-for="meeting in user_meetings">
-      <h3>{{ meeting.title }}</h3>
-      <p>Start time: {{ new Date(meeting.start_time) }}</p>
-      <p>End time: {{ new Date(meeting.end_time) }}</p>
-    </div>
-
     <h1>Live Meetings</h1>
     <div v-for="meeting in live_meetings">
       <router-link :to="{name: 'meeting_info', params: { meeting_id: meeting._id }}">
@@ -32,6 +25,13 @@
       </router-link>
       <p>Start time: {{ new Date(meeting.start_time) }}</p>
       <p>End time: {{ new Date(meeting.end_time) }}</p>
+    </div>
+
+    <h1>Async Meetings</h1>
+    <div v-for="meeting in async_meetings">
+      <router-link :to="{name: 'meeting_info', params: { meeting_id: meeting._id }}">
+        <h3>{{ meeting.title }}</h3>
+      </router-link>
     </div>
   </div>
 </template>
@@ -74,6 +74,7 @@
         user_has_loaded: false,
         user_meetings : [],
         live_meetings: [],
+        async_meetings: [],
         all_lectures: [],
         live_lectures: [],
         live_lectures_exist: Boolean,
@@ -116,6 +117,7 @@
         this.user_meetings = user.meetings
         console.log("user meetings",this.user_meetings)
         this.getLiveMeetings()
+        this.getAsyncMeetings()
       },
       getLiveMeetings() {
         let current_time = new Date()
@@ -123,6 +125,12 @@
           if(current_time >= new Date(meeting.start_time) && 
             current_time <= new Date(meeting.end_time))
             this.live_meetings.push(meeting)
+        })
+      },
+      getAsyncMeetings() {
+        this.user_meetings.forEach(meeting => {
+          if(meeting.has_async_attendance)
+            this.async_meetings.push(meeting)
         })
       },
       getColor (course_info) {
