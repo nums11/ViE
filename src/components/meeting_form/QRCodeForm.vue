@@ -1,10 +1,29 @@
 <template>
 
     <div class="qr-code-subform subform">
+
+        <div class="qr-code-selection-area">
+            <div class="header-container">
+                <div class="left-side">
+                    <div class="title-area"><h4>QR Code</h4></div>
+                    <div class="desc-area">
+                    </div>
+                </div>
+                <div class="right-side">
+                    <div class="icon-area"><img src="@/assets/icons/001-qr-code.svg" width="100%" height="100%"/></div>
+                </div>
+            </div>
+
+            <sui-message :style="{marginBottom: '20px'}" warning>
+                        A QR Code will be provided at the time of the meeting. Below, please define the times of the
+                        live meeting for each section.
+            </sui-message>
+        </div>
+
         <div class="area-title"><h4>Meeting Time</h4></div>
         <div class="subtitle">Pick the time(s) that the live meeting will occur for each section.</div>
 
-        <div :style="{marginTop: '20px'}">
+        <div :style="{marginTop: '20px'}" v-if="sections.size > 1">
             <div><sui-checkbox label="Use same time for all meetings" v-model="sections_same_meeting_times" /></div>
         </div>
         <transition name="fade" mode="out-in">
@@ -55,26 +74,6 @@
 
             </div>
         </transition>
-
-        <div class="qr-code-selection-area">
-            <div class="header-container">
-                <div class="left-side">
-                    <div class="title-area"><h4>QR Code</h4></div>
-                    <div class="desc-area">
-                    </div>
-                </div>
-                <div class="right-side">
-                    <div class="icon-area"><img src="@/assets/icons/001-qr-code.svg" width="100%" height="100%"/></div>
-                </div>
-            </div>
-
-            <sui-message warning>
-                        A QR Code will be provided at the time of the meeting. Below, you can restrict the time
-                        in which students can submit the QR code, (e.g last 10 minutes of class).
-                        <br /><br />
-                        Setting no time restriction will allow students to submit QR Code anytime during the live meeting.
-            </sui-message>
-        </div>
 
         <!-- Introduction to Intergalactic Exploration and Geopolitical Imperalism -->
     </div>

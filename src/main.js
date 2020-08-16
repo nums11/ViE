@@ -7,6 +7,7 @@ import store from './vuex/store'
 import VueAxios from 'vue-axios';
 import axios from 'axios';
 import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
+import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
 import PortalVue from "portal-vue"
 import SuiVue from "semantic-ui-vue"
 Vue.component('VueCtkDateTimePicker', VueCtkDateTimePicker);

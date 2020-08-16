@@ -134,30 +134,59 @@
 
                         <div v-if="form_panel_id != null" key="1">
 
-                            <transition name="fade" mode="out-in">
-                                <div v-if="task_data.id == form_panel_id" v-for="(task_data, i) in task_order" :key="i">
+                            <transition-group name="fade" mode="out-in">
+                                <div v-for="(task_data, i) in task_order" :key="i">
                                     
-                                    <div class="subform-contents">
-                                        <QRCodeForm
-                                            :v-if="getSubformInfo(task_data) != null && getSubformInfo(task_data).type == 'qr-code'"
-                                            :sections="new_meeting_info.meta.sections"
-                                        />
-                                    </div>
-
-                                    <div class="form-container-footer" id="form-footer-action">
-                                        <div class="back-area">
-                                            <sui-button @click="goToNextTask ()" content="Back" icon="left arrow" label-position="left" />
+                                    <div class="subform-contents" v-if="task_data.id == form_panel_id">
+                                        <div v-if="getSubformInfo(task_data) != null && getSubformInfo(task_data).type == 'qr-code'">
+                                            <QRCodeForm
+                                                :sections="new_meeting_info.meta.sections"
+                                            />
                                         </div>
-                                        <div>
-                                            <sui-button-group>
-                                                <sui-button class="venue-green">One</sui-button>
-                                                <sui-button class="venue-green">Two</sui-button>
-                                                <sui-button class="venue-green">Three</sui-button>
-                                            </sui-button-group>
+                                        <div v-else-if="getSubformInfo(task_data) != null && getSubformInfo(task_data).type == 'poll'">
+                                            <PollCreationForm />
                                         </div>
                                     </div>
                                 </div>
-                            </transition>
+                            </transition-group>
+
+                            <div class="form-container-footer" id="form-footer-action">
+                                <div class="back-area">
+                                    <sui-button @click="goToNextTask ()" content="Back" icon="left arrow" label-position="left" />
+                                </div>
+                                <div>
+                                
+                                <!-- Dropdown to Add more activities -->
+                                <div :style="{textAlign: 'right', marginBottom: '10px'}">
+                                    <sui-dropdown
+                                    class="labeled
+                                    icon venue-green"
+                                    icon="plus"
+                                    button
+                                    :text="`Add to ${getCreationMode ()} Section`"
+                                    >
+                                        <sui-dropdown-menu>
+                                            <sui-dropdown-item @click="addPollSection()">
+                                                <div class="dropdown-icon-container"><span class="icon-ballot"></span></div>Poll/Quiz
+                                            </sui-dropdown-item>
+
+                                            <sui-dropdown-item>
+                                                <div class="dropdown-icon-container"><span class="icon-link"></span></div>Link/Quiz
+                                            </sui-dropdown-item>
+
+                                            <sui-dropdown-item>
+                                                <div class="dropdown-icon-container"><span class="icon-file"></span></div>File Download
+                                            </sui-dropdown-item>
+                                        </sui-dropdown-menu>
+                                    </sui-dropdown>
+                                </div>
+                                <div>
+                                    <sui-button class="venue-blue" @click="goToNextTask ()" :content="`Complete ${getCreationMode()} Section`" icon="check" label-position="left" />
+                                </div>
+
+
+                                </div>
+                            </div>
 
                         </div>
                         </transition>
@@ -173,11 +202,13 @@
 <script>
  
 import QRCodeForm from "@/components/meeting_form/QRCodeForm.vue"
+import PollCreationForm from "@/components/meeting_form/PollCreationForm.vue"
 
 export default {
     name: 'NewMeeting',
     components: {
         QRCodeForm,
+        PollCreationForm
     },
     data () {
         return {
@@ -189,7 +220,8 @@ export default {
             include_online_meeting_link: false,
             new_meeting_info: {},
 
-            course_sections: [1, 2, 3, 4, 5]
+            course_sections: [1, 2, 3, 4, 5],
+            creation_mode: null
         }
     },
     created () {
@@ -207,23 +239,69 @@ export default {
     },
     methods: {
 
+        getCreationMode () {
+            if (this.creation_mode == 'live') return 'Live'
+            if (this.creation_mode == 'async') return 'async'
+            return 'Undefined'
+        },
+
         getSubformInfo (task_data) {
             // task_data should have an id & type
+            console.log(`Inside getSubformInfo()`)
             if (task_data.type == 'live') {
-                if (Object.hasOwnProperty(this.new_meeting_info.live, task_data.id)) {
+                if (Object.hasOwnProperty.call(this.new_meeting_info.live, task_data.id)) {
+                    console.log(`getSubformInfo:`)
+                    console.log(this.new_meeting_info.live[task_data.id])
                     return this.new_meeting_info.live[task_data.id]
                 }
                 return null
             }
 
             if (task_data.type == 'async') {
-                if (Object.hasOwnProperty(this.new_meeting_info.async, task_data.id)) {
+                if (Object.hasOwnProperty.call(this.new_meeting_info.async, task_data.id)) {
                     return this.new_meeting_info.async[task_data.id]
                 }
                 return null
             }
 
               
+        },
+
+        addPollSection () {
+            // add a poll to the meeting
+            console.log(`Adding Poll`)
+
+            let task_id = this.tasks_count
+
+            if (this.creation_mode == 'live') {
+                this.new_meeting_info.live[task_id] = {
+                    type: 'poll',
+                    start_time: null,
+                    end_time: null,
+                    questions: []
+                }
+            }
+            else if (this.creation_mode == 'async') {
+                this.new_meeting_info.async[task_id] = {
+                    type: 'poll',
+                    start_time: null,
+                    end_time: null,
+                    questions: []
+                }
+            }
+
+            this.task_order.push({
+                id: task_id,
+                type: this.creation_mode
+            })
+
+            this.form_panel_id = task_id;
+            ++ this.tasks_count
+            
+            console.log(`Debugging`)
+            console.log(this.task_order)
+            console.log(this.form_panel_id)
+            console.log(this.new_meeting_info)
         },
 
         setBottomActionPosition (e) {
@@ -273,6 +351,8 @@ export default {
 
         initiateLiveTasks () {
 
+            this.creation_mode = 'live'
+
             // create a new QR Code section, since that's the 1st possible live event that can happen
             let next_id = this.createQRCodeEntry();
             
@@ -287,6 +367,7 @@ export default {
 
         initiateAsyncTasks () {
             // this.form_panel_index = 1;
+            this.creation_mode = 'async'
         },
 
         getCurrentTaskIndex () {

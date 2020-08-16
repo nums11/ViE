@@ -56,6 +56,10 @@ body {
     }
 }
 
+.ui.animated.button .hidden.content {
+    background-color: inherit !important;
+}
+
 .hidden {
     visibility: visible !important;
     opacity: 1 !important;
@@ -93,4 +97,13 @@ body {
     .area-title {
         margin-bottom: 5px;
     }
+}
+
+.meeting-subforms {
+
+}
+
+.dropdown-icon-container {
+    display: inline-block;
+    margin-right: 10px;
 }

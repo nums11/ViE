@@ -28,6 +28,7 @@ import {getLiveLectures,getUpcomingLectures,getPastLectures} from './services/Gl
 import '@/assets/css/venue-2.scss';
 import 'semantic-ui-css/semantic.min.css';
 import '@/assets/css/icomoon2.css';
+import '@/assets/css/icomoon3.css';
 
 import Cookie from 'cookie'
 
