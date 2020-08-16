@@ -34,6 +34,8 @@ import LectureInfo from './views/LectureInfo.vue';
 import Settings from './views/Settings.vue';
 import RedirectCASLogin from './views/RedirectCASLogin.vue';
 import Statistics from './views/Statistics.vue';
+import MeetingInfo from './views/MeetingInfo.vue';
+import NewMeeting from './views/NewMeeting.vue';
 
 Vue.use(VueRouter);
 
@@ -250,6 +252,22 @@ const router = new VueRouter({
       component: CourseInfo,
       meta: {
         title: "Venue - Course Info",
+        requiresAuth: true
+      }
+    },{
+      name: 'meeting_info',
+      path: '/meeting_info',
+      component: MeetingInfo,
+      meta: {
+        title: "Venue - Meeting Info",
+        requiresAuth: true
+      }
+    },{
+      name: 'new_meeting',
+      path: '/meeting/new/:section_id',
+      component: NewMeeting,
+      meta: {
+        title: 'Venue - New Meeting',
         requiresAuth: true
       }
     },
