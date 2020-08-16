@@ -194,7 +194,6 @@ export default {
       this.meeting.has_live_attendance = true
     },
     addAsyncAttendance(recording) {
-      console.log("Received recording", recording)
       this.hideAttendanceModal()
       this.recordings.push(recording)
       this.meeting.has_async_attendance = true
@@ -225,7 +224,7 @@ export default {
           this.meeting.has_live_attendance = false
       } else {
         for(let i = 0; i < this.recordings.length; i++) {
-          if(this.recordings[i].name === attendance.name)
+          if(this.recordings[i].video.name === attendance.video.name)
             this.recordings.splice(i,1)
         }
         if(this.recordings.length == 0)
