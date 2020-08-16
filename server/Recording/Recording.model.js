@@ -11,7 +11,7 @@ let Recording = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Poll'
 	},
-	allow_recording_submissions: { type: Boolean, default: false },
+	allow_recording_submissions: { type: Boolean, default: true },
 	recording_submission_start_time: Date,
 	recording_submission_end_time: Date,
 	recording_polls: [{

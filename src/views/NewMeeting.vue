@@ -36,12 +36,14 @@
           <button type="button" class="btn btn-secondary" @click="showLiveAttendanceModal" :disabled="!meeting_times_are_valid">Add Live Attendance</button>
         </div>
 
-        <AttendanceContainerList :attendance_list="qr_checkins" v-on:remove-attendance="removeAttendance"/>
+        <AttendanceContainerList :attendance_list="qr_checkins" :is_qr="true" v-on:remove-attendance="removeAttendance"/>
 
         <!-- Async Attendance Button & Info -->
         <div class="input-wrapper">
           <button type="button" class="btn btn-secondary" @click="showAsyncAttendanceModal" :disabled="!meeting_times_are_valid">Add Asynchronous Attendance</button>
         </div>
+
+        <AttendanceContainerList :attendance_list="recordings" :is_qr="false" v-on:remove-attendance="removeAttendance"/>
 
         <!-- Error Mesage and Create Meeting Button -->
         <!-- <p class="error_msg" v-if="input_error_message!=''">{{input_error_message}}</p> -->
@@ -93,6 +95,7 @@ export default {
       org: {},
       random_checkin_time: true,
       qr_checkins: [],
+      recordings: [],
       live_polls: [],
       for_course: false
     };
@@ -190,8 +193,11 @@ export default {
       }
       this.meeting.has_live_attendance = true
     },
-    addAsyncAttendance() {
-
+    addAsyncAttendance(recording) {
+      console.log("Received recording", recording)
+      this.hideAttendanceModal()
+      this.recordings.push(recording)
+      this.meeting.has_async_attendance = true
     },
     generateRandomCheckinTimes(qr_checkin) {
       let five_mins = 60 * 5 * 1000
@@ -209,13 +215,22 @@ export default {
       }
       return result;
     },
-    removeAttendance(attendance) {
-      for(let i = 0; i < this.qr_checkins.length; i++) {
-        if(this.qr_checkins[i].code === attendance.code)
-          this.qr_checkins.splice(i,1)
+    removeAttendance(attendance, is_qr) {
+      if(is_qr) {
+        for(let i = 0; i < this.qr_checkins.length; i++) {
+          if(this.qr_checkins[i].code === attendance.code)
+            this.qr_checkins.splice(i,1)
+        }
+        if(this.qr_checkins.length == 0)
+          this.meeting.has_live_attendance = false
+      } else {
+        for(let i = 0; i < this.recordings.length; i++) {
+          if(this.recordings[i].name === attendance.name)
+            this.recordings.splice(i,1)
+        }
+        if(this.recordings.length == 0)
+          this.meeting.has_async_attendance = false 
       }
-      if(this.qr_checkins.length == 0)
-        this.meeting.has_live_attendance = false
     },
     async createMeeting() {
     console.log("meeting",this.meeting)
