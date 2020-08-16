@@ -3,7 +3,7 @@
     <div class="spinner-border" role="status" v-if="!recording_has_loaded">
         <span class="sr-only">Loading...</span>
     </div>
-    <video v-else id="video_player" class="video-js vjs-big-play-centered" data-setup='{"fluid": true}' controls>
+    <video v-else id="video_player" class="video-js vjs-big-play-centered recording_video" data-setup='{"fluid": true}' controls>
       <source v-bind:src="recording.video_url" type="">
     </video>
   </div>
@@ -41,5 +41,8 @@
 </script>
 
 <style scoped>
-
+.recording_video {
+  width: 100%;
+  height: 80%;
+}
 </style>

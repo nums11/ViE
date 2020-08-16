@@ -59,13 +59,15 @@
         <h3 style="text-decoration:underline;">Recordings</h3>
         <div  class="attendance-box" v-for="recording in meeting.async_attendance.recordings">
           <p style="font-weight:bold;" v-if="getWindowStatus(recording, false) === 'upcoming'">Upcoming</p>
-          <p v-else-if="getWindowStatus(recording, false) === 'open'">Open</p>
+          <div v-else-if="getWindowStatus(recording, false) === 'open'">
+            <p>Open</p>
+            <router-link :to="{name: 'watch_recording', params: { recording_id: recording._id }}">
+              <button>Watch Recording</button>
+            </router-link>
+          </div>
           <p style="font-weight:bold;" v-else>Closed</p>
           <h4>recording submission start: {{ new Date(recording.recording_submission_start_time) }}</h4>
           <h4>recording submission end: {{ new Date(recording.recording_submission_end_time) }}</h4>
-          <router-link :to="{name: 'watch_recording', params: { recording_id: recording._id }}">
-            <button>Watch Recording</button>
-          </router-link>
           <h4 style="text-decoration:underline;">Submissions</h4>
           <h4 v-for="submission in recording.recording_submissions">
             <p>
