@@ -10,6 +10,35 @@ let Course = require('../Course/Course.model');
 let Org = require('../Organization/Organization.model');
 let Poll = require('../Poll/Poll.model');
 let User = require('../User/User.model');
+const {Storage} = require("@google-cloud/storage")
+const path = require('path');
+
+// GCS Specific
+
+const storage = new Storage({
+  keyFilename: path.join(__dirname, 'venue-279902-649f22aa6e34.json'),
+  projectId: "venue-279902"
+})
+
+const bucket = storage.bucket('venue_videos')
+
+const uploadVideoToGCS = (file) => new Promise((resolve, reject) => {
+  const { originalname, buffer } = file
+
+  const blob = bucket.file(originalname.replace(/ /g, "_"))
+  const blobStream = blob.createWriteStream({
+    resumable: false
+  })
+  blobStream.on('finish', () => {
+    const publicUrl = 'https://storage.googleapis.com/' + bucket.name + '/' + blob.name
+    resolve(publicUrl)
+  })
+  .on('error', () => {
+    reject(`Unable to upload video, something went wrong`)
+  })
+  .end(buffer)
+})
+
 
 meetingRoutes.route('/add/:for_course/:course_or_org_id').post(async (req, res) => {
   let meeting = req.body.meeting;
@@ -61,6 +90,14 @@ meetingRoutes.route('/add/:for_course/:course_or_org_id').post(async (req, res) 
     let recording_promises = []
     meeting.recordings.forEach(recording => {
       recording_promises.push(new Promise(async (resolve,reject) => {
+        // Save video to Google Cloud Storage
+        try {
+          let video_gcs_url = await uploadVideoToGCS(recording.video)
+          recording.video_url = video_gcs_url
+        } catch (error) {
+          console.log("<ERROR> (meetings/add) saving video to GCS:",error)
+          res.json(error)
+        } 
         let new_recording = new Recording(recording)
         try {
           let saved_recording = await new_recording.save()
