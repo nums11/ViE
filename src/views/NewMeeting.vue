@@ -1,6 +1,10 @@
 <template>
   <!-- ADDING USER -->
   <div>
+    <div id="meeting-saving-modal" v-if="meeting_saving">
+      <h1>Please wait while we schedule your meeting...</h1>
+    </div>
+
     <h1 v-if="for_course">New Meeting For {{ course.name }}</h1>
     <h1 v-else>New Meeting For {{ org.name }}</h1>
 
@@ -97,7 +101,8 @@ export default {
       qr_checkins: [],
       recordings: [],
       live_polls: [],
-      for_course: false
+      for_course: false,
+      meeting_saving: false
     };
   },
   created() {
@@ -106,7 +111,7 @@ export default {
   },
   computed: {
     meetingCanBeCreated: function() {
-      return (this.meeting.has_live_attendance || this.meeting.has_async_attendance) && this.meeting.title
+      return (this.meeting.has_live_attendance || this.meeting.has_async_attendance) && this.meeting.title && !this.meeting_saving
     }
   },
   methods: {
@@ -246,27 +251,44 @@ export default {
       }
     },
     async createMeeting() {
-    console.log("meeting",this.meeting)
-    this.meeting.qr_checkins = this.qr_checkins
-    this.meeting.recordings = this.recordings
-    console.log("passing recordings", this.meeting.recordings)
-    if(this.for_course){
-      const response = await MeetingAPI.addMeeting(this.meeting,true,this.course_id)
-    }else{
-      const response = await MeetingAPI.addMeeting(this.meeting,false,this.org_id)
-    }
-    console.log("Added Meeting")
-    if(this.$route.name === "course_new_meeting"){
-      this.$router.push({
-        name: "course_info",
-        params: { id: this.course_id }
-      })
-    } else {
-      this.$router.push({
-        name: "org_info",
-        params: { id: this.org_id }
-      })
-    }
+      this.meeting_saving = true
+      if(this.meeting.has_live_attendance)
+        this.meeting.qr_checkins = this.qr_checkins
+      if(this.meeting.has_async_attendance) 
+        await this.saveRecordingVideosToGCS()
+      await this.saveMeetingToCourseOrOrg()
+      this.meeting_saving = false
+      this.routeToCourseOrOrgInfo()
+    },
+    async saveRecordingVideosToGCS() {
+      const response = await MeetingAPI.saveRecordingVideosToGCS(this.recordings)
+      let video_gcs_urls = response.data
+      for(let i = 0; i < this.recordings.length; i++) {
+        this.recordings[i].video_url = video_gcs_urls[i]
+        console.log("Set url",this.recordings[i].video_url)
+      }
+      this.meeting.recordings = this.recordings
+    },
+    async saveMeetingToCourseOrOrg() {
+      console.log("saving meeting",this.meeting)
+      if(this.for_course){
+        const response = await MeetingAPI.addMeeting(this.meeting,true,this.course_id)
+      }else{
+        const response = await MeetingAPI.addMeeting(this.meeting,false,this.org_id)
+      }
+    },
+    routeToCourseOrOrgInfo() {
+      if(this.$route.name === "course_new_meeting"){
+        this.$router.push({
+          name: "course_info",
+          params: { id: this.course_id }
+        })
+      } else {
+        this.$router.push({
+          name: "org_info",
+          params: { id: this.org_id }
+        })
+      }
     }
   }
 };
@@ -310,5 +332,19 @@ export default {
 
 .error_msg {
   color: red;
+}
+
+#meeting-saving-modal {
+  border: black solid;
+  background-color: white;
+  z-index: 10;
+  height: 90%;
+  width: 80%;
+  position: absolute;
+  margin-top: 0;
+  margin-left: 10%;
+  overflow-y: scroll;
+  margin-bottom: 5rem;
+  padding-top: 15rem;
 }
 </style>

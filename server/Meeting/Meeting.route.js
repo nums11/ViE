@@ -26,9 +26,6 @@ const bucket = storage.bucket('venue_videos')
 
 const uploadVideoToGCS = (file) => new Promise((resolve, reject) => {
   const { originalname, buffer } = file
-  console.log("originalname",originalname)
-  console.log("buffer",buffer)
-
   const blob = bucket.file(originalname.replace(/ /g, "_"))
   const blobStream = blob.createWriteStream({
     resumable: false
@@ -37,15 +34,39 @@ const uploadVideoToGCS = (file) => new Promise((resolve, reject) => {
     const publicUrl = 'https://storage.googleapis.com/' + bucket.name + '/' + blob.name
     resolve(publicUrl)
   })
-  .on('error', () => {
-    reject(`Unable to upload video, something went wrong`)
+  .on('error', (err) => {
+    reject(`Unable to upload video, something went wrong` + err)
   })
   .end(buffer)
 })
 
-
-meetingRoutes.post('/add/:for_course/:course_or_org_id',
+meetingRoutes.post('/save_to_gcs',
   upload.array('recording_videos'), async (req, res) => {
+    let videos = req.files
+    let video_promises = []
+    videos.forEach(video => {
+      video_promises.push(new Promise(async (resolve,reject) => {
+        try {
+          let video_gcs_url = await uploadVideoToGCS(video)
+          resolve(video_gcs_url)
+        } catch (error) {
+          console.log("<ERROR> (meetings/save_to_gcs) saving video to GCS:",video,error)
+          res.json(error)
+        }
+      }))
+    })
+    try{
+      let saved_video_urls = await Promise.all(video_promises)
+      res.json(saved_video_urls)
+    } catch(error) {
+      console.log("<ERROR> (meetings/save_to_gcs) saving videos to GCS:",error)
+      res.json(error)
+    }
+  }
+)
+
+
+meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
   let meeting = req.body.meeting;
   let for_course = false
   let course_id = ""
@@ -59,201 +80,176 @@ meetingRoutes.post('/add/:for_course/:course_or_org_id',
     console.log("Was for org", org_id)
   }
 
-  // console.log("Params",req.params)
-  // console.log("File", req.file)
-  console.log("Files", req.files)
-  // console.log("Body", req.body)
-  // console.log("Meeting", req.body.meeting[0])
-  // console.log("Title", req.body.meeting[0].title)
-  // console.log("Start", new Date(req.body.meeting.start_time))
-  // console.log("End", new Date(req.body.meeting.end_time))
-  // console.log("Videos",req.body.recording_videos)
-  // req.body.recording_videos.forEach(video => {
-  //   console.log("Start:", new Date(video.recording_submission_start_time))
-  //   console.log("End:", new Date(video.recording_submission_end_time))
+  let new_meeting = new Meeting(meeting)
 
-  // })
+  if(new_meeting.has_live_attendance) {
+    // Create the QR Checkins
+    let qr_promises = []
+    meeting.qr_checkins.forEach(qr_checkin => {
+      qr_promises.push(new Promise(async (resolve,reject) => {
+        let new_qr_checkin = new QRCheckin(qr_checkin)
+        try {
+          let saved_qr_checkin = await new_qr_checkin.save()
+          resolve(saved_qr_checkin)
+        } catch (error) {
+          console.log("<ERROR> (meetings/add) saving qr_checkin:",new_qr_checkin,error)
+          res.json(error)
+        }
+      }))
+    })
+    // Attach live attendance to the meeting
+    try{
+      let saved_qr_checkins = await Promise.all(qr_promises)
+      let live_attendance = new LiveAttendance({
+        qr_checkins: saved_qr_checkins
+      })
+      let saved_live_attendance = await live_attendance.save()
+      new_meeting.live_attendance = saved_live_attendance
+    } catch(error) {
+      console.log("<ERROR> (meetings/add) saving live attendance:",error)
+      res.json(error)
+    }
+  }
 
-  res.json({})
-  // let new_meeting = new Meeting(meeting)
+  if(new_meeting.has_async_attendance) {
+    //Create the recordings
+    let recording_promises = []
+    meeting.recordings.forEach(recording => {
+      recording_promises.push(new Promise(async (resolve,reject) => {
+        let new_recording = new Recording(recording)
+        try {
+          let saved_recording = await new_recording.save()
+          console.log("Saved recording", saved_recording)
+          resolve(saved_recording)
+        } catch (error) {
+          console.log("<ERROR> (meetings/add) saving recording:",new_recording,error)
+          res.json(error)
+        }
+      }))
+    })
+    // Attach async attendance to the meeting
+    try{
+      let saved_recordings = await Promise.all(recording_promises)
+      let async_attendance = new AsyncAttendance({
+        recordings: saved_recordings
+      })
+      let saved_async_attendance = await async_attendance.save()
+      new_meeting.async_attendance = saved_async_attendance
+    } catch(error) {
+      console.log("<ERROR> (meetings/add) saving async attendance:",error)
+      res.json(error)
+    }
+  }
 
-  // if(new_meeting.has_live_attendance) {
-  //   // Create the QR Checkins
-  //   let qr_promises = []
-  //   meeting.qr_checkins.forEach(qr_checkin => {
-  //     qr_promises.push(new Promise(async (resolve,reject) => {
-  //       let new_qr_checkin = new QRCheckin(qr_checkin)
-  //       try {
-  //         let saved_qr_checkin = await new_qr_checkin.save()
-  //         resolve(saved_qr_checkin)
-  //       } catch (error) {
-  //         console.log("<ERROR> (meetings/add) saving qr_checkin:",new_qr_checkin,error)
-  //         res.json(error)
-  //       }
-  //     }))
-  //   })
-  //   // Attach live attendance to the meeting
-  //   try{
-  //     let saved_qr_checkins = await Promise.all(qr_promises)
-  //     let live_attendance = new LiveAttendance({
-  //       qr_checkins: saved_qr_checkins
-  //     })
-  //     let saved_live_attendance = await live_attendance.save()
-  //     new_meeting.live_attendance = saved_live_attendance
-  //   } catch(error) {
-  //     console.log("<ERROR> (meetings/add) saving live attendance:",error)
-  //     res.json(error)
-  //   }
-  // }
+  try {
+    let saved_meeting = await new_meeting.save()
+    if(for_course) {
 
-  // if(new_meeting.has_async_attendance) {
-  //   //Create the recordings
-  //   let recording_promises = []
-  //   meeting.recordings.forEach(recording => {
-  //     recording_promises.push(new Promise(async (resolve,reject) => {
-  //       // Save video to Google Cloud Storage
-  //       try {
-  //         console.log("This is the recording: ", recording)
-  //         console.log("Passing this video to gcs",recording.video)
-  //         let video_gcs_url = await uploadVideoToGCS(recording.video)
-  //         recording.video_url = video_gcs_url
-  //       } catch (error) {
-  //         console.log("<ERROR> (meetings/add) saving video to GCS:",error)
-  //         res.json(error)
-  //       } 
-  //       let new_recording = new Recording(recording)
-  //       try {
-  //         let saved_recording = await new_recording.save()
-  //         resolve(saved_recording)
-  //       } catch (error) {
-  //         console.log("<ERROR> (meetings/add) saving recording:",new_recording,error)
-  //         res.json(error)
-  //       }
-  //     }))
-  //   })
-  //   // Attach async attendance to the meeting
-  //   try{
-  //     let saved_recordings = await Promise.all(recording_promises)
-  //     let async_attendance = new AsyncAttendance({
-  //       recordings: saved_recordings
-  //     })
-  //     let saved_async_attendance = await async_attendance.save()
-  //     new_meeting.async_attendance = saved_async_attendance
-  //   } catch(error) {
-  //     console.log("<ERROR> (meetings/add) saving async attendance:",error)
-  //     res.json(error)
-  //   }
-  // }
+      //Update the Course and it's students & instructors
+      Course.findByIdAndUpdate(course_id,
+        {$push: {meetings: saved_meeting._id}},
+        (error,course) => {
+          if(error || course == null) {
+            console.log("<ERROR> (meetings/add) Updating course with id",
+              course_id, err)
+            res.json(error);
+          } else {
+            User.findByIdAndUpdate(course.instructor,
+              {$push: {meetings: saved_meeting._id}},
+              async (error, user) => {
+                if(error || user == null) {
+                  console.log("<ERROR> (meetings/add) Updating instructor with id",
+                    course.instructor, error)
+                  res.json(error);
+                } else {
+                  let student_promises = []
+                  course.students.forEach(student => {
+                    student_promises.push(new Promise(async (resolve, reject) => {
+                      User.findByIdAndUpdate(student,
+                        {$push: {meetings: saved_meeting._id}},
+                        (error, user) => {
+                          if(error || user == null) {
+                            console.log("<ERROR> (meetings/add) Updating student with id",
+                              student, error)
+                            res.json(error);
+                          } else {
+                            resolve(user)
+                          }
+                        })
+                    }))
+                  })
+                  try {
+                    let updated_students = await Promise.all(student_promises)
+                    console.log("<SUCCESS> (meetings/add) Creating meeting and updating"
+                      + " course instructor and students")
+                    res.json(saved_meeting)
+                  } catch (error) {
+                    console.log("<ERROR> (meetings/add) Updating students", error)
+                    res.json(error)
+                  }
+                }
+              })
+          }
+        })
 
-  // try {
-  //   let saved_meeting = await new_meeting.save()
-  //   if(for_course) {
+    } else {
 
-  //     //Update the Course and it's students & instructors
-  //     Course.findByIdAndUpdate(course_id,
-  //       {$push: {meetings: saved_meeting._id}},
-  //       (error,course) => {
-  //         if(error || course == null) {
-  //           console.log("<ERROR> (meetings/add) Updating course with id",
-  //             course_id, err)
-  //           res.json(error);
-  //         } else {
-  //           User.findByIdAndUpdate(course.instructor,
-  //             {$push: {meetings: saved_meeting._id}},
-  //             async (error, user) => {
-  //               if(error || user == null) {
-  //                 console.log("<ERROR> (meetings/add) Updating instructor with id",
-  //                   course.instructor, error)
-  //                 res.json(error);
-  //               } else {
-  //                 let student_promises = []
-  //                 course.students.forEach(student => {
-  //                   student_promises.push(new Promise(async (resolve, reject) => {
-  //                     User.findByIdAndUpdate(student,
-  //                       {$push: {meetings: saved_meeting._id}},
-  //                       (error, user) => {
-  //                         if(error || user == null) {
-  //                           console.log("<ERROR> (meetings/add) Updating student with id",
-  //                             student, error)
-  //                           res.json(error);
-  //                         } else {
-  //                           resolve(user)
-  //                         }
-  //                       })
-  //                   }))
-  //                 })
-  //                 try {
-  //                   let updated_students = await Promise.all(student_promises)
-  //                   console.log("<SUCCESS> (meetings/add) Creating meeting and updating"
-  //                     + " course instructor and students")
-  //                   res.json(saved_meeting)
-  //                 } catch (error) {
-  //                   console.log("<ERROR> (meetings/add) Updating students", error)
-  //                   res.json(error)
-  //                 }
-  //               }
-  //             })
-  //         }
-  //       })
+      //Update the Org and it's board & general members
+      Org.findByIdAndUpdate(org_id,
+        {$push: {meetings: saved_meeting._id}},
+        async (error, org) => {
+          if(error || org == null) {
+            console.log("<ERROR> (meetings/add) Updating org with id org_id", error)
+            res.json(error);
+          } else {
+            let member_promises = []
+            org.board_members.forEach(board_member => {
+              member_promises.push(new Promise(async (resolve, reject) => {
+                User.findByIdAndUpdate(board_member,
+                  {$push: {meetings: saved_meeting._id}},
+                  (error, user) => {
+                    if(error || user == null) {
+                      console.log("<ERROR> (meetings/add) Updating board member with id",
+                        board_member, error)
+                      res.json(error);
+                    } else {
+                      resolve(user)
+                    }
+                  })
+              }))
+            })
+            org.general_members.forEach(general_member => {
+              member_promises.push(new Promise(async (resolve, reject) => {
+                User.findByIdAndUpdate(general_member,
+                  {$push: {meetings: saved_meeting._id}},
+                  (error, user) => {
+                    if(error || user == null) {
+                      console.log("<ERROR> (meetings/add) Updating board member with id",
+                        general_member, error)
+                      res.json(error);
+                    } else {
+                      resolve(user)
+                    }
+                  })
+              }))
+            })
+            try {
+              let updated_members = await Promise.all(member_promises)
+              console.log("<SUCCESS> (meetings/add) Creating meeting and updating"
+                + " org board and general members")
+              res.json(saved_meeting)
+            } catch (error) {
+              console.log("<ERROR> (meetings/add) Updating org members", error)
+              res.json(error)
+            }
+          }
+        })
 
-  //   } else {
-
-  //     //Update the Org and it's board & general members
-  //     Org.findByIdAndUpdate(org_id,
-  //       {$push: {meetings: saved_meeting._id}},
-  //       async (error, org) => {
-  //         if(error || org == null) {
-  //           console.log("<ERROR> (meetings/add) Updating org with id org_id", error)
-  //           res.json(error);
-  //         } else {
-  //           let member_promises = []
-  //           org.board_members.forEach(board_member => {
-  //             member_promises.push(new Promise(async (resolve, reject) => {
-  //               User.findByIdAndUpdate(board_member,
-  //                 {$push: {meetings: saved_meeting._id}},
-  //                 (error, user) => {
-  //                   if(error || user == null) {
-  //                     console.log("<ERROR> (meetings/add) Updating board member with id",
-  //                       board_member, error)
-  //                     res.json(error);
-  //                   } else {
-  //                     resolve(user)
-  //                   }
-  //                 })
-  //             }))
-  //           })
-  //           org.general_members.forEach(general_member => {
-  //             member_promises.push(new Promise(async (resolve, reject) => {
-  //               User.findByIdAndUpdate(general_member,
-  //                 {$push: {meetings: saved_meeting._id}},
-  //                 (error, user) => {
-  //                   if(error || user == null) {
-  //                     console.log("<ERROR> (meetings/add) Updating board member with id",
-  //                       general_member, error)
-  //                     res.json(error);
-  //                   } else {
-  //                     resolve(user)
-  //                   }
-  //                 })
-  //             }))
-  //           })
-  //           try {
-  //             let updated_members = await Promise.all(member_promises)
-  //             console.log("<SUCCESS> (meetings/add) Creating meeting and updating"
-  //               + " org board and general members")
-  //             res.json(saved_meeting)
-  //           } catch (error) {
-  //             console.log("<ERROR> (meetings/add) Updating org members", error)
-  //             res.json(error)
-  //           }
-  //         }
-  //       })
-
-  //   }
-  // } catch(error) {
-  //   console.log("<ERROR> (meetings/add) saving meeting:",error)
-  //   res.json(error)
-  // }
+    }
+  } catch(error) {
+    console.log("<ERROR> (meetings/add) saving meeting:",error)
+    res.json(error)
+  }
 
 });
 
