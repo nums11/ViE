@@ -1,13 +1,27 @@
 import Vue from "vue";
 import App from "./App.vue";
-import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap'
 import router from './routes.js'
 import store from './vuex/store'
 
 import VueAxios from 'vue-axios';
 import axios from 'axios';
+import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
+import PortalVue from "portal-vue"
+import SuiVue from "semantic-ui-vue"
+Vue.component('VueCtkDateTimePicker', VueCtkDateTimePicker);
+Vue.use(SuiVue)
+Vue.use(PortalVue)
 Vue.use(VueAxios, axios);
+
+// CSS Stylesheets
+import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
+import '@/assets/css/venue-2.scss';
+import '@/assets/css/venue.css';
+import '@/assets/css/venue-core.css';
+import 'semantic-ui-css/semantic.min.css';
+import '@/assets/css/icomoon2.css';
+import '@/assets/css/icomoon3.css';
 
 Vue.config.productionTip = false;
 

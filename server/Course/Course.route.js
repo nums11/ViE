@@ -205,6 +205,7 @@ courseRoutes.route('/get_instructor_courses/:user_id').get(function (req, res) {
       res.json(err)
     } else {
       console.log("<SUCCESS> Getting course by instructor with ID:",user_id)
+      console.log(res.json)
       res.json(instructor_courses)
     }
   })

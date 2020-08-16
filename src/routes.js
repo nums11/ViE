@@ -266,6 +266,22 @@ const router = new VueRouter({
         title: "Venue - Org Info"
         // requiresAuth: true
       }
+    },{
+      name: 'meeting_info',
+      path: '/meeting_info',
+      component: MeetingInfo,
+      meta: {
+        title: "Venue - Meeting Info",
+        requiresAuth: true
+      }
+    },{
+      name: 'new_meeting',
+      path: '/meeting/new/:section_id',
+      component: NewMeeting,
+      meta: {
+        title: 'Venue - New Meeting',
+        requiresAuth: true
+      }
     },
     {
       name: 'new_event',

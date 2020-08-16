@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="login-page-container">
     <div v-if="!show_login_form">
       <Logo v-bind:show_large_logo="true" />
       <Button :cas_url="cas_url" v-bind:btn_text="'Login'"/>
@@ -8,7 +8,7 @@
     <div v-else>
       <Logo v-bind:show_large_logo="false" />
       <LoginForm ref="LoginForm" />
-      <div id="login-signup-buttons" class="hidden">
+      <div id="login-signup-buttons" class="">
         <Button ref="LoginBtn" v-bind:btn_text="'Login'" v-on:button-clicked="login"/>
 <!--         <p style="font-weight:bold;">or</p>
         <Button ref="SignupBtn" v-bind:btn_text="'Sign Up'" v-on:button-clicked="signup" /> -->
@@ -87,7 +87,7 @@
     transition: visibility 0s linear 0s, opacity 300ms;
   }
   #login-signup-buttons {
-    visibility: hidden;
+    /* visibility: hidden; */
   }
   .hidden {
     visibility: hidden;
@@ -98,5 +98,13 @@
     visibility: visible;
     opacity: 1;
     transition: opacity 1s linear;
+  }
+
+  .login-page-container {
+    margin: 0 auto;
+    width: 400px;
+    text-align: center;
+    position: relative;
+    right: 105px;
   }
 </style>

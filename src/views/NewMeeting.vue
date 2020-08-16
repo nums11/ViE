@@ -1,350 +1,580 @@
 <template>
-  <!-- ADDING USER -->
-  <div>
-    <div id="meeting-saving-modal" v-if="meeting_saving">
-      <h1>Please wait while we schedule your meeting...</h1>
+    <div class="new-meeting">
+        
+        
+        <transition
+            name="fade2"
+            mode="out-in">
+            <div v-if="form_panel_id != null" class="sidenav-area">
+                <div class="sidenav-section">
+                    <h4>Live Tasks</h4>
+                </div>
+                <div class="sidenav-section">
+                    <h4>Async Tasks</h4>
+                </div>
+            </div>
+        </transition>
+        
+        <div :class="'content-area ' + (form_panel_id == null ? 'solo' : '')">
+            
+            <div class="title">New Meeting</div>
+            <transition name="fade" mode="out-in">
+                <div key="0" 
+                    :style="{lineHeight: '30px'}"
+                    v-if="form_panel_id != null" class="big-subtitle">
+                    {{new_meeting_info.meta.meeting_name == "" ? "( untitled )" : new_meeting_info.meta.meeting_name }}
+                </div>
+            </transition>
+
+            <div class="contents">
+                <transition name="fade" mode="out-in">
+                <div class="" key="0">
+                    <sui-label>
+                        For Course
+                        <sui-label-detail>Data Structures</sui-label-detail>
+                    </sui-label>
+
+                        <transition name="fade" mode="out-in">
+                            <div v-if="form_panel_id != null" :style="{marginTop: '10px'}">
+                                <sui-label
+                                    :style="{marginBottom: '10px'}"
+                                    v-for="(section, i) in new_meeting_info.meta.sections" :key="i">
+                                    Section
+                                    <sui-label-detail>{{ section }}</sui-label-detail>
+                                </sui-label>
+                            </div>
+                        </transition>
+                        
+
+                    <div class="form-area">
+                        
+                        <transition name="fade" mode="out-in">
+                        <div v-if="form_panel_id == null" key="0">
+                            <sui-form>
+                                <sui-form-field>
+                                    <label>Meeting Name</label>
+                                    <input v-model="new_meeting_info.meta.meeting_name" />
+                                </sui-form-field>
+
+                                <!-- DateTime Picker Component: https://github.com/chronotruck/vue-ctk-date-time-picker -->
+
+                                <div class="form-section sections-selector">
+                                    <sui-button 
+                                        :style="{marginBottom: '10px'}"
+                                        :class="new_meeting_info.meta.sections.has(section) ? 'venue-blue' : ''"
+                                        v-for="section in course_sections"
+                                        @click="toggleSectionInclude(section)"
+                                        >
+                                        Section {{section}}</sui-button>
+                                </div>
+
+                                <div class="form-section instructors-note">
+
+                                    <div>
+                                        <sui-checkbox label="Include Instructor's Note" v-model="include_instructors_note" />
+                                    </div>
+                                    <transition
+                                        name="fade"
+                                        mode="out-in">
+                                        <div v-if="include_instructors_note" class="instructors-note-container">
+                                            <div class="title-area">Instructor's Note</div>
+                                            <div class="subtitle">Leave a note for your students to read when they see this meeting.</div>
+                                            <div class="value-area">
+                                                <textarea v-model="new_meeting_info.meta.instructors_note"></textarea>
+                                            </div>
+                                        </div>
+                                    </transition>
+                                </div>
+
+                                <div class="online-meeting-area">
+                                    <div>
+                                        <sui-checkbox label="Online Meeting" v-model="include_online_meeting_link" />
+                                        <transition
+                                            name="fade"
+                                            mode="out-in">
+                                            <div class="field" :style="{marginTop: '10px', marginBottom: '15px'}" v-if="include_online_meeting_link">
+                                                <input v-model="new_meeting_info.meta.online_meeting_link" />
+                                            </div>
+                                        </transition>
+                                    </div>
+                                </div>
+
+                                <div class="continue-area" :style="{textAlign: 'right'}">
+                                    <div :style="{marginBottom: '20px'}">
+                                        <sui-button class="venue-green" @click="initiateLiveTasks" animated>
+                                            <sui-button-content visible>Add Live Tasks</sui-button-content>
+                                            <sui-button-content hidden>
+                                                <sui-icon name="right arrow" />
+                                            </sui-button-content>
+                                        </sui-button>
+                                    </div>
+                                    <div>
+                                        <sui-button class="venue-green" @click="initiateAsyncTasks" animated>
+                                            <sui-button-content visible>Add Asynchronous Tasks</sui-button-content>
+                                            <sui-button-content hidden>
+                                                <sui-icon name="right arrow" />
+                                            </sui-button-content>
+                                        </sui-button>
+                                    </div>
+                                </div>
+
+                                <!-- Here, place radio button to select whether to do a live or async meeting.
+                                    For each type (live/async), provide a (+) button that allows to add entries
+                                    such as file uploads, etc.
+
+                                    If the type of meeting is LIVE, add a QR code by default.
+                                    
+                                    A date-time must be specified for each task that is within the bounds of the
+                                    meeting time.
+                                -->
+
+                            </sui-form>
+                        </div>
+
+                        <div v-if="form_panel_id != null" key="1">
+
+                            <transition-group name="fade" mode="out-in">
+                                <div v-for="(task_data, i) in task_order" :key="i">
+                                    
+                                    <div class="subform-contents" v-if="task_data.id == form_panel_id">
+                                        <div v-if="getSubformInfo(task_data) != null && getSubformInfo(task_data).type == 'qr-code'">
+                                            <QRCodeForm
+                                                :sections="new_meeting_info.meta.sections"
+                                            />
+                                        </div>
+                                        <div v-else-if="getSubformInfo(task_data) != null && getSubformInfo(task_data).type == 'poll'">
+                                            <PollCreationForm />
+                                        </div>
+                                    </div>
+                                </div>
+                            </transition-group>
+
+                            <div class="form-container-footer" id="form-footer-action">
+                                <div class="back-area">
+                                    <sui-button @click="goToNextTask ()" content="Back" icon="left arrow" label-position="left" />
+                                </div>
+                                <div>
+                                
+                                <!-- Dropdown to Add more activities -->
+                                <div :style="{textAlign: 'right', marginBottom: '10px'}">
+                                    <sui-dropdown
+                                    class="labeled
+                                    icon venue-green"
+                                    icon="plus"
+                                    button
+                                    :text="`Add to ${getCreationMode ()} Section`"
+                                    >
+                                        <sui-dropdown-menu>
+                                            <sui-dropdown-item @click="addPollSection()">
+                                                <div class="dropdown-icon-container"><span class="icon-ballot"></span></div>Poll/Quiz
+                                            </sui-dropdown-item>
+
+                                            <sui-dropdown-item>
+                                                <div class="dropdown-icon-container"><span class="icon-link"></span></div>Link/Quiz
+                                            </sui-dropdown-item>
+
+                                            <sui-dropdown-item>
+                                                <div class="dropdown-icon-container"><span class="icon-file"></span></div>File Download
+                                            </sui-dropdown-item>
+                                        </sui-dropdown-menu>
+                                    </sui-dropdown>
+                                </div>
+                                <div>
+                                    <sui-button class="venue-blue" @click="goToNextTask ()" :content="`Complete ${getCreationMode()} Section`" icon="check" label-position="left" />
+                                </div>
+
+
+                                </div>
+                            </div>
+
+                        </div>
+                        </transition>
+
+                    </div>
+                </div>
+                </transition>
+            </div>
+        </div>
     </div>
 
-    <h1 v-if="for_course">New Meeting For {{ course.name }}</h1>
-    <h1 v-else>New Meeting For {{ org.name }}</h1>
-
-    <AddAttendanceModal v-if="show_live_attendance_modal" is_live v-on:hide-attendance-modal="hideAttendanceModal" v-on:add-live-attendance="addLiveAttendance"/>
-    <AddAttendanceModal v-if="show_async_attendance_modal" v-on:hide-attendance-modal="hideAttendanceModal" v-on:add-async-attendance="addAsyncAttendance"/>
-
-    <!-- New Meeting Form -->
-    <form class="new-lecture-form" @submit.prevent="createMeeting">
-      <div class="form-group">
-        <!-- Meeting Info -->
-        <div class="input-wrapper">
-          <label id="title_label">Meeting Title</label>
-          <input
-            type="text"
-            class="form-control new-lecture-input"
-            placeholder="e.g. Meeting 1"
-            v-model="meeting.title"
-            aria-labelledby="title_label"
-          />
-        </div>
-
-        <!-- Start & End Time Inputs -->
-        <div class="input-wrapper">
-          <label id="start_time_label">Start Time</label>
-          <input id="meeting_start" aria-labelledby="start_time_label" type="datetime-local"/>
-          <br>
-          <label id="end_time_label">End Time</label>
-          <input id="meeting_end"aria-labelledby="end_time_label" type="datetime-local"/>
-        </div>
-
-        <!-- Live Attendance Button & Info -->
-        <div class="input-wrapper">
-          <button type="button" class="btn btn-secondary" @click="showLiveAttendanceModal" :disabled="!meeting_times_are_valid">Add Live Attendance</button>
-        </div>
-
-        <AttendanceContainerList :attendance_list="qr_checkins" :is_qr="true" v-on:remove-attendance="removeAttendance"/>
-
-        <!-- Async Attendance Button & Info -->
-        <div class="input-wrapper">
-          <button type="button" class="btn btn-secondary" @click="showAsyncAttendanceModal" :disabled="!meeting_times_are_valid">Add Asynchronous Attendance</button>
-        </div>
-
-        <AttendanceContainerList :attendance_list="recordings" :is_qr="false" v-on:remove-attendance="removeAttendance"/>
-
-        <!-- Error Mesage and Create Meeting Button -->
-        <!-- <p class="error_msg" v-if="input_error_message!=''">{{input_error_message}}</p> -->
-        <button class="btn btn-primary create-lecture-btn" :disabled="!meetingCanBeCreated">Create Meeting</button>
-      </div>
-    </form>
-  </div>
-</template>
-
+ </template>
 <script>
-import LectureAPI from "@/services/LectureAPI.js";
-import CourseAPI from "@/services/CourseAPI.js";
-import MeetingAPI from "@/services/MeetingAPI.js";
-import OrgAPI from "@/services/OrgAPI.js";
-import SectionAPI from "@/services/SectionAPI.js";
-import Sections from "@/components/Sections";
-import QRCode from "qrcode";
-import GoogleMap from "@/components/GoogleMap";
-import LectureUploadModal from "@/components/LectureUploadModal";
-import AddAttendanceModal from "@/components/AddAttendanceModal";
-import AttendanceContainerList from "@/components/AttendanceContainerList";
-import flatpickr from "flatpickr";
-import '../../node_modules/flatpickr/dist/flatpickr.min.css';
-require("flatpickr/dist/themes/material_blue.css");
-// DatePicker themes options:
-// "material_blue","material_green","material_red","material_orange",
-// "dark","airbnb","confetti"
+ 
+import QRCodeForm from "@/components/meeting_form/QRCodeForm.vue"
+import PollCreationForm from "@/components/meeting_form/PollCreationForm.vue"
 
 export default {
-  name: "NewMeeting",
-  components: {
-    Sections,
-    GoogleMap,
-    AddAttendanceModal,
-    AttendanceContainerList
-  },
-  data() {
-    return {
-      meeting: {
-        has_live_attendance: false,
-        has_async_attendance: false,
-        sections: []
-      },
-      show_live_attendance_modal: false,
-      show_async_attendance_modal: false,
-      meeting_times_are_valid: false,
-      qr_checkin_times_are_valid: false,
-      course: {},
-      org: {},
-      random_checkin_time: true,
-      qr_checkins: [],
-      recordings: [],
-      live_polls: [],
-      for_course: false,
-      meeting_saving: false
-    };
-  },
-  created() {
-    this.getCourseOrOrg()
-    this.setDateInputs()
-  },
-  computed: {
-    meetingCanBeCreated: function() {
-      return (this.meeting.has_live_attendance || this.meeting.has_async_attendance) && this.meeting.title && !this.meeting_saving
-    }
-  },
-  methods: {
-    async getCourseOrOrg() {
-      if(this.$route.name === "course_new_meeting"){
-        this.course_id = this.$route.params.course_id;
-        this.for_course = true
-        const response = await CourseAPI.getCourse(this.course_id)
-        this.course = response.data
-        this.meeting.for_course = true
-        this.meeting.course = this.course
-      } else {
-        this.org_id = this.$route.params.org_id;
-        const response = await OrgAPI.getOrg(this.org_id)
-        this.org = response.data
-        this.meeting.for_course = false
-        this.meeting.org = this.org
-      }
+    name: 'NewMeeting',
+    components: {
+        QRCodeForm,
+        PollCreationForm
     },
-    setDateInputs() {
-      this.$nextTick(() => {
-        let self = this
-        let start_time_picker = flatpickr(document.getElementById("meeting_start"),{
-          enableTime: true,
-          dateFormat: "h:i K, M d, Y",
-          minDate: Date.now(),
-          minuteIncrement: 1,
-          onChange: function(selectedDates, dateStr, instance) {
-            self.meeting.start_time = Date.parse(dateStr)
-            // Set the new min end time to 15 minutes after the new start time
-            let new_min_end_time = new Date(self.meeting.start_time)
-            new_min_end_time.setMinutes(new_min_end_time.getMinutes() + 15)
-            end_time_picker.set("minDate",new_min_end_time)
-            // Update end time if invalid
-            let fifteen_mins = 60 * 15 * 1000
-            if(self.meeting.start_time > self.meeting.end_time || !self.meeting.end_time ) {
-              self.meeting.end_time = self.meeting.start_time + fifteen_mins
-              end_time_picker.setDate(self.meeting.start_time + fifteen_mins)
-            }
-            // Keep the dates 15 minutes apart
-            if((self.meeting.start_time + fifteen_mins) > self.meeting.end_time) {
-              self.meeting.end_time = self.meeting.start_time + fifteen_mins
-              end_time_picker.setDate(self.meeting.start_time + fifteen_mins)
-            }
-            self.meeting_times_are_valid = true
-          }
-        })
-        let end_time_picker = flatpickr(document.getElementById("meeting_end"),{
-          enableTime: true,
-          dateFormat: "h:i K, M d, Y",
-          minDate: Date.now(),
-          minuteIncrement: 1,
-          onChange: function(selectedDates, dateStr, instance) {
-            self.meeting.end_time = Date.parse(dateStr)
-          }
-        })
-      })
-    },
-    showLiveAttendanceModal() {
-      this.show_live_attendance_modal = true
-    },
-    showAsyncAttendanceModal() {
-      this.show_async_attendance_modal = true
-    },
-    hideAttendanceModal() {
-      this.show_live_attendance_modal = false
-      this.show_async_attendance_modal = false
-    },
-    addLiveAttendance(is_qr_checkin, qr_or_poll) {
-      this.hideAttendanceModal()
-      if(is_qr_checkin) {
-        let qr_checkin = qr_or_poll
-        if(qr_checkin.has_random_checkin_time) {
-          // Generate a random start time within the window
-          // 5 mins after start and 5 mins before end
-          this.generateRandomCheckinTimes(qr_checkin)
-        } else {
-          console.log("Using custom time for qr",qr_checkin)
-        }
-        qr_checkin.code = this.generateRandomCode()
-        this.qr_checkins.push(qr_checkin)
-      } else {
+    data () {
+        return {
+            form_panel_id: null,
+            tasks_count: 0,
+            task_order: [],
 
-      }
-      this.meeting.has_live_attendance = true
-    },
-    addAsyncAttendance(recording) {
-      if(this.recordingExists(recording)) {
-        alert("Recording with this video has already been added")
-      } else {
-        this.hideAttendanceModal()
-        this.recordings.push(recording)
-        this.meeting.has_async_attendance = true
-      }
-    },
-    recordingExists(recording) {
-      let recording_exists = false
-      for(let i = 0; i < this.recordings.length; i++) {
-        if(this.recordings[i].video.name === recording.video.name) {
-          recording_exists = true
-          break
+            include_instructors_note: false,
+            include_online_meeting_link: false,
+            new_meeting_info: {},
+
+            course_sections: [1, 2, 3, 4, 5],
+            creation_mode: null
         }
-      }
-      return recording_exists
     },
-    generateRandomCheckinTimes(qr_checkin) {
-      let five_mins = 60 * 5 * 1000
-      let five_mins_after_start = new Date(this.meeting.start_time + five_mins)
-      let five_mins_before_end = new Date(this.meeting.end_time - five_mins)
-      qr_checkin.qr_checkin_start_time = new Date(five_mins_after_start.getTime() + Math.random() *
-          (five_mins_before_end.getTime() - five_mins_after_start.getTime()))
-      qr_checkin.qr_checkin_end_time = new Date(qr_checkin.qr_checkin_start_time.getTime() + five_mins)
-    },
-    generateRandomCode() {
-      const alnums = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      let result = "";
-      for (let i = 100; i > 0; --i) {
-        result += alnums[Math.floor(Math.random() * alnums.length)];
-      }
-      return result;
-    },
-    removeAttendance(attendance, is_qr) {
-      if(is_qr) {
-        for(let i = 0; i < this.qr_checkins.length; i++) {
-          if(this.qr_checkins[i].code === attendance.code)
-            this.qr_checkins.splice(i,1)
+    created () {
+        
+        // window.addEventListener ('resize', this.setBottomActionPosition)
+
+        // set the new meeting meta
+        this.new_meeting_info['meta'] = {
+            meeting_name: '',
+            course_id: '',
+            sections: new Set(),
+            instructors_note: '',
+            online_meeting_link: null
         }
-        if(this.qr_checkins.length == 0)
-          this.meeting.has_live_attendance = false
-      } else {
-        for(let i = 0; i < this.recordings.length; i++) {
-          if(this.recordings[i].video.name === attendance.video.name)
-            this.recordings.splice(i,1)
+    },
+    methods: {
+
+        getCreationMode () {
+            if (this.creation_mode == 'live') return 'Live'
+            if (this.creation_mode == 'async') return 'async'
+            return 'Undefined'
+        },
+
+        getSubformInfo (task_data) {
+            // task_data should have an id & type
+            console.log(`Inside getSubformInfo()`)
+            if (task_data.type == 'live') {
+                if (Object.hasOwnProperty.call(this.new_meeting_info.live, task_data.id)) {
+                    console.log(`getSubformInfo:`)
+                    console.log(this.new_meeting_info.live[task_data.id])
+                    return this.new_meeting_info.live[task_data.id]
+                }
+                return null
+            }
+
+            if (task_data.type == 'async') {
+                if (Object.hasOwnProperty.call(this.new_meeting_info.async, task_data.id)) {
+                    return this.new_meeting_info.async[task_data.id]
+                }
+                return null
+            }
+
+              
+        },
+
+        addPollSection () {
+            // add a poll to the meeting
+            console.log(`Adding Poll`)
+
+            let task_id = this.tasks_count
+
+            if (this.creation_mode == 'live') {
+                this.new_meeting_info.live[task_id] = {
+                    type: 'poll',
+                    start_time: null,
+                    end_time: null,
+                    questions: []
+                }
+            }
+            else if (this.creation_mode == 'async') {
+                this.new_meeting_info.async[task_id] = {
+                    type: 'poll',
+                    start_time: null,
+                    end_time: null,
+                    questions: []
+                }
+            }
+
+            this.task_order.push({
+                id: task_id,
+                type: this.creation_mode
+            })
+
+            this.form_panel_id = task_id;
+            ++ this.tasks_count
+            
+            console.log(`Debugging`)
+            console.log(this.task_order)
+            console.log(this.form_panel_id)
+            console.log(this.new_meeting_info)
+        },
+
+        setBottomActionPosition (e) {
+            
+            let action_footer = document.getElementById('form-footer-action')
+            if (action_footer == null) return;
+
+            // console.dir(action_footer)
+            // console.log(window)
+
+            let offset_ = action_footer.offsetTop // + action_footer.scrollTop
+            let trav = action_footer.offsetParent
+            while (trav != null) {
+                offset_ += trav.offsetTop
+                trav = trav.offsetParent
+            }
+            offset_ += action_footer.clientHeight / 2 - window.scrollY
+
+            // console.log(`Offset Top: ${offset_}`)
+            // console.log(`Inner Height: ${window.innerHeight}`)
+
+            if (offset_ > window.innerHeight) {
+                
+                // make it fixed
+                console.log('making fixed')
+                action_footer.style.position = "fixed"
+            }
+            else {
+                // undo position fixed
+                console.log('unfixing')
+                action_footer.style.position = "static"
+            }
+        },
+
+        toggleSectionInclude (section_id) {
+            if (this.new_meeting_info.meta.sections.has(section_id)) {
+                // remove
+                this.new_meeting_info.meta.sections.delete (section_id)
+            }
+            else {
+                // add
+                this.new_meeting_info.meta.sections.add (section_id)
+            }
+
+            this.$forceUpdate ();
+        },
+
+        initiateLiveTasks () {
+
+            this.creation_mode = 'live'
+
+            // create a new QR Code section, since that's the 1st possible live event that can happen
+            let next_id = this.createQRCodeEntry();
+            
+            // go to the next index
+            this.task_order.push({
+                id: next_id,
+                type: 'live'
+            })
+
+            this.form_panel_id = next_id;
+        },
+
+        initiateAsyncTasks () {
+            // this.form_panel_index = 1;
+            this.creation_mode = 'async'
+        },
+
+        getCurrentTaskIndex () {
+            // find the index of the current task
+            let ind_ = this._indexOf(this.task_order, this.form_panel_id, (a, b) => {
+                return a.id == b
+            })
+            if (ind_ == -1) {
+                console.error(`Task id ${this.form_panel_id} could not be found in the task order queue.`)
+            }
+            return ind_;
+        },
+        goToPrevTask () {
+            let task_index = this.getCurrentTaskIndex ();
+            this.form_panel_id = this.task_order[ Math.max(task_index - 1, 0) ].id
+        },
+        goToNextTask () {
+            let task_index = this.getCurrentTaskIndex ();
+            this.form_panel_id = this.task_order[ Math.min(task_index + 1, this.task_order.length - 1) ].id
+        },
+
+        createQRCodeEntry () {
+            if (!Object.prototype.hasOwnProperty.call( this.new_meeting_info, 'live' )) {
+                this.new_meeting_info.live = {}
+            }
+
+            let task_id = this.tasks_count
+            this.new_meeting_info.live[task_id] = {
+                type: 'qr-code',
+                start_time: null,
+                end_time: null
+            }
+
+            ++ this.tasks_count
+            this.$forceUpdate ()
+
+            return task_id
+        },
+
+        // debugging
+        logToConsole () {
+            console.log(this.new_meeting_info)
+        },
+        _log (data) {
+            console.log(data)
+        },
+
+        // extensions
+        _indexOf (array, value, equality) {
+            let ind_ = 0;
+            for(ind_; ind_ < array.length; ++ind_) {
+                if (equality( array[ind_], value )) return ind_;
+            }
+            return -1;
         }
-        if(this.recordings.length == 0)
-          this.meeting.has_async_attendance = false 
-      }
+
     },
-    async createMeeting() {
-      this.meeting_saving = true
-      if(this.meeting.has_live_attendance)
-        this.meeting.qr_checkins = this.qr_checkins
-      if(this.meeting.has_async_attendance) 
-        await this.saveRecordingVideosToGCS()
-      await this.saveMeetingToCourseOrOrg()
-      this.meeting_saving = false
-      this.routeToCourseOrOrgInfo()
-    },
-    async saveRecordingVideosToGCS() {
-      const response = await MeetingAPI.saveRecordingVideosToGCS(this.recordings)
-      let video_gcs_urls = response.data
-      for(let i = 0; i < this.recordings.length; i++) {
-        this.recordings[i].video_url = video_gcs_urls[i]
-        console.log("Set url",this.recordings[i].video_url)
-      }
-      this.meeting.recordings = this.recordings
-    },
-    async saveMeetingToCourseOrOrg() {
-      console.log("saving meeting",this.meeting)
-      if(this.for_course){
-        const response = await MeetingAPI.addMeeting(this.meeting,true,this.course_id)
-      }else{
-        const response = await MeetingAPI.addMeeting(this.meeting,false,this.org_id)
-      }
-    },
-    routeToCourseOrOrgInfo() {
-      if(this.$route.name === "course_new_meeting"){
-        this.$router.push({
-          name: "course_info",
-          params: { id: this.course_id }
-        })
-      } else {
-        this.$router.push({
-          name: "org_info",
-          params: { id: this.org_id }
-        })
-      }
+    watch: {
+        include_instructors_note: function (should) {
+            if (should) this.new_meeting_info.meta.instructors_note = ''
+            else this.new_meeting_info.meta.instructors_note = null
+        },
+        include_online_meeting_link: function (should) {
+            if (should) this.new_meeting_info.meta.online_meeting_link = ''
+            else this.new_meeting_info.meta.online_meeting_link = null
+        }
     }
-  }
-};
+ }
+
 </script>
+<style lang="scss">
 
-<style>
-.input-wrapper {
-  width: 80%;
-  margin: auto;
-  margin-top: 3rem;
-  padding: 0;
-  /*border: blue solid;*/
+.new-meeting {
+    width: 800px;
+    margin: 0 auto;
+    position: relative;
+    display: flex;
+
+    .content-area {
+        width: 500px;
+        transition: transform 0.25s;
+        transform: translate(200px, 0px);
+        // transition-timing-function: ease-in-out;
+        transition-timing-function: ease-out;
+        // transition-timing-function: ease-in;
+        // transition-timing-function: ease;
+
+        .subform-contents {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .form-container-footer {
+            display: flex;
+            margin-top: 30px;
+            margin-bottom: 30px;
+            bottom: 0;
+
+            .back-area {
+                flex-grow: 1;
+            }
+        }
+    }
+    .content-area.solo {
+        transform: translate(100px, 0px);
+    }
+    .sidenav-area {
+        width: 200px;
+        position: fixed;
+        box-sizing: border-box;
+        padding-right: 30px;
+        text-align: right;
+
+        .sidenav-section {
+            margin-bottom: 30px;
+        }
+    }
+
+    .title {
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .big-subtitle {
+        font-size: 2rem;
+        margin-bottom: 20px;
+    }
+
+    .contents {
+
+        .field {
+            input {
+                background-color: rgba(0, 0, 0, 0);
+                transition: border 0.25s;
+            }
+            input:focus {
+                background-color: rgba(0, 0, 0, 0);
+                transition: border 0.25s;
+            }
+        }
+
+        .form-area {
+            margin-top: 30px;
+
+            .form-section {
+                margin-bottom: 30px;
+            }
+
+            .sections-selector {
+                button {
+                    margin-right: 15px;
+                }
+            }
+
+            .instructors-note {
+                .instructors-note-container {
+                    margin-top: 15px;
+                    background-color: #FF9167;
+                    border-radius: 5px;
+                    padding: 10px 10px 10px 40px;
+
+                    .title-area {
+                        font-weight: 600;
+                        font-size: 1rem;
+                        margin: 7px 0 2px;
+                    }
+
+                    .subtitle {
+                        font-size: 0.8rem;
+                    }
+
+                    .value-area {
+                        margin-top: 20px;
+                        margin-bottom: 20px;
+                        textarea {
+                            background-color: rgba(0, 0, 0, 0);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
-.form-group {
-  margin: 0;
+.dark-mode {
+    .new-meeting {
+
+        .contents {
+
+            .form-area {
+
+                .field {
+
+                    input {
+                        color: white;
+                        border: 1px solid rgba(255, 255, 255, 0.3);
+                    }
+                    input:focus {
+                        border: 1px solid rgba(71, 196, 252, 0.6);
+                    }
+                }
+
+                textarea {
+                    color: white;
+                }
+            }
+        }
+    }
 }
 
-.random_input {
-  width: 5rem;
-}
-
-#submission-time-wrapper {
-  width: 80%;
-}
-
-.time-picker {
-  /*border: black solid;*/
-  display: inline-block;
-  margin-left: 1rem;
-  margin-right: 1rem;
-}
-
-.create-lecture-btn {
-  margin-top: 2rem;
-}
-
-#qr-section {
-  margin-top: 2rem;
-}
-
-.error_msg {
-  color: red;
-}
-
-#meeting-saving-modal {
-  border: black solid;
-  background-color: white;
-  z-index: 10;
-  height: 90%;
-  width: 80%;
-  position: absolute;
-  margin-top: 0;
-  margin-left: 10%;
-  overflow-y: scroll;
-  margin-bottom: 5rem;
-  padding-top: 15rem;
-}
-</style>
+ </style>
