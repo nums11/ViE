@@ -4,60 +4,73 @@
         <span class="sr-only">Loading...</span>
     </div>
     <div v-else>
-      <!-- QR Code Modal -->
-      <div class="hidden" id="qr_modal">
-        <qrcode v-bind:value="current_qr_code" :options="{ width: 600 }"></qrcode>
-        <button class="btn btn-secondary" id="close_qr_btn" @click="hideQRCode" aria-label="Hide QR">Hide</button>
-      </div>
-      <!-- QR SCanning Window -->
-      <div id="qr-scanning-container" v-if="qr_scanning_window_open">
-        <button @click="closeQRScanningWindow" id="exit_preview_btn" tabindex="0" aria-label="Close QR Scanner">X</button>
-        <qrcode-stream id="video_preview" @decode="attemptQRCheckinSubmission"></qrcode-stream>
-      </div>
       <!-- Meeting Info -->
       <h1>{{ meeting.title }}</h1>
       <h2 v-if="for_course">{{ meeting.course.name }}</h2>
       <h2 v-else>{{ meeting.org.name }}</h2>
-      <h3 v-if="meeting.has_live_attendance">Has Live Attendance</h3>
-      <h3 v-else>No Live Attendance</h3>
-      <h3 v-if="meeting.has_async_attendance">Has Async Attendance</h3>
-      <h3 v-else>No Async Attendance</h3>
 
-      <!-- Live Attendance -->
-      <h2 style="margin-top:5rem; text-decoration:underline;">Live Attendance</h2>
-      <h3 style="text-decoration:underline;">QR Checkins</h3>
-      <!-- Instructor QR Boxes -->
-      <div v-if="is_instructor">
-        <div  class="qr-checkin-box" v-for="qr_checkin in meeting.live_attendance.qr_checkins">
-          <p style="font-weight:bold;" v-if="getCheckinWindowStatus(qr_checkin) === 'upcoming'">Upcoming</p>
-          <button v-else-if="getCheckinWindowStatus(qr_checkin) === 'open'" @click="showQRCode(qr_checkin.code)">Show QR</button>
+      <div v-if="meeting.has_live_attendance">
+        <!-- QR Code Modal -->
+        <div class="hidden" id="qr_modal">
+          <qrcode v-bind:value="current_qr_code" :options="{ width: 600 }"></qrcode>
+          <button class="btn btn-secondary" id="close_qr_btn" @click="hideQRCode" aria-label="Hide QR">Hide</button>
+        </div>
+        <!-- QR SCanning Window -->
+        <div id="qr-scanning-container" v-if="qr_scanning_window_open">
+          <button @click="closeQRScanningWindow" id="exit_preview_btn" tabindex="0" aria-label="Close QR Scanner">X</button>
+          <qrcode-stream id="video_preview" @decode="attemptQRCheckinSubmission"></qrcode-stream>
+        </div>
+        <!-- Live Attendance -->
+        <h2 style="margin-top:5rem; text-decoration:underline;">Live Attendance</h2>
+        <h3 style="text-decoration:underline;">QR Checkins</h3>
+        <!-- Instructor QR Boxes -->
+        <div v-if="is_instructor">
+          <div class="attendance-box" v-for="qr_checkin in meeting.live_attendance.qr_checkins">
+            <p style="font-weight:bold;" v-if="getWindowStatus(qr_checkin, true) === 'upcoming'">Upcoming</p>
+            <button v-else-if="getWindowStatus(qr_checkin, true) === 'open'" @click="showQRCode(qr_checkin.code)">Show QR</button>
+            <p style="font-weight:bold;" v-else>Closed</p>
+            <h4>checkin start: {{ new Date(qr_checkin.qr_checkin_start_time) }}</h4>
+            <h4>checkin end: {{ new Date(qr_checkin.qr_checkin_end_time) }}</h4>
+            <h4 style="text-decoration:underline;">Submissions</h4>
+            <h4 v-for="submission in qr_checkin.qr_checkin_submissions">
+              <p>
+                {{ submission.submitter.first_name }} {{ submission.submitter.last_name }} ({{ submission.submitter.user_id }})
+              </p>
+            </h4>
+          </div>
+        </div>
+        <!-- Student QR Boxes -->
+        <div v-else>
+          <div class="attendance-box" v-for="qr_checkin in meeting.live_attendance.qr_checkins">
+          <p v-if="getWindowStatus(qr_checkin, true) === 'closed'">QR Checkin Closed</p>
+          <div v-else-if="getWindowStatus(qr_checkin, true) === 'open'">
+            <button v-if="!submissionExistsForUser(qr_checkin)" @click="showQRScanningWindow">Scan QR</button>
+            <p style="font-weight:bold;" v-else>Attendance Recorded</p>
+            <h4>checkin start: {{ new Date(qr_checkin.qr_checkin_start_time) }}</h4>
+            <h4>checkin end: {{ new Date(qr_checkin.qr_checkin_end_time) }}</h4>
+          </div>
+          </div>
+        </div>
+        <h3 style="text-decoration:underline;">Live Polls</h3>
+      </div>
+
+      <div>
+        <h2 style="margin-top:5rem; text-decoration:underline;">Async Attendance</h2>
+        <h3 style="text-decoration:underline;">Recordings</h3>
+        <div  class="attendance-box" v-for="recording in meeting.async_attendance.recordings">
+          <p style="font-weight:bold;" v-if="getWindowStatus(recording, false) === 'upcoming'">Upcoming</p>
+          <p v-else-if="getWindowStatus(recording, false) === 'open'">Open</p>
           <p style="font-weight:bold;" v-else>Closed</p>
-          <h4>checkin start: {{ new Date(qr_checkin.qr_checkin_start_time) }}</h4>
-          <h4>checkin end: {{ new Date(qr_checkin.qr_checkin_end_time) }}</h4>
+          <h4>recording submission start: {{ new Date(recording.recording_submission_start_time) }}</h4>
+          <h4>recording submission end: {{ new Date(recording.recording_submission_end_time) }}</h4>
           <h4 style="text-decoration:underline;">Submissions</h4>
-          <h4 v-for="submission in qr_checkin.qr_checkin_submissions">
+          <h4 v-for="submission in recording.recording_submissions">
             <p>
               {{ submission.submitter.first_name }} {{ submission.submitter.last_name }} ({{ submission.submitter.user_id }})
             </p>
           </h4>
         </div>
       </div>
-      <!-- Student QR Boxes -->
-      <div v-else>
-        <div class="qr-checkin-box" v-for="qr_checkin in meeting.live_attendance.qr_checkins">
-        <p v-if="getCheckinWindowStatus(qr_checkin) === 'closed'">QR Checkin Closed</p>
-        <div v-else-if="getCheckinWindowStatus(qr_checkin) === 'open'">
-          <button v-if="!submissionExistsForUser(qr_checkin)" @click="showQRScanningWindow">Scan QR</button>
-          <p style="font-weight:bold;" v-else>Attendance Recorded</p>
-          <h4>checkin start: {{ new Date(qr_checkin.qr_checkin_start_time) }}</h4>
-          <h4>checkin end: {{ new Date(qr_checkin.qr_checkin_end_time) }}</h4>
-        </div>
-        </div>
-      </div>
-      <h3 style="text-decoration:underline;">Live Polls</h3>
-
-      <h2 style="margin-top:5rem; text-decoration:underline;">Async Attendance</h2>
-      <h3>Recordings</h3>
     </div>
   </div>
 </template>
@@ -99,18 +112,25 @@
         this.for_course = this.meeting.for_course
         this.meeting_has_loaded = true
       },
-      getCheckinWindowStatus(qr_checkin) {
+      getWindowStatus(attendance, is_qr) {
         let current_time = new Date()
-        let checkin_start = new Date(qr_checkin.qr_checkin_start_time)
-        let checkin_end = new Date(qr_checkin.qr_checkin_end_time)
-        let checkin_window_status = ""
-        if(current_time > checkin_end)
-          checkin_window_status = "closed"
-        else if(current_time < checkin_start)
-          checkin_window_status = "upcoming"
+        let window_start = null
+        let window_end = null
+        if(is_qr) {
+          window_start = new Date(attendance.qr_checkin_start_time)
+          window_end = new Date(attendance.qr_checkin_end_time)
+        } else {
+          window_start = new Date(attendance.recording_submission_start_time)
+          window_end = new Date(attendance.recording_submission_end_time)
+        }
+        let window_status = ""
+        if(current_time > window_end)
+          window_status = "closed"
+        else if(current_time < window_start)
+          window_status = "upcoming"
         else
-          checkin_window_status = "open"
-        return checkin_window_status
+          window_status = "open"
+        return window_status
       },
       showQRCode(code) {
         this.current_qr_code = code
@@ -145,7 +165,7 @@
         let open_checkin = {}
         let meeting_checkins = this.meeting.live_attendance.qr_checkins
         for(let i = 0; i < meeting_checkins.length; i++) {
-          if(this.getCheckinWindowStatus(meeting_checkins[i]) === "open"){
+          if(this.getWindowStatus(meeting_checkins[i], true) === "open"){
             open_checkin = meeting_checkins[i]
             break
           }
@@ -179,7 +199,7 @@
 </script>
 
 <style scoped>
-.qr-checkin-box {
+.attendance-box {
   border: black solid;
   margin-top: 2rem;
   margin-bottom: 2rem;

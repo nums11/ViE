@@ -232,6 +232,12 @@ meetingRoutes.route('/get/:id').get(function (req, res) {
     path: 'async_attendance',
     populate: [{
       path: 'recordings',
+      populate: {
+        path: 'recording_submissions',
+        populate: {
+          path: 'submitter'
+        }
+      }
     }]
   }).
   exec((error,meeting) => {
