@@ -1,0 +1,96 @@
+body {
+    transition: background-color 0.25s;
+}
+.light-mode, .dark-mode {
+
+    // theme change background transition effect
+    transition: background-color 0.25s;
+
+    // default venue color classes
+    .venue-red      { background-color: #FF5E5E !important; }
+    .venue-blue     { background-color: #47C4FC !important; }
+    .venue-green    { background-color: #5EFFB4 !important; }
+    .venue-orange   { background-color: #FC9547 !important; }
+
+    
+    .venue-red-text      { color: #FF5E5E !important; }
+    .venue-blue-text     { color: #47C4FC !important; }
+    .venue-green-text    { color: #5EFFB4 !important; }
+    .venue-orange-text   { color: #FC9547 !important; }
+
+}
+
+// Light Mode Theme
+.light-mode {
+
+    background-color: white;
+    color: black;
+
+    .ui.button.dropdown .menu {
+        
+        .item {
+            color: black !important;
+            a {
+                color: black !important;
+            }
+        }
+    }
+}
+
+// Dark Mode Theme
+.dark-mode {
+
+    background-color: #121419;
+    color: white;
+
+
+    .ui.button.dropdown .menu {
+        background-color: #282c36;
+        
+        .item {
+            color: white !important;
+            a {
+                color: white !important;
+            }
+        }
+    }
+}
+
+.hidden {
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+// Fade Transition Animation
+.fade-enter-active,
+.fade-leave-active {
+  transition-duration: 0.3s;
+  transition-property: opacity;
+  transition-timing-function: ease;
+}
+
+.fade-enter,
+.fade-leave-active {
+  opacity: 0;
+}
+
+.fade2-enter-active {
+  transition-duration: 1.2s;
+  transition-property: opacity;
+  transition-timing-function: ease;
+}
+
+.fade2-leave-active {
+    transition-duration: 0.25s;
+}
+
+.fade2-enter,
+.fade2-leave-active {
+  opacity: 0;
+}
+
+.subform {
+    .area-title {
+        margin-bottom: 5px;
+    }
+}

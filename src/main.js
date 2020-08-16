@@ -7,6 +7,12 @@ import store from './vuex/store'
 
 import VueAxios from 'vue-axios';
 import axios from 'axios';
+import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
+import PortalVue from "portal-vue"
+import SuiVue from "semantic-ui-vue"
+Vue.component('VueCtkDateTimePicker', VueCtkDateTimePicker);
+Vue.use(SuiVue)
+Vue.use(PortalVue)
 Vue.use(VueAxios, axios);
 
 Vue.config.productionTip = false;
