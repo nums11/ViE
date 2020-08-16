@@ -249,6 +249,7 @@ export default {
     console.log("meeting",this.meeting)
     this.meeting.qr_checkins = this.qr_checkins
     this.meeting.recordings = this.recordings
+    console.log("passing recordings", this.meeting.recordings)
     if(this.for_course){
       const response = await MeetingAPI.addMeeting(this.meeting,true,this.course_id)
     }else{

@@ -41,7 +41,7 @@
         <button class="exit-modal-btn" @click="$emit('hide-attendance-modal')">X</button>
          <h2>Add Async Attendance</h2>
       </div>
-      <form @submit.prevent="$emit('add-async-attendance',recording)">
+      <form @submit.prevent="$emit('add-async-attendance',recording)" enctype="multipart/form-data">
         <input id="video_selector" name="recording" type="file" accept="video/*" class="btn" role="button" tabindex="0" aria-label="Select Video"/>
         <div v-if="file_selected">
           Video Preview
