@@ -340,7 +340,4 @@ meetingRoutes.route('/delete/:id').delete(function (req, res) {
   });
 });
 
-
-
-
 module.exports = meetingRoutes;

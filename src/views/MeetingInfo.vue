@@ -54,7 +54,7 @@
         <h3 style="text-decoration:underline;">Live Polls</h3>
       </div>
 
-      <div>
+      <div v-if="meeting.has_async_attendance">
         <h2 style="margin-top:5rem; text-decoration:underline;">Async Attendance</h2>
         <h3 style="text-decoration:underline;">Recordings</h3>
         <div  class="attendance-box" v-for="recording in meeting.async_attendance.recordings">
@@ -63,6 +63,9 @@
           <p style="font-weight:bold;" v-else>Closed</p>
           <h4>recording submission start: {{ new Date(recording.recording_submission_start_time) }}</h4>
           <h4>recording submission end: {{ new Date(recording.recording_submission_end_time) }}</h4>
+          <router-link :to="{name: 'watch_recording', params: { recording_id: recording._id }}">
+            <button>Watch Recording</button>
+          </router-link>
           <h4 style="text-decoration:underline;">Submissions</h4>
           <h4 v-for="submission in recording.recording_submissions">
             <p>

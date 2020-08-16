@@ -39,6 +39,7 @@ import MeetingInfo from './views/MeetingInfo.vue';
 import Settings from './views/Settings.vue';
 import RedirectCASLogin from './views/RedirectCASLogin.vue';
 import Statistics from './views/Statistics.vue';
+import WatchRecording from './views/WatchRecording.vue';
 
 Vue.use(VueRouter);
 
@@ -300,6 +301,15 @@ const router = new VueRouter({
       component: LecturePlayback,
       meta: {
         title: "Venue - Lecture Playback",
+        requiresAuth: true,
+      }
+    },
+    {
+      name: 'watch_recording',
+      path: '/watch_recording/:recording_id',
+      component: WatchRecording,
+      meta: {
+        title: "Venue - Watch Recording",
         requiresAuth: true,
       }
     },

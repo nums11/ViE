@@ -58,6 +58,7 @@ function start() {
   const orgRouter = require('./Organization/Organization.route')
   const meetingRouter = require('./Meeting/Meeting.route')
   const liveSubmissionRouter = require('./LiveSubmission/LiveSubmission.route')
+  const recordingRouter = require('./Recording/Recording.route')
   // const eventRouter = require('./Event/Event.route')
   // const submissionRouter = require('./Submission/Submission.route')
   // const lectureRouter = require('./Lecture/Lecture.route')
@@ -119,6 +120,7 @@ function start() {
   app.use('/meetings', jwtVerify, meetingRouter);
   app.use('/livesubmissions', liveSubmissionRouter);
   app.use('/auth', authRouter);
+  app.use('/recordings', recordingRouter);
   // app.use('/users', jwtVerify, userRouter);
   // app.use('/courses', jwtVerify, courseRouter);
   // app.use('/sections', jwtVerify, sectionRouter);
