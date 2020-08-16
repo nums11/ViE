@@ -3,7 +3,9 @@ const meetingRoutes = express.Router();
 
 let Meeting = require('./Meeting.model');
 let LiveAttendance = require('../LiveAttendance/LiveAttendance.model');
+let AsyncAttendance = require('../AsyncAttendance/AsyncAttendance.model');
 let QRCheckin = require('../QRCheckin/QRCheckin.model');
+let Recording = require('../Recording/Recording.model');
 let Course = require('../Course/Course.model');
 let Org = require('../Organization/Organization.model');
 let Poll = require('../Poll/Poll.model');
@@ -23,30 +25,67 @@ meetingRoutes.route('/add/:for_course/:course_or_org_id').post(async (req, res) 
     console.log("Was for org", org_id)
   }
 
-  // Create the QR Checkins
-  let qr_promises = []
-  meeting.qr_checkins.forEach(qr_checkin => {
-    qr_promises.push(new Promise(async (resolve,reject) => {
-      let new_qr_checkin = new QRCheckin(qr_checkin)
-      try {
-        let saved_qr_checkin = await new_qr_checkin.save()
-        resolve(saved_qr_checkin)
-      } catch (error) {
-        console.log("<ERROR> (meetings/add) saving qr_checkin:",new_qr_checkin,error)
-        res.json(error)
-      }
-    }))
-  })
+  let new_meeting = new Meeting(meeting)
+
+  if(new_meeting.has_live_attendance) {
+    // Create the QR Checkins
+    let qr_promises = []
+    meeting.qr_checkins.forEach(qr_checkin => {
+      qr_promises.push(new Promise(async (resolve,reject) => {
+        let new_qr_checkin = new QRCheckin(qr_checkin)
+        try {
+          let saved_qr_checkin = await new_qr_checkin.save()
+          resolve(saved_qr_checkin)
+        } catch (error) {
+          console.log("<ERROR> (meetings/add) saving qr_checkin:",new_qr_checkin,error)
+          res.json(error)
+        }
+      }))
+    })
+    // Attach live attendance to the meeting
+    try{
+      let saved_qr_checkins = await Promise.all(qr_promises)
+      let live_attendance = new LiveAttendance({
+        qr_checkins: saved_qr_checkins
+      })
+      let saved_live_attendance = await live_attendance.save()
+      new_meeting.live_attendance = saved_live_attendance
+    } catch(error) {
+      console.log("<ERROR> (meetings/add) saving live attendance:",error)
+      res.json(error)
+    }
+  }
+
+  if(new_meeting.has_async_attendance) {
+    //Create the recordings
+    let recording_promises = []
+    meeting.recordings.forEach(recording => {
+      recording_promises.push(new Promise(async (resolve,reject) => {
+        let new_recording = new Recording(recording)
+        try {
+          let saved_recording = await new_recording.save()
+          resolve(saved_recording)
+        } catch (error) {
+          console.log("<ERROR> (meetings/add) saving recording:",new_recording,error)
+          res.json(error)
+        }
+      }))
+    })
+    // Attach async attendance to the meeting
+    try{
+      let saved_recordings = await Promise.all(recording_promises)
+      let async_attendance = new AsyncAttendance({
+        recordings: saved_recordings
+      })
+      let saved_async_attendance = await async_attendance.save()
+      new_meeting.async_attendance = saved_async_attendance
+    } catch(error) {
+      console.log("<ERROR> (meetings/add) saving async attendance:",error)
+      res.json(error)
+    }
+  }
 
   try {
-    // Create the meeting
-    let saved_qr_checkins = await Promise.all(qr_promises)
-    let live_attendance = new LiveAttendance({
-      qr_checkins: saved_qr_checkins
-    })
-    let saved_live_attendance = await live_attendance.save()
-    let new_meeting = new Meeting(meeting)
-    new_meeting.live_attendance = saved_live_attendance
     let saved_meeting = await new_meeting.save()
     if(for_course) {
 

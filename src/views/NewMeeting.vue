@@ -194,9 +194,23 @@ export default {
       this.meeting.has_live_attendance = true
     },
     addAsyncAttendance(recording) {
-      this.hideAttendanceModal()
-      this.recordings.push(recording)
-      this.meeting.has_async_attendance = true
+      if(this.recordingExists(recording)) {
+        alert("Recording with this video has already been added")
+      } else {
+        this.hideAttendanceModal()
+        this.recordings.push(recording)
+        this.meeting.has_async_attendance = true
+      }
+    },
+    recordingExists(recording) {
+      let recording_exists = false
+      for(let i = 0; i < this.recordings.length; i++) {
+        if(this.recordings[i].video.name === recording.video.name) {
+          recording_exists = true
+          break
+        }
+      }
+      return recording_exists
     },
     generateRandomCheckinTimes(qr_checkin) {
       let five_mins = 60 * 5 * 1000
@@ -234,6 +248,7 @@ export default {
     async createMeeting() {
     console.log("meeting",this.meeting)
     this.meeting.qr_checkins = this.qr_checkins
+    this.meeting.recordings = this.recordings
     if(this.for_course){
       const response = await MeetingAPI.addMeeting(this.meeting,true,this.course_id)
     }else{
