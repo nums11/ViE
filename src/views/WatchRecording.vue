@@ -63,7 +63,6 @@
           window_status = "upcoming"
         else
           window_status = "open"
-        console.log("Window status", window_status)
         return window_status
       },
       async createOrRetrieveStudentSubmission() {
@@ -100,24 +99,35 @@
         this.$nextTick(() => {
           videojs("video_player").ready(function() {
             let video = this
-            let current_time = 0 //set initial time to 0
+            let current_time = 0
+            // start the video at a different time if user has watched
+            if(self.submission.furthest_video_time > 0){
+              current_time = self.submission.furthest_video_time
+              video.currentTime(current_time)
+            }
+            console.log("video current time", video.currentTime())
+
             video.on("seeking", () => {
-              if (current_time < video.currentTime())
+              if (current_time < video.currentTime() ||
+                current_time < self.submission.furthest_video_time){
                 video.currentTime(current_time);
+              }
             });
             video.on("seeked", () => {
-              if (current_time < video.currentTime())
+              if (current_time < video.currentTime() ||
+                current_time < self.submission.furthest_video_time){
                 video.currentTime(current_time);
+              }
             });
             video.on('ended', () => {
               console.log("In ended")
               self.updateVideoSubmission(video.duration(), video.duration())
             });
-            // Update the current time once a second
+            // Update the current time once every half second
             setInterval(function() {
               if (!video.paused())
                 current_time = video.currentTime();
-            }, 1000);
+            }, 500);
             // Update user's submission every 5 seconds
             setInterval(async function() {
               if(current_time > self.submission.furthest_video_time)
