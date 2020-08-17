@@ -33,18 +33,6 @@
               <div v-if="user_has_loaded">
                 <div v-for="(meeting, i) in live_meetings" :key="i">
                   <MeetingInfoPill v-bind:meeting="meeting" />
-<!--                   <MeetingInfoPill
-                  v-bind:meetingMeta='{
-                    meetingTitle: meeting.title,
-                    courseDept: `${meeting.course.dept} ${meeting.course.course_number}`,
-                    courseName: meeting.course.name
-                  }'
-                  :meetingId="meeting._id"
-                  v-bind:tasks='{
-                    qrCode: true,
-                    poll: true
-                  }'
-                /> -->
                 </div>
             </div>
           </transition>
@@ -64,19 +52,6 @@
             <div v-if="user_has_loaded">
               <div v-for="(meeting, i) in async_meetings" :key="i">
                 <MeetingInfoPill v-bind:meeting="meeting" />
-
-   <!--              <MeetingInfoPill
-                v-bind:meetingMeta='{
-                  meetingTitle: meeting.title,
-                  courseDept: `${meeting.course.dept} ${meeting.course.course_number}`,
-                  courseName: meeting.course.name
-                  }'
-                  :meetingId="meeting._id"
-                  v-bind:tasks='{
-                    recording: true,
-                    fileDownload: true
-                  }'
-                /> -->
               </div>
             </div>
           </transition>

@@ -14,41 +14,27 @@
       <show-at breakpoint="large">
         <!-- Icons shown on the pill -->
         <div class="icon-area">
-<!--           <div class="icon-wrapper" v-if="meeting.live_attendance.qr_checkins.length > 0">
+          <div class="icon-wrapper" v-if="meeting.has_live_attendance && meeting.live_attendance.qr_checkins.length > 0">
               <sui-popup content="You have a QR code to submit." inverted>
                   <div class="icon-container" slot="trigger">
                       <img :src="QrCodeSVG" class="icon-img" width="100%" height="100%" />
                   </div>
               </sui-popup>
           </div>
-          <div class="icon-wrapper" v-if="meeting.live_attendance.polls.length > 0">
+          <div class="icon-wrapper" v-if="meeting.has_live_attendance && meeting.live_attendance.live_polls.length > 0">
               <sui-popup content="You have a poll to submit." inverted>
                   <div class="icon-container" slot="trigger">
                       <img :src="PollSVG" class="icon-img" width="100%" height="100%" />
                   </div>
               </sui-popup>
           </div>
-          <div class="icon-wrapper" v-if="meeting.async_attendance.recordings.length > 0">
+          <div class="icon-wrapper" v-if="meeting.has_async_attendance && meeting.async_attendance.recordings.length > 0">
               <sui-popup content="You have a recording to watch." inverted>
                   <div class="icon-container" slot="trigger">
                       <img :src="RecordingSVG" class="icon-img" width="100%" height="100%" />
                   </div>
               </sui-popup>
-          </div> -->
-<!--           <div class="icon-wrapper" v-if="tasks != null && tasks.fileDownload != null">
-              <sui-popup content="You have a file to download." inverted>
-                  <div class="icon-container" slot="trigger">
-                      <img :src="FileSVG" class="icon-img" width="100%" height="100%" />
-                  </div>
-              </sui-popup>
           </div>
-          <div class="icon-wrapper" v-if="tasks != null && tasks.link != null">
-              <sui-popup content="You have a link to click." inverted>
-                  <div class="icon-container" slot="trigger">
-                      <img :src="LinkSVG" class="icon-img" width="100%" height="100%" />
-                  </div>
-              </sui-popup>
-          </div> -->
         </div>
       </show-at>
 
@@ -69,13 +55,13 @@
             </sui-button>
         </router-link>
         <!-- Preview Modal -->
-        <sui-modal v-model="showModal" :style="{ top: 'none', left: 'none', width: 'none', height: 'none' }">
+        <sui-modal v-model="show_modal" :style="{ top: 'none', left: 'none', width: 'none', height: 'none' }">
           <sui-modal-header>Meeting Info Preview</sui-modal-header>
           <sui-modal-content scrolling>
             <sui-modal-description>
-              <!-- <sui-header>{{ meeting.title }}</sui-header> -->
+              <sui-header>{{ meeting.title }}</sui-header>
               <!-- Meeting Details -->
-  <!--             <sui-label>
+              <sui-label>
                   Time Block
                   <sui-label-detail>3:00pm - 4:50pm</sui-label-detail>
               </sui-label>
@@ -83,32 +69,32 @@
               <sui-label class="venue-red">
                   Time Remaining
                   <sui-label-detail>35mins</sui-label-detail>
-              </sui-label> -->
+              </sui-label>
               <!-- Meeting Contents -->
- <!--              <sui-item-group divided>
-                <sui-item v-if="tasks != null && tasks.qrCode != null">
-                <sui-item-image size="tiny" class="icon-img" :src="QrCodeSVG" :style="{width: '40px'}" />
-                <sui-item-content vertical-align="top">Submit your QR code attendance to be marked as present for this meeting.</sui-item-content>
+              <sui-item-group divided>
+                <sui-item v-if="meeting.has_live_attendance && meeting.live_attendance.qr_checkins.length > 0">
+                  <sui-item-image size="tiny" class="icon-img" :src="QrCodeSVG" :style="{width: '40px'}" />
+                  <sui-item-content vertical-align="top">Submit your QR code attendance to be marked as present for this meeting.</sui-item-content>
                 </sui-item>
                 
-                <sui-item v-if="tasks != null && tasks.poll != null">
-                <sui-item-image size="tiny" class="icon-img" :src="PollSVG" :style="{width: '40px'}" />
-                <sui-item-content vertical-align="top">Submit your response to an uploaded poll.</sui-item-content>
+                <sui-item v-if="meeting.has_live_attendance && meeting.live_attendance.live_polls.length > 0">
+                  <sui-item-image size="tiny" class="icon-img" :src="PollSVG" :style="{width: '40px'}" />
+                  <sui-item-content vertical-align="top">Submit your response to an uploaded poll.</sui-item-content>
                 </sui-item>
 
-                <sui-item v-if="tasks != null && tasks.recording != null">
-                <sui-item-image size="tiny" class="icon-img" :src="RecordingSVG" :style="{width: '40px'}" />
-                <sui-item-content vertical-align="top">Watch a recording uploaded by your instructor.</sui-item-content>
+                <sui-item v-if="meeting.has_async_attendance && meeting.async_attendance.recordings.length > 0">
+                  <sui-item-image size="tiny" class="icon-img" :src="RecordingSVG" :style="{width: '40px'}" />
+                  <sui-item-content vertical-align="top">Watch a recording uploaded by your instructor.</sui-item-content>
                 </sui-item>
 
-                <sui-item v-if="tasks != null && tasks.fileDownload != null">
-                <sui-item-image size="tiny" class="icon-img" :src="FileSVG" :style="{width: '40px'}" />
-                <sui-item-content vertical-align="top">Download a file uploaded by your instructor.</sui-item-content>
+<!--                 <sui-item v-if="tasks != null && tasks.fileDownload != null">
+                  <sui-item-image size="tiny" class="icon-img" :src="FileSVG" :style="{width: '40px'}" />
+                  <sui-item-content vertical-align="top">Download a file uploaded by your instructor.</sui-item-content>
                 </sui-item>
 
                 <sui-item v-if="tasks != null && tasks.link != null">
-                <sui-item-image size="tiny" class="icon-img" :src="LinkSVG" :style="{width: '40px'}" />
-                <sui-item-content vertical-align="top">Access a link uploaded by your instructor.</sui-item-content>
+                  <sui-item-image size="tiny" class="icon-img" :src="LinkSVG" :style="{width: '40px'}" />
+                  <sui-item-content vertical-align="top">Access a link uploaded by your instructor.</sui-item-content>
                 </sui-item> -->
               </sui-item-group>
             </sui-modal-description>
@@ -156,7 +142,7 @@ export default {
             FileSVG: FileSVG,
             RecordingSVG: RecordingSVG,
             LinkSVG: LinkSVG,
-            showModal: false
+            show_modal: false
         }
     },
     created () {
@@ -179,7 +165,7 @@ export default {
             return this.meetingMeta.courseDept
         },
         toggleModal () {
-            this.showModal = !this.showModal;
+            this.show_modal = !this.show_modal;
         }
     }
 }
