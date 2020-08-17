@@ -1,24 +1,91 @@
 <template>
   <div id="dashboard-container">
-<!--     <div class="spinner-border" role="status" v-if="!live_lectures_loaded && !playback_lectures_loaded && !recent_lectures_loaded && !upcoming_lectures_loaded">
-      <span class="sr-only">Loading...</span>
-    </div>
-    <div v-else>
-      <DashboardSection lecture_type="Live" :lecture_list="live_lectures" />
-      <DashboardSection lecture_type="Playback" :lecture_list="playback_lectures" />
-      <DashboardSection lecture_type="Recent" :lecture_list="recent_lectures" />
-      <DashboardSection lecture_type="Upcoming" :lecture_list="upcoming_lectures" />
+    <div class="dashboard-page">
 
-    </div> -->
-<!--     <div class="spinner-border" role="status" v-if="!user_has_loaded">
-    </div>
-    <div v-else>
-      <div class="row">
-        <div class="col-md dashboard-section"> I'm live</div>
-        <div class="col-md dashboard-section"> I'm Async</div>
+      <div class="instructor-action-row" v-if="current_user.is_instructor">
+        <sui-dropdown
+          class="labeled
+          icon venue-green"
+            icon="plus"
+            button
+            text="Create New Meeting"
+          >
+          <sui-dropdown-menu>
+            
+            <sui-dropdown-item v-for="course in courses"><router-link :to="`/new_meeting/course/${course._id}`"><div>{{course.name}}</div></router-link></sui-dropdown-item>
+         </sui-dropdown-menu>
+        </sui-dropdown>
       </div>
-    </div> -->
-    <h1>Live Meetings</h1>
+      
+<!--       <div class="dashboard-row-one dashboard-row">
+        <div class="dashboard-section">
+          <div class="section-title">
+            <div class="title-value">Live</div>
+            <div class="title-subvalue">{{getLiveMeetingCount ()}}  live meetings</div>
+          </div>
+            <div v-if="!live_loaded">
+              <div :style="{marginTop: '30px', marginBottom: '80px'}"><SquareLoader /></div>
+            </div>
+            <transition
+                name="fade"
+                mode="out-in"
+              >
+              <div v-if="live_loaded">
+                <div v-for="(meeting, i) in meetings" :key="i">
+                  <MeetingInfoPill
+                  v-if="meeting.has_live_attendance"
+                  v-bind:meetingMeta='{
+                    meetingTitle: meeting.title,
+                    courseDept: `${meeting.course.dept} ${meeting.course.course_number}`,
+                    courseName: meeting.course.name
+                  }'
+                  :meetingId="meeting._id"
+                  v-bind:tasks='{
+                    qrCode: true,
+                    poll: true
+                  }'
+                />
+                </div>
+            </div>
+          </transition>
+        </div>
+        <div class="dashboard-section">
+        <div class="section-title">
+          <div class="title-value">Asynchronous</div>
+          <div class="title-subvalue">{{getAsyncMeetingCount ()}} asynchronous meetings</div>
+        </div>
+            <div v-if="!async_loaded">
+                <div :style="{marginTop: '30px', marginBottom: '80px'}"><SquareLoader /></div>
+            </div>
+            <transition
+                name="fade"
+                mode="out-in"
+              >
+            <div v-if="async_loaded">
+              <div v-for="(meeting, i) in meetings" :key="i">
+                <MeetingInfoPill
+                v-if="meeting.has_async_attendance"
+                v-bind:meetingMeta='{
+                  meetingTitle: meeting.title,
+                  courseDept: `${meeting.course.dept} ${meeting.course.course_number}`,
+                  courseName: meeting.course.name
+                  }'
+                  :meetingId="meeting._id"
+                  v-bind:tasks='{
+                    recording: true,
+                    fileDownload: true
+                  }'
+                />
+              </div>
+            </div>
+          </transition>
+        </div>
+      </div>
+ -->
+    </div>
+
+
+<!--     <h1>Live Meetings</h1>
     <div v-for="meeting in live_meetings">
       <router-link :to="{name: 'meeting_info', params: { meeting_id: meeting._id }}">
         <h3>{{ meeting.title }}</h3>
@@ -32,41 +99,22 @@
       <router-link :to="{name: 'meeting_info', params: { meeting_id: meeting._id }}">
         <h3>{{ meeting.title }}</h3>
       </router-link>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script>
   import UserAPI from '@/services/UserAPI.js';
-  import LectureAPI from '@/services/LectureAPI.js';
-  import CourseAPI from '@/services/CourseAPI.js';
-  import SectionAPI from '@/services/SectionAPI.js';
-  import { authComputed } from '../vuex/helpers.js'
   import {showAt, hideAt} from 'vue-breakpoints'
-  import {getLiveLectures,getRecentLectures,getUpcomingLectures,getActivePlaybackLectures} from '@/services/GlobalFunctions.js'
-
-  import LiveLectureList from '@/components/LiveLectureList.vue'
-  import PlaybackLectures from '@/components/PlaybackLectures.vue'
-  import RecentLectures from '@/components/RecentLectures.vue'
-  import UpcomingLectures from '@/components/UpcomingLectures.vue'
-  import CourseList from '@/components/CourseList.vue'
-  import moment from 'moment'
-  import DashboardSection from '@/components/DashboardSection.vue'
+  import SquareLoader from "@/components/Loaders/SquareLoader.vue"
+  import MeetingInfoPill from '@/components/MeetingInfoPill.vue'
 
   export default {
     name: 'Dashboard',
-    computed: {
-      ...authComputed
-    },
     components: {
-      DashboardSection,
       hideAt,
       showAt,
-      LiveLectureList,
-      PlaybackLectures,
-      RecentLectures,
-      UpcomingLectures,
-      CourseList
+      MeetingInfoPill
     },
     data(){
       return {
@@ -259,13 +307,63 @@
 </script>
 
 <style scoped>
-  #dashboard-container {
+.dashboard-page {
+  .instructor-action-row {
+    height: 50px;
+    vertical-align: bottom;
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 30px;
+  }
+}
+
+.dashboard-page .dashboard-row {
+  display: flex;
+}
+
+.dashboard-page .dashboard-row .dashboard-section {
+  width: 50%;
+  max-width: 700px;
+  margin-bottom: 30px;
+  box-sizing: border-box;
+  padding-right: 20px;
+}
+
+.dashboard-page .dashboard-row .dashboard-section .section-title {
+  height: 50px;
+  font-weight: 600;
+  font-size: 1.2rem;
+  display: flex;
+}
+
+.dashboard-page .dashboard-row .dashboard-section .section-title .title-value {
+  font-weight: 600;
+  font-size: 1.2rem;
+  margin-right: 20px;
+}
+
+.dashboard-page .dashboard-row .dashboard-section .section-title .title-subvalue {
+  font-weight: 400;
+  font-size: 1rem;
+}
+
+@media only screen and (max-width: 900px) {
+  .dashboard-page .dashboard-row {
+    display: block;
+  }
+  .dashboard-page .dashboard-row .dashboard-section {
+    width: 100%;
+    margin-bottom: 30px;
+  }
+}
+
+/*  #dashboard-container {
     width: 85%;
     margin: auto;
-    /*border:black solid;*/
+    border:black solid;
   }
 
   .dashboard-section {
     border: blue solid;
-  }
+  }*/
 </style>
