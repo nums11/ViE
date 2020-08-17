@@ -1,8 +1,18 @@
 <template>
-  <div id="app">
-    <NavBar class="main_navbar" v-if="this.$route.name != 'landing_page' && this.$route.name != 'set_permanent_password' && current_user"></NavBar>
-    <div id="main-content">
+  <div id="app" class="light-mode">
+  <portal-target name="semantic-ui-vue" />
+    <NavBar 
+      class="main_navbar" 
+      v-if="this.$route.name != 'landing_page' && this.$route.name != 'set_permanent_password' && current_user"
+    />
+    <div class="venue-body">
+
+    <transition
+        name="fade"
+        mode="out-in"
+      >
       <router-view :key="$route.fullPath" />
+    </transition>
     </div>
   </div>
 </template>
@@ -124,4 +134,24 @@ export default {
   text-align: center;
   // min-height: 100%;
 }
+
+.venue-body {
+  margin-left: 105px;
+}
+@media only screen and (max-width: 900px) {
+  .venue-body {
+    margin-left: 0px;
+  }
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition-duration: 0.3s;
+  transition-property: opacity;
+  transition-timing-function: ease;
+}
+.fade-enter,
+.fade-leave-active {
+  opacity: 0;
+}
+
 </style>
