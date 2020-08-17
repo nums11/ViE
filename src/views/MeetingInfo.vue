@@ -78,6 +78,8 @@
             <p>
               {{ submission.submitter.first_name }} {{ submission.submitter.last_name }} ({{ submission.submitter.user_id }})
             </p>
+            <p>Furthest video time: {{ submission.furthest_video_time }}</p>
+            <p>Video percent: {{ submission.video_percent_watched }}</p>
           </h4>
         </div>
       </div>

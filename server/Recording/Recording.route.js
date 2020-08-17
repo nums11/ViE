@@ -18,7 +18,12 @@ recordingRoutes.route('/').get(function (req, res) {
 recordingRoutes.route('/get/:id').get(function (req, res) {
   let id = req.params.id;
   Recording.findById(id).
-  populate('recording_submissions').
+  populate({
+    path: 'recording_submissions',
+    populate: {
+      path: 'submitter'
+    }
+  }).
   exec((error,recording) => {
     if(error || recording == null){
       console.log("<ERROR> (recordings/get) Getting recording with ID:",id,error)

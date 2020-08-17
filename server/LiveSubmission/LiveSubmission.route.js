@@ -8,7 +8,7 @@ let Poll = require('../Poll/Poll.model');
 liveSubmissionRoutes.route('/add').post(async function (req, res) {
   let live_submission = new LiveSubmission(req.body.live_submission);
   try {
-    let saved_live_submission = await await live_submission.save()
+    let saved_live_submission = await live_submission.save()
     if(saved_live_submission.is_qr_checkin_submission) {
       QRCheckin.findByIdAndUpdate(saved_live_submission.qr_checkin,
         {$push: {qr_checkin_submissions: saved_live_submission._id}},

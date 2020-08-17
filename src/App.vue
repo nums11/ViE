@@ -34,7 +34,6 @@ export default {
   },
   created() {
     axios.defaults.headers.common['Access-Control-Allow-Methods'] = ["GET, POST, DELETE"]
-    console.log("App.vue is loaded")
 
     // window.onbeforeunload = () => {
     //     io.emit('leave', this.username);

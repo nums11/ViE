@@ -59,11 +59,7 @@ function start() {
   const meetingRouter = require('./Meeting/Meeting.route')
   const liveSubmissionRouter = require('./LiveSubmission/LiveSubmission.route')
   const recordingRouter = require('./Recording/Recording.route')
-  // const eventRouter = require('./Event/Event.route')
-  // const submissionRouter = require('./Submission/Submission.route')
-  // const lectureRouter = require('./Lecture/Lecture.route')
-  // const lectureSubmissionRouter = require('./LectureSubmission/LectureSubmission.route')
-  // const pollRouter = require('./PlaybackPoll/PlaybackPoll.route')
+  const asyncSubmissionRouter = require('./AsyncSubmission/AsyncSubmission.route')
 
   // Connect to the database before starting the application server.
   mongoose.connect(process.env.MONGODB_URI || config.DB, function (err, client) {
@@ -121,13 +117,5 @@ function start() {
   app.use('/livesubmissions', liveSubmissionRouter);
   app.use('/auth', authRouter);
   app.use('/recordings', recordingRouter);
-  // app.use('/users', jwtVerify, userRouter);
-  // app.use('/courses', jwtVerify, courseRouter);
-  // app.use('/sections', jwtVerify, sectionRouter);
-  // app.use('/events', jwtVerify, eventRouter);
-  // app.use('/submissions', jwtVerify, submissionRouter);
-  // app.use('/lectures', jwtVerify, lectureRouter);
-  // app.use('/polls', jwtVerify, pollRouter);
-  // app.use('/lecturesubmissions', jwtVerify, lectureSubmissionRouter);
-
+  app.use('/asyncsubmissions', asyncSubmissionRouter);
 }
