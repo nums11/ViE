@@ -83,7 +83,9 @@
 export default {
     name: 'QRCodeForm',
     props: {
-        sections: Set
+        sections: Set,
+        updateTimeState: Function,
+        task_id: Number
     },
     data () {
       return {
@@ -106,6 +108,8 @@ export default {
                     this.section_meeting_times[section_id].end_time = this.section_meeting_times[section_id].start_time
                 }
             }
+
+            this.updateTimeState (this.task_id, new_time, type)
             this.$forceUpdate()
         },
 

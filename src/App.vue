@@ -245,18 +245,14 @@ export default {
 <style lang="scss">
 
 #app {
-  margin-left: 50px;
-  margin-right: 50px;
+  padding-left: 50px;
+  padding-right: 50px;
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   // min-height: 100%;
   /*border-right: 1px solid #00FFFF;
   border-left: 1px solid #00FFFF;*/
-}
-body {
-  background-color: #fff;
-  font-family: sans-serif;
 }
 .venue-body {
   margin-left: 105px;

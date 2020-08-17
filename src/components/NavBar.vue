@@ -123,12 +123,16 @@
         this.current_user = this.$store.state.user.current_user
         this.is_instructor = this.current_user.is_instructor
 
-        CourseAPI.getInstructorCourses(this.current_user._id)
-        .then(res => {
+        if (this.is_instructor) {
+          CourseAPI.getInstructorCourses(this.current_user._id)
+          .then(res => {
 
-          if (res.data)
-            this.user_courses = res.data
-        })
+            if (res.data)
+              this.user_courses = res.data
+          })
+        }
+
+        // TODO get courses for non-instructors
       },
       async getInstructorCourses() {
         const response = await CourseAPI.getInstructorCourses(this.current_user._id)

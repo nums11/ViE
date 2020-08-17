@@ -11,18 +11,15 @@
         >
         <sui-dropdown-menu>
           
-          <sui-dropdown-item><router-link to="/meeting/new/asmple_section_id"><div>Course #1</div></router-link></sui-dropdown-item>
-          <sui-dropdown-item><router-link to="/meeting/new/asmple_section_id"><div>Course #2</div></router-link></sui-dropdown-item>
-          <sui-dropdown-item><router-link to="/meeting/new/asmple_section_id"><div>Course #3</div></router-link></sui-dropdown-item>
-          <sui-dropdown-item><router-link to="/meeting/new/asmple_section_id"><div>Course #4</div></router-link></sui-dropdown-item>
-        </sui-dropdown-menu>
+          <sui-dropdown-item v-for="course in courses"><router-link :to="`/new_meeting/course/${course._id}`"><div>{{course.name}}</div></router-link></sui-dropdown-item>
+       </sui-dropdown-menu>
       </sui-dropdown>
     </div>
     <div class="dashboard-row-one dashboard-row">
       <div class="dashboard-section">
         <div class="section-title">
           <div class="title-value">Live</div>
-          <div class="title-subvalue">4 live courses</div>
+          <div class="title-subvalue">{{getLiveMeetingCount ()}}  live meetings</div>
         </div>
           <div v-if="!live_loaded">
             <div :style="{marginTop: '30px', marginBottom: '80px'}"><SquareLoader /></div>
@@ -32,47 +29,28 @@
               mode="out-in"
             >
             <div v-if="live_loaded">
-              <MeetingInfoPill
-              v-bind:meetingMeta='{
-                meetingTitle: "Lecture #1",
-                courseDept: "CSCI 1200",
-                courseName: "Data Structures"
-              }'
-
+              <div v-for="(meeting, i) in meetings" :key="i">
+                <MeetingInfoPill
+                v-if="meeting.has_live_attendance"
+                v-bind:meetingMeta='{
+                  meetingTitle: meeting.title,
+                  courseDept: `${meeting.course.dept} ${meeting.course.course_number}`,
+                  courseName: meeting.course.name
+                }'
+                :meetingId="meeting._id"
                 v-bind:tasks='{
                   qrCode: true,
                   poll: true
                 }'
               />
-            <MeetingInfoPill
-              v-bind:meetingMeta='{
-                courseDept: "CSCI 1200",
-                courseName: "Data Structures"
-              }'
-
-              v-bind:tasks='{
-                qrCode: true,
-                poll: true
-              }'
-            />
-            <MeetingInfoPill
-              v-bind:meetingMeta='{
-                meetingTitle: "Lecture #1",
-                courseDept: "CSCI 1200",
-                courseName: "Data Structures"
-              }'
-
-              v-bind:tasks='{
-                qrCode: true,
-              }'
-            />
+              </div>
           </div>
         </transition>
       </div>
       <div class="dashboard-section">
       <div class="section-title">
         <div class="title-value">Asynchronous</div>
-        <div class="title-subvalue">4 asynchronous courses</div>
+        <div class="title-subvalue">{{getAsyncMeetingCount ()}} asynchronous meetings</div>
       </div>
           <div v-if="!async_loaded">
               <div :style="{marginTop: '30px', marginBottom: '80px'}"><SquareLoader /></div>
@@ -82,45 +60,21 @@
               mode="out-in"
             >
           <div v-if="async_loaded">
-            <MeetingInfoPill
+            <div v-for="(meeting, i) in meetings" :key="i">
+              <MeetingInfoPill
+              v-if="meeting.has_async_attendance"
               v-bind:meetingMeta='{
-                meetingTitle: "Lecture #1",
-                courseDept: "CSCI 1200",
-                courseName: "Data Structures"
-              }'
-
-              v-bind:tasks='{
-                recording: true,
-                fileDownload: true
-              }'
-            />
-
-            <MeetingInfoPill
-              v-bind:meetingMeta='{
-                meetingTitle: "Lecture #1",
-                courseDept: "CSCI 1200",
-                courseName: "Data Structures"
-              }'
-
-              v-bind:tasks='{
-                link: true,
-                fileDownload: true
-              }'
-            />
-
-            <MeetingInfoPill
-              v-bind:meetingMeta='{
-                meetingTitle: "Lecture #1",
-                courseDept: "CSCI 1200",
-                courseName: "Data Structures"
-              }'
-
-              v-bind:tasks='{
-                link: true,
-                fileDownload: true,
-                recording: true
-              }'
-            />
+                meetingTitle: meeting.title,
+                courseDept: `${meeting.course.dept} ${meeting.course.course_number}`,
+                courseName: meeting.course.name
+                }'
+                :meetingId="meeting._id"
+                v-bind:tasks='{
+                  recording: true,
+                  fileDownload: true
+                }'
+              />
+            </div>
           </div>
         </transition>
       </div>
@@ -135,6 +89,8 @@
   import SquareLoader from "@/components/Loaders/SquareLoader.vue"
   import MeetingInfoPill from '@/components/MeetingInfoPill.vue'
   import { authComputed } from '../vuex/helpers.js'
+  import CourseAPI from "@/services/CourseAPI"
+  import MeetingAPI from "@/services/MeetingAPI"
 
   export default {
     name: 'Dashboard',
@@ -148,24 +104,78 @@
     data(){
       return {
         async_loaded: false,
-        live_loaded: false
+        live_loaded: false,
+        courses: [],
+        meetings: []
       }
     },
     created() {
       this.getCurrentUser()
-      // temporary: set timeout for 3 secionds that data loaded
-      setTimeout(() => {
-        this.async_loaded = true
-      }, 3000)
-      setTimeout(() => {
-        this.live_loaded = true
-      }, 3500)
+      this.getCourses()
     },
     methods: {
+
+      hasLivePolls (meeting_info) {
+        if (Object.prototype.hasOwnProperty.call(meeting_info, 'live_attendance')) {
+          if (meeting_info.live_attendance.live_polls != undefined) return true
+        }
+      },
+      hasQRCheckin (meeting_info) {
+
+      },
+
+      getAsyncMeetingCount () {
+        let count = 0
+        this.meetings.forEach(meeting => {
+          if (meeting.has_async_attendance) ++ count
+        })
+        return count
+      },
+      getLiveMeetingCount () {
+        let count = 0
+        this.meetings.forEach(meeting => {
+          if (meeting.has_live_attendance) ++ count
+        })
+        return count
+      },
+      getMeetingData (meeting_id) {
+        console.log(`Fetching meeting data for: ${meeting_id}`)
+
+        return MeetingAPI.getMeeting(meeting_id)
+        .then(res => {
+          this.meetings.push(res.data)
+          console.log(this.meetings)
+        })
+      },
+      getCourses () {
+
+        if (this.current_user.is_instructor) {
+          CourseAPI.getInstructorCourses (this.current_user._id)
+          .then (res => {
+            if (res.data)
+              this.courses = res.data
+              // console.log(res)
+
+              // Fetch the information for each meeting
+              let promises_ = []
+              for (var i = 0; i < res.data.length; ++i) {
+                for (var j = 0; j < res.data[i].meetings.length; ++j) {
+                  promises_.push( this.getMeetingData( res.data[i].meetings[j] ) );
+                }
+              }
+
+              Promise.all(promises_)
+              .then(result => {
+                console.log(`All meetings loaded`)
+                this.async_loaded = true
+                this.live_loaded = true
+              })
+              
+          })
+        }
+      },
       getCurrentUser() {
         this.current_user = this.$store.state.user.current_user
-
-        console.log(this.current_user)
       },
 
       // TODO NUMFOR

@@ -4,8 +4,13 @@
 
         <sui-form>
             <sui-form-field>
-            <label>Question {{question_number + 1}}</label>
-            <input />
+            <label>Question {{question_number + 1}}
+                <div class="remove-question-icon" @click="removeQuestion(question_number)"><i class="close icon"></i></div>
+            </label>
+            <input
+                v-bind:value="question_data.question"
+                v-on:input="updateQuestion($event, question_number)"
+            />
             </sui-form-field>
 
             <div class="question-choice-area">
@@ -44,7 +49,9 @@ export default {
         updateQuestion: Function,
         addOption: Function,
         removeOption: Function,
-        updateOption: Function
+        updateOption: Function,
+        removeQuestion: Function,
+        updateQuestion: Function
     },
     method: {
     }
@@ -54,6 +61,21 @@ export default {
 <style lang="scss">
 .poll-question-subform {
     margin-bottom: 30px;
+
+    .remove-question-icon {
+        width: 30px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        display: inline-block;
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity 02.5s;
+
+        &:hover {
+            opacity: 0.9;
+        }
+    }
 
     .question-choice-area {
         margin-left: 40px;

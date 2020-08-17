@@ -18,6 +18,7 @@ import AdminNewOrg from './components/admin/Organization/AdminNewOrg.vue';
 import AdminOrgs from './components/admin/Organization/AdminOrgs.vue';
 import AdminEditOrg from './components/admin/Organization/AdminEditOrg.vue';
 import NewMeeting from './views/NewMeeting.vue';
+import NewMeetingAdmin from './views/admin/NewMeeting.vue'
 import AdminNewEvent from './components/admin/Event/AdminNewEvent.vue';
 import AdminEvents from './components/admin/Event/AdminEvents.vue';
 import AdminEditEvent from './components/admin/Event/AdminEditEvent.vue';
@@ -282,6 +283,23 @@ const router = new VueRouter({
         title: 'Venue - New Meeting',
         requiresAuth: true
       }
+    },{
+      name: 'course_new_meeting',
+      path: '/course_new_meeting/:course_id',
+      component: NewMeetingAdmin,
+      meta: {
+        requiresAuth: true,
+        requiresadmIn: true
+      }
+    },
+    {
+      name: 'org_new_meeting',
+      path: '/org_new_meeting/:org_id',
+      component: NewMeetingAdmin,
+      meta: {
+        requiresAuth: true,
+        requiresadmIn: true
+      }
     },
     {
       name: 'new_event',
@@ -403,7 +421,7 @@ const router = new VueRouter({
     },
     {
       name: 'course_new_meeting',
-      path: '/course_new_meeting/:course_id',
+      path: '/new_meeting/course/:course_id',
       component: NewMeeting,
       meta: {
         requiresAuth: true,
@@ -412,7 +430,7 @@ const router = new VueRouter({
     },
     {
       name: 'org_new_meeting',
-      path: '/org_new_meeting/:org_id',
+      path: '/new_meeting/org/:org_id',
       component: NewMeeting,
       meta: {
         requiresAuth: true,

@@ -47,7 +47,7 @@
                   </div>
 
                   <div class="actions">
-                    <router-link to="/meeting/new/asmple_section_id">
+                    <router-link :to="`/new_meeting/course/${course_info._id}`">
                       <sui-button
                         v-if="current_user.is_instructor"
                         class="labeled

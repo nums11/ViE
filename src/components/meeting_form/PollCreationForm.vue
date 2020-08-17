@@ -27,13 +27,13 @@
                     :addOption="addOption"
                     :removeOption="removeOption"
                     :updateOption="updateOption"
+                    :removeQuestion="removeQuestion"
                 />
 
             </div>
 
             <div :style="{marginTop: '40px'}">
                 <sui-button @click="addQuestion" content="Add Question" icon="plus" label-position="left" class="venue-blue" />
-                <sui-button @click="_log">Log</sui-button>
             </div>
         </div>
     </div>
@@ -57,39 +57,63 @@ export default {
             questions: []
         }
     },
+    props: {
+        task_id: Number,
+        setPollData: Function,
+        updateTimeState: Function
+    },
     methods: {
         _log () {
             console.log(this.questions)
+        },
+        removeQuestion (question_index) {
+            console.log(`Removing question: ${question_index}`)
+            this.questions.splice(question_index, 1)
+
+            this.setPollData(this.task_id, this.questions)
         },
         addOption (question_index) {
             this.questions[question_index].options.push({
                 value: ""
             })
 
+
+            this.setPollData(this.task_id, this.questions)
             this.$forceUpdate ()
+        },
+        updateQuestion (e, question_index) {
+            this.questions[question_index].question = e.target.value
+
+            
+            this.setPollData(this.task_id, this.questions)
         },
         updateOption (e, question_index, option_index) {
             let new_option_value = e.target.value
 
             this.questions[question_index].options[option_index].value = new_option_value
+            this.setPollData(this.task_id, this.questions)
         },
         removeOption (question_index, option_index) {
             console.log(`Removing option index ${option_index}`)
             this.questions[question_index].options.splice(option_index, 1)
-        },
-        updateQuestion (question_index) {
-            console.log(`Update question ${question_index}`)
+            
+            this.setPollData(this.task_id, this.questions)
         },
         updateTime (new_time, type) {
             console.log(`Time Updated`)
             if (type == 'start_time') this.poll_start_time = new_time
             if (type == 'end_time') this.poll_end_time = new_time
+
+            this.updateTimeState (this.task_id, new_time, type)
         },
         addQuestion () {
             this.questions.push({
                 question: "",
                 options: []
             })
+
+            
+            this.setPollData(this.task_id, this.questions)
         }
     }
 }

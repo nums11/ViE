@@ -68,7 +68,7 @@
             </hide-at>
 
             <!-- View Button -->
-            <router-link to="/meeting_info">
+            <router-link :to="`/meeting_info/${meetingId}`">
                 <sui-button animated class="venue-blue text-white view-button" :style="{marginLeft: '10px'}">
                     <sui-button-content visible>View</sui-button-content>
                     <sui-button-content hidden>
@@ -128,7 +128,7 @@
                 </sui-modal-content>
                 <sui-modal-actions>
                     <sui-button v-on:click="toggleModal">Close</sui-button>
-                    <router-link to="/meeting_info">
+                    <router-link :to="`/meeting_info/${meetingId}`">
                         <sui-button animated class="venue-blue text-white view-button" :style="{marginLeft: '10px'}">
                             <sui-button-content class="undo-dark-mode" visible>View</sui-button-content>
                             <sui-button-content hidden>
@@ -158,7 +158,8 @@ export default {
     name: 'MeetingInfoPill',
     props:{
         tasks: Object,
-        meetingMeta: Object
+        meetingMeta: Object,
+        meetingId: String
     },
     components: {
         showAt,

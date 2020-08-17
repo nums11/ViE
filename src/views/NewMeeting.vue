@@ -1,16 +1,27 @@
 <template>
     <div class="new-meeting">
         
-        
         <transition
             name="fade2"
             mode="out-in">
             <div v-if="form_panel_id != null" class="sidenav-area">
                 <div class="sidenav-section">
                     <h4>Live Tasks</h4>
+                    <div v-if="Object.prototype.hasOwnProperty.call(new_meeting_info, 'live')"> 
+                        <div v-for="task in Object.keys(new_meeting_info.live)" class="form-info-tab">
+                            <div class="value-area">{{ getTaskName(task, 'live') }}</div>
+                            <div class="close-area" v-if="new_meeting_info.live[task].type != 'qr-code'"><i class="icon close"></i></div>
+                        </div>
+                    </div>
                 </div>
                 <div class="sidenav-section">
                     <h4>Async Tasks</h4>
+                    <div v-if="Object.prototype.hasOwnProperty.call(new_meeting_info, 'async')">
+                        <div v-for="task in Object.keys(new_meeting_info.async)" class="form-info-tab">
+                            <div class="value-area">{{ getTaskName(task, 'async') }}</div>
+                            <div class="close-area" v-if="new_meeting_info.async[task].type != 'qr-code'"><i class="icon close"></i></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </transition>
@@ -109,12 +120,19 @@
                                         </sui-button>
                                     </div>
                                     <div>
-                                        <sui-button class="venue-green" @click="initiateAsyncTasks" animated>
-                                            <sui-button-content visible>Add Asynchronous Tasks</sui-button-content>
-                                            <sui-button-content hidden>
-                                                <sui-icon name="right arrow" />
-                                            </sui-button-content>
-                                        </sui-button>
+                                        <sui-dropdown class="venue-green" text="Add Asynchronous Tasks" button floating>
+                                            <sui-dropdown-menu>
+                                                <sui-dropdown-item @click="initiateAsyncTasks('poll')">
+                                                    <div class="dropdown-icon-container"><span class="icon-ballot"></span></div>Poll/Quiz
+                                                </sui-dropdown-item>
+                                                <sui-dropdown-item @click="initiateAsyncTasks('link')">
+                                                    <div class="dropdown-icon-container"><span class="icon-link"></span></div>Link
+                                                </sui-dropdown-item>
+                                                <sui-dropdown-item @click="initiateAsyncTasks('file-download')">
+                                                    <div class="dropdown-icon-container"><span class="icon-file"></span></div>File Download
+                                                </sui-dropdown-item>
+                                            </sui-dropdown-menu>
+                                        </sui-dropdown>
                                     </div>
                                 </div>
 
@@ -140,24 +158,91 @@
                                         <div v-if="getSubformInfo(task_data) != null && getSubformInfo(task_data).type == 'qr-code'">
                                             <QRCodeForm
                                                 :sections="new_meeting_info.meta.sections"
+                                                :task_id="task_data.id"
+                                                :updateTimeState="updateTimeState"
                                             />
                                         </div>
                                         <div v-else-if="getSubformInfo(task_data) != null && getSubformInfo(task_data).type == 'poll'">
-                                            <PollCreationForm />
+                                            <PollCreationForm :updateTimeState="updateTimeState" :setPollData="setPollData" :task_id="form_panel_id" />
                                         </div>
+                                        <div v-else-if="getSubformInfo(task_data) != null && getSubformInfo(task_data).type == 'link'">
+                                            <LinkSubform
+                                                :updateLinkTitle="updateLinkTitle"
+                                                :updateLinkURL="updateLinkURL"
+                                                :task_id="task_data.id"
+                                                :updateTimeState="updateTimeState"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- INTERMEDIATE PANEL -->
+                                <div v-if="form_panel_id == -10" key="-10">
+                                    <div v-if="meetingHasAsyncAndLive()">
+                                        <h4>Meeting Form Complete</h4>
+                                        <p>You have successfully added Asynchronous and Live tasks for this meeting.
+                                            Click Complete Meeting Form to submit the new meeting.
+                                        </p>
+                                    </div>
+                                    <div v-else>
+                                        <h4>You're almost there</h4>
+                                        <p>You have successfully added {{ creation_mode == 'live' ? 'live' : 'asynchronous' }} tasks for this meeting.
+                                            You can either continue by adding {{ creation_mode == 'live' ? 'asynchronous' : 'live' }} tasks or
+                                            submitting the new meeting now.
+                                        </p>
+                                    </div>
+
+                                    <div :style="{display: 'flex', marginTop: '20px'}">
+
+                                        <div v-if="!meetingHasAsyncAndLive ()">
+                                            <sui-button 
+                                            v-if ="creation_mode == 'async'"
+                                            @click="initiateLiveTasks ()" 
+                                            class="venue-blue">Add Live Tasks</sui-button>
+                                            <sui-dropdown
+                                            v-if="creation_mode == 'live'"
+                                            class="labeled
+                                            icon venue-blue"
+                                            icon="plus"
+                                            button
+                                            :text="`Add to Asynchronous Section`"
+                                            >
+                                                <sui-dropdown-menu>
+                                                    <sui-dropdown-item @click="initiateAsyncTasks('poll')">
+                                                        <div class="dropdown-icon-container"><span class="icon-ballot"></span></div>Poll/Quiz
+                                                    </sui-dropdown-item>
+
+                                                    <sui-dropdown-item @click="initiateAsyncTasks('link')">
+                                                        <div class="dropdown-icon-container"><span class="icon-link"></span></div>Link
+                                                    </sui-dropdown-item>
+
+                                                    <sui-dropdown-item>
+                                                        <div class="dropdown-icon-container"><span class="icon-file"></span></div>File Download
+                                                    </sui-dropdown-item>
+                                                </sui-dropdown-menu>
+                                            </sui-dropdown>
+                                        </div>
+                                        <div :style="{flexGrow: 1}">
+
+                                        </div>
+                                        <div>
+                                            <sui-button class="venue-blue">Complete Meeting Form</sui-button>
+                                        </div>
+
                                     </div>
                                 </div>
                             </transition-group>
 
                             <div class="form-container-footer" id="form-footer-action">
                                 <div class="back-area">
-                                    <sui-button @click="goToNextTask ()" content="Back" icon="left arrow" label-position="left" />
+                                    <sui-button @click="goToPrevTask ()" content="Back" icon="left arrow" label-position="left" />
                                 </div>
                                 <div>
                                 
                                 <!-- Dropdown to Add more activities -->
                                 <div :style="{textAlign: 'right', marginBottom: '10px'}">
                                     <sui-dropdown
+                                    v-if="form_panel_id != -10"
                                     class="labeled
                                     icon venue-green"
                                     icon="plus"
@@ -169,8 +254,8 @@
                                                 <div class="dropdown-icon-container"><span class="icon-ballot"></span></div>Poll/Quiz
                                             </sui-dropdown-item>
 
-                                            <sui-dropdown-item>
-                                                <div class="dropdown-icon-container"><span class="icon-link"></span></div>Link/Quiz
+                                            <sui-dropdown-item @click="addLinkSection()">
+                                                <div class="dropdown-icon-container"><span class="icon-link"></span></div>Link
                                             </sui-dropdown-item>
 
                                             <sui-dropdown-item>
@@ -180,7 +265,13 @@
                                     </sui-dropdown>
                                 </div>
                                 <div>
-                                    <sui-button class="venue-blue" @click="goToNextTask ()" :content="`Complete ${getCreationMode()} Section`" icon="check" label-position="left" />
+                                    <sui-button 
+                                        v-if="form_panel_id != -10"
+                                        class="venue-blue" 
+                                        @click="goToIntermediatePanel ()" 
+                                        :content="`Complete ${getCreationMode()} Section`" 
+                                        icon="check" label-position="left" />
+                                    <sui-button @click="log_">DEBUG LOG</sui-button>
                                 </div>
 
 
@@ -197,244 +288,378 @@
         </div>
     </div>
 
- </template>
+</template>
 <script>
  
-import QRCodeForm from "@/components/meeting_form/QRCodeForm.vue"
-import PollCreationForm from "@/components/meeting_form/PollCreationForm.vue"
+    import QRCodeForm from "@/components/meeting_form/QRCodeForm.vue"
+    import PollCreationForm from "@/components/meeting_form/PollCreationForm.vue"
+    import LinkSubform from "@/components/meeting_form/LinkSubform.vue"
+    import CourseAPI from "@/services/CourseAPI"
 
-export default {
-    name: 'NewMeeting',
-    components: {
-        QRCodeForm,
-        PollCreationForm
-    },
-    data () {
-        return {
-            form_panel_id: null,
-            tasks_count: 0,
-            task_order: [],
-
-            include_instructors_note: false,
-            include_online_meeting_link: false,
-            new_meeting_info: {},
-
-            course_sections: [1, 2, 3, 4, 5],
-            creation_mode: null
-        }
-    },
-    created () {
-        
-        // window.addEventListener ('resize', this.setBottomActionPosition)
-
-        // set the new meeting meta
-        this.new_meeting_info['meta'] = {
-            meeting_name: '',
-            course_id: '',
-            sections: new Set(),
-            instructors_note: '',
-            online_meeting_link: null
-        }
-    },
-    methods: {
-
-        getCreationMode () {
-            if (this.creation_mode == 'live') return 'Live'
-            if (this.creation_mode == 'async') return 'async'
-            return 'Undefined'
+    export default {
+        name: 'NewMeeting',
+        components: {
+            QRCodeForm,
+            PollCreationForm,
+            LinkSubform
         },
+        data () {
+            return {
+                form_panel_id: null,
+                tasks_count: 0,
+                task_order: [],
 
-        getSubformInfo (task_data) {
-            // task_data should have an id & type
-            console.log(`Inside getSubformInfo()`)
-            if (task_data.type == 'live') {
-                if (Object.hasOwnProperty.call(this.new_meeting_info.live, task_data.id)) {
-                    console.log(`getSubformInfo:`)
-                    console.log(this.new_meeting_info.live[task_data.id])
-                    return this.new_meeting_info.live[task_data.id]
-                }
-                return null
+                include_instructors_note: false,
+                include_online_meeting_link: false,
+                new_meeting_info: {},
+
+                course_sections: [],
+                creation_mode: null,
+                course_info: {}
             }
-
-            if (task_data.type == 'async') {
-                if (Object.hasOwnProperty.call(this.new_meeting_info.async, task_data.id)) {
-                    return this.new_meeting_info.async[task_data.id]
-                }
-                return null
-            }
-
-              
         },
-
-        addPollSection () {
-            // add a poll to the meeting
-            console.log(`Adding Poll`)
-
-            let task_id = this.tasks_count
-
-            if (this.creation_mode == 'live') {
-                this.new_meeting_info.live[task_id] = {
-                    type: 'poll',
-                    start_time: null,
-                    end_time: null,
-                    questions: []
-                }
-            }
-            else if (this.creation_mode == 'async') {
-                this.new_meeting_info.async[task_id] = {
-                    type: 'poll',
-                    start_time: null,
-                    end_time: null,
-                    questions: []
-                }
-            }
-
-            this.task_order.push({
-                id: task_id,
-                type: this.creation_mode
-            })
-
-            this.form_panel_id = task_id;
-            ++ this.tasks_count
+        created () {
             
-            console.log(`Debugging`)
-            console.log(this.task_order)
-            console.log(this.form_panel_id)
-            console.log(this.new_meeting_info)
-        },
+            // window.addEventListener ('resize', this.setBottomActionPosition)
+            this.getCourseInfo ()
 
-        setBottomActionPosition (e) {
-            
-            let action_footer = document.getElementById('form-footer-action')
-            if (action_footer == null) return;
-
-            // console.dir(action_footer)
-            // console.log(window)
-
-            let offset_ = action_footer.offsetTop // + action_footer.scrollTop
-            let trav = action_footer.offsetParent
-            while (trav != null) {
-                offset_ += trav.offsetTop
-                trav = trav.offsetParent
+            // set the new meeting meta
+            this.new_meeting_info['meta'] = {
+                meeting_name: '',
+                course_id: '',
+                sections: new Set(),
+                instructors_note: '',
+                online_meeting_link: null
             }
-            offset_ += action_footer.clientHeight / 2 - window.scrollY
+        },
+        methods: {
 
-            // console.log(`Offset Top: ${offset_}`)
-            // console.log(`Inner Height: ${window.innerHeight}`)
+            getCourseInfo () {
+                console.log(`getCourseInfo`)
+                CourseAPI.getCourse(this.$route.params.course_id)
+                .then(res => {
+                    console.log(res)
 
-            if (offset_ > window.innerHeight) {
+                    // default, only have 1 section.
+                    if (res.data.sections == undefined) {
+                        this.course_sections = [1]
+                        this.new_meeting_info.meta.sections.add(1)
+                    }
+                })
+            },
+
+            meetingHasAsyncAndLive () {
+                return Object.prototype.hasOwnProperty.call(this.new_meeting_info, 'async') && Object.prototype.hasOwnProperty.call(this.new_meeting_info, 'live')
+            },
+
+            log_ () {
+                console.log(this.new_meeting_info)
+            },
+
+            goToIntermediatePanel () {
+
+                this.form_panel_id = -10 // -10 will be set for the intermediate panel
+                console.log(`Going to intermediate...`)
+            },
+
+            shortenString (str, len) {
+                if (str.length <= len) return str;
+                return str.substring(0, len-2) + "..."
+            },
+
+            getTaskName (task_id, type) {
+                switch(this.new_meeting_info[type][task_id].type) {
+                    case 'qr-code':
+                        return "QR Code"
+                    case 'link':
+                        return this.new_meeting_info[type][task_id].title == "" ? "(untitled link)" : this.shortenString(this.new_meeting_info[type][task_id].title, 16)
+                    case 'poll':
+                        return "Poll"
+                }
+            },
+            updateLinkTitle (e, task_id) {
+                this.new_meeting_info[this.creation_mode][task_id].title = e.target.value
+
+                this.$forceUpdate()
+            },
+            updateLinkURL (e, task_id) {
+                this.new_meeting_info[this.creation_mode][task_id].link_target = e.target.value
+                this.$forceUpdate()
+            },
+
+            updateTimeState (task_id, new_time, type) {
+                this.new_meeting_info[this.creation_mode][task_id][type] = new_time
+            },
+
+            getCreationMode () {
+                if (this.creation_mode == 'live') return 'Live'
+                if (this.creation_mode == 'async') return 'Async'
+                return 'Undefined'
+            },
+
+            getSubformInfo (task_data) {
+                // task_data should have an id & type
+                console.log(`Inside getSubformInfo()`)
+                console.log(task_data)
+                if (task_data.type == 'live') {
+                    if (Object.hasOwnProperty.call(this.new_meeting_info.live, task_data.id)) {
+                        console.log(`getSubformInfo:`)
+                        console.log(this.new_meeting_info.live[task_data.id])
+                        return this.new_meeting_info.live[task_data.id]
+                    }
+                    return null
+                }
+
+                if (task_data.type == 'async') {
+                    console.log(`Subform info is async`)
+                    if (Object.hasOwnProperty.call(this.new_meeting_info.async, task_data.id)) {
+                        return this.new_meeting_info.async[task_data.id]
+                    }
+                    return null
+                }
+
                 
-                // make it fixed
-                console.log('making fixed')
-                action_footer.style.position = "fixed"
+            },
+
+            setPollData (task_id, new_question_data) {
+                console.log(`Updating Question Data for task ${task_id}`)
+                this.new_meeting_info[this.creation_mode][task_id].questions = new_question_data
+            },
+
+            addLinkSection () {
+                // add a poll to the meeting
+                console.log(`Adding Link Section`)
+
+                let task_id = this.tasks_count
+
+                if (this.creation_mode == 'live') {
+                    this.new_meeting_info.live[task_id] = {
+                        type: 'link',
+                        start_time: null,
+                        end_time: null,
+                        title: "",
+                        link_target: ""
+                    }
+                }
+                else if (this.creation_mode == 'async') {
+                    this.new_meeting_info.async[task_id] = {
+                        type: 'link',
+                        start_time: null,
+                        end_time: null,
+                        title: "",
+                        link_target: ""
+                    }
+                }
+
+                this.task_order.push({
+                    id: task_id,
+                    type: this.creation_mode
+                })
+
+                this.form_panel_id = task_id;
+                ++ this.tasks_count
+                this.$forceUpdate ()
+
+                console.log(`End of addLinkSection`)
+            },
+
+            addPollSection () {
+                // add a poll to the meeting
+                console.log(`Adding Poll`)
+
+                let task_id = this.tasks_count
+
+                if (this.creation_mode == 'live') {
+
+                    if (!Object.prototype.hasOwnProperty.call(this.new_meeting_info, 'live')) {
+                        this.new_meeting_info.live = {}
+                    }
+
+                    this.new_meeting_info.live[task_id] = {
+                        type: 'poll',
+                        start_time: null,
+                        end_time: null,
+                        questions: []
+                    }
+                }
+                else if (this.creation_mode == 'async') {
+                    console.log(`Adding poll to async section`)
+
+                    if (!Object.prototype.hasOwnProperty.call(this.new_meeting_info, 'async')) {
+                        this.new_meeting_info.async = {}
+                    }
+                    this.new_meeting_info.async[task_id] = {
+                        type: 'poll',
+                        start_time: null,
+                        end_time: null,
+                        questions: []
+                    }
+                }
+
+                this.task_order.push({
+                    id: task_id,
+                    type: this.creation_mode
+                })
+
+                this.form_panel_id = task_id;
+                ++ this.tasks_count
+
+
+                console.log(this.new_meeting_info)
+                console.log(this.task_order)
+                console.log(`End of addPollSection`)
+            },
+
+            setBottomActionPosition (e) {
+                
+                let action_footer = document.getElementById('form-footer-action')
+                if (action_footer == null) return;
+
+                // console.dir(action_footer)
+                // console.log(window)
+
+                let offset_ = action_footer.offsetTop // + action_footer.scrollTop
+                let trav = action_footer.offsetParent
+                while (trav != null) {
+                    offset_ += trav.offsetTop
+                    trav = trav.offsetParent
+                }
+                offset_ += action_footer.clientHeight / 2 - window.scrollY
+
+                // console.log(`Offset Top: ${offset_}`)
+                // console.log(`Inner Height: ${window.innerHeight}`)
+
+                if (offset_ > window.innerHeight) {
+                    
+                    // make it fixed
+                    console.log('making fixed')
+                    action_footer.style.position = "fixed"
+                }
+                else {
+                    // undo position fixed
+                    console.log('unfixing')
+                    action_footer.style.position = "static"
+                }
+            },
+
+            toggleSectionInclude (section_id) {
+                if (this.new_meeting_info.meta.sections.has(section_id)) {
+                    // remove
+                    this.new_meeting_info.meta.sections.delete (section_id)
+                }
+                else {
+                    // add
+                    this.new_meeting_info.meta.sections.add (section_id)
+                }
+
+                this.$forceUpdate ();
+            },
+
+            initiateLiveTasks () {
+
+                this.creation_mode = 'live'
+
+                // create a new QR Code section, since that's the 1st possible live event that can happen
+                let next_id = this.createQRCodeEntry();
+                
+                // go to the next index
+                this.task_order.push({
+                    id: next_id,
+                    type: 'live'
+                })
+
+                this.form_panel_id = next_id;
+            },
+
+            initiateAsyncTasks (task_type) {
+                // this.form_panel_index = 1;
+                console.log(`Task type: ${task_type}`)
+
+                if (!Object.prototype.hasOwnProperty.call( this.new_meeting_info, 'async' )) {
+                    this.new_meeting_info.async = {}
+                }
+                this.creation_mode = 'async'
+
+                switch(task_type) {
+                    case 'poll':
+                        this.addPollSection()
+                        break
+                    case 'link':
+                        this.addLinkSection()
+                        break
+                    // case 'file-download':
+                    //     this.addFileDownloadSection()
+                    default:
+                        console.log(`Section for ${task_type} has not been implemented yet.`)
+                }
+            },
+
+            getCurrentTaskIndex () {
+                // find the index of the current task
+                let ind_ = this._indexOf(this.task_order, this.form_panel_id, (a, b) => {
+                    return a.id == b
+                })
+                if (ind_ == -1) {
+                    console.error(`Task id ${this.form_panel_id} could not be found in the task order queue.`)
+                }
+                return ind_;
+            },
+            goToPrevTask () {
+                let task_index = this.getCurrentTaskIndex ();
+                this.form_panel_id = this.task_order[ Math.max(task_index - 1, 0) ].id
+            },
+            goToNextTask () {
+                let task_index = this.getCurrentTaskIndex ();
+                this.form_panel_id = this.task_order[ Math.min(task_index + 1, this.task_order.length - 1) ].id
+            },
+
+            createQRCodeEntry () {
+                if (!Object.prototype.hasOwnProperty.call( this.new_meeting_info, 'live' )) {
+                    this.new_meeting_info.live = {}
+                }
+
+                let task_id = this.tasks_count
+                this.new_meeting_info.live[task_id] = {
+                    type: 'qr-code',
+                    start_time: null,
+                    end_time: null
+                }
+
+                ++ this.tasks_count
+                this.$forceUpdate ()
+
+                return task_id
+            },
+
+            // debugging
+            logToConsole () {
+                console.log(this.new_meeting_info)
+            },
+            _log (data) {
+                console.log(data)
+            },
+
+            // extensions
+            _indexOf (array, value, equality) {
+                let ind_ = 0;
+                for(ind_; ind_ < array.length; ++ind_) {
+                    if (equality( array[ind_], value )) return ind_;
+                }
+                return -1;
             }
-            else {
-                // undo position fixed
-                console.log('unfixing')
-                action_footer.style.position = "static"
+
+        },
+        watch: {
+            include_instructors_note: function (should) {
+                if (should) this.new_meeting_info.meta.instructors_note = ''
+                else this.new_meeting_info.meta.instructors_note = null
+            },
+            include_online_meeting_link: function (should) {
+                if (should) this.new_meeting_info.meta.online_meeting_link = ''
+                else this.new_meeting_info.meta.online_meeting_link = null
             }
-        },
-
-        toggleSectionInclude (section_id) {
-            if (this.new_meeting_info.meta.sections.has(section_id)) {
-                // remove
-                this.new_meeting_info.meta.sections.delete (section_id)
-            }
-            else {
-                // add
-                this.new_meeting_info.meta.sections.add (section_id)
-            }
-
-            this.$forceUpdate ();
-        },
-
-        initiateLiveTasks () {
-
-            this.creation_mode = 'live'
-
-            // create a new QR Code section, since that's the 1st possible live event that can happen
-            let next_id = this.createQRCodeEntry();
-            
-            // go to the next index
-            this.task_order.push({
-                id: next_id,
-                type: 'live'
-            })
-
-            this.form_panel_id = next_id;
-        },
-
-        initiateAsyncTasks () {
-            // this.form_panel_index = 1;
-            this.creation_mode = 'async'
-        },
-
-        getCurrentTaskIndex () {
-            // find the index of the current task
-            let ind_ = this._indexOf(this.task_order, this.form_panel_id, (a, b) => {
-                return a.id == b
-            })
-            if (ind_ == -1) {
-                console.error(`Task id ${this.form_panel_id} could not be found in the task order queue.`)
-            }
-            return ind_;
-        },
-        goToPrevTask () {
-            let task_index = this.getCurrentTaskIndex ();
-            this.form_panel_id = this.task_order[ Math.max(task_index - 1, 0) ].id
-        },
-        goToNextTask () {
-            let task_index = this.getCurrentTaskIndex ();
-            this.form_panel_id = this.task_order[ Math.min(task_index + 1, this.task_order.length - 1) ].id
-        },
-
-        createQRCodeEntry () {
-            if (!Object.prototype.hasOwnProperty.call( this.new_meeting_info, 'live' )) {
-                this.new_meeting_info.live = {}
-            }
-
-            let task_id = this.tasks_count
-            this.new_meeting_info.live[task_id] = {
-                type: 'qr-code',
-                start_time: null,
-                end_time: null
-            }
-
-            ++ this.tasks_count
-            this.$forceUpdate ()
-
-            return task_id
-        },
-
-        // debugging
-        logToConsole () {
-            console.log(this.new_meeting_info)
-        },
-        _log (data) {
-            console.log(data)
-        },
-
-        // extensions
-        _indexOf (array, value, equality) {
-            let ind_ = 0;
-            for(ind_; ind_ < array.length; ++ind_) {
-                if (equality( array[ind_], value )) return ind_;
-            }
-            return -1;
-        }
-
-    },
-    watch: {
-        include_instructors_note: function (should) {
-            if (should) this.new_meeting_info.meta.instructors_note = ''
-            else this.new_meeting_info.meta.instructors_note = null
-        },
-        include_online_meeting_link: function (should) {
-            if (should) this.new_meeting_info.meta.online_meeting_link = ''
-            else this.new_meeting_info.meta.online_meeting_link = null
         }
     }
- }
 
 </script>
 <style lang="scss">
@@ -482,6 +707,22 @@ export default {
 
         .sidenav-section {
             margin-bottom: 30px;
+            .form-info-tab {
+                display: flex;
+                text-align: right;
+
+                .value-area {
+                    flex-grow: 1;
+                }
+
+                .close-area {
+                    width: 20px;
+                    height: 20px;
+                    line-height: 20px;
+                    text-align: center;
+                    margin-left: 10px;
+                }
+            }
         }
     }
 
