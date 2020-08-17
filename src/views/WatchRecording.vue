@@ -31,10 +31,10 @@
       this.current_user = this.$store.state.user.current_user
       this.is_instructor = this.current_user.is_instructor
       await this.getRecording()
-      if(!this.is_instructor){
-        await this.createOrRetrieveStudentSubmission()
-        if(this.submission.video_percent_watched < 100)
-          this.preventSeekingAndPeriodicallyUpdateSubmission()
+      if(!this.is_instructor && this.getWindowStatus(this.recording, false) === "open"){
+          await this.createOrRetrieveStudentSubmission()
+          if(this.submission.video_percent_watched < 100)
+            this.preventSeekingAndPeriodicallyUpdateSubmission()
       }
     },
     computed: {
@@ -44,6 +44,27 @@
         const response = await RecordingAPI.getRecording(this.recording_id)
         this.recording = response.data
         this.recording_has_loaded = true
+      },
+      getWindowStatus(attendance, is_qr) {
+        let current_time = new Date()
+        let window_start = null
+        let window_end = null
+        if(is_qr) {
+          window_start = new Date(attendance.qr_checkin_start_time)
+          window_end = new Date(attendance.qr_checkin_end_time)
+        } else {
+          window_start = new Date(attendance.recording_submission_start_time)
+          window_end = new Date(attendance.recording_submission_end_time)
+        }
+        let window_status = ""
+        if(current_time > window_end)
+          window_status = "closed"
+        else if(current_time < window_start)
+          window_status = "upcoming"
+        else
+          window_status = "open"
+        console.log("Window status", window_status)
+        return window_status
       },
       async createOrRetrieveStudentSubmission() {
         let student_submission_status = this.submissionExistsForStudent()
