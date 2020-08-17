@@ -17,23 +17,23 @@
         </sui-dropdown>
       </div>
       
-<!--       <div class="dashboard-row-one dashboard-row">
+      <div class="dashboard-row-one dashboard-row">
         <div class="dashboard-section">
           <div class="section-title">
             <div class="title-value">Live</div>
-            <div class="title-subvalue">{{getLiveMeetingCount ()}}  live meetings</div>
+            <div class="title-subvalue">{{this.live_meetings.length}}  live meetings</div>
           </div>
-            <div v-if="!live_loaded">
+            <div v-if="!user_has_loaded">
               <div :style="{marginTop: '30px', marginBottom: '80px'}"><SquareLoader /></div>
             </div>
             <transition
                 name="fade"
                 mode="out-in"
               >
-              <div v-if="live_loaded">
-                <div v-for="(meeting, i) in meetings" :key="i">
-                  <MeetingInfoPill
-                  v-if="meeting.has_live_attendance"
+              <div v-if="user_has_loaded">
+                <div v-for="(meeting, i) in live_meetings" :key="i">
+                  <MeetingInfoPill v-bind:meeting="meeting" />
+<!--                   <MeetingInfoPill
                   v-bind:meetingMeta='{
                     meetingTitle: meeting.title,
                     courseDept: `${meeting.course.dept} ${meeting.course.course_number}`,
@@ -44,7 +44,7 @@
                     qrCode: true,
                     poll: true
                   }'
-                />
+                /> -->
                 </div>
             </div>
           </transition>
@@ -52,19 +52,20 @@
         <div class="dashboard-section">
         <div class="section-title">
           <div class="title-value">Asynchronous</div>
-          <div class="title-subvalue">{{getAsyncMeetingCount ()}} asynchronous meetings</div>
+          <div class="title-subvalue">{{this.async_meetings.length}} asynchronous meetings</div>
         </div>
-            <div v-if="!async_loaded">
+            <div v-if="!user_has_loaded">
                 <div :style="{marginTop: '30px', marginBottom: '80px'}"><SquareLoader /></div>
             </div>
             <transition
                 name="fade"
                 mode="out-in"
               >
-            <div v-if="async_loaded">
-              <div v-for="(meeting, i) in meetings" :key="i">
-                <MeetingInfoPill
-                v-if="meeting.has_async_attendance"
+            <div v-if="user_has_loaded">
+              <div v-for="(meeting, i) in async_meetings" :key="i">
+                <MeetingInfoPill v-bind:meeting="meeting" />
+
+   <!--              <MeetingInfoPill
                 v-bind:meetingMeta='{
                   meetingTitle: meeting.title,
                   courseDept: `${meeting.course.dept} ${meeting.course.course_number}`,
@@ -75,31 +76,13 @@
                     recording: true,
                     fileDownload: true
                   }'
-                />
+                /> -->
               </div>
             </div>
           </transition>
         </div>
       </div>
- -->
     </div>
-
-
-<!--     <h1>Live Meetings</h1>
-    <div v-for="meeting in live_meetings">
-      <router-link :to="{name: 'meeting_info', params: { meeting_id: meeting._id }}">
-        <h3>{{ meeting.title }}</h3>
-      </router-link>
-      <p>Start time: {{ new Date(meeting.start_time) }}</p>
-      <p>End time: {{ new Date(meeting.end_time) }}</p>
-    </div>
-
-    <h1>Async Meetings</h1>
-    <div v-for="meeting in async_meetings">
-      <router-link :to="{name: 'meeting_info', params: { meeting_id: meeting._id }}">
-        <h3>{{ meeting.title }}</h3>
-      </router-link>
-    </div> -->
   </div>
 </template>
 
@@ -114,7 +97,8 @@
     components: {
       hideAt,
       showAt,
-      MeetingInfoPill
+      MeetingInfoPill,
+      SquareLoader
     },
     data(){
       return {
@@ -356,14 +340,4 @@
     margin-bottom: 30px;
   }
 }
-
-/*  #dashboard-container {
-    width: 85%;
-    margin: auto;
-    border:black solid;
-  }
-
-  .dashboard-section {
-    border: blue solid;
-  }*/
 </style>

@@ -1,38 +1,41 @@
 <template>
   <div class="meeting-info-pill">
     <div class="left-side">
-        <div class="meeting-name">{{ getMeetingName () }}</div>
-        <div class="meeting-course">
-            <span :style="{marginRight: '10px'}">{{ getMeetingCourseDept () }}</span>
-            <span>{{ getMeetingCourseName () }}</span>
-        </div>
+      <div class="meeting-name">{{ meeting.title }}</div>
+      <div class="meeting-course" v-if="meeting.for_course">
+          <span :style="{marginRight: '10px'}">{{ meeting.course.dept }} {{ meeting.course.course_number }}</span>
+          <span>{{ meeting.course.name }}</span>
+      </div>
+      <div class="meeting-course" v-else>
+          <span :style="{marginRight: '10px'}">{{ meeting.org.name }}</span>
+      </div>
     </div>
     <div class="right-side">
       <show-at breakpoint="large">
         <!-- Icons shown on the pill -->
         <div class="icon-area">
-          <div class="icon-wrapper" v-if="tasks != null && tasks.qrCode != null">
+<!--           <div class="icon-wrapper" v-if="meeting.live_attendance.qr_checkins.length > 0">
               <sui-popup content="You have a QR code to submit." inverted>
                   <div class="icon-container" slot="trigger">
                       <img :src="QrCodeSVG" class="icon-img" width="100%" height="100%" />
                   </div>
               </sui-popup>
           </div>
-          <div class="icon-wrapper" v-if="tasks != null && tasks.poll != null">
+          <div class="icon-wrapper" v-if="meeting.live_attendance.polls.length > 0">
               <sui-popup content="You have a poll to submit." inverted>
                   <div class="icon-container" slot="trigger">
                       <img :src="PollSVG" class="icon-img" width="100%" height="100%" />
                   </div>
               </sui-popup>
           </div>
-          <div class="icon-wrapper" v-if="tasks != null && tasks.recording != null">
+          <div class="icon-wrapper" v-if="meeting.async_attendance.recordings.length > 0">
               <sui-popup content="You have a recording to watch." inverted>
                   <div class="icon-container" slot="trigger">
                       <img :src="RecordingSVG" class="icon-img" width="100%" height="100%" />
                   </div>
               </sui-popup>
-          </div>
-          <div class="icon-wrapper" v-if="tasks != null && tasks.fileDownload != null">
+          </div> -->
+<!--           <div class="icon-wrapper" v-if="tasks != null && tasks.fileDownload != null">
               <sui-popup content="You have a file to download." inverted>
                   <div class="icon-container" slot="trigger">
                       <img :src="FileSVG" class="icon-img" width="100%" height="100%" />
@@ -45,7 +48,7 @@
                       <img :src="LinkSVG" class="icon-img" width="100%" height="100%" />
                   </div>
               </sui-popup>
-          </div>
+          </div> -->
         </div>
       </show-at>
 
@@ -70,9 +73,9 @@
           <sui-modal-header>Meeting Info Preview</sui-modal-header>
           <sui-modal-content scrolling>
             <sui-modal-description>
-              <sui-header>{{ getMeetingName() }}</sui-header>
+              <!-- <sui-header>{{ meeting.title }}</sui-header> -->
               <!-- Meeting Details -->
-              <sui-label>
+  <!--             <sui-label>
                   Time Block
                   <sui-label-detail>3:00pm - 4:50pm</sui-label-detail>
               </sui-label>
@@ -80,9 +83,9 @@
               <sui-label class="venue-red">
                   Time Remaining
                   <sui-label-detail>35mins</sui-label-detail>
-              </sui-label>
+              </sui-label> -->
               <!-- Meeting Contents -->
-              <sui-item-group divided>
+ <!--              <sui-item-group divided>
                 <sui-item v-if="tasks != null && tasks.qrCode != null">
                 <sui-item-image size="tiny" class="icon-img" :src="QrCodeSVG" :style="{width: '40px'}" />
                 <sui-item-content vertical-align="top">Submit your QR code attendance to be marked as present for this meeting.</sui-item-content>
@@ -106,7 +109,7 @@
                 <sui-item v-if="tasks != null && tasks.link != null">
                 <sui-item-image size="tiny" class="icon-img" :src="LinkSVG" :style="{width: '40px'}" />
                 <sui-item-content vertical-align="top">Access a link uploaded by your instructor.</sui-item-content>
-                </sui-item>
+                </sui-item> -->
               </sui-item-group>
             </sui-modal-description>
           </sui-modal-content>
@@ -137,6 +140,7 @@ import {showAt, hideAt} from "vue-breakpoints"
 export default {
     name: 'MeetingInfoPill',
     props:{
+        meeting: Object,
         tasks: Object,
         meetingMeta: Object,
         meetingId: String
@@ -156,6 +160,7 @@ export default {
         }
     },
     created () {
+      console.log("Recieved meeting", this.meeting)
     },
     methods: {
         getMeetingName ()  {

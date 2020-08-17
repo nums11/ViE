@@ -77,6 +77,10 @@ userRoutes.route('/get/:id').get(function (req, res) {
       path: 'course',
     }, {
       path: 'org'
+    }, {
+      path: 'live_attendance',
+    }, {
+      path: 'async_attendance'
     }]
   }).
   populate('live_submissions').
