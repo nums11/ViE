@@ -33,7 +33,8 @@
       await this.getRecording()
       if(!this.is_instructor){
         await this.createOrRetrieveStudentSubmission()
-        this.preventSeekingAndUpdateSubmission()
+        if(this.submission.video_percent_watched < 100)
+          this.preventSeekingAndPeriodicallyUpdateSubmission()
       }
     },
     computed: {
@@ -73,7 +74,7 @@
         }
         return [submission_exists, student_submission]
       },
-      preventSeekingAndUpdateSubmission() {
+      preventSeekingAndPeriodicallyUpdateSubmission() {
         let self = this
         this.$nextTick(() => {
           videojs("video_player").ready(function() {
@@ -106,10 +107,9 @@
       },
       async updateVideoSubmission(current_time, video_duration) {
         this.submission.furthest_video_time = current_time
-        this.submission.video_percent_watched = current_time / video_duration
+        this.submission.video_percent_watched = (current_time / video_duration) * 100
         const response = await AsyncSubmissionAPI.updateAsyncSubmission(this.submission._id, this.submission)
         this.submission = response.data
-        console.log("Updated submission", this.submission)
       }
     }
   };
