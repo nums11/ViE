@@ -21,7 +21,7 @@
         <div class="dashboard-section">
           <div class="section-title">
             <div class="title-value">Live</div>
-            <div class="title-subvalue">{{this.live_meetings.length}}  live meetings</div>
+            <div class="title-subvalue" >{{live_meetings.length}} live meeting<span v-if="live_meetings.length > 1">s</span></div>
           </div>
             <div v-if="!user_has_loaded">
               <div :style="{marginTop: '30px', marginBottom: '80px'}"><SquareLoader /></div>
@@ -40,7 +40,7 @@
         <div class="dashboard-section">
         <div class="section-title">
           <div class="title-value">Asynchronous</div>
-          <div class="title-subvalue">{{this.async_meetings.length}} asynchronous meetings</div>
+          <div class="title-subvalue">{{async_meetings.length}} asynchronous meeting<span v-if="live_meetings.length > 1">s</span></div>
         </div>
             <div v-if="!user_has_loaded">
                 <div :style="{marginTop: '30px', marginBottom: '80px'}"><SquareLoader /></div>

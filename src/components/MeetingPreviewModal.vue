@@ -46,7 +46,7 @@
         </sui-modal-description>
       </sui-modal-content>
       <sui-modal-actions>
-        <sui-button v-on:click="toggleModal">Close</sui-button>
+        <sui-button v-on:click="$emit('hide-modal')">Close</sui-button>
         <router-link :to="{name: 'meeting_info', params: { meeting_id: meeting._id }}">
           <sui-button animated class="venue-blue text-white view-button" :style="{marginLeft: '10px'}">
               <sui-button-content class="undo-dark-mode" visible>View</sui-button-content>
