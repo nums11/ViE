@@ -84,6 +84,14 @@
         </div>
       </div>
     </div> -->
+  <div class="hidden" id="qr_modal">
+    <qrcode v-bind:value="current_qr_code" :options="{ width: 600 }"></qrcode>
+    <button class="btn btn-secondary" id="close_qr_btn" @click="hideQRCode" aria-label="Hide QR">Hide</button>
+  </div>
+  <div id="qr-scanning-container" v-if="qr_scanning_window_open">
+    <button @click="closeQRScanningWindow" id="exit_preview_btn" tabindex="0" aria-label="Close QR Scanner">X</button>
+    <qrcode-stream id="video_preview" @decode="attemptQRCheckinSubmission"></qrcode-stream>
+  </div>
 
   <div class="header">
     <!-- Page Title -->
@@ -113,7 +121,7 @@
 
       <!-- Schedule Area -->
       <div class="right-side">
-        <MeetingInfoScheduleSlider v-bind:active_tasks="active_tasks"/>
+        <MeetingInfoScheduleSlider v-on:show-qr-code="showQRCode" v-bind:active_tasks="active_tasks"/>
       </div>
     </div>
   </div>
@@ -468,12 +476,22 @@
   display: none;
 }
 
+#qr_modal {
+  position: absolute;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  z-index: 10;
+  background-color: white;
+}
+
 #qr-scanning-container {
   position: absolute;
   width: 100%;
   height: 90%;
   top: 0;
-  z-index: 1;
+  z-index: 10;
   background-color: white;
 }
 
