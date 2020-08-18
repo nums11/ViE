@@ -14,8 +14,16 @@
         }" 
         @dragstart="dragSlider">
         <div class="info-pill-day" v-for="task in active_tasks" :key="task._id" @dragstart="dragSlider">
+<!--           <div class="active-btn" v-if="task.qr_checkin_start_time">Show QR</div>
+          <router-link v-else class="active-btn" :to="{name: 'watch_recording', params: { recording_id: task._id }}">
+            <button>Watch Recording</button>
+          </router-link> -->
           <sui-button v-if="task.qr_checkin_start_time" @click="$emit('show-qr-code')" class="venue-green">Show QR </sui-button>
-          <sui-button v-else class="venue-green">Watch Recording</sui-button>
+          <sui-button v-else class="venue-green">
+            <router-link :to="{name: 'watch_recording', params: { recording_id: task._id }}">
+              Watch Recording
+            </router-link>
+          </sui-button>
 
 <!--             <sui-popup v-for="task_info in getTasksGroupedByUniqueDay()[task_day].tasks">
               <sui-popup-headfer>{{task_info['taskName']}}</sui-popup-header>
@@ -172,6 +180,12 @@ export default {
 </script>
 
 <style lang="scss">
+.active-btn {
+  height: 6rem;
+  text-align: center;
+  width: 15rem;
+}
+
 .meeting-info-schedule-slider {
     position: absolute;
     bottom: 0;
