@@ -133,10 +133,10 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   // min-height: 100%;
 }
-
+/*
 .venue-body {
-  margin-left: 105px;
-}
+  margin-left: 75px;
+}*/
 @media only screen and (max-width: 900px) {
   .venue-body {
     margin-left: 0px;

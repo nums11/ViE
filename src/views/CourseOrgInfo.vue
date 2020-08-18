@@ -62,7 +62,7 @@
                     icon="plus"
                     button
                   >
-                  Create New Meeting
+                  Schedule Meeting
                 </sui-button>
               </router-link>
             </div>

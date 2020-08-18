@@ -161,9 +161,9 @@
   <div v-else class="sidebar-area">
     <div class="instructor-info">
       <div class="name">Prof. {{ meeting.course.instructor.first_name }} {{ meeting.course.instructor.last_name }}</div>
-      <div class="email-icon">
+<!--       <div class="email-icon">
           <span class="icon-email"></span>
-      </div>
+      </div> -->
     </div>
   </div>
 

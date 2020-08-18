@@ -1,18 +1,17 @@
 <template>
   <div id="dashboard-container">
     <div class="dashboard-page">
-
-      <div class="instructor-action-row" v-if="current_user.is_instructor">
+      <div class="instructor-action-row" v-if="user.is_instructor">
         <sui-dropdown
           class="labeled
           icon venue-green"
             icon="plus"
             button
-            text="Create New Meeting"
+            text="Schedule Meeting"
           >
           <sui-dropdown-menu>
             
-            <sui-dropdown-item v-for="course in current_user.courses">
+            <sui-dropdown-item v-for="course in user.courses">
               <router-link :to="{name: 'course_info', params: { id: course._id }}"><div>{{course.name}}</div></router-link>
             </sui-dropdown-item>
          </sui-dropdown-menu>
@@ -79,29 +78,13 @@
     },
     data(){
       return {
-        current_user: {},
+        user: {},
         user_has_loaded: false,
         user_meetings : [],
         live_meetings: [],
         async_meetings: [],
-        all_lectures: [],
-        live_lectures: [],
-        live_lectures_exist: Boolean,
-        playback_lectures: [],
-        playback_lectures_exist: Boolean,
-        recent_lectures: [],
-        recent_lectures_exist: Boolean,
-        upcoming_lectures: [],
-        upcoming_lectures_exist: Boolean,
-        courses_loaded: Number,
         courses: Object,
         STATIC_COURSE_COLORS: Array,
-        live_lectures_loaded: false,
-        upcoming_lectures_loaded: Boolean,
-        recent_lectures_loaded: Boolean,
-        playback_lectures_loaded: Boolean,
-        section_1: String,
-        section_2: String
       }
     },
     created() {
@@ -118,9 +101,9 @@
     },
     methods: {
       async getCurrentUser() {
-        this.current_user = this.$store.state.user.current_user
-        this.is_instructor = this.current_user.is_instructor
-        const response = await UserAPI.getUser(this.current_user._id)
+        this.user = this.$store.state.user.current_user
+        this.is_instructor = this.user.is_instructor
+        const response = await UserAPI.getUser(this.user._id)
         let user = response.data
         this.user_has_loaded = true
         this.user_meetings = user.meetings
@@ -181,7 +164,7 @@
         this.courses_loaded = _size_
       },
       async getAllLecturesForUser() {
-        const response = await LectureAPI.getLecturesForUser(this.current_user._id, "with_sections_and_course")
+        const response = await LectureAPI.getLecturesForUser(this.user._id, "with_sections_and_course")
         this.parseLiveLectures(response.data)
         this.parsePlaybackLectures(response.data)
         this.parseRecentLectures(response.data)
@@ -267,7 +250,14 @@
 </script>
 
 <style scoped>
+
+#dashboard-container {
+  width: 90%;
+  margin:auto;
+}
+
 .dashboard-page {
+  margin-top: 1rem;
   .instructor-action-row {
     height: 50px;
     vertical-align: bottom;
@@ -278,6 +268,7 @@
 }
 
 .dashboard-page .dashboard-row {
+  margin-top: 2rem;
   display: flex;
 }
 
