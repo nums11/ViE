@@ -2,31 +2,33 @@
   <div class="course-info">
     <div class="header">
       <!-- Page Title -->
-      <div class="page-title">Course Info</div>
+      <div class="page-title" v-if="for_course">Course Info</div>
+      <div class="page-title" v-else>Org Info</div>
         <div class="page-info-area">
           <!-- Meeting Info Side -->
           <div class="left-side">
-            <h2>{{ course.name }}</h2>
+            <h2 v-if="for_course">{{ course.name }}</h2>
+            <h2 v-else>{{ org.name }}</h2>
             <div class="details-area">
 <!--                <sui-label :style="{marginBottom: '5px'}">
                   Section
                   <sui-label-detail>1</sui-label-detail>
               </sui-label> -->
 
-              <sui-label class="venue-red" :style="{marginBottom: '5px'}">
+              <sui-label v-if="for_course" class="venue-red" :style="{marginBottom: '5px'}">
                   Dept
                   <sui-label-detail>{{ course.dept }} {{ course.course_number }}</sui-label-detail>
               </sui-label>
 
-              <sui-label :style="{marginBottom: '5px'}">
+<!--               <sui-label :style="{marginBottom: '5px'}">
                   Time Block
                   <sui-label-detail>3:00pm - 4:00pm</sui-label-detail>
-              </sui-label>
+              </sui-label> -->
             </div>
           </div>
           <div class="right-side">
             <div class="tabs">
-              <ul>
+              <ul v-if="for_course">
                 <li @click="activeTab = 'meeting_history'" :class="activeTab == 'meeting_history' ? 'active' : ''">Meeting History</li>
                 <li @click="activeTab = 'statistics'" :class="activeTab == 'statistics' ? 'active' : ''">
                   <div class="icon-box"><span class="icon-bar-chart"></span></div>
@@ -36,6 +38,18 @@
                 <li v-if="current_user.is_instructor" @click="activeTab = 'settings'" :class="activeTab == 'settings' ? 'active' : ''">
                   <div class="icon-box"><span class="icon-gear"></span></div>
                   <div>Settings</div>
+                </li>
+              </ul>
+              <ul v-else>
+                <li @click="activeTab = 'meeting_history'" :class="activeTab == 'meeting_history' ? 'active' : ''">Meeting History</li>
+                <li @click="activeTab = 'statistics'" :class="activeTab == 'statistics' ? 'active' : ''">
+                  <div class="icon-box"><span class="icon-bar-chart"></span></div>
+                  <div>Statistics</div>
+                </li>
+                <li @click="activeTab = 'manage_students'" :class="activeTab == 'manage_students' ? 'active' : ''">Members</li>
+                <li v-if="current_user.is_instructor" @click="activeTab = 'settings'" :class="activeTab == 'settings' ? 'active' : ''">
+                 <div class="icon-box"><span class="icon-gear"></span></div>
+                 <div>Settings</div>
                 </li>
               </ul>
             </div>
@@ -93,8 +107,11 @@
         >
           <div v-if="activeTab == 'meeting_history'" key="1">
             <h3>January</h3>
-            <div class="attendance-for-month">
+            <div v-if="for_course" class="attendance-for-month">
               <MeetingAttendancePill v-for="meeting in course.meetings" :key="meeting._id" v-bind:meeting="meeting" />
+            </div>
+            <div v-else class="attendance-for-month">
+              <MeetingAttendancePill v-for="meeting in org.meetings" :key="meeting._id" v-bind:meeting="meeting" />
             </div>
           </div>
           <!-- For instructors, show CourseStatistics. -->
@@ -119,6 +136,8 @@ import MeetingAttendancePill from "@/components/MeetingAttendancePill"
 import ManageStudents from "@/components/ManageStudents.vue"
 import CourseStatistics from "@/components/CourseStatistics.vue"
 import CourseAPI from "@/services/CourseAPI"
+import OrgAPI from "@/services/OrgAPI"
+
 export default {
     name: 'CourseOrgInfo',
     components: {
@@ -133,12 +152,16 @@ export default {
         statisticsSections: {},
         colorSets: [],
         course: {},
-        current_user: {}
+        org: {},
+        current_user: {},
+        for_course: false,
+        is_board_member: false
       }
     },
-    created () {
-      this.getCurrentUser ()
-      this.getCourse ();
+    async created () {
+      this.getCurrentUser()
+      await this.getCourseOrOrg();
+      this.setIsBoardMember()
       this.statisticsSections = {
         1: {
           display: true
@@ -173,11 +196,26 @@ export default {
       getCurrentUser() {
         this.current_user = this.$store.state.user.current_user
       },
-      async getCourse () {
-        // Fetch the meeting info from the server and store it in the data variable `meeting_info`
-        let course_id = this.$route.params.id
-        const response = await CourseAPI.getCourse(course_id)
-        this.course = response.data
+      async getCourseOrOrg () {
+        if(this.$route.name === "course_info"){
+          this.course_id = this.$route.params.id;
+          this.for_course = true
+          const response = await CourseAPI.getCourse(this.course_id)
+          this.course = response.data
+        } else {
+          this.org_id = this.$route.params.id;
+          const response = await OrgAPI.getOrg(this.org_id)
+          this.org = response.data
+        }
+      },
+      setIsBoardMember() {
+        let org_board_members = this.org.board_members
+        for(let i = 0; i < org_board_members.length; i++) {
+          if(org_board_members[i].user_id === this.current_user.user_id) {
+            this.is_board_member = true
+            break
+          }
+        }
       },
       disableMobileTabs (e) {
         let width = e.target.outerWidth
