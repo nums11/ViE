@@ -128,6 +128,7 @@ courseRoutes.route('/get/:id').get(function (req, res) {
   Course.findById(id).
   populate('instructor').
   populate('students').
+  populate('meetings').
   exec((error,course) => {
     if(error || course == null){
       console.log("<ERROR> (courses/get) Getting course with ID:",id, error)

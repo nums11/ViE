@@ -1,21 +1,29 @@
 <template>
   <div class="meeting-attendance-pill">
-    <div class="pill-container">
-      <div class="left-side">January 7th</div>
-      <div class="right-side">
-          <div class="icon-area"><img src="@/assets/icons/001-qr-code.svg" width="100%" height="100%"/></div>
-          <div class="icon-area"><img src="@/assets/icons/002-link.svg" width="100%" height="100%"/></div>
-          <div class="icon-area"><img src="@/assets/icons/003-play-button.svg" width="100%" height="100%"/></div>
-          <div class="icon-area"><img src="@/assets/icons/005-file.svg" width="100%" height="100%"/></div>
-          <div class="icon-area"><img src="@/assets/icons/001-ballot.svg" width="100%" height="100%"/></div>
+    <router-link :to="{name: 'meeting_info', params: { meeting_id: meeting._id }}">
+      <div class="pill-container">
+        <div class="left-side">{{ meeting.title }}</div>
+        <div class="right-side">
+            <div class="icon-area"><img src="@/assets/icons/001-qr-code.svg" width="100%" height="100%"/></div>
+            <div class="icon-area"><img src="@/assets/icons/002-link.svg" width="100%" height="100%"/></div>
+            <div class="icon-area"><img src="@/assets/icons/003-play-button.svg" width="100%" height="100%"/></div>
+            <div class="icon-area"><img src="@/assets/icons/005-file.svg" width="100%" height="100%"/></div>
+            <div class="icon-area"><img src="@/assets/icons/001-ballot.svg" width="100%" height="100%"/></div>
+        </div>
       </div>
-    </div>
+    </router-link>
   </div>
 </template>
 
 <script>
 export default {
     name: 'MeetingAttendancePill',
+    props: {
+      meeting: {
+        type: Object,
+        required: true
+      }
+    },
     data: function () {
         return {
         }

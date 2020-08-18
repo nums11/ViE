@@ -94,7 +94,7 @@
           <div v-if="activeTab == 'meeting_history'" key="1">
             <h3>January</h3>
             <div class="attendance-for-month">
-              <MeetingAttendancePill v-for="i in 20" :key="i" />
+              <MeetingAttendancePill v-for="meeting in course.meetings" :key="meeting._id" v-bind:meeting="meeting" />
             </div>
           </div>
           <!-- For instructors, show CourseStatistics. -->
