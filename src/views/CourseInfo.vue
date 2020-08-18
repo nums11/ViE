@@ -63,21 +63,21 @@
           mode="out-in"
         >
         <div class="manage-students-section-selector" key="1" v-if="activeTab == 'manage_students'">
-          <ul>
+<!--           <ul>
             <li class="active">Section 1</li>
             <li>Section 2</li>
             <li>Section 3</li>
             <li>Section 4</li>
-          </ul>
+          </ul> -->
         </div>
         <!-- Sidebar Statistics Controller -->
         <div class="statistics-controller-sidebar" key="2" v-if="activeTab == 'statistics'">
           <!-- Sections Selector -->
-          <div class="section-selector">
+<!--           <div class="section-selector">
             <sui-button 
               :style="{backgroundColor: `${statisticsSections[section].display ? colorSets[index].stroke : '#e8e8e8'}`}"
               v-for="(section, index) in Object.keys(statisticsSections)" @click="toggleSectionStatistics(section)">Section X</sui-button>
-          </div>
+          </div> -->
         </div>
       </transition>
     </div>
@@ -105,7 +105,8 @@
             :sections="statisticsSections"
             :colorSets="colorSets"
           />
-          <ManageStudents v-if="activeTab == 'manage_students'" />
+          <ManageStudents v-if="activeTab == 'manage_students'" v-bind:course="course" />
+          <h3 style="text-align: center;" v-else-if="activeTab == 'settings'">Coming soon...</h3>
         </transition>
       </div>
     </div>
