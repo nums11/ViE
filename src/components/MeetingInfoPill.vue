@@ -94,7 +94,6 @@ export default {
         }
     },
     created () {
-      console.log(this.$refs)
     },
     methods: {
         getMeetingName ()  {
