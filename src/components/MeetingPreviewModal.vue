@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Preview Modal -->
-    <sui-modal  :style="{ top: 'none', left: 'none', width: 'none', height: 'none' }">
+    <sui-modal v-model="show_modal" :style="{ top: 'none', left: 'none', width: 'none', height: 'none' }">
       <sui-modal-header>Meeting Info Preview</sui-modal-header>
       <sui-modal-content scrolling>
         <sui-modal-description>
@@ -71,6 +71,7 @@ export default {
     name: 'MeetingPreviewModal',
     props:{
         meeting: Object,
+        show_modal: Boolean
     },
     data: function () {
         return {

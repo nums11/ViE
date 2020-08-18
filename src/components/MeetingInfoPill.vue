@@ -54,7 +54,8 @@
                 </sui-button-content>
             </sui-button>
         </router-link>
-        <MeetingPreviewModal v-model="show_modal" v-bind:meeting="meeting" />
+
+        <MeetingPreviewModal v-bind:show_modal="show_modal" v-on:hide-modal="toggleModal" v-bind:meeting="meeting" />
       </div>
     </div>
   </div>
