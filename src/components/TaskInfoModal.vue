@@ -71,6 +71,7 @@ export default {
         padding: 10px;
         box-sizing: border-box;
         border-radius: 3px;
+        border: #bababa solid thin;
         .left-side {
             flex-grow: 1;
             .title-area {

@@ -46,6 +46,7 @@ export default {
     height: 30px;
     border-radius: 3px;
     cursor: pointer;
+    border: #bababa solid thin;
     transition: background-color 0.25s, box-shadow 0.25s;
     .pill-container {
         height: 30px;
