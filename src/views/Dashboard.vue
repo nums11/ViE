@@ -12,7 +12,9 @@
           >
           <sui-dropdown-menu>
             
-            <sui-dropdown-item v-for="course in courses"><router-link :to="`/new_meeting/course/${course._id}`"><div>{{course.name}}</div></router-link></sui-dropdown-item>
+            <sui-dropdown-item v-for="course in current_user.courses">
+              <router-link :to="{name: 'course_info', params: { id: course._id }}"><div>{{course.name}}</div></router-link>
+            </sui-dropdown-item>
          </sui-dropdown-menu>
         </sui-dropdown>
       </div>

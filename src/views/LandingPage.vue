@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="text-align:center;">
     <div v-if="!show_login_form">
       <Logo v-bind:show_large_logo="true" />
       <Button :cas_url="cas_url" v-bind:btn_text="'Login'"/>
