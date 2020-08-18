@@ -41,7 +41,7 @@
       <div class="button-area">
         <!-- Preview Button -->
         <hide-at breakpoint="small">
-            <sui-button class="venue-blue text-white" :style="{marginLeft: '10px'}" v-on:click="toggleModal">
+            <sui-button class="venue-blue text-white" :style="{marginLeft: '10px'}" v-on:click="showMeetingPreviewModal">
                 Preview
             </sui-button>
         </hide-at>
@@ -55,7 +55,7 @@
             </sui-button>
         </router-link>
 
-        <MeetingPreviewModal v-bind:show_modal="show_modal" v-on:hide-modal="toggleModal" v-bind:meeting="meeting" />
+        <MeetingPreviewModal ref="MeetingPreviewModal" v-bind:meeting="meeting" />
       </div>
     </div>
   </div>
@@ -94,7 +94,7 @@ export default {
         }
     },
     created () {
-      console.log("Recieved meeting", this.meeting)
+      console.log(this.$refs)
     },
     methods: {
         getMeetingName ()  {
@@ -112,8 +112,8 @@ export default {
                 return "Untitled"
             return this.meetingMeta.courseDept
         },
-        toggleModal () {
-            this.show_modal = !this.show_modal;
+        showMeetingPreviewModal () {
+          this.$refs.MeetingPreviewModal.showModal()
         }
     }
 }
