@@ -22,7 +22,7 @@
         <div class="dashboard-section">
           <div class="section-title">
             <div class="title-value">Live</div>
-            <div class="title-subvalue" >{{live_meetings.length}} live meeting<span v-if="live_meetings.length > 1">s</span></div>
+            <div class="title-subvalue" >({{live_meetings.length}}) meeting<span v-if="live_meetings.length != 1">s</span> with live attendance</div>
           </div>
             <div v-if="!user_has_loaded">
               <div :style="{marginTop: '30px', marginBottom: '80px'}"><SquareLoader /></div>
@@ -41,7 +41,7 @@
         <div class="dashboard-section">
         <div class="section-title">
           <div class="title-value">Asynchronous</div>
-          <div class="title-subvalue">{{async_meetings.length}} asynchronous meeting<span v-if="async_meetings.length > 1">s</span></div>
+          <div class="title-subvalue">({{async_meetings.length}}) meeting<span v-if="async_meetings.length != 1">s</span> with asynchronous attendance</div>
         </div>
             <div v-if="!user_has_loaded">
                 <div :style="{marginTop: '30px', marginBottom: '80px'}"><SquareLoader /></div>
@@ -83,21 +83,16 @@
         user_meetings : [],
         live_meetings: [],
         async_meetings: [],
+        upcoming_live_meetings: [],
+        upcoming_async_meetings: [],
         courses: Object,
         STATIC_COURSE_COLORS: Array,
       }
     },
-    created() {
+    async created() {
       this.STATIC_COURSE_COLORS = ['Aquamarine', 'Tomato', 'LightSalmon', 'Cyan', 'MediumTurquoise', 'PaleGreen', 'pink', 'violet', ]
-      this.courses_loaded = 0
-
-      this.live_lectures_loaded = false
-      this.upcoming_lectures_loaded = false
-      this.recent_lectures_loaded = false
-      this.playback_lectures_loaded = false
-
-      this.getCurrentUser()
-      // this.getAllLecturesForUser()
+      await this.getCurrentUser()
+      this.categorizeMeetings()
     },
     methods: {
       async getCurrentUser() {
@@ -107,22 +102,74 @@
         let user = response.data
         this.user_has_loaded = true
         this.user_meetings = user.meetings
-        this.getLiveMeetings()
-        this.getAsyncMeetings()
       },
-      getLiveMeetings() {
-        let current_time = new Date()
+      categorizeMeetings() {
         this.user_meetings.forEach(meeting => {
-          if(current_time >= new Date(meeting.start_time) && 
-            current_time <= new Date(meeting.end_time))
+          let meeting_start_time = new Date(meeting.start_time)
+          let meeting_end_time = new Date(meeting.end_time)
+          if(this.hasLive(meeting))
             this.live_meetings.push(meeting)
+          else if(this.hasUpcomingLive(meeting))
+            this.upcoming_live_meetings.push(meeting)
+          if(this.hasAsync(meeting))
+            this.async_meetings.push(meeting)
+          if(this.hasUpcomingAsync(meeting))
+            this.upcoming_async_meetings.push(meeting)
         })
       },
-      getAsyncMeetings() {
-        this.user_meetings.forEach(meeting => {
-          if(meeting.has_async_attendance)
-            this.async_meetings.push(meeting)
-        })
+      hasLive(meeting) {
+        if(!meeting.has_live_attendance)
+          return false
+        let current_time = new Date()
+        let meeting_start_time = new Date(meeting.start_time)
+        let meeting_end_time = new Date(meeting.end_time)
+        return this.isBetweenTimes(current_time, meeting_start_time,
+          meeting_end_time)
+      },
+      hasAsync(meeting) {
+        if(!meeting.has_async_attendance)
+          return false
+        let has_open_recording_window = false
+        let meeting_recordings = meeting.async_attendance.recordings
+        let current_time = new Date()
+        for(let i = 0; i < meeting_recordings.length; i++) {
+          if(this.isBetweenTimes(current_time,
+            new Date(meeting_recordings[i].recording_submission_start_time),
+            new Date(meeting_recordings[i].recording_submission_end_time))){
+            has_open_recording_window = true
+            break            
+          }
+        }
+        return has_open_recording_window
+      },
+      hasUpcomingLive(meeting) {
+        if(!meeting.has_live_attendance)
+          return false
+        let current_time = new Date()
+        let meeting_start_time = new Date(meeting.start_time)
+        return this.isBeforeTime(current_time, meeting_start_time)
+      },
+      hasUpcomingAsync(meeting) {
+        if(!meeting.has_async_attendance)
+          return false
+        let current_time = new Date()
+        let has_upcoming_recording_window = false
+        let meeting_recordings = meeting.async_attendance.recordings
+        for(let i = 0; i < meeting_recordings.length; i++) {
+          if(this.isBeforeTime(current_time,
+            new Date(meeting_recordings[i].recording_submission_start_time))){
+            has_upcoming_recording_window = true
+            break            
+          }
+        }
+        return has_upcoming_recording_window
+      },
+      isBeforeTime(time1, time2) {
+        return time1 < time2
+      },
+      isBetweenTimes(time, start_time, end_time) {
+        return time >= start_time &&
+          time <= end_time
       },
       getColor (course_info) {
         if (course_info == null || course_info._id == null) return 'grey'
@@ -146,105 +193,6 @@
         }
         return 'grey'
       },
-      setCourses (courses_data) {
-        let course_dict = {}
-        courses_data.forEach((course_, i) => {
-          if (course_ != null && course_.hasOwnProperty('_id')) {
-            course_dict[course_._id] = course_
-            course_dict[course_._id]["color_index"] = i
-          }
-        })
-        this.courses = course_dict
-
-      },
-      logOut() {
-        this.$store.dispatch('logout')
-      },
-      setCourseSize (_size_) {
-        this.courses_loaded = _size_
-      },
-      async getAllLecturesForUser() {
-        const response = await LectureAPI.getLecturesForUser(this.user._id, "with_sections_and_course")
-        this.parseLiveLectures(response.data)
-        this.parsePlaybackLectures(response.data)
-        this.parseRecentLectures(response.data)
-        this.parseUpcomingLectures(response.data)
-        this.chooseLecturesToDisplay()
-      },
-      parseLiveLectures(all_lectures) {
-        this.live_lectures = getLiveLectures(all_lectures)
-        this.setcheckinWindowStatusesForLiveLectures()
-        this.sortLiveLecturesByCheckinWindowStatus()
-        this.live_lectures_loaded = true
-        this.live_lectures_exist = this.live_lectures.length > 0
-      },
-      parsePlaybackLectures(all_lectures) {
-        this.playback_lectures = getActivePlaybackLectures(all_lectures)
-        this.playback_lectures_loaded = true
-        this.playback_lectures_exist = this.playback_lectures.length > 0
-      },
-      parseRecentLectures(all_lectures) {
-        this.recent_lectures = getRecentLectures(all_lectures)
-        this.recent_lectures_loaded = true
-        this.recent_lectures_exist = this.recent_lectures.length > 0
-      },
-      parseUpcomingLectures(all_lectures) {
-        this.upcoming_lectures = getUpcomingLectures(all_lectures)
-        this.upcoming_lectures_loaded = true
-        this.upcoming_lectures_exist = this.upcoming_lectures.length > 0
-      },
-      setcheckinWindowStatusesForLiveLectures() {
-        this.live_lectures.forEach(lecture => {
-          this.setCheckinWindowStatus(lecture)
-        })
-      },
-      setCheckinWindowStatus(lecture) {
-        let current_time = new Date()
-        let found_open_checkin_window = false
-        for(let i = 0; i < lecture.checkins.length; i++) {
-          let current_checkin = lecture.checkins[i]
-          let current_checkin_start_time = new Date(current_checkin.start_time)
-          let current_checkin_end_time = new Date(current_checkin.end_time)
-          if(current_time >= current_checkin_start_time && current_time <= current_checkin_end_time){
-            lecture.checkin_window_status = "open"
-            lecture.checkin_index = i
-            lecture.current_checkin = current_checkin
-            found_open_checkin_window = true
-            break
-          }
-        }
-        if(!found_open_checkin_window)
-          lecture.checkin_window_status = "closed"
-      },
-      sortLiveLecturesByCheckinWindowStatus() {
-        let temp_list = []
-        this.live_lectures.forEach(lecture => {
-          if(lecture.checkin_window_status === "open")
-            temp_list.unshift(lecture)
-          else
-            temp_list.push(lecture)
-        })
-        this.live_lectures = temp_list
-      },
-      chooseLecturesToDisplay() {
-        let lecture_existence_pairs = [["live", this.live_lectures_exist], ["playback", this.playback_lectures_exist],
-          ["recent", this.recent_lectures_exist], ["upcoming", this.upcoming_lectures_exist]]
-        let found_first_type = false
-        for(let i = 0; i < lecture_existence_pairs.length; i++) {
-          let pair = lecture_existence_pairs[i]
-          let lecture_type = pair[0]
-          let lecture_existence_status = pair[1]
-          if(lecture_existence_status) {
-            if(!found_first_type) {
-              this.section_1 = lecture_type
-              found_first_type = true
-            } else if(found_first_type) {
-              this.section_2 = lecture_type
-              break
-            }
-          }
-        }
-      }
     }
   }
 </script>

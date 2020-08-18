@@ -80,7 +80,10 @@ userRoutes.route('/get/:id').get(function (req, res) {
     }, {
       path: 'live_attendance',
     }, {
-      path: 'async_attendance'
+      path: 'async_attendance',
+      populate: {
+        path: 'recordings'
+      }
     }]
   }).
   populate('live_submissions').

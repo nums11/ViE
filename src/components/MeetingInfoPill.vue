@@ -127,6 +127,7 @@ export default {
     padding: 0px 10px;
     border-radius: 3px;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.08);
+    border: #bababa solid thin;
 }
 .light-mode .meeting-info-pill {
     background-color: white;
