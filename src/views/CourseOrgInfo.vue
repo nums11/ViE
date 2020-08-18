@@ -121,7 +121,10 @@
             key="2"
             v-bind:colorSets="colorSets"
           />
-          <ManageStudents v-if="activeTab == 'manage_students'" v-bind:course="course" />
+          <div v-if="activeTab == 'manage_students'">
+            <ManageStudents v-if="for_course" v-bind:course="course" />
+            <ManageStudents v-else v-bind:org="org" />
+          </div>
           <h3 style="text-align: center;" v-else-if="activeTab == 'settings'">Coming soon...</h3>
         </transition>
       </div>

@@ -1,32 +1,82 @@
 <template>
   <div class="manage-students-area">
-    <div class="action-row">
-      <div class="left-side">
-          <div :style="{fontSize: '1.2rem'}">{{ course.students.length }} Students</div>
-          <!-- <div :style="{fontSize: '0.9rem'}">0 students selected</div> -->
-      </div>
-<!--       <div class="right-side">
-          <sui-button>Actions</sui-button>
-          <sui-button class="venue-blue">Invite Students To Course</sui-button>
-      </div> -->
-    </div>
-    <div class="student-list">
-      <div class="student-row-header">
-        <div class="checkbox-area">
-            <sui-checkbox />
+    <div v-if="course">
+      <div class="action-row">
+        <div class="left-side">
+            <div :style="{fontSize: '1.2rem'}">{{ course.students.length }} Students</div>
+            <!-- <div :style="{fontSize: '0.9rem'}">0 students selected</div> -->
         </div>
-        <div class="first-name-area">First Name</div>
-        <div class="last-name-area">Last Name</div>
-        <div class="email-area">Email</div>
+  <!--       <div class="right-side">
+            <sui-button>Actions</sui-button>
+            <sui-button class="venue-blue">Invite Students To Course</sui-button>
+        </div> -->
       </div>
-        <div v-for="student in course.students" :key="student._id" class="student-row">
+      <div class="student-list">
+        <div class="student-row-header">
           <div class="checkbox-area">
               <sui-checkbox />
           </div>
-          <div class="first-name-area">{{ student.first_name }}</div>
-          <div class="last-name-area">{{ student.last_name }}</div>
-          <div class="email-area">{{ student.user_id }}</div>
+          <div class="first-name-area">First Name</div>
+          <div class="last-name-area">Last Name</div>
+          <div class="email-area">User ID</div>
         </div>
+          <div v-for="student in course.students" :key="student._id" class="student-row">
+            <div class="checkbox-area">
+                <sui-checkbox />
+            </div>
+            <div class="first-name-area">{{ student.first_name }}</div>
+            <div class="last-name-area">{{ student.last_name }}</div>
+            <div class="email-area">{{ student.user_id }}</div>
+          </div>
+      </div>
+    </div>
+    <div v-else>
+      <div class="action-row">
+        <div class="left-side">
+            <div :style="{fontSize: '1.2rem'}">{{ org.board_members.length }} Board Members</div>
+        </div>
+      </div>
+      <div class="student-list">
+        <div class="student-row-header">
+          <div class="checkbox-area">
+              <sui-checkbox />
+          </div>
+          <div class="first-name-area">First Name</div>
+          <div class="last-name-area">Last Name</div>
+          <div class="email-area">User ID</div>
+        </div>
+          <div v-for="member in org.board_members" :key="member._id" class="student-row">
+            <div class="checkbox-area">
+                <sui-checkbox />
+            </div>
+            <div class="first-name-area">{{ member.first_name }}</div>
+            <div class="last-name-area">{{ member.last_name }}</div>
+            <div class="email-area">{{ member.user_id }}</div>
+          </div>
+      </div>
+      <div class="action-row">
+        <div class="left-side">
+            <div :style="{fontSize: '1.2rem'}">{{ org.general_members.length }} General Members</div>
+        </div>
+      </div>
+      <div class="student-list">
+        <div class="student-row-header">
+          <div class="checkbox-area">
+              <sui-checkbox />
+          </div>
+          <div class="first-name-area">First Name</div>
+          <div class="last-name-area">Last Name</div>
+          <div class="email-area">User ID</div>
+        </div>
+          <div v-for="member in org.general_members" :key="member._id" class="student-row">
+            <div class="checkbox-area">
+                <sui-checkbox />
+            </div>
+            <div class="first-name-area">{{ member.first_name }}</div>
+            <div class="last-name-area">{{ member.last_name }}</div>
+            <div class="email-area">{{ member.user_id }}</div>
+          </div>
+      </div>
     </div>
   </div>
 </template>
@@ -34,10 +84,8 @@
 export default {
     name: 'ManageStudents',
     props: {
-      course: {
-        type: Object,
-        required: true
-      }
+      course: Object,
+      org: Object
     }
 }
 </script>
