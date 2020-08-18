@@ -4,11 +4,11 @@
       <div class="pill-container">
         <div class="left-side">{{ meeting.title }}</div>
         <div class="right-side">
-            <div class="icon-area"><img src="@/assets/icons/001-qr-code.svg" width="100%" height="100%"/></div>
-            <div class="icon-area"><img src="@/assets/icons/002-link.svg" width="100%" height="100%"/></div>
-            <div class="icon-area"><img src="@/assets/icons/003-play-button.svg" width="100%" height="100%"/></div>
-            <div class="icon-area"><img src="@/assets/icons/005-file.svg" width="100%" height="100%"/></div>
-            <div class="icon-area"><img src="@/assets/icons/001-ballot.svg" width="100%" height="100%"/></div>
+          <div v-if="meeting.has_live_attendance && meeting.live_attendance.qr_checkins.length > 0" class="icon-area"><img src="@/assets/icons/001-qr-code.svg" width="100%" height="100%"/></div>
+          <div v-if="meeting.has_live_attendance && meeting.live_attendance.live_polls.length > 0" class="icon-area"><img src="@/assets/icons/001-ballot.svg" width="100%" height="100%"/></div>
+          <div v-if="meeting.has_async_attendance && meeting.async_attendance.recordings.length > 0" class="icon-area"><img src="@/assets/icons/003-play-button.svg" width="100%" height="100%"/></div>
+<!--           <div class="icon-area"><img src="@/assets/icons/005-file.svg" width="100%" height="100%"/></div>
+          <div class="icon-area"><img src="@/assets/icons/002-link.svg" width="100%" height="100%"/></div> -->
         </div>
       </div>
     </router-link>

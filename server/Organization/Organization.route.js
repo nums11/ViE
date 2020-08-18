@@ -208,7 +208,14 @@ orgRoutes.route('/get/:id').get(function (req, res) {
   Org.findById(id).
   populate('board_members').
   populate('general_members').
-  populate('meetings').
+  populate({
+    path: 'meetings',
+    populate: [{
+      path: 'live_attendance'
+    }, {
+      path: 'async_attendance'
+    }]
+  }).
   exec((error, org) => {
     if(error || org == null) {
       console.log("<ERROR> (orgs/get) Getting org with ID:",id)
