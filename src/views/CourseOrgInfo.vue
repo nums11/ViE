@@ -239,6 +239,8 @@ export default {
 <style lang="scss">
 .course-info {
     // Header, With title and Schedule Slider
+    width: 90%;
+    margin: auto;
     .header {
         position: fixed;
         left: 155px;
@@ -353,7 +355,6 @@ export default {
         position: relative;
         width: 72%;
         margin-right: 30px;
-        margin-left: 30px;
         box-sizing: border-box;
         .attendance-for-month {
           

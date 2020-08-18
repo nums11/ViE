@@ -2,7 +2,7 @@
   <div id="dashboard-container">
     <div class="dashboard-page">
       <div class="instructor-action-row" v-if="user.is_instructor">
-        <sui-dropdown
+<!--         <sui-dropdown
           class="labeled
           icon venue-green"
             icon="plus"
@@ -15,7 +15,7 @@
               <router-link :to="{name: 'course_info', params: { id: course._id }}"><div>{{course.name}}</div></router-link>
             </sui-dropdown-item>
          </sui-dropdown-menu>
-        </sui-dropdown>
+        </sui-dropdown> -->
       </div>
       
       <div class="dashboard-row-one dashboard-row">

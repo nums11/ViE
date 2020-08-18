@@ -13,9 +13,12 @@
             transform: `translate(${leftOffset}px, 0px)`
         }" 
         @dragstart="dragSlider">
-        <div class="info-pill-day" v-for="task_day in getUniqueDayKeysSorted(getTasksGroupedByUniqueDay())" :key="task_day" @dragstart="dragSlider">
-            <sui-popup v-for="task_info in getTasksGroupedByUniqueDay()[task_day].tasks">
-              <sui-popup-header>{{task_info['taskName']}}</sui-popup-header>
+        <div class="info-pill-day" v-for="task in active_tasks" :key="task._id" @dragstart="dragSlider">
+          <sui-button v-if="task.qr_checkin_start_time" class="venue-green">Show QR </sui-button>
+          <sui-button v-else class="venue-green">Watch Recording</sui-button>
+
+<!--             <sui-popup v-for="task_info in getTasksGroupedByUniqueDay()[task_day].tasks">
+              <sui-popup-headfer>{{task_info['taskName']}}</sui-popup-header>
               <sui-popup-content>
                 <sui-label :style="{marginBottom: '5px'}">
                         Start Date
@@ -37,7 +40,7 @@
               </div>
               <div class="text-area">{{ shorten(task_info['taskName'], 17) }}</div>
             </div>
-          </sui-popup>
+          </sui-popup> -->
         </div>
       </div>
     </div>
@@ -53,7 +56,7 @@ import LinkSVG from "@/assets/icons/002-link.svg"
 export default {
     name: 'MeetingInfoScheduleSlider',
     props: {
-        tasksInfo: Array
+        active_tasks: Array
     },
     data () {
         return {
@@ -61,6 +64,9 @@ export default {
             wrapperWidth: 50000,
             containerWidth: 0
         }
+    },
+    created() {
+      console.log("This active_tasks")
     },
     methods: {
         shorten(string_, max_length) {

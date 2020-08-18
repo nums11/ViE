@@ -92,7 +92,7 @@
     <div v-else class="page-info-area">
       <!-- Meeting Info Side -->
       <div class="left-side">
-        <h2>Lecture Name</h2>
+        <h2>{{ meeting.title }}</h2>
         <div class="details-area">
           <sui-label :style="{marginBottom: '5px'}">
               Course
@@ -113,46 +113,7 @@
 
       <!-- Schedule Area -->
       <div class="right-side">
-        <MeetingInfoScheduleSlider
-          :tasksInfo="[{
-            startTime: '2020-08-12T08:51:42.612Z',
-            endTime: '2020-08-12T10:51:42.612Z',
-            taskType: 'qr-code',
-            taskName: 'QR Attendance Submission',
-            taskDescription: 'Scan the QR code to submit your attendance for this meeting',
-            id: 1
-          },{
-            startTime: '2020-08-12T08:51:42.612Z',
-            taskType: 'poll',
-            taskName: 'Rate your summer break from 1 to 10',
-            taskDescription: 'Submit your results for the poll for your instructor to view',
-            id: 2
-          },{
-            startTime: '2020-08-12T08:51:42.612Z',
-            taskType: 'file-download',
-            taskName: 'Textbook PDF',
-            taskDescription: 'Download the file document uploaded by your instructor',
-            id: 3
-          },{
-            startTime: '2020-08-13T08:51:42.612Z',
-            taskType: 'file-download',
-            taskName: 'Lecture 1 PDF',
-            taskDescription: 'Download the file document uploaded by your instructor',
-            id: 4
-          },{
-            startTime: '2020-08-13T08:51:42.612Z',
-            taskType: 'file-download',
-            taskName: 'Lecture 2 PDF',
-            taskDescription: 'Download the file document uploaded by your instructor',
-            id: 5
-          },{
-            startTime: '2020-08-14T08:51:42.612Z',
-            taskType: 'file-download',
-            taskName: 'Lecture 3 PDF',
-            taskDescription: 'Download the file document uploaded by your instructor',
-            id: 6
-          }]"
-        />
+        <MeetingInfoScheduleSlider v-bind:active_tasks="active_tasks"/>
       </div>
     </div>
   </div>
@@ -360,13 +321,15 @@
         current_qr_code: String,
         is_instructor: false,
         qr_scanning_window_open: false,
-        task_focus: null
+        task_focus: null,
+        active_tasks: []
       }
     },
-    created() {
+    async created() {
       this.current_user = this.$store.state.user.current_user
       this.is_instructor = this.current_user.is_instructor
-      this.getMeeting()
+      await this.getMeeting()
+      this.getActiveTasksForMeeting()
     },
     methods: {
       focusTask (task_id) {
@@ -382,6 +345,31 @@
         this.meeting = response.data
         this.for_course = this.meeting.for_course
         this.meeting_has_loaded = true
+      },
+      getActiveTasksForMeeting() {
+        let current_time = new Date()
+        if(this.meeting.has_live_attendance) {
+          this.meeting.live_attendance.qr_checkins
+          .forEach(qr_checkin => {
+            if(current_time, new Date(qr_checkin.qr_checkin_start_time),
+              new Date(qr_checkin.qr_checkin_end_time))
+              this.active_tasks.push(qr_checkin)
+          })
+          // Add polls later
+        }
+
+        if(this.meeting.has_async_attendance) {
+          this.meeting.async_attendance.recordings
+          .forEach(recording => {
+            if(current_time, new Date(recording.recording_submission_start_time),
+              new Date(recording.recording_submission_end_time))
+              this.active_tasks.push(recording)
+          })
+        }
+      },
+      isBetweenTimes(time, start_time, end_time) {
+        return time >= start_time &&
+          time <= end_time
       },
       getWindowStatus(attendance, is_qr) {
         let current_time = new Date()
@@ -491,11 +479,10 @@
 
 
 .meeting-info {
+  width: 90%;
+  margin:auto;
     // Header, With title and Schedule Slider
     .header {
-        position: fixed;
-        left: 155px;
-        right: 50px;
         z-index: 3;
         .page-title {
             font-weight: 600;
@@ -555,7 +542,6 @@
         position: relative;
         width: 72%;
         margin-right: 30px;
-        margin-left: 30px;
         box-sizing: border-box;
         .title {
             margin-top: 10px;
