@@ -54,7 +54,7 @@
               </ul>
             </div>
             <div class="actions">
-              <router-link :to="{name: 'course_new_meeting', params: { course_id: course._id }}">
+              <router-link :to="for_course ? {name: 'course_new_meeting', params: { course_id: course._id }} : {name: 'org_new_meeting', params: { org_id: org._id }}">
                 <sui-button
                   v-if="current_user.is_instructor"
                   class="labeled
@@ -161,7 +161,8 @@ export default {
     async created () {
       this.getCurrentUser()
       await this.getCourseOrOrg();
-      this.setIsBoardMember()
+      if(!this.for_course)
+        this.setIsBoardMember()
       this.statisticsSections = {
         1: {
           display: true

@@ -205,29 +205,17 @@ orgRoutes.route('/').get(function (req, res) {
 
 orgRoutes.route('/get/:id').get(function (req, res) {
   let id = req.params.id;
-  Org.findById(id, function (err, org) {
-    if (err || org == null) {
-      console.log("<ERROR> Getting org with ID:",id)
-      res.status(404).json(err);
+  Org.findById(id).
+  populate('board_members').
+  populate('general_members').
+  populate('meetings').
+  exec((error, org) => {
+    if(error || org == null) {
+      console.log("<ERROR> (orgs/get) Getting org with ID:",id)
+      res.json(err);
     } else {
-		  User.find({'_id': {$in: org.board_members}}, (error, board_members) => {
-				if(error || board_members == null) {
-					console.log("<ERROR> Getting board_members for org with ID:",id)
-					res.status(404).json(err);
-				} else {
-          org.board_members = board_members;
-          User.find({'_id': {$in: org.general_members}}, (error, general_members) => {
-            if(error || general_members == null) {
-              console.log("<ERROR> Getting general_members for org with ID:",id)
-              res.status(404).json(err);
-            } else {
-              org.general_members = general_members
-              console.log("<SUCCESS> Getting org with ID:",id);
-              res.json(org)
-            }
-          })
-				}
-			});
+      console.log("<SUCCESS> (orgs/get) Getting org with ID:",id)
+      res.json(org)
     }
   });
 });
