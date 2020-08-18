@@ -40,7 +40,7 @@
               </ul>
             </div>
             <div class="actions">
-              <router-link :to="`/new_meeting/course/${course._id}`">
+              <router-link :to="{name: 'course_new_meeting', params: { course_id: course._id }}">
                 <sui-button
                   v-if="current_user.is_instructor"
                   class="labeled
