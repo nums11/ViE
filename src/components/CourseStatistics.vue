@@ -16,8 +16,7 @@ export default {
     VenueLineChart
   },
   props: {
-    sections: {},
-    colorSets: []
+    colorSets: Array
   },
   data () {
     return {
@@ -26,6 +25,7 @@ export default {
     }
   },
   created () {
+    console.log("colorSets", this.colorSets)
     this.chartData = {
         labels: ['January', 'February', 'March'],
         datasets: Object.keys(this.sections).map((key_, i) => {

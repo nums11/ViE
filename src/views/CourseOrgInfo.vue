@@ -102,8 +102,7 @@
           <CourseStatistics
             v-if="activeTab == 'statistics'"
             key="2"
-            :sections="statisticsSections"
-            :colorSets="colorSets"
+            v-bind:colorSets="colorSets"
           />
           <ManageStudents v-if="activeTab == 'manage_students'" v-bind:course="course" />
           <h3 style="text-align: center;" v-else-if="activeTab == 'settings'">Coming soon...</h3>
@@ -121,7 +120,7 @@ import ManageStudents from "@/components/ManageStudents.vue"
 import CourseStatistics from "@/components/CourseStatistics.vue"
 import CourseAPI from "@/services/CourseAPI"
 export default {
-    name: 'CourseInfo',
+    name: 'CourseOrgInfo',
     components: {
       MeetingAttendancePill,
       ManageStudents,

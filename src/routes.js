@@ -28,7 +28,7 @@ import SetPermanentPassword from './views/SetPermanentPassword.vue';
 import Signup from './components/Signup.vue';
 import Dashboard from './views/Dashboard.vue';
 import CourseList from './components/CourseList.vue';
-import CourseInfo from './views/CourseInfo.vue';
+import CourseOrgInfo from './views/CourseOrgInfo.vue';
 import NewEvent from './views/NewEvent.vue';
 import EventInfo from './views/EventInfo.vue';
 import LecturePlayback from './views/LecturePlayback.vue';
@@ -253,7 +253,7 @@ const router = new VueRouter({
     {
       name: 'course_info',
       path: '/course_info/:id',
-      component: CourseInfo,
+      component: CourseOrgInfo,
       meta: {
         title: "Venue - Course Info"
         // requiresAuth: true
@@ -262,7 +262,7 @@ const router = new VueRouter({
     {
       name: 'org_info',
       path: '/org_info/:id',
-      component: CourseInfo,
+      component: CourseOrgInfo,
       meta: {
         title: "Venue - Org Info"
         // requiresAuth: true
