@@ -9,6 +9,10 @@
             <div class="right-side">
                 <div class="icon-area">
                     <!-- SPACE AVAILABLE -->
+                    <sui-button 
+                    v-if="taskInfo.taskType == 'qr-code'"
+                    @click="expandQRCode"
+                    compact icon="expand" />
                 </div>
             </div>
         </div>
@@ -43,6 +47,29 @@
                 <!-- RIGHT FOOTER PLACEHOLDER -->
             </div>
         </div>
+
+        <transition name="fade" mode="out in">
+            <div class="fullscreen-modal" v-if="show_fullscreen_modal">
+
+                <div class="full-content-area">
+
+                    <div class="qr-code-fullscreen" v-if="taskInfo.taskType == 'qr-code'">
+                        <qrcode 
+                            :style="{margin: '0 auto'}"
+                            :value="taskInfo.qrCode"
+                            :options="{
+                                width: 800,
+                            }"
+                        />
+                    </div>
+
+                </div>
+
+                <div class="bottom-controls">
+                    <sui-button @click="show_fullscreen_modal = false">Close</sui-button>
+                </div>
+            </div>
+        </transition>
     </div>
 
 </template>
@@ -65,11 +92,16 @@ export default {
     },
     data () {
         return {
+            show_fullscreen_modal: false,
+
             DAY_OF_WEEK: ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri'],
             MONTHS: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         }
     },
     methods: {
+        expandQRCode () {
+            this.show_fullscreen_modal = true;
+        },
         getTaskTitle () {
             if (this.taskInfo.taskType == 'qr-code') return `QR Submission`
         },
@@ -98,6 +130,29 @@ export default {
 .task-info-modal-instructor-expanded {
     border-radius: 3px;
     margin-bottom: 30px;
+
+    .fullscreen-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 2000;
+
+        .bottom-controls {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+        }
+
+        .full-content-area {
+
+            .qr-code-fullscreen {
+                width: 800px;
+                margin: 0 auto;
+            }
+        }
+    }
 
     .header-area {
         display: flex;
@@ -150,6 +205,9 @@ export default {
             background-color: #E3EBF2;
         }
     }
+    .fullscreen-modal {
+        background-color: white;
+    }
 }
 
 .dark-mode {
@@ -160,6 +218,10 @@ export default {
         .footer-area {
             background-color: #313440;
         }
+    }
+
+    .fullscreen-modal {
+        background-color: #121419;
     }
 }
 
