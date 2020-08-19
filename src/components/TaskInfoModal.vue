@@ -1,47 +1,59 @@
 <template>
 
-    <div class="task-info-modal">
-        <div v-if="is_qr" class="left-side">
-            <div class="title-area">
-                <div class="title">QR Checkin</div>
-                <div class="description"></div>
-                <div class="time-left venue-red-text">{{ new Date(task.qr_checkin_start_time) }} - {{ new Date(task.qr_checkin_end_time) }}</div>
-            </div>
-            <div  class="description-area">Attendance is tracked via QR Code Scanning.</div>
-        </div>
-        <div v-else class="left-side">
-            <div class="title-area">
-                <div class="title">Recording</div>
-                <div class="description"></div>
-                <div class="time-left venue-red-text">{{ new Date(task.recording_submission_start_time) }} - {{ new Date( task.recording_submission_end_time) }}</div>
-            </div>
-            <div  class="description-area">Attendance is tracked via recording watching</div>
-        </div>
-        <sui-button class="show-qr-button">View Submissions</sui-button> 
+    <div >
+      <div class="task-info-modal">
+          <div v-if="is_qr" class="left-side">
+              <div class="title-area">
+                  <div class="title">QR Checkin</div>
+                  <div class="description"></div>
+                  <div class="time-left venue-red-text">{{ new Date(task.qr_checkin_start_time) }} - {{ new Date(task.qr_checkin_end_time) }}</div>
+              </div>
+              <div  class="description-area">Attendance is tracked via QR Code Scanning.</div>
+          </div>
+          <div v-else class="left-side">
+              <div class="title-area">
+                  <div class="title">Recording</div>
+                  <div class="description"></div>
+                  <div class="time-left venue-red-text">{{ new Date(task.recording_submission_start_time) }} - {{ new Date( task.recording_submission_end_time) }}</div>
+              </div>
+              <div  class="description-area">Attendance is tracked via recording watching</div>
+          </div>
+          <sui-button @click="toggleSubmissions" class="show-qr-button">View Submissions</sui-button> 
 
-        <div v-if="is_qr" class="right-side">
-          <div class="icon-area">
-              <img src="@/assets/icons/001-qr-code.svg" width="100%" height="100%" />
+          <div v-if="is_qr" class="right-side">
+            <div class="icon-area">
+                <img src="@/assets/icons/001-qr-code.svg" width="100%" height="100%" />
+            </div>
+          </div>
+          <div v-else class="right-side">
+            <div class="button-area">
+              <img style="float:right;" src="@/assets/icons/003-play-button.svg" width="45%" height="100%" />
+  <!--             <sui-button @click="focusThisTask" class="venue-green">
+                <router-link :to="{name: 'watch_recording', params: { recording_id: task._id }}">
+                  Watch Recording
+                </router-link>
+              </sui-button> -->
+            </div>
           </div>
         </div>
-        <div v-else class="right-side">
-          <div class="button-area">
-            <img style="float:right;" src="@/assets/icons/003-play-button.svg" width="45%" height="100%" />
-<!--             <sui-button @click="focusThisTask" class="venue-green">
-              <router-link :to="{name: 'watch_recording', params: { recording_id: task._id }}">
-                Watch Recording
-              </router-link>
-            </sui-button> -->
-          </div>
-        </div>
+      <StudentSubmissions v-if="show_submissions" :task="task" :is_qr="is_qr" />
     </div>
 
 </template>
 
 <script>
 import QrCodeSVG from "@/assets/icons/001-qr-code.svg"
+import StudentSubmissions from '@/views/StudentSubmissions'
 export default {
     name: 'TaskInfoModal',
+    components: {
+      StudentSubmissions
+    },
+    data () {
+      return {
+        show_submissions: false
+      }
+    },
     props: {
       task: Object,
       is_qr: Boolean
@@ -74,6 +86,9 @@ export default {
         },
         isFileDownload () {
             return this.taskInfo.taskType == 'file-download'
+        },
+        toggleSubmissions () {
+          this.show_submissions = !this.show_submissions
         }
     }
 }

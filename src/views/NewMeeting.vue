@@ -1,6 +1,6 @@
 <template>
   <!-- ADDING USER -->
-  <div>
+  <div class="new-meeting-form">
     <div id="meeting-saving-modal" v-if="meeting_saving">
       <h1>Please wait while we schedule your meeting...</h1>
     </div>
