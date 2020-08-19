@@ -201,7 +201,6 @@
 
 #dashboard-container {
   width: 90%;
-  margin:auto;
 }
 
 .dashboard-page {

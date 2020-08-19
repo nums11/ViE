@@ -1,7 +1,9 @@
 <template>
-  <div id="app" class="light-mode">
+  <div id="app" :class="dark_mode ? 'dark-mode' : 'light-mode'">
   <portal-target name="semantic-ui-vue" />
     <NavBar 
+      :setDarkModeValue="setDarkModeValue"
+      :initialDarkModeValue="dark_mode"
       class="main_navbar" 
       v-if="this.$route.name != 'landing_page' && this.$route.name != 'set_permanent_password' && current_user"
     />
@@ -26,6 +28,7 @@ import {getLiveLectures,getUpcomingLectures,getPastLectures} from './services/Gl
 import '@/assets/css/venue.css';
 import axios from 'axios';
 import io from 'socket.io';
+import Cookie from 'cookie';
 
 export default {
   watch: {
@@ -40,6 +43,7 @@ export default {
   data() {
     return {
       current_user: null,
+      dark_mode: Boolean
     }
   },
   created() {
@@ -70,8 +74,29 @@ export default {
         clearInterval(waitForUser);
       }
     }, 100);
+
+    // load user preferences from cookies
+    var cookies_ = document.cookie.split(";");
+    for (var i = 0; i < cookies_.length; ++i) {
+      var cookie_ = Cookie.parse(cookies_[i]);
+      console.log(cookie_);
+      if (Object.prototype.hasOwnProperty.call(cookie_, "darkMode")) {
+        this.dark_mode = cookie_.darkMode == "true";
+      }
+    }
   },
   methods: {
+    setDarkModeValue (new_value) {
+      this.dark_mode = new_value;
+      // update the cookie preferences also.\
+      document.cookie = Cookie.serialize("darkMode", this.dark_mode, {
+        maxAge: 60 * 60 * 24 * 7 * 4 // 1 month
+      })
+      // update the body background-color through javascript because it is too far up
+      // the heirarchy for us to update through Vue.
+      let body = document.getElementsByTagName("body")[0]
+      body.style.backgroundColor = this.dark_mode ? "#121419" : "white"
+    },
     afterUser() {
       if(this.current_user.is_instructor) {
         LectureAPI.getLecturesForUser(this.current_user._id, "none") 
@@ -128,15 +153,18 @@ export default {
 
 <style lang="scss">
 #app {
+  padding-left: 50px;
+  padding-right: 50px;
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   // min-height: 100%;
+  /*border-right: 1px solid #00FFFF;
+  border-left: 1px solid #00FFFF;*/
 }
-/*
 .venue-body {
-  margin-left: 75px;
-}*/
+  margin-left: 105px;
+}
 @media only screen and (max-width: 900px) {
   .venue-body {
     margin-left: 0px;

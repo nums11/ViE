@@ -118,7 +118,7 @@ export default {
 }
 </script>
 
-<style lang="css">
+<style lang="scss">
 .meeting-info-pill {
     margin-bottom: 20px;
     height: 55px;
@@ -127,7 +127,6 @@ export default {
     padding: 0px 10px;
     border-radius: 3px;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.08);
-    border: #bababa solid thin;
 }
 .light-mode .meeting-info-pill {
     background-color: white;
@@ -159,7 +158,9 @@ export default {
 .dark-mode .meeting-info-pill .right-side .icon-area .icon-container img {
     filter: invert(100%);
 }
+
 .dark-mode {
+
     .ui.modal.standard.transition {
         background-color: #22252e;
         .header, .content, .actions {
@@ -182,15 +183,3 @@ export default {
     top: -1px;
 }
 </style>
-© 2020 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Help
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About

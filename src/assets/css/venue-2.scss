@@ -43,6 +43,9 @@ body {
     background-color: #121419;
     color: white;
 
+    .image-icon {
+        filter: invert(100%);
+    }
 
     .ui.button.dropdown .menu {
         background-color: #282c36;

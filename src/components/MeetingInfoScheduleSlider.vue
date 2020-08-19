@@ -1,58 +1,54 @@
 <template>
-  <div class="meeting-info-schedule-slider">
-    <div id="schedule-wrapper" class="schedule-wrapper">
-      <div class="right-scroll-button scroll-button" v-if="wrapperWidth > containerWidth && leftOffset != (this.wrapperWidth * -1) + this.containerWidth" @click="slideRight">
-          <span class="icon-right-arrow"></span>
-      </div>
-      <div class="left-scroll-button scroll-button" v-if="leftOffset != 0" @click="slideLeft">
-          <span class="icon-left-arrow"></span>
-      </div>
-      <div id="schedule-scroller" class="schedule-scroller" 
-        :style="{
-            width: `${wrapperWidth}px`,
-            transform: `translate(${leftOffset}px, 0px)`
-        }" 
-        @dragstart="dragSlider">
-        <div class="info-pill-day" v-for="task in active_tasks" :key="task._id" @dragstart="dragSlider">
-<!--           <div class="active-btn" v-if="task.qr_checkin_start_time">Show QR</div>
-          <router-link v-else class="active-btn" :to="{name: 'watch_recording', params: { recording_id: task._id }}">
-            <button>Watch Recording</button>
-          </router-link> -->
-          <button v-if="task.qr_checkin_start_time" @click="$emit('show-qr-code')" class="venue-green action-btn">Show QR </button>
-          <button v-else class="venue-green action-btn">
-            <router-link :to="{name: 'watch_recording', params: { recording_id: task._id }}">
-              Watch recording
-            </router-link>
-          </button>
 
-<!--             <sui-popup v-for="task_info in getTasksGroupedByUniqueDay()[task_day].tasks">
-              <sui-popup-headfer>{{task_info['taskName']}}</sui-popup-header>
-              <sui-popup-content>
-                <sui-label :style="{marginBottom: '5px'}">
-                        Start Date
-                  <sui-label-detail>August 10th 2020 @ 2:00pm</sui-label-detail>
-                </sui-label>
-                <sui-label :style="{marginBottom: '5px'}">
-                    End Date
-                  <sui-label-detail>August 10th 2020 @ 4:00pm</sui-label-detail>
-                </sui-label>
-                <hr />
-                <div :style="{textAlign: 'center', marginTop: '20px'}">
-                    Right click to sync with your calendar.
-                </div>
-              </sui-popup-content>
-
-            <div slot="trigger" :key="task_info.id" class="info-pill">
-              <div class="icon-area">
-                  <img width="100%" height="100%" :src="getIcon( task_info['taskType'] )" />
-              </div>
-              <div class="text-area">{{ shorten(task_info['taskName'], 17) }}</div>
+    <div class="meeting-info-schedule-slider">
+        <div id="schedule-wrapper" class="schedule-wrapper">
+            <div class="right-scroll-button scroll-button" v-if="wrapperWidth > containerWidth && leftOffset != (this.wrapperWidth * -1) + this.containerWidth" @click="slideRight">
+                <span class="icon-right-arrow"></span>
             </div>
-          </sui-popup> -->
+            <div class="left-scroll-button scroll-button" v-if="leftOffset != 0" @click="slideLeft">
+                <span class="icon-left-arrow"></span>
+            </div>
+            <div id="schedule-scroller" 
+                class="schedule-scroller" 
+                :style="{
+                    width: `${wrapperWidth}px`,
+                    transform: `translate(${leftOffset}px, 0px)`
+                }" 
+                @dragstart="dragSlider">
+                <div class="info-pill-day" v-for="task_day in getUniqueDayKeysSorted(getTasksGroupedByUniqueDay())" :key="task_day" @dragstart="dragSlider">
+                    
+
+                        <sui-popup v-for="(task_info, i) in getTasksGroupedByUniqueDay()[task_day].tasks" :key="i">
+                            <sui-popup-header>{{task_info['taskName']}}</sui-popup-header>
+                            <sui-popup-content>
+                                    <sui-label :style="{marginBottom: '5px'}">
+                                        Start Date
+                                    <sui-label-detail>{{getStartDate(i)}}</sui-label-detail>
+                                </sui-label>
+                                <sui-label :style="{marginBottom: '5px'}">
+                                    End Date
+                                    <sui-label-detail>{{getEndDate(i)}}</sui-label-detail>
+                                </sui-label>
+                                <hr />
+                                <div :style="{textAlign: 'center', marginTop: '20px'}">
+                                    Right click to sync with your calendar.
+                                </div>
+                            </sui-popup-content>
+
+                        <div
+                        slot="trigger" 
+                        :key="task_info.id" class="info-pill">
+                            <div class="icon-area">
+                                <img width="100%" height="100%" :src="getIcon( task_info['taskType'] )" />
+                            </div>
+                            <div class="text-area">{{ shorten(task_info['taskName'], 17) }}</div>
+                        </div>
+                    </sui-popup>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
+
 </template>
 
 <script>
@@ -64,19 +60,35 @@ import LinkSVG from "@/assets/icons/002-link.svg"
 export default {
     name: 'MeetingInfoScheduleSlider',
     props: {
-        active_tasks: Array
+        tasksInfo: Array
     },
     data () {
         return {
             leftOffset: 0,
             wrapperWidth: 50000,
-            containerWidth: 0
+            containerWidth: 0,
+
+            MONTHS: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         }
     },
-    created() {
-      console.log("This active_tasks")
-    },
     methods: {
+        getStartDate (index) {
+            // August 10th 2020 @ 2:00pm
+            let start_ = new Date(this.tasksInfo[index].startTime)
+            let month = this.MONTHS[start_.getMonth()]
+            let day = start_.getDate ()
+            let year = start_.getFullYear()
+
+            return `${month} ${day}, ${year}`
+        },
+        getEndDate (index) {
+            let end_ = new Date(this.tasksInfo[index].endTime)
+            let month = this.MONTHS[end_.getMonth()]
+            let day = end_.getDate ()
+            let year = end_.getFullYear()
+
+            return `${month} ${day}, ${year}`
+        },
         shorten(string_, max_length) {
             if (string_.length <= max_length) return string_;
             return string_.substring(0, max_length) + ".."
@@ -180,20 +192,6 @@ export default {
 </script>
 
 <style lang="scss">
-.action-btn {
-  border: none;
-  border-radius: 5px;
-  height: 3rem;
-  width: 8rem;
-  cursor: pointer;
-} 
-
-.active-btn {
-  height: 6rem;
-  text-align: center;
-  width: 15rem;
-}
-
 .meeting-info-schedule-slider {
     position: absolute;
     bottom: 0;
