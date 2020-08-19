@@ -153,8 +153,8 @@ export default {
 
 <style lang="scss">
 #app {
-  padding-left: 50px;
-  padding-right: 50px;
+  padding-left: 20px;
+  padding-right: 20px;
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -163,7 +163,7 @@ export default {
   border-left: 1px solid #00FFFF;*/
 }
 .venue-body {
-  margin-left: 105px;
+  margin-left: 70px;
 }
 @media only screen and (max-width: 900px) {
   .venue-body {

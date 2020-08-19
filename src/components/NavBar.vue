@@ -30,7 +30,14 @@
         
             <hide-at breakpoint="small">
                 <div class="user-action">
-                    <span v-on:click="toggleUserView" :style="{cursor: 'pointer'}">{{ current_user.first_name }} {{ current_user.last_name }}</span>
+                  <sui-button compact icon="cog" 
+                    label-position="left" 
+                    :content="`${current_user.first_name} ${current_user.last_name}`"
+                    @click="toggleUserView"
+                  />
+                    <!-- <span v-on:click="toggleUserView" :style="{cursor: 'pointer'}">
+                      {{ current_user.first_name }} {{ current_user.last_name }}
+                      </span> -->
                     <transition 
                         name="fade"
                         mode="out-in">
@@ -197,11 +204,11 @@
 .dark-mode, .light-mode {
   
   .venue-navbar {
-      height: 93px;
+      height: 70px;
       position: fixed;
       top: 0;
-      left: 50px;
-      right: 50px;
+      left: 20px;
+      right: 20px;
       z-index: 5;
       align-items: center;
       display: flex;
@@ -220,7 +227,7 @@
       text-align: right;
   }
   .venue-navbar .left-area .logo-area {
-      width: 105px;
+      width: 70px;
       text-align: center;
       height: 40px;
       align-items: center;
@@ -277,12 +284,11 @@
   }
   .venue-navbar .user-action .user-action-view {
       position: absolute;
-      top: 25px;
+      top: 40px;
       right: 0px;
       width: 300px;
       box-sizing: border-box;
       border-radius: 5px;
-      border: 1px solid rgba(42, 138, 181, 0.8);
       text-align: left;
       overflow: hidden;
       box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.15);
@@ -422,6 +428,7 @@
   }
   .user-action-view {
     background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.3);
   }
   .user-action-view .user-action-menu li {
       background-color: white;

@@ -1,10 +1,12 @@
 <template>
 
     <div class="venue-progress-bar">
-        <div class="progress-bar-wrapper">
+        <div class="venue-progress-bar-container">
+            <div class="progress-bar-wrapper">
             <div class="progress-bar-filler" :style="{width: `${value * 100}%`}"></div>
         </div>
         <div class="progress-bar-value">{{ getPercent() }} {{ suffix }}</div>
+        </div>
     </div>
 
 </template>
@@ -25,26 +27,31 @@ export default {
 <style lang="scss">
 
 .venue-progress-bar {
-    display: flex;
-    align-items: center;
+    display: inline-block;
 
-    .progress-bar-wrapper {
-        min-width: 200px;
-        height: 6px;
-        background-color: white;
-        margin-right: 10px;
-        border-radius: 10px;
+    .venue-progress-bar-container {
+        display: flex;
+        align-items: center;
 
-        .progress-bar-filler {
-            background-color: #5EFFB4;
-            height: 100%;
+        .progress-bar-wrapper {
+            min-width: 200px;
+            height: 6px;
+            background-color: white;
+            margin-right: 10px;
             border-radius: 10px;
+
+            .progress-bar-filler {
+                background-color: #5EFFB4;
+                height: 100%;
+                border-radius: 10px;
+            }
+        }
+
+        .progress-bar-value {
+            font-size: 0.85rem;
         }
     }
 
-    .progress-bar-value {
-        font-size: 0.85rem;
-    }
 }
 
 </style>

@@ -21,8 +21,11 @@
             <ProgressBar :value="0.5" suffix="Attendance" />
         </div>
         <div class="right-side">
-            <sui-button v-if="taskInfo.taskType == 'qr-code'" secondary>Show QR Code</sui-button>
-            <sui-button class="venue-blue">See Who Attended</sui-button>
+            <sui-button 
+                v-if="taskInfo.taskType == 'qr-code'"
+                @click="shouldFocus(taskInfo.id)"
+                secondary>Show QR Code</sui-button>
+            <sui-button class="venue-blue" @click="shouldFocusTaskAttendance(taskInfo.id)">See Who Attended</sui-button>
         </div>
     </div>
 
@@ -36,7 +39,9 @@ import ProgressBar from "@/components/ProgressBar.vue"
 export default {
     name: 'TaskInfoModalInstructor',
     props: {
-        taskInfo: Object
+        taskInfo: Object,
+        shouldFocus: Function,
+        shouldFocusTaskAttendance: Function
     },
     components: {
         ProgressBar
@@ -75,8 +80,8 @@ export default {
 
     .upper-area {
         display: flex;
-    box-sizing: border-box;
-    padding: 10px 15px;
+        box-sizing: border-box;
+        padding: 10px 15px;
 
         .left-side {
             flex-grow: 1;

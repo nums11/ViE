@@ -3,10 +3,10 @@
     <div class="meeting-info-schedule-slider">
         <div id="schedule-wrapper" class="schedule-wrapper">
             <div class="right-scroll-button scroll-button" v-if="wrapperWidth > containerWidth && leftOffset != (this.wrapperWidth * -1) + this.containerWidth" @click="slideRight">
-                <span class="icon-right-arrow"></span>
+                <i class="icon right arrow"></i>
             </div>
             <div class="left-scroll-button scroll-button" v-if="leftOffset != 0" @click="slideLeft">
-                <span class="icon-left-arrow"></span>
+                <i class="icon left arrow"></i>
             </div>
             <div id="schedule-scroller" 
                 class="schedule-scroller" 
@@ -31,13 +31,15 @@
                                 </sui-label>
                                 <hr />
                                 <div :style="{textAlign: 'center', marginTop: '20px'}">
-                                    Right click to sync with your calendar.
+                                    Click to view task
                                 </div>
                             </sui-popup-content>
 
                         <div
                         slot="trigger" 
-                        :key="task_info.id" class="info-pill">
+                        :key="task_info.id" class="info-pill"
+                        @click="manageScheduleTabClick(task_info)"
+                        >
                             <div class="icon-area">
                                 <img width="100%" height="100%" :src="getIcon( task_info['taskType'] )" />
                             </div>
@@ -60,7 +62,8 @@ import LinkSVG from "@/assets/icons/002-link.svg"
 export default {
     name: 'MeetingInfoScheduleSlider',
     props: {
-        tasksInfo: Array
+        tasksInfo: Array,
+        manageScheduleTabClick: Function
     },
     data () {
         return {

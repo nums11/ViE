@@ -39,6 +39,7 @@
                 <div class="right-side">
                     <MeetingInfoScheduleSlider 
                       :tasksInfo="tasks_summary"
+                      :manageScheduleTabClick="manageScheduleTabClick"
                     />
 
                     <!-- Example of the Structure of the Data MeetingInfoScheduleSlider expects -->
@@ -113,6 +114,8 @@
                         v-for="(task, i) in tasks_summary"
                         :key="i"
                         :taskInfo="task"
+                        :shouldFocus="focusTask"
+                        :shouldFocusTaskAttendance="focusTaskAttendance"
                       />
                     </div>
                     <div v-else>
@@ -258,18 +261,29 @@
                      </div>
                 </div>
                 <div key="2" v-else>
-                    <TaskInfoModalExpanded 
-                        :taskInfo="{
-                                startTime: '2020-08-12T02:51:42.612Z',
-                                taskType: 'poll',
-                                taskName: 'Poll',
-                                taskSubname: 'How many days do you need to complete the assignment?',
-                                taskDescription: 'Answer the poll before the submission time ends.',
-                                pollOptions: [1, 2, 3, 4],
-                                id: 8
-                            }"
-                            :cancelTask="cancelTask"
-                    />
+                  <TaskInfoModalInstructorExpanded 
+                    v-if="is_instructor && task_focus_mode == 'show-info'"
+                    :taskInfo="tasks_summary[task_focus]"
+                    :cancelTask="cancelTask"
+                  />
+                  <TaskAttendanceInfo 
+                    v-else-if="is_instructor && task_focus_mode == 'show-attendance'"
+                    :taskInfo="tasks_summary[task_focus]"
+                    :cancelTask="cancelTask"
+                  />
+                  <TaskInfoModalExpanded 
+                    v-else
+                    :taskInfo="{
+                            startTime: '2020-08-12T02:51:42.612Z',
+                            taskType: 'poll',
+                            taskName: 'Poll',
+                            taskSubname: 'How many days do you need to complete the assignment?',
+                            taskDescription: 'Answer the poll before the submission time ends.',
+                            pollOptions: [1, 2, 3, 4],
+                            id: 8
+                    }"
+                    :cancelTask="cancelTask"
+                  />
                 </div>
                 </transition>
 
@@ -285,6 +299,8 @@ import MeetingInfoScheduleSlider from '@/components/MeetingInfoScheduleSlider.vu
 import TaskInfoModal from '@/components/TaskInfoModal.vue'
 import TaskInfoModalExpanded from '@/components/TaskInfoModalExpanded.vue'
 import TaskInfoModalInstructor from '@/components/TaskInfoModalInstructor.vue'
+import TaskInfoModalInstructorExpanded from '@/components/TaskInfoModalInstructorExpanded.vue'
+import TaskAttendanceInfo from '@/components/TaskAttendanceInfo.vue'
 
 import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 import MeetingAPI from '@/services/MeetingAPI.js';
@@ -297,11 +313,14 @@ export default {
         MeetingInfoScheduleSlider,
         TaskInfoModal,
         TaskInfoModalExpanded,
-        TaskInfoModalInstructor
+        TaskInfoModalInstructor,
+        TaskInfoModalInstructorExpanded,
+        TaskAttendanceInfo
     },
     data () {
         return {
             task_focus: null,
+            task_focus_mode: String, // "show-info" or "show-attendance"
             tasks_summary: [],
 
             current_user: {},
@@ -309,7 +328,7 @@ export default {
             active_tasks: [],
             for_course: Boolean,
             meeting_has_loaded: Boolean,
-            is_instructor: Boolean
+            is_instructor: Boolean,
         }
     },
     created () {
@@ -321,77 +340,95 @@ export default {
 
     },
     methods: {
-        getStartTime () {
-          if (this.meeting == null) return ''
-          let start_ = new Date (this.meeting.start_time)
-          let hours = (start_.getHours() + 1) % 12
-          let minutes = start_.getMinutes() < 10 ? `0${start_.getMinutes()}` : start_.getMinutes()
-          let suffix = start_.getHours() >= 11 ? 'pm' : 'am'
-          return `${hours}:${minutes}${suffix}`
-        },
-        getEndTime () {
-          if (this.meeting == null) return ''
-          let end_ = new Date (this.meeting.end_time)
-          let hours = (end_.getHours() + 1) % 12
-          let minutes = end_.getMinutes() < 10 ? `0${end_.getMinutes()}` : end_.getMinutes()
-          let suffix = end_.getHours() >= 11 ? 'pm' : 'am'
-          return `${hours}:${minutes}${suffix}`
-        },
-        focusTask (task_id) {
-            console.log(`Focusing task ${task_id}`)
-            this.task_focus = true
-        },
-        cancelTask () {
-            this.task_focus = null
-        },
-        getMeeting () {
 
-          let meeting_id = this.$route.params.meeting_id
-          MeetingAPI.getMeeting(meeting_id)
-          .then(res => {
-            this.meeting = res.data
-            this.for_course = this.meeting.for_course
+      isQrTask (taskInfo) {
+        return taskInfo && taskInfo.qrCode
+      },
 
-            this.meeting_has_loaded = true
+      manageScheduleTabClick (props) {
 
-            // get active tasks now
-            this.getActiveTasksForMeeting ()
-          })
-        },
-        getActiveTasksForMeeting () {
+        if (this.isQrTask (props)) {
+          this.task_focus = props.id
+          this.task_focus_mode = 'show-info'
+        }
+      },
 
-          let current_time = new Date ();
-          if (this.meeting.has_live_attendance) {
-            this.meeting.live_attendance.qr_checkins
-            .forEach(qr_checkin => {
+      getStartTime () {
+        if (this.meeting == null) return ''
+        let start_ = new Date (this.meeting.start_time)
+        let hours = (start_.getHours() + 1) % 12
+        let minutes = start_.getMinutes() < 10 ? `0${start_.getMinutes()}` : start_.getMinutes()
+        let suffix = start_.getHours() >= 11 ? 'pm' : 'am'
+        return `${hours}:${minutes}${suffix}`
+      },
+      getEndTime () {
+        if (this.meeting == null) return ''
+        let end_ = new Date (this.meeting.end_time)
+        let hours = (end_.getHours() + 1) % 12
+        let minutes = end_.getMinutes() < 10 ? `0${end_.getMinutes()}` : end_.getMinutes()
+        let suffix = end_.getHours() >= 11 ? 'pm' : 'am'
+        return `${hours}:${minutes}${suffix}`
+      },
+      focusTask (task_id) {
+          this.task_focus = task_id
+          this.task_focus_mode = "show-info"
+      },
+      focusTaskAttendance (task_id) {
+          this.task_focus = task_id
+          this.task_focus_mode = "show-attendance"
+      },
+      cancelTask () {
+          this.task_focus = null
+      },
+      getMeeting () {
 
-              if (current_time, new Date(qr_checkin.qr_checkin_start_time), new Date(qr_checkin.qr_checkin_end_time)) {
-                this.active_tasks.push(qr_checkin)
-              }
+        let meeting_id = this.$route.params.meeting_id
+        MeetingAPI.getMeeting(meeting_id)
+        .then(res => {
+          this.meeting = res.data
+          this.for_course = this.meeting.for_course
 
-            })
+          this.meeting_has_loaded = true
 
-            this.createTasksSummary ()
-          }
-        },
+          // get active tasks now
+          this.getActiveTasksForMeeting ()
+        })
+      },
+      getActiveTasksForMeeting () {
 
-        createTasksSummary () {
+        let current_time = new Date ();
+        if (this.meeting.has_live_attendance) {
+          this.meeting.live_attendance.qr_checkins
+          .forEach(qr_checkin => {
 
-          this.tasks_summary = this.active_tasks.map((task, i) => {
-
-            if (Object.prototype.hasOwnProperty.call( task, 'qr_checkin_start_time' )) {
-              return {
-                taskType: 'qr-code',
-                startTime: task.qr_checkin_start_time,
-                endTime: task.qr_checkin_end_time,
-                taskName: 'QR Submission',
-                taskDescription: 'Scan the QR code to submit your attendance',
-                id: i
-              }
+            if (current_time, new Date(qr_checkin.qr_checkin_start_time), new Date(qr_checkin.qr_checkin_end_time)) {
+              this.active_tasks.push(qr_checkin)
             }
 
           })
+
+          this.createTasksSummary ()
         }
+      },
+
+      createTasksSummary () {
+
+        this.tasks_summary = this.active_tasks.map((task, i) => {
+
+          if (Object.prototype.hasOwnProperty.call( task, 'qr_checkin_start_time' )) {
+            return {
+              taskType: 'qr-code',
+              startTime: task.qr_checkin_start_time,
+              endTime: task.qr_checkin_end_time,
+              taskName: 'QR Submission',
+              taskDescription: 'Scan the QR code to submit your attendance',
+              qrCode: task.code,
+              id: i
+            }
+          }
+
+        })
+      }
     }
 }
 </script>
@@ -403,6 +440,7 @@ export default {
         position: fixed;
         left: 155px;
         right: 50px;
+        top: 70px;
         z-index: 3;
         .page-title {
             font-weight: 600;
@@ -410,8 +448,8 @@ export default {
         .page-info-area {
             display: flex;
             .left-side {
-                width: 360px;
-                min-width: 360px;
+                width: 330px;
+                min-width: 300px;
             }
             .right-side {
                 width: 75%;
@@ -428,7 +466,7 @@ export default {
     }
     // Left Hand Side Area
     .sidebar-area {
-        width: 360px;
+        width: 300px;
         // background-color: green;
         position: fixed;
         bottom: 0;
