@@ -7,15 +7,17 @@
                 <router-link to="/dashboard"><img src="@/assets/venue-logo.svg" class="image-logo" /></router-link>
             </div>
             <div class="menu-items-area">
-                <div class="nav-link active">Dashboard</div>
-                <div class="course-nav-link nav-link">Courses
+                <div @click="update ()">
+                  <router-link to="/dashboard"><div :class="`nav-link ${isPage('dashboard') ? 'active' : ''}`">Dashboard</div></router-link>
+                </div>
+                <div :class="`course-nav-link nav-link ${isPage('course_info') ? 'active' : ''}`"  @click="update ()">Courses
                   <div class="course-list-dropdown">
                     <ul>
                       <router-link v-for="(course, i) in user_courses" :key="i" :to="`/course_info/${course._id}`"><li>{{ course.name }}</li></router-link>
                     </ul>
                   </div>
                 </div>
-                <div class="course-nav-link nav-link">Organizations
+                <div :class="`course-nav-link nav-link ${isPage('org_info') ? 'active' : ''}`" @click="update ()">Organizations
                   <div class="course-list-dropdown">
                     <ul>
                       <router-link v-for="(org, i) in user_orgs" :key="i" :to="{name: 'org_info', params: { id: org._id }}"><li>{{ org.name }}</li></router-link>
@@ -65,7 +67,7 @@
             <sui-dropdown text="David Goldschmidt" direction="upward">
                 <sui-dropdown-menu>
                 <sui-dropdown-item>Settings</sui-dropdown-item>
-                <sui-dropdown-item>Log Out</sui-dropdown-item>
+                <sui-dropdown-item @click="logoutUser ()">Log Out</sui-dropdown-item>
                 </sui-dropdown-menu>
             </sui-dropdown>
         </div>
@@ -80,6 +82,7 @@
   import CourseAPI from '@/services/CourseAPI.js'
   import SectionAPI from '@/services/SectionAPI.js'
   import OrgAPI from '@/services/OrgAPI.js'
+  import AuthAPI from '@/services/AuthAPI.js'
 
   export default {
     name: 'NavBar',
@@ -122,6 +125,18 @@
         this.getSectionsWithCourses()
     },
     methods: {
+      update () {
+        this.$forceUpdate()
+      },
+      isPage (page_val) {
+        if (window.location.href.includes(page_val)) return true
+        return false
+      },
+      logoutUser() {
+        AuthAPI.logoutCAS().then(res => {
+          this.$store.dispatch('logout')
+        })
+      },
       toggleUserView () {
           console.log("Clicked!")
           this.showUserView = !this.showUserView;
@@ -395,9 +410,15 @@
   }
   .venue-navbar .left-area .menu-items-area .nav-link {
     color: #466D85;
+    opacity: 0.8;
+    transition: opacity 0.25s;
+  }
+  .venue-navbar .left-area .menu-items-area .nav-link:hover {
+    opacity: 0.85;
   }
   .venue-navbar .left-area .menu-items-area .nav-link.active {
     border-bottom: 2px solid #466D85;
+    opacity: 1;
   }
   .user-action-view {
     background-color: white;
