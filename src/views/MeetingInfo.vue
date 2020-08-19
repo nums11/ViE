@@ -108,7 +108,7 @@
                     mode="out-in"
                 >
                 <div key="1" v-if="task_focus == null">
-                    <div class="title"><h3>2 Live Tasks</h3></div>
+                    <div class="title"><h3>Live Tasks</h3></div>
                     <div v-if="is_instructor">
                       <TaskInfoModalInstructor 
                         v-for="(task, i) in tasks_summary"
@@ -187,7 +187,7 @@
                       />
                     </div>
 
-                    <div v-if="false" class="title"><h3>2 Asynchronous Tasks</h3></div>
+                    <div v-if="false" class="title"><h3>Asynchronous Tasks</h3></div>
                     <div v-if="false && is_instructor">
                       IS INSTRUCTOR!
                     </div>
