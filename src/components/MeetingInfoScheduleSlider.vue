@@ -18,12 +18,12 @@
           <router-link v-else class="active-btn" :to="{name: 'watch_recording', params: { recording_id: task._id }}">
             <button>Watch Recording</button>
           </router-link> -->
-          <sui-button v-if="task.qr_checkin_start_time" @click="$emit('show-qr-code')" class="venue-green">Show QR </sui-button>
-          <sui-button v-else class="venue-green">
+          <button v-if="task.qr_checkin_start_time" @click="$emit('show-qr-code')" class="venue-green action-btn">Show QR </button>
+          <button v-else class="venue-green action-btn">
             <router-link :to="{name: 'watch_recording', params: { recording_id: task._id }}">
-              Watch Recording
+              Watch recording
             </router-link>
-          </sui-button>
+          </button>
 
 <!--             <sui-popup v-for="task_info in getTasksGroupedByUniqueDay()[task_day].tasks">
               <sui-popup-headfer>{{task_info['taskName']}}</sui-popup-header>
@@ -180,6 +180,14 @@ export default {
 </script>
 
 <style lang="scss">
+.action-btn {
+  border: none;
+  border-radius: 5px;
+  height: 3rem;
+  width: 8rem;
+  cursor: pointer;
+} 
+
 .active-btn {
   height: 6rem;
   text-align: center;
