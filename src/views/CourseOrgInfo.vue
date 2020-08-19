@@ -258,6 +258,7 @@ export default {
             display: flex;
             .left-side {
                 width: 320px;
+                min-height: 75px;
                 min-width: 320px;
             }
             .right-side {
