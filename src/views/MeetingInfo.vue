@@ -142,8 +142,11 @@
       <div class="content-area">
         <transition name="fade" mode="out-in">
           <div key="1" v-if="task_focus == null">
-              <div class="title"><h3>2 Live Tasks</h3></div>
-              <TaskInfoModal
+              <div v-if="meeting.has_live_attendance">
+                <div class="title"><h3>({{ meeting.live_attendance.qr_checkins.length }}) Live Task<span v-if="meeting.live_attendance.qr_checkins.length != 1">s</span></h3></div>
+                <TaskInfoModal v-for="qr_checkin in meeting.live_attendance.qr_checkins" :key="qr_checkin._id" :task="qr_checkin" :is_qr="true" />
+              </div>
+ <!--              <TaskInfoModal
                 :taskInfo="{
                   startTime: '2020-08-12T02:51:42.612Z',
                   endTime: '2020-08-12T10:51:42.612Z',
@@ -208,10 +211,12 @@
                   id: 6
                 }"
                 :shouldFocus="focusTask"
-              />
-
-              <div class="title"><h3>2 Asynchronous Tasks</h3></div>
-              <TaskInfoModal
+              /> -->
+              <div v-if="meeting.has_async_attendance">
+                <div class="title"><h3>({{ meeting.async_attendance.recordings.length }}) Asynchronous Task<span v-if="meeting.async_attendance.recordings.length != 1">s</span></h3></div>
+                <TaskInfoModal v-for="recording in meeting.async_attendance.recordings" :key="recording._id" :task="recording" :is_qr="false" />
+              </div>
+<!--               <TaskInfoModal
                 :taskInfo="{
                   startTime: '2020-08-12T02:51:42.612Z',
                   endTime: '2020-08-12T10:51:42.612Z',
@@ -276,10 +281,10 @@
                   id: 12
                 }"
                 :shouldFocus="focusTask"
-              />
+              /> -->
           </div>
           <div key="2" v-else>
-            <TaskInfoModalExpanded 
+<!--             <TaskInfoModalExpanded 
                 :taskInfo="{
                   startTime: '2020-08-12T02:51:42.612Z',
                   taskType: 'poll',
@@ -290,7 +295,7 @@
                   id: 8
                 }"
                 :cancelTask="cancelTask"
-            />
+            /> -->
           </div>
         </transition>
 
