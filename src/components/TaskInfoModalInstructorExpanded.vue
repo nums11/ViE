@@ -48,7 +48,7 @@
             </div>
         </div>
 
-        <transition name="fade" mode="out in">
+        <transition name="fade" mode="out-in">
             <div class="fullscreen-modal" v-if="show_fullscreen_modal">
 
                 <div class="full-content-area">
