@@ -29,26 +29,31 @@
           <div class="right-side">
             <div class="tabs">
               <ul v-if="for_course">
-                <li @click="activeTab = 'meeting_history'" :class="activeTab == 'meeting_history' ? 'active' : ''">Meeting History</li>
+                <li @click="activeTab = 'meeting_history'" :class="activeTab == 'meeting_history' ? 'active' : ''">
+                  Meeting History</li>
                 <li @click="activeTab = 'statistics'" :class="activeTab == 'statistics' ? 'active' : ''">
-                  <div class="icon-box"><span class="icon-bar-chart"></span></div>
+                  <div class="icon-box"><i class="icon flask"></i></div>
                   <div>Statistics</div>
                 </li>
-                <li v-if="current_user.is_instructor && showManageStudents" @click="activeTab = 'manage_students'" :class="activeTab == 'manage_students' ? 'active' : ''">Manage Students</li>
-                <li v-if="current_user.is_instructor" @click="activeTab = 'settings'" :class="activeTab == 'settings' ? 'active' : ''">
-                  <div class="icon-box"><span class="icon-gear"></span></div>
+                <li v-if="current_user.is_instructor && showManageStudents" 
+                  @click="activeTab = 'manage_students'" 
+                  :class="activeTab == 'manage_students' ? 'active' : ''">Manage Students</li>
+                <li v-if="current_user.is_instructor" 
+                  @click="activeTab = 'settings'" 
+                  :class="activeTab == 'settings' ? 'active' : ''">
+                  <div class="icon-box"><i class="icon cog"></i></div>
                   <div>Settings</div>
                 </li>
               </ul>
               <ul v-else>
                 <li @click="activeTab = 'meeting_history'" :class="activeTab == 'meeting_history' ? 'active' : ''">Meeting History</li>
                 <li @click="activeTab = 'statistics'" :class="activeTab == 'statistics' ? 'active' : ''">
-                  <div class="icon-box"><span class="icon-bar-chart"></span></div>
+                  <div class="icon-box"><i class="icon flask"></i></div>
                   <div>Statistics</div>
                 </li>
-                <li @click="activeTab = 'manage_students'" :class="activeTab == 'manage_students' ? 'active' : ''">Members</li>
-                <li v-if="current_user.is_instructor" @click="activeTab = 'settings'" :class="activeTab == 'settings' ? 'active' : ''">
-                 <div class="icon-box"><span class="icon-gear"></span></div>
+                <li @click="activeTab == 'manage_students'" :class="activeTab == 'manage_students' ? 'active' : ''">Members</li>
+                <li v-if="current_user.is_instructor" @click="activeTab == 'settings'" :class="activeTab == 'settings' ? 'active' : ''">
+                 <div class="icon-box"><i class="icon cog"></i></div>
                  <div>Settings</div>
                 </li>
               </ul>
@@ -239,12 +244,12 @@ export default {
 <style lang="scss">
 .course-info {
     // Header, With title and Schedule Slider
-    width: 90%;
     margin: auto;
     .header {
         position: fixed;
-        left: 155px;
-        right: 50px;
+        left: 90px;
+        top: 70px;
+        right: 20px;
         z-index: 3;
         .page-title {
             font-weight: 600;
@@ -252,11 +257,11 @@ export default {
         .page-info-area {
             display: flex;
             .left-side {
-                width: 360px;
-                min-width: 360px;
+                width: 320px;
+                min-width: 320px;
             }
             .right-side {
-                width: 75%;
+                flex-grow: 1;
                 position: relative;
                 .actions {
                   text-align: right;
@@ -280,6 +285,7 @@ export default {
                       border-bottom: 2px solid rgba(0, 0, 0, 0);
                       div {
                         display: inline-block;
+                        font-weight: 600;
                       }
                       .icon-box {
                         margin-right: 10px;
@@ -300,20 +306,20 @@ export default {
         }
     }
     .top-spacer {
-        height: 138px;
+        height: 87px;
     }
     .left-spacer {
-        width: 360px;
-        min-width: 360px;
+        width: 320px;
+        min-width: 320px;
     }
     // Left Hand Side Area
     .sidebar-area {
-        width: 360px;
+        width: 300px;
         // background-color: green;
         position: fixed;
         bottom: 0;
-        top: 230px;
-        left: 155px;
+        top: 180px;
+        left: 90px;
         right: 50px;
         z-index: 3;
         .manage-students-section-selector {

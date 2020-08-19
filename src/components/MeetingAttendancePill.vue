@@ -37,6 +37,7 @@ export default {
 
 <style lang="scss">
 .meeting-attendance-pill {
+
     display: inline-block;
     min-width: 270px;
     margin-right: 12px;
@@ -44,10 +45,10 @@ export default {
     box-sizing: border-box;
     padding: 0 10px;
     height: 30px;
+    line-height: 30px;
     border-radius: 3px;
     cursor: pointer;
-    border: #bababa solid thin;
-    transition: background-color 0.25s, box-shadow 0.25s;
+    transition: background-color 0.25s, box-shadow 0.3s;
     .pill-container {
         height: 30px;
         display: flex;
@@ -72,6 +73,11 @@ export default {
 .light-mode {
     
     .meeting-attendance-pill {
+        a {
+            color: black;
+        }
+
+        border: #bababa solid thin;
         background-color: white;
         box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.12);
         .pill-container {
@@ -84,7 +90,12 @@ export default {
 }
 .dark-mode {
     .meeting-attendance-pill {
+        a {
+            color: white;
+        }
+
         background-color: #22252e;
+        border: 1px solid #22252e;
         .pill-container {
             .right-side {
                 .icon-area {

@@ -438,8 +438,8 @@ export default {
     // Header, With title and Schedule Slider
     .header {
         position: fixed;
-        left: 155px;
-        right: 50px;
+        left: 90px;
+        right: 20px;
         top: 70px;
         z-index: 3;
         .page-title {
@@ -461,8 +461,8 @@ export default {
         height: 138px;
     }
     .left-spacer {
-        width: 360px;
-        min-width: 360px;
+        width: 300px;
+        min-width: 300px;
     }
     // Left Hand Side Area
     .sidebar-area {
@@ -471,7 +471,7 @@ export default {
         position: fixed;
         bottom: 0;
         top: 230px;
-        left: 155px;
+        left: 90px;
         right: 50px;
         z-index: 3;
         .instructor-info {
