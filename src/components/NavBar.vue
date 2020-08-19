@@ -50,7 +50,7 @@
                                     <sui-checkbox label="Dark Mode" toggle v-model="dark_mode" />
                                 </div>
                                 <div>
-                                    <sui-button class="venue-red">Logout</sui-button>
+                                    <sui-button class="venue-red" @click="logoutUser ()">Logout</sui-button>
                                 </div>
                             </div>
                         </div>
