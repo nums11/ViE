@@ -38,7 +38,7 @@
                 <!-- Schedule Area -->
                 <div class="right-side">
                     <MeetingInfoScheduleSlider 
-                      :tasksInfo="tasks_summary"
+                      :tasksInfo="[...live_tasks_summary, ...async_tasks_summary]"
                       :manageScheduleTabClick="manageScheduleTabClick"
                     />
 
@@ -108,167 +108,133 @@
                     mode="out-in"
                 >
                 <div key="1" v-if="task_focus == null">
-                    <div class="title"><h3>2 Live Tasks</h3></div>
-                    <div v-if="is_instructor">
-                      <TaskInfoModalInstructor 
-                        v-for="(task, i) in tasks_summary"
-                        :key="i"
-                        :taskInfo="task"
-                        :shouldFocus="focusTask"
-                        :shouldFocusTaskAttendance="focusTaskAttendance"
-                      />
-                    </div>
-                    <div v-else>
-                      <TaskInfoModal
-                        :taskInfo="{
-                                startTime: '2020-08-12T02:51:42.612Z',
-                                endTime: '2020-08-12T10:51:42.612Z',
-                                taskType: 'qr-code',
-                                taskName: 'QR Submission',
-                                taskDescription: 'Scan the QR code to submit your attendance',
-                                id: 1
-                            }"
-                        :shouldFocus="focusTask"
-                      />
-                      <TaskInfoModal
-                          :taskInfo="{
-                                  startTime: '2020-08-12T02:51:42.612Z',
-                                  taskType: 'poll',
-                                  taskName: 'Poll',
-                                  taskSubname: 'How many days do you need to complete the assignment?',
-                                  taskDescription: 'Answer the poll before the submission time ends.',
-                                  id: 2
-                              }"
-                          :shouldFocus="focusTask"
-                      />
-                      <TaskInfoModal
-                          :taskInfo="{
-                                  startTime: '2020-08-14T02:51:42.612Z',
-                                  taskType: 'file-download',
-                                  taskName: 'Lecture 3 PDF',
-                                  taskSubname: 'GalaxiesTextbook.pdf',
-                                  taskDescription: 'Download the file document uploaded by your instructor',
-                                  id: 3
-                              }"
-                          :shouldFocus="focusTask"
-                      />
-                      <TaskInfoModal
-                          :taskInfo="{
-                                  startTime: '2020-08-12T02:51:42.612Z',
-                                  taskType: 'link',
-                                  taskName: 'Physics Web Module',
-                                  taskSubname: 'Play around with the physics module',
-                                  taskDescription: 'Click the link',
-                                  id: 4
-                              }"
-                          :shouldFocus="focusTask"
-                      />
-                      <TaskInfoModal
-                          :taskInfo="{
-                                  startTime: '2020-08-12T02:51:42.612Z',
-                                  taskType: 'file-download',
-                                  taskName: 'Physics Textbook',
-                                  taskSubname: 'IntroToPhysics.pdf',
-                                  taskDescription: 'Download the file document uploaded by your instructor',
-                                  id: 5
-                              }"
-                          :shouldFocus="focusTask"
-                      />
-                      <TaskInfoModal
-                          :taskInfo="{
-                                  startTime: '2020-08-12T02:51:42.612Z',
-                                  taskType: 'recording',
-                                  taskName: 'Prerecorded Lecture 1',
-                                  taskSubname: 'Intro to Physics',
-                                  taskDescription: 'Watch the recording uploaded by your instructor',
-                                  id: 6
-                              }"
-                          :shouldFocus="focusTask"
-                      />
+                    <div v-if="getLiveTaskCount() > 0" :style="{marginBottom: '30px'}">
+                        <div class="title"><h3>{{ getLiveTaskString() }}</h3></div>
+                        <div v-if="is_instructor">
+                        <TaskInfoModalInstructor 
+                            v-for="(task, i) in live_tasks_summary"
+                            :key="i"
+                            :taskInfo="task"
+                            :shouldFocus="focusTask"
+                            :shouldFocusTaskAttendance="focusTaskAttendance"
+                        />
+                        </div>
+                        <div v-else>
+                            <TaskInfoModal
+                                :taskInfo="{
+                                        startTime: '2020-08-12T02:51:42.612Z',
+                                        endTime: '2020-08-12T10:51:42.612Z',
+                                        taskType: 'qr-code',
+                                        taskName: 'QR Submission',
+                                        taskDescription: 'Scan the QR code to submit your attendance',
+                                        id: 1
+                                    }"
+                                :shouldFocus="focusTask"
+                            />
+                            <TaskInfoModal
+                                :taskInfo="{
+                                        startTime: '2020-08-12T02:51:42.612Z',
+                                        taskType: 'poll',
+                                        taskName: 'Poll',
+                                        taskSubname: 'How many days do you need to complete the assignment?',
+                                        taskDescription: 'Answer the poll before the submission time ends.',
+                                        id: 2
+                                    }"
+                                :shouldFocus="focusTask"
+                            />
+                        </div>
                     </div>
 
-                    <div v-if="false" class="title"><h3>2 Asynchronous Tasks</h3></div>
-                    <div v-if="false && is_instructor">
-                      IS INSTRUCTOR!
+                    <div v-if="getAsyncTaskCount() > 0">
+                        <div class="title"><h3>{{ getAsyncTaskString() }}</h3></div>
+                        <div v-if="is_instructor">
+                            <TaskInfoModalInstructor 
+                                v-for="(task, i) in async_tasks_summary"
+                                :key="i"
+                                :taskInfo="task"
+                                :shouldFocus="focusTask"
+                                :shouldFocusTaskAttendance="focusTaskAttendance"
+                            />
+                        </div>
+                        <div v-else-if="false">
+                        <TaskInfoModal
+                            :taskInfo="{
+                                    startTime: '2020-08-12T02:51:42.612Z',
+                                    endTime: '2020-08-12T10:51:42.612Z',
+                                    taskType: 'qr-code',
+                                    taskName: 'QR Submission',
+                                    taskDescription: 'Scan the QR code to submit your attendance',
+                                    id: 7
+                                }"
+                            :shouldFocus="focusTask"
+                        />
+                        <TaskInfoModal
+                            :taskInfo="{
+                                    startTime: '2020-08-12T02:51:42.612Z',
+                                    taskType: 'poll',
+                                    taskName: 'Poll',
+                                    taskSubname: 'How many days do you need to complete the assignment?',
+                                    taskDescription: 'Answer the poll before the submission time ends.',
+                                    id: 8
+                                }"
+                            :shouldFocus="focusTask"
+                        />
+                        <TaskInfoModal
+                            :taskInfo="{
+                                    startTime: '2020-08-14T02:51:42.612Z',
+                                    taskType: 'file-download',
+                                    taskName: 'Lecture 3 PDF',
+                                    taskSubname: 'GalaxiesTextbook.pdf',
+                                    taskDescription: 'Download the file document uploaded by your instructor',
+                                    id: 9
+                                }"
+                            :shouldFocus="focusTask"
+                        />
+                        <TaskInfoModal
+                            :taskInfo="{
+                                    startTime: '2020-08-12T02:51:42.612Z',
+                                    taskType: 'link',
+                                    taskName: 'Physics Web Module',
+                                    taskSubname: 'Play around with the physics module',
+                                    taskDescription: 'Click the link',
+                                    id: 10
+                                }"
+                            :shouldFocus="focusTask"
+                        />
+                        <TaskInfoModal
+                            :taskInfo="{
+                                    startTime: '2020-08-12T02:51:42.612Z',
+                                    taskType: 'file-download',
+                                    taskName: 'Physics Textbook',
+                                    taskSubname: 'IntroToPhysics.pdf',
+                                    taskDescription: 'Download the file document uploaded by your instructor',
+                                    id: 11
+                                }"
+                            :shouldFocus="focusTask"
+                        />
+                        <TaskInfoModal
+                            :taskInfo="{
+                                    startTime: '2020-08-12T02:51:42.612Z',
+                                    taskType: 'recording',
+                                    taskName: 'Prerecorded Lecture 1',
+                                    taskSubname: 'Intro to Physics',
+                                    taskDescription: 'Watch the recording uploaded by your instructor',
+                                    id: 12
+                                }"
+                            :shouldFocus="focusTask"
+                        />
+                        </div>
                     </div>
-                     <div v-else-if="false">
-                       <TaskInfoModal
-                        :taskInfo="{
-                                startTime: '2020-08-12T02:51:42.612Z',
-                                endTime: '2020-08-12T10:51:42.612Z',
-                                taskType: 'qr-code',
-                                taskName: 'QR Submission',
-                                taskDescription: 'Scan the QR code to submit your attendance',
-                                id: 7
-                            }"
-                        :shouldFocus="focusTask"
-                      />
-                      <TaskInfoModal
-                          :taskInfo="{
-                                  startTime: '2020-08-12T02:51:42.612Z',
-                                  taskType: 'poll',
-                                  taskName: 'Poll',
-                                  taskSubname: 'How many days do you need to complete the assignment?',
-                                  taskDescription: 'Answer the poll before the submission time ends.',
-                                  id: 8
-                              }"
-                          :shouldFocus="focusTask"
-                      />
-                      <TaskInfoModal
-                          :taskInfo="{
-                                  startTime: '2020-08-14T02:51:42.612Z',
-                                  taskType: 'file-download',
-                                  taskName: 'Lecture 3 PDF',
-                                  taskSubname: 'GalaxiesTextbook.pdf',
-                                  taskDescription: 'Download the file document uploaded by your instructor',
-                                  id: 9
-                              }"
-                          :shouldFocus="focusTask"
-                      />
-                      <TaskInfoModal
-                          :taskInfo="{
-                                  startTime: '2020-08-12T02:51:42.612Z',
-                                  taskType: 'link',
-                                  taskName: 'Physics Web Module',
-                                  taskSubname: 'Play around with the physics module',
-                                  taskDescription: 'Click the link',
-                                  id: 10
-                              }"
-                          :shouldFocus="focusTask"
-                      />
-                      <TaskInfoModal
-                          :taskInfo="{
-                                  startTime: '2020-08-12T02:51:42.612Z',
-                                  taskType: 'file-download',
-                                  taskName: 'Physics Textbook',
-                                  taskSubname: 'IntroToPhysics.pdf',
-                                  taskDescription: 'Download the file document uploaded by your instructor',
-                                  id: 11
-                              }"
-                          :shouldFocus="focusTask"
-                      />
-                      <TaskInfoModal
-                          :taskInfo="{
-                                  startTime: '2020-08-12T02:51:42.612Z',
-                                  taskType: 'recording',
-                                  taskName: 'Prerecorded Lecture 1',
-                                  taskSubname: 'Intro to Physics',
-                                  taskDescription: 'Watch the recording uploaded by your instructor',
-                                  id: 12
-                              }"
-                          :shouldFocus="focusTask"
-                      />
-                     </div>
                 </div>
                 <div key="2" v-else>
                   <TaskInfoModalInstructorExpanded 
                     v-if="is_instructor && task_focus_mode == 'show-info'"
-                    :taskInfo="tasks_summary[task_focus]"
+                    :taskInfo="live_tasks_summary[task_focus]"
                     :cancelTask="cancelTask"
                   />
                   <TaskAttendanceInfo 
                     v-else-if="is_instructor && task_focus_mode == 'show-attendance'"
-                    :taskInfo="tasks_summary[task_focus]"
+                    :taskInfo="live_tasks_summary[task_focus]"
                     :cancelTask="cancelTask"
                   />
                   <TaskInfoModalExpanded 
@@ -321,11 +287,13 @@ export default {
         return {
             task_focus: null,
             task_focus_mode: String, // "show-info" or "show-attendance"
-            tasks_summary: [],
+            live_tasks_summary: [],
+            async_tasks_summary: [],
 
             current_user: {},
             meeting: null,
-            active_tasks: [],
+            live_tasks_arr: [],
+            async_tasks_arr: [],
             for_course: Boolean,
             meeting_has_loaded: Boolean,
             is_instructor: Boolean,
@@ -341,6 +309,33 @@ export default {
     },
     methods: {
 
+      getLiveTaskString () {
+          let count = this.getLiveTaskCount ()
+          if (count == 1) return '1 Live Task'
+          return `${count} Live Tasks`
+      },
+      getAsyncTaskString () {
+          let count = this.getAsyncTaskCount ()
+          if (count == 1) return '1 Asynchronous Task'
+          return `${count} Asynchronous Tasks`
+      },
+
+      getLiveTaskCount () {
+          let count = 0;
+          if (this.meeting && this.meeting.live_attendance) {
+              count += this.meeting.live_attendance.live_polls ? this.meeting.live_attendance.live_polls.length : 0
+              count += this.meeting.live_attendance.qr_checkins ? this.meeting.live_attendance.qr_checkins.length : 0
+          }
+          return count;
+      },
+
+      getAsyncTaskCount () {
+          let count = 0;
+          if (this.meeting && this.meeting.async_attendance) {
+              count += this.meeting.async_attendance.recordings ? this.meeting.async_attendance.recordings.length : 0
+          }
+          return count
+      },
       isQrTask (taskInfo) {
         return taskInfo && taskInfo.qrCode
       },
@@ -401,19 +396,28 @@ export default {
           this.meeting.live_attendance.qr_checkins
           .forEach(qr_checkin => {
 
-            if (current_time, new Date(qr_checkin.qr_checkin_start_time), new Date(qr_checkin.qr_checkin_end_time)) {
-              this.active_tasks.push(qr_checkin)
-            }
+            // if (current_time, new Date(qr_checkin.qr_checkin_start_time), new Date(qr_checkin.qr_checkin_end_time)) {
+            this.live_tasks_arr.push(qr_checkin)
+            
 
           })
-
-          this.createTasksSummary ()
         }
+
+        if (this.meeting.has_async_attendance) {
+            this.meeting.async_attendance.recordings
+            .forEach(recording => {
+
+                this.async_tasks_arr.push(recording)
+            })
+        }
+
+        
+        this.createTasksSummary ()
       },
 
       createTasksSummary () {
 
-        this.tasks_summary = this.active_tasks.map((task, i) => {
+        this.live_tasks_summary = this.live_tasks_arr.map((task, i) => {
 
           if (Object.prototype.hasOwnProperty.call( task, 'qr_checkin_start_time' )) {
             return {
@@ -427,6 +431,20 @@ export default {
             }
           }
 
+        })
+
+        this.async_tasks_summary = this.async_tasks_arr.map((task, i) => {
+
+            if (Object.prototype.hasOwnProperty.call( task, 'video_url' )) {
+                return {
+                    taskType: 'recording',
+                    startTime: task.recording_submission_start_time,
+                    endTime: task.recording_submission_end_time,
+                    taskName: 'Video Recording',
+                    id: i,
+                    taskDescription: 'Watch the video uploaded by your instructor'
+                }
+            }
         })
       }
     }

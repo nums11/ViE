@@ -10,10 +10,14 @@ import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
 import PortalVue from "portal-vue"
 import SuiVue from "semantic-ui-vue"
 import {MediaQueries} from 'vue-media-queries';
+import Vuikit from 'vuikit'
+import VuikitIcons from '@vuikit/icons'
 
 const mediaQueries = new MediaQueries();
 
 Vue.component('VueCtkDateTimePicker', VueCtkDateTimePicker);
+Vue.use(Vuikit);
+Vue.use(VuikitIcons);
 Vue.use(mediaQueries);
 Vue.use(SuiVue)
 Vue.use(PortalVue)
@@ -26,6 +30,8 @@ import '@/assets/css/venue-core.css';
 import 'semantic-ui-css/semantic.min.css';
 import '@/assets/css/icomoon2.css';
 import '@/assets/css/icomoon3.css';
+
+import '@/assets/css/uikit.css';
 
 Vue.config.productionTip = false;
 

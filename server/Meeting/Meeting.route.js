@@ -44,6 +44,7 @@ meetingRoutes.post('/save_to_gcs',
   upload.array('recording_videos'), async (req, res) => {
     let videos = req.files
     let video_promises = []
+    console.log(`Uploading to Google Cloud.`)
     videos.forEach(video => {
       video_promises.push(new Promise(async (resolve,reject) => {
         try {

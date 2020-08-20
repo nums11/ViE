@@ -60,9 +60,17 @@
             code: String                -- The string for the QR code
             qr_checkin_start_time: Date -- The datetime for the start of the QR code task
             qr_checkin_end_time: Date   -- The datetime for the end of the QR code task
+    recordings: [Recording: Object]     -- List of recording objects
+        Recording
+            video_url: String           -- url of the video redording
+            recording_polls: ID         -- id of the polls for the recording
+            recording_submission_start_time -- allowed start time for the recording
+            recording_submission_end_time   -- allowed end time for the recording
 */
 
-const MeetingTransform = (new_meeting) => {
+import MeetingAPI from "@/services/MeetingAPI"
+
+const MeetingTransform = async (new_meeting) => {
 
     let meeting_ = {}
 
@@ -101,6 +109,43 @@ const MeetingTransform = (new_meeting) => {
         
     }
 
+    if (hasProperty( new_meeting, 'async' )) {
+
+        meeting_.has_async_attendance = true;
+
+        // Loop through each task and handle based on its type
+        let recording_upload_queue = []
+        Object.keys(new_meeting.async).forEach(task_id => {
+
+            let task = new_meeting.async[task_id]
+            console.log(task)
+            if (task.type == 'recording') {
+
+                // upload to GC
+                recording_upload_queue.push({
+                    video: task.video_blob,
+                    start_time: task.start_time,
+                    end_time: task.end_time
+                })
+            }
+
+        })
+
+        // upload all the videos from the upload queue to google cloud!
+        if (recording_upload_queue.length > 0) meeting_.recordings = []
+        let upload_response = await MeetingAPI.saveRecordingVideosToGCS(recording_upload_queue)
+        console.log('upload response', upload_response)
+        upload_response.data.forEach((upload_url, q) => {
+
+            meeting_.recordings.push({
+                video_url: upload_url,
+                recording_submission_start_time: recording_upload_queue[q].start_time,
+                recording_submission_end_time: recording_upload_queue[q].start_time
+            })
+        })
+        
+    }
+
     return [true, meeting_];
 
 }
@@ -110,6 +155,22 @@ const QRCodeObj = (qr_obj) => {
         code: generateRandomCode(),
         qr_checkin_start_time: qr_obj.qr_start_time,
         qr_checkin_end_time: qr_obj.end_time
+    }
+}
+
+const RecordingObjQueue = (recording_obj)  => {
+    return {
+        recording_file: recording_obj.video_blob,
+        start: recording_obj.start_time,
+        end: recording_obj.end_time
+    }
+}
+
+const RecordingObj = (recording_obj, new_url)  => {
+    return {
+        video_url: new_url,
+        recording_submission_start_time: recording_obj.start_time,
+        recording_submission_end_time: recording_obj.end_time
     }
 }
 

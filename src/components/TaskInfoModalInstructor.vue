@@ -8,10 +8,10 @@
             <div class="subtitle-area">{{ getTaskDateTime () }}</div>
         </div>
         <div class="right-side">
-            <div class="icon-area">
+            <div class="icon-area" v-if="taskInfo.taskType == 'qr-code'">
 
                 <!-- Show QR Code icon only in QR mode -->
-                <img class="image-icon" v-if="taskInfo.taskType == 'qr-code'" width="100%" height="100%" :src="require('@/assets/icons/001-qr-code.svg')" />
+                <img class="image-icon" width="100%" height="100%" :src="require('@/assets/icons/001-qr-code.svg')" />
             </div>
         </div>
     </div>
@@ -55,6 +55,7 @@ export default {
     methods: {
         getTaskTitle () {
             if (this.taskInfo.taskType == 'qr-code') return `QR Submission`
+            if (this.taskInfo.taskType == 'recording') return this.taskInfo.taskName
         },
         getTaskDateTime () {
             // Thurs. August 23rd, 2:00pm-3:00pm

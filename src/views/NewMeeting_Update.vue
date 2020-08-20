@@ -132,6 +132,9 @@
                                                 <sui-dropdown-item @click="initiateAsyncTasks('file-download')">
                                                     <div class="dropdown-icon-container"><span class="icon-file"></span></div>File Download
                                                 </sui-dropdown-item>
+                                                <sui-dropdown-item @click="initiateAsyncTasks('recording')">
+                                                    <div class="dropdown-icon-container"><i class="icon play"></i></div>Recording
+                                                </sui-dropdown-item>
                                             </sui-dropdown-menu>
                                         </sui-dropdown>
                                     </div>
@@ -172,6 +175,15 @@
                                                 :updateLinkURL="updateLinkURL"
                                                 :task_id="task_data.id"
                                                 :updateTimeState="updateTimeState"
+                                            />
+                                        </div>
+                                        <div v-else-if="getSubformInfo(task_data) != null && getSubformInfo(task_data).type == 'recording'">
+                                            <RecordingUploadForm
+                                                :task_id="task_data.id"
+                                                :updateTimeState="updateTimeState"
+                                                :handleRecordingUpload="handleRecordingUpload"
+                                                :start_time="new_meeting_info.async[task_data.id].start_time"
+                                                :end_time="new_meeting_info.async[task_data.id].end_time"
                                             />
                                         </div>
                                     </div>
@@ -220,6 +232,10 @@
                                                     <sui-dropdown-item>
                                                         <div class="dropdown-icon-container"><span class="icon-file"></span></div>File Download
                                                     </sui-dropdown-item>
+
+                                                    <sui-dropdown-item @click="initiateAsyncTasks('recording')">
+                                                        <div class="dropdown-icon-container"><i class="icon play"></i></div>Recording
+                                                    </sui-dropdown-item>
                                                 </sui-dropdown-menu>
                                             </sui-dropdown>
                                         </div>
@@ -262,6 +278,10 @@
                                             <sui-dropdown-item>
                                                 <div class="dropdown-icon-container"><span class="icon-file"></span></div>File Download
                                             </sui-dropdown-item>
+
+                                            <sui-dropdown-item @click="addRecordingSection()">
+                                                <div class="dropdown-icon-container"><i class="icon play"></i></div>Recording
+                                            </sui-dropdown-item>
                                         </sui-dropdown-menu>
                                     </sui-dropdown>
                                 </div>
@@ -295,6 +315,7 @@
     import QRCodeForm from "@/components/meeting_form/QRCodeForm.vue"
     import PollCreationForm from "@/components/meeting_form/PollCreationForm.vue"
     import LinkSubform from "@/components/meeting_form/LinkSubform.vue"
+    import RecordingUploadForm from "@/components/meeting_form/RecordingUploadForm.vue"
     import CourseAPI from "@/services/CourseAPI"
     import MeetingTransformMod from "@/modules/MeetingTransform.module"
     import MeetingAPI from "@/services/MeetingAPI"
@@ -304,7 +325,8 @@
         components: {
             QRCodeForm,
             PollCreationForm,
-            LinkSubform
+            LinkSubform,
+            RecordingUploadForm
         },
         data () {
             return {
@@ -342,13 +364,28 @@
         },
         methods: {
 
-            initiateNewMeetingUpload () {
-                let transform_result = MeetingTransformMod( this.new_meeting_info )
-                
+            handleRecordingUpload (e, task_id) {
+                let file = e.target.files[0]
+
+                // attach the file to the meeting object
+                if (file == undefined) // file was removed or no file selected
+                {
+                    console.log(`file removed`)
+                    this.new_meeting_info.async[task_id].video_blob = null;
+                    return;
+                }
+
+                console.log(`file added`)
+                this.new_meeting_info.async[task_id].video_blob = file
+            },
+
+            async initiateNewMeetingUpload () {
+
+                let transform_result = await MeetingTransformMod( this.new_meeting_info )
+
                 if (transform_result[0]) {
-                    // console.log(transform_result[1])
-                    // console.log(transform_result[1].for_course) 
-                    // console.log(this.new_meeting_info.meta.course_org_id)
+                    console.log(`Transform success`)
+                    console.log(transform_result[1])
 
                     // Upload the meeting data
                     MeetingAPI.addMeeting(
@@ -357,11 +394,17 @@
                         this.new_meeting_info.meta.course_org_id
                     ).then(res => {
                         console.log(res)
+
+                        if (res.status == 200) {
+                            console.log(`Successfully created new Meeting`)
+                            this.$router.push({ name: 'meeting_info', params: { meeting_id: res.data._id } })
+                        }
                     })
                 }
 
                 // Error occurred
                 else {
+                    console.error(`Transform failed`)
                     console.log(transform_result[1])
                 }
             },
@@ -421,6 +464,7 @@
 
             updateTimeState (task_id, new_time, type) {
                 this.new_meeting_info[this.creation_mode][task_id][type] = new_time
+                this.$forceUpdate ()
             },
 
             getCreationMode () {
@@ -431,11 +475,8 @@
 
             getSubformInfo (task_data) {
                 // task_data should have an id & type
-                console.log(`Inside getSubformInfo()`)
-                console.log(task_data)
                 if (task_data.type == 'live') {
                     if (Object.hasOwnProperty.call(this.new_meeting_info.live, task_data.id)) {
-                        console.log(`getSubformInfo:`)
                         console.log(this.new_meeting_info.live[task_data.id])
                         return this.new_meeting_info.live[task_data.id]
                     }
@@ -443,7 +484,6 @@
                 }
 
                 if (task_data.type == 'async') {
-                    console.log(`Subform info is async`)
                     if (Object.hasOwnProperty.call(this.new_meeting_info.async, task_data.id)) {
                         return this.new_meeting_info.async[task_data.id]
                     }
@@ -456,6 +496,33 @@
             setPollData (task_id, new_question_data) {
                 console.log(`Updating Question Data for task ${task_id}`)
                 this.new_meeting_info[this.creation_mode][task_id].questions = new_question_data
+            },
+
+            addRecordingSection () {
+                console.log(`Adding Recording Section`)
+
+                let task_id = this.tasks_count
+                if (this.creation_mode == 'live') {
+                    console.error (`Cannot create a recording for live portion of the meeting.`)
+                    return;
+                }
+                else if (this.creation_mode == 'async') {
+                    this.new_meeting_info.async[task_id] = {
+                        type: 'recording',
+                        start_time: (new Date()).toISOString (),
+                        end_time: (new Date()).toISOString (),
+                        video_blob: null
+                    }
+
+                    this.task_order.push({
+                        id: task_id,
+                        type: this.creation_mode
+                    })
+
+                    this.form_panel_id = task_id
+                    ++ this.tasks_count
+                    this.$forceUpdate ()
+                }
             },
 
             addLinkSection () {
@@ -618,6 +685,9 @@
                         break
                     case 'link':
                         this.addLinkSection()
+                        break
+                    case 'recording':
+                        this.addRecordingSection()
                         break
                     // case 'file-download':
                     //     this.addFileDownloadSection()
