@@ -414,6 +414,7 @@ export default {
       createTasksSummary () {
 
         this.tasks_summary = this.active_tasks.map((task, i) => {
+          console.log("task",task)
 
           if (Object.prototype.hasOwnProperty.call( task, 'qr_checkin_start_time' )) {
             return {
@@ -423,7 +424,8 @@ export default {
               taskName: 'QR Submission',
               taskDescription: 'Scan the QR code to submit your attendance',
               qrCode: task.code,
-              id: i
+              id: i,
+              submissions: task.qr_checkin_submissions
             }
           }
 
