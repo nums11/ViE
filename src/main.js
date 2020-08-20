@@ -9,7 +9,12 @@ import axios from 'axios';
 import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
 import PortalVue from "portal-vue"
 import SuiVue from "semantic-ui-vue"
+import {MediaQueries} from 'vue-media-queries';
+
+const mediaQueries = new MediaQueries();
+
 Vue.component('VueCtkDateTimePicker', VueCtkDateTimePicker);
+Vue.use(mediaQueries);
 Vue.use(SuiVue)
 Vue.use(PortalVue)
 Vue.use(VueAxios, axios);
@@ -58,6 +63,7 @@ Vue.directive('click-outside', {
 //Custom Directives END
 
 new Vue({
+    mediaQueries: mediaQueries,
     router,
     store,
     created(){

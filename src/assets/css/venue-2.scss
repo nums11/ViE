@@ -26,6 +26,10 @@ body {
     background-color: white;
     color: black;
 
+    .ui.button {
+        font-weight: 600 !important;
+    }
+
     .ui.button.dropdown .menu {
         
         .item {

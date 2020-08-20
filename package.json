@@ -61,6 +61,7 @@
     "vue-chartjs": "^3.5.0",
     "vue-countup-v2": "^4.0.0",
     "vue-ctk-date-time-picker": "^2.5.0",
+    "vue-media-queries": "0.0.5",
     "vue-moment": "^4.1.0",
     "vue-qrcode-reader": "^2.3.0",
     "vue-router": "^3.3.4",

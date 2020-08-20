@@ -41,9 +41,12 @@
       <div class="button-area">
         <!-- Preview Button -->
         <hide-at breakpoint="small">
-            <sui-button class="venue-blue text-white" :style="{marginLeft: '10px'}" v-on:click="showMeetingPreviewModal">
+            <sui-button 
+                v-if="$resize && $mq.above(950)"
+                class="venue-blue text-white" :style="{marginLeft: '10px'}" v-on:click="showMeetingPreviewModal">
                 Preview
             </sui-button>
+            <sui-button v-else compact icon="eye" class="venue-blue" />
         </hide-at>
         <!-- View Button -->
         <router-link :to="{name: 'meeting_info', params: { meeting_id: meeting._id }}">

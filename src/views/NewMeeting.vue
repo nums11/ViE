@@ -32,7 +32,7 @@
           <input id="meeting_start" aria-labelledby="start_time_label" type="datetime-local"/>
           <br>
           <label id="end_time_label">End Time</label>
-          <input id="meeting_end"aria-labelledby="end_time_label" type="datetime-local"/>
+          <input id="meeting_end" aria-labelledby="end_time_label" type="datetime-local"/>
         </div>
 
         <!-- Live Attendance Button & Info -->
