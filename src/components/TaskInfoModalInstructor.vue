@@ -77,6 +77,7 @@ export default {
 
 .task-info-modal-instructor {
     border-radius: 5px;
+    margin-bottom: 25px;
 
     .upper-area {
         display: flex;

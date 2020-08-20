@@ -11,22 +11,23 @@
         <!-- Content Area-->
         <div class="content-area">
 
-            <sui-form-fields grouped>
-                <label for="second_fruit" :style="{marginBottom: '20px'}">Place the poll questions here</label>
-                <sui-form-field>
-                    <sui-checkbox radio name="answer_1" label="Answer 1" value="Answer 1" />
-                </sui-form-field>
-                <sui-form-field>
-                    <sui-checkbox radio name="answer_2" label="Answer 2" value="Answer 2" />
-                </sui-form-field>
-                <sui-form-field>
-                    <sui-checkbox radio name="answer_3" label="Answer 3" value="Answer 3" />
-                </sui-form-field>
-                <sui-form-field>
-                    <sui-checkbox radio name="answer_4" label="Answer 4" value="Answer 4" />
-                </sui-form-field>
+            <!-- <sui-form>
+                <sui-form-fields grouped>
+                    <label for="second_fruit" :style="{marginBottom: '20px'}">Place the poll questions here</label>
+                    <sui-form-field>
+                        <sui-checkbox radio name="answer_1" label="Answer 1" value="Answer 1" />
+                    </sui-form-field>
+                    <sui-form-field>
+                        <sui-checkbox radio name="answer_2" label="Answer 2" value="Answer 2" />
+                    </sui-form-field>
+                    <sui-form-field>
+                        <sui-checkbox radio name="answer_3" label="Answer 3" value="Answer 3" />
+                    </sui-form-field>
+                    <sui-form-field>
+                        <sui-checkbox radio name="answer_4" label="Answer 4" value="Answer 4" />
+                    </sui-form-field>
                 </sui-form-fields>
-            </sui-form>
+            </sui-form> -->
 
         </div>
 

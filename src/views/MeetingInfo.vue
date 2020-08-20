@@ -120,17 +120,12 @@
                     </div>
                     <div v-else>
                       <TaskInfoModal
-                        :taskInfo="{
-                                startTime: '2020-08-12T02:51:42.612Z',
-                                endTime: '2020-08-12T10:51:42.612Z',
-                                taskType: 'qr-code',
-                                taskName: 'QR Submission',
-                                taskDescription: 'Scan the QR code to submit your attendance',
-                                id: 1
-                            }"
+                        v-for="(task, i) in tasks_summary"
+                        :key="i"
+                        :taskInfo="task"
                         :shouldFocus="focusTask"
                       />
-                      <TaskInfoModal
+                      <!-- <TaskInfoModal
                           :taskInfo="{
                                   startTime: '2020-08-12T02:51:42.612Z',
                                   taskType: 'poll',
@@ -184,7 +179,7 @@
                                   id: 6
                               }"
                           :shouldFocus="focusTask"
-                      />
+                      /> -->
                     </div>
 
                     <div v-if="false" class="title"><h3>Asynchronous Tasks</h3></div>

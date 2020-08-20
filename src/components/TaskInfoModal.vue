@@ -10,11 +10,12 @@
             <div class="description-area">{{ taskInfo.taskDescription }}</div>
         </div>
         <div class="right-side">
-            <div v-if="isQRSubmission()" class="icon-area">
+            <!-- <div v-if="isQRSubmission()" class="icon-area">
                 <img src="@/assets/icons/001-qr-code.svg" width="100%" height="100%" />
-            </div>
-            <div v-else class="button-area">
+            </div> -->
+            <div class="button-area">
                 <sui-button v-if="!isActive()" disabled>Inactive</sui-button>
+                <sui-button v-else-if="isActive() && isQRSubmission()" @click="focusThisTask" class="venue-blue">Submit QR Attendance</sui-button>
                 <sui-button v-else-if="isActive() && isPoll()" @click="focusThisTask" class="venue-blue">Answer the Poll</sui-button>
                 <sui-button v-else-if="isActive() && isRecording()" @click="focusThisTask" class="venue-green">Play Recording</sui-button>
                 <sui-button v-else-if="isActive() && isLink()" @click="focusThisTask" class="venue-blue">Access Link</sui-button>
@@ -32,6 +33,9 @@ export default {
     props: {
         taskInfo: Object,
         shouldFocus: Function
+    },
+    created () {
+        console.log(`is active? ${this.isActive ()}`)
     },
     methods: {
         focusThisTask () {
