@@ -272,7 +272,7 @@
                                         @click="goToIntermediatePanel ()" 
                                         :content="`Complete ${getCreationMode()} Section`" 
                                         icon="check" label-position="left" />
-                                    <sui-button @click="log_">DEBUG LOG</sui-button>
+                                    <!-- <sui-button @click="log_">DEBUG LOG</sui-button> -->
                                 </div>
 
 
@@ -296,6 +296,8 @@
     import PollCreationForm from "@/components/meeting_form/PollCreationForm.vue"
     import LinkSubform from "@/components/meeting_form/LinkSubform.vue"
     import CourseAPI from "@/services/CourseAPI"
+    import MeetingTransformMod from "@/modules/MeetingTransform.module"
+    import MeetingAPI from "@/services/MeetingAPI"
 
     export default {
         name: 'NewMeeting',
@@ -320,6 +322,9 @@
             }
         },
         created () {
+
+            let course_id = this.$route.params.course_id
+            let org_id = this.$route.params.org_id
             
             // window.addEventListener ('resize', this.setBottomActionPosition)
             this.getCourseInfo ()
@@ -330,13 +335,35 @@
                 course_id: '',
                 sections: new Set(),
                 instructors_note: '',
-                online_meeting_link: null
+                online_meeting_link: null,
+                for_course: course_id != undefined,
+                course_org_id: course_id == undefined ? org_id : course_id
             }
         },
         methods: {
 
             initiateNewMeetingUpload () {
+                let transform_result = MeetingTransformMod( this.new_meeting_info )
+                
+                if (transform_result[0]) {
+                    // console.log(transform_result[1])
+                    // console.log(transform_result[1].for_course) 
+                    // console.log(this.new_meeting_info.meta.course_org_id)
 
+                    // Upload the meeting data
+                    MeetingAPI.addMeeting(
+                        transform_result[1], 
+                        transform_result[1].for_course, 
+                        this.new_meeting_info.meta.course_org_id
+                    ).then(res => {
+                        console.log(res)
+                    })
+                }
+
+                // Error occurred
+                else {
+                    console.log(transform_result[1])
+                }
             },
 
             getCourseInfo () {
@@ -626,8 +653,10 @@
                 let task_id = this.tasks_count
                 this.new_meeting_info.live[task_id] = {
                     type: 'qr-code',
-                    start_time: null,
-                    end_time: null
+                    start_time: (new Date()).toISOString(),
+                    end_time: (new Date()).toISOString(),
+                    qr_start_time: (new Date()).toISOString(),
+                    qr_end_time: (new Date()).toISOString()
                 }
 
                 ++ this.tasks_count

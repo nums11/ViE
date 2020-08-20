@@ -408,7 +408,7 @@ const router = new VueRouter({
     {
       name: 'org_new_meeting',
       path: '/org_new_meeting/:org_id',
-      component: NewMeeting,
+      component: NewMeeting_Update,
       meta: {
         requiresAuth: true,
         requiresadmIn: true

@@ -174,10 +174,9 @@ export default {
         },
         calculateContainerWidth () {
             let container = document.getElementById("schedule-wrapper")
-            this.containerWidth = container.offsetWidth
+            if (container) this.containerWidth = container.offsetWidth
         },
         resetScheduleSlider () {
-            console.log("resized")
             this.calculateContainerWidth ()
             this.leftOffset = 0
         }

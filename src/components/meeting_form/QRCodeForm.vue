@@ -85,17 +85,19 @@
                         <div class="date-start">
                             <div class="label">Start</div>
                             <VueCtkDateTimePicker 
-                                @input="updateTime($event, section_num, 'start_time')"
-                                v-model="section_meeting_times[section_num].start_time"
-                                :min-date="(new Date()).toISOString()" />
+                                @input="updateTime($event, section_num, 'qr_start_time')"
+                                v-model="section_meeting_times[section_num].qr_start_time"
+                                :min-date="section_meeting_times[section_num].start_time"
+                                :max-date="section_meeting_times[section_num].end_time" />
                         </div>
                         <div class="separator"></div>
                         <div class="date-end">
                             <div class="label">End</div>
                             <VueCtkDateTimePicker 
-                                @input="updateTime($event, section_num, 'end_time')"
-                                v-model="section_meeting_times[section_num].end_time"
-                                :min-date="section_meeting_times[section_num].start_time" />
+                                @input="updateTime($event, section_num, 'qr_end_time')"
+                                v-model="section_meeting_times[section_num].qr_end_time"
+                                :min-date="section_meeting_times[section_num].qr_start_time"
+                                :max-date="section_meeting_times[section_num].end_time" />
                         </div>
                     </div>
 
@@ -108,17 +110,21 @@
                     <div class="date-start">
                         <div class="label">Start</div>
                         <VueCtkDateTimePicker 
-                            @input="updateAllTimes($event, 'start_time')"
-                            v-model="section_meeting_times[getSourceSectionIndex ()].start_time"
-                            :min-date="(new Date()).toISOString()" />
+                            @input="updateAllTimes($event, 'qr_start_time')"
+                            v-model="section_meeting_times[getSourceSectionIndex ()].qr_start_time"
+                            :min-date="section_meeting_times[getSourceSectionIndex ()].start_time"
+                            :max-date="section_meeting_times[getSourceSectionIndex ()].end_time"
+                        />
                     </div>
                     <div class="separator"></div>
                     <div class="date-end">
                         <div class="label">End</div>
                         <VueCtkDateTimePicker 
-                            @input="updateAllTimes($event, 'end_time')"
-                            v-model="section_meeting_times[getSourceSectionIndex ()].end_time"
-                            :min-date="section_meeting_times[getSourceSectionIndex ()].start_time" />
+                            @input="updateAllTimes($event, 'qr_end_time')"
+                            v-model="section_meeting_times[getSourceSectionIndex ()].qr_end_time"
+                            :min-date="section_meeting_times[getSourceSectionIndex ()].qr_start_time" 
+                            :max-date="section_meeting_times[getSourceSectionIndex ()].end_time"
+                        />
                     </div>
                 </div>
 
@@ -147,7 +153,8 @@ export default {
 
         updateTime (new_time, section_id, type) {
             // type \in (start, end)
-            if (type != 'start_time' && type != 'end_time') return;
+            let TYPES = ['start_time', 'end_time', 'qr_start_time', 'qr_end_time'];
+            if (!TYPES.includes(type)) return;
 
             this.section_meeting_times[section_id][type] = new_time
             if (type == 'start_time') {
