@@ -140,7 +140,7 @@ const MeetingTransform = async (new_meeting) => {
             meeting_.recordings.push({
                 video_url: upload_url,
                 recording_submission_start_time: recording_upload_queue[q].start_time,
-                recording_submission_end_time: recording_upload_queue[q].start_time
+                recording_submission_end_time: recording_upload_queue[q].end_time
             })
         })
         

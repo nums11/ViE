@@ -31,6 +31,7 @@
             <hide-at breakpoint="small">
                 <div class="user-action">
                   <sui-button compact icon="cog" 
+                    id="user-action-toggle-button"
                     label-position="left" 
                     :content="`${current_user.first_name} ${current_user.last_name}`"
                     @click="toggleUserView"
@@ -41,8 +42,8 @@
                     <transition 
                         name="fade"
                         mode="out-in">
-                        <div class="user-action-view" v-if="showUserView">
-                            <div class="user-action-haeder">
+                        <div class="user-action-view" id="user-action-modal" v-if="showUserView">
+                            <div class="user-action-header">
                                 <h3 is="sui-header">{{ current_user.first_name }} {{ current_user.last_name }}</h3>
                                 <sui-label :style="{backgroundColor: '#ABE5FF'}">
                                     Type
@@ -124,6 +125,8 @@
       }
     },
     created() {
+      window.addEventListener('click', this.handleUserModal)
+
       this.dark_mode = this.initialDarkModeValue
       this.getCurrentUser()
       if(this.is_instructor)
@@ -132,6 +135,26 @@
         this.getSectionsWithCourses()
     },
     methods: {
+      handleUserModal (e) {
+        // console.log(`Window: clicked`)
+
+        let modal_ = document.getElementById('user-action-modal')
+        let userActionControl = document.getElementById('user-action-toggle-button')
+        let target_ = e.target
+
+        if (target_ == userActionControl) return;
+        
+        if (this.showUserView && !this.withinSource (target_, modal_)) {
+          this.showUserView = false
+        }
+      },
+      withinSource (focus, target) {
+        // check whether target == focus, or if any of focus's parents == target
+        if (focus == document) return false;
+        if (target == focus) return true;
+
+        return this.withinSource (focus.parentNode, target);
+      },
       update () {
         this.$forceUpdate()
       },
@@ -145,7 +168,6 @@
         })
       },
       toggleUserView () {
-          console.log("Clicked!")
           this.showUserView = !this.showUserView;
       },
       getCurrentUser() {
@@ -241,43 +263,56 @@
   .venue-navbar .course-nav-link {
     cursor: pointer;
     position: relative;
+
+    &:hover {
+      .course-list-dropdown {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(0px, 0px);
+      }
+    }
+
     .course-list-dropdown {
-      display: none;
       opacity: 0;
       transition-timing-function: ease-in-out;
-      transition: opacity 0.25s;
+      transition: opacity 0.25s, transform 0.35s;
+      visibility: hidden;
+      position: absolute;
+      width: 250px;
+      transform: translate(0px, 20px);
+      border-radius: 5px;
+      overflow: hidden;
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        li {
+          height: 30px;
+          line-height: 30px;
+          box-sizing: border-box;
+          padding: 0px 15px;
+          cursor: pointer;
+          transition: background-color 0.25s;
+        }
+      }
     }
   }
-  .venue-navbar .course-nav-link:hover {
-    .course-list-dropdown {
-      top: 20px;
-      opacity: 1;
-      display: block;
-    }
-  }
+  // .venue-navbar .course-nav-link:hover {
+  //   .course-list-dropdown {
+  //     opacity: 1;
+  //     visibility: visible;
+  //     transform: translate(0, 0px);
+  //   }
+  // }
   .venue-navbar .left-area .menu-items-area .nav-link {
       font-weight: 600;
       margin-right: 20px;
       font-size: 1rem;
       position: relative;
-      .course-list-dropdown {
-        position: absolute;
-        width: 250px;
-        transition: opacity 0.25s;
-        ul {
-          list-style: none;
-          margin: 0;
-          padding: 0;
-          li {
-            height: 30px;
-            line-height: 30px;
-            box-sizing: border-box;
-            padding: 0px 15px;
-            cursor: pointer;
-            transition: background-color 0.25s;
-          }
-        }
-      }
+      height: 40px;
+      line-height: 40px;
+      padding: 0 15px;
   }
   .venue-navbar .user-action {
       position: relative;
@@ -300,7 +335,7 @@
   .dark-mode .venue-navbar .user-action .user-action-view {
       background-color: #22252e;
   }
-  .venue-navbar .user-action .user-action-view .user-action-haeder {
+  .venue-navbar .user-action .user-action-view .user-action-header {
       background-color: #47C4FC;
       padding: 10px 10px 15px 10px;
   }
@@ -404,6 +439,7 @@
   .course-list-dropdown {
     background-color: white;
     box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
   }
   
   .course-list-dropdown li {

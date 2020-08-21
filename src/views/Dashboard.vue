@@ -129,18 +129,25 @@
       hasAsync(meeting) {
         if(!meeting.has_async_attendance)
           return false
-        let has_open_recording_window = false
         let meeting_recordings = meeting.async_attendance.recordings
+
         let current_time = new Date()
         for(let i = 0; i < meeting_recordings.length; i++) {
+
+          console.log(`Open Meeting Windows ?`)
+          console.log(new Date(meeting_recordings[i].recording_submission_start_time))
+          console.log(new Date(meeting_recordings[i].recording_submission_end_time))
+          console.log(this.isBetweenTimes(current_time,
+            new Date(meeting_recordings[i].recording_submission_start_time),
+            new Date(meeting_recordings[i].recording_submission_end_time)))
+
           if(this.isBetweenTimes(current_time,
             new Date(meeting_recordings[i].recording_submission_start_time),
             new Date(meeting_recordings[i].recording_submission_end_time))){
-            has_open_recording_window = true
-            break            
+            return true;         
           }
         }
-        return has_open_recording_window
+        return false
       },
       hasUpcomingLive(meeting) {
         if(!meeting.has_live_attendance)
