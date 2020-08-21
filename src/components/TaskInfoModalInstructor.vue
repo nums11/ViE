@@ -35,6 +35,7 @@
 <script>
 
 import ProgressBar from "@/components/ProgressBar.vue"
+import { showAt, hideAt } from "vue-breakpoints"
 
 export default {
     name: 'TaskInfoModalInstructor',
@@ -44,7 +45,9 @@ export default {
         shouldFocusTaskAttendance: Function
     },
     components: {
-        ProgressBar
+        ProgressBar,
+        showAt,
+        hideAt
     },
     data () {
         return {
@@ -138,6 +141,25 @@ export default {
             background-color: #313440;
         }
     }
+}
+
+@media only screen and (max-width: 1130px) {
+  .task-info-modal-instructor .lower-area {
+
+      display: block;
+      height: 100px;
+
+      .left-side {
+          margin-bottom: 10px;
+          width: 100%;
+          text-align: right;
+      }
+
+      .right-side {
+          width: 100%;
+          text-align: right;
+      }
+  }
 }
 
 </style>
