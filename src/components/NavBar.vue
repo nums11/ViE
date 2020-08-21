@@ -268,7 +268,7 @@
       .course-list-dropdown {
         opacity: 1;
         visibility: visible;
-        transform: translate(0px, 0px);
+        transform: translate(0px, -2px);
       }
     }
 
@@ -282,17 +282,20 @@
       transform: translate(0px, 20px);
       border-radius: 5px;
       overflow: hidden;
+      left: 0;
+      z-index: 10;
 
       ul {
         list-style: none;
         margin: 0;
         padding: 0;
         li {
-          height: 30px;
-          line-height: 30px;
+          height: 40px;
+          line-height: 40px;
           box-sizing: border-box;
           padding: 0px 15px;
           cursor: pointer;
+          font-weight: 600;
           transition: background-color 0.25s;
         }
       }

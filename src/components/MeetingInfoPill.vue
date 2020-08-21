@@ -46,7 +46,10 @@
                 class="venue-blue text-white" :style="{marginLeft: '10px'}" v-on:click="showMeetingPreviewModal">
                 Preview
             </sui-button>
-            <sui-button v-else compact icon="eye" class="venue-blue" />
+            <!-- <sui-button v-else compact icon="eye" class="venue-blue" v-on:click="showMeetingPreviewModal"/> -->
+            <sui-popup v-else content="Preview" inverted>
+                <sui-button slot="trigger" icon="eye" class="venue-blue" v-on:click="showMeetingPreviewModal" />
+            </sui-popup>
         </hide-at>
         <!-- View Button -->
         <router-link :to="{name: 'meeting_info', params: { meeting_id: meeting._id }}">
