@@ -1,7 +1,7 @@
 <template>
   <div id="dashboard-container">
     <div class="dashboard-page">
-      <div class="instructor-action-row" v-if="user.is_instructor">
+      <div class="instructor-action-row" v-if="false && user.is_instructor">
 <!--         <sui-dropdown
           class="labeled
           icon venue-green"
@@ -204,7 +204,7 @@
   }
 </script>
 
-<style scoped>
+<style lang="scss">
 
 #dashboard-container {
   width: 90%;
@@ -259,6 +259,8 @@
   .dashboard-page .dashboard-row .dashboard-section {
     width: 100%;
     margin-bottom: 30px;
+    margin-right: 0;
+    padding-right: 0;
   }
 }
 </style>

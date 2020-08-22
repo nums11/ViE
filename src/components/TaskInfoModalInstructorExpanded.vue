@@ -23,7 +23,7 @@
                 <qrcode 
                     :style="{margin: '0 auto'}"
                     v-if="taskInfo.taskType == 'qr-code'"
-                    :value="taskInfo.qrCode"
+                    :value="getUrlEncoded()"
                     :options="{
                         width: 400,
                     }"
@@ -56,9 +56,9 @@
                     <div class="qr-code-fullscreen" v-if="taskInfo.taskType == 'qr-code'">
                         <qrcode 
                             :style="{margin: '0 auto'}"
-                            :value="taskInfo.qrCode"
+                            :value="getUrlEncoded()"
                             :options="{
-                                width: 800,
+                                width: 800
                             }"
                         />
                     </div>
@@ -99,6 +99,9 @@ export default {
         }
     },
     methods: {
+        getUrlEncoded () {
+            return `http://localhost:8080/#/attend/${this.taskInfo.meetingId}/${this.taskInfo.qrCode}`
+        },
         expandQRCode () {
             this.show_fullscreen_modal = true;
         },

@@ -269,13 +269,14 @@
         opacity: 1;
         visibility: visible;
         transform: translate(0px, -2px);
+        transition: opacity 0.25s, transform 0.35s, visibility 0.35s;
       }
     }
 
     .course-list-dropdown {
       opacity: 0;
       transition-timing-function: ease-in-out;
-      transition: opacity 0.25s, transform 0.35s;
+      transition: opacity 0.25s, transform 0.35s, visibility 0.35s;
       visibility: hidden;
       position: absolute;
       width: 250px;

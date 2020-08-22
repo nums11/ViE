@@ -60,6 +60,7 @@ function start() {
   const liveSubmissionRouter = require('./LiveSubmission/LiveSubmission.route')
   const recordingRouter = require('./Recording/Recording.route')
   const asyncSubmissionRouter = require('./AsyncSubmission/AsyncSubmission.route')
+  const qrCheckinRouter = require('./QRCheckin/QRCheckin.route')
 
   // Connect to the database before starting the application server.
   mongoose.connect(process.env.MONGODB_URI || config.DB, function (err, client) {
@@ -84,11 +85,13 @@ function start() {
     });
   });
 
-  app.use(cors({ 
+  app.use(cors(
+    { 
       origin:['http://localhost:8080'],
       methods:['GET','POST'],
       credentials: true
-  }));
+    }
+  ));
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
 
@@ -118,4 +121,5 @@ function start() {
   app.use('/auth', authRouter);
   app.use('/recordings', recordingRouter);
   app.use('/asyncsubmissions', asyncSubmissionRouter);
+  app.use('/qrcheckin', qrCheckinRouter);
 }

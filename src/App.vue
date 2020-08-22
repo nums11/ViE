@@ -5,7 +5,7 @@
       :setDarkModeValue="setDarkModeValue"
       :initialDarkModeValue="dark_mode"
       class="main_navbar" 
-      v-if="this.$route.name != 'landing_page' && this.$route.name != 'set_permanent_password' && current_user"
+      v-if="!isNavbarlessView() && this.$route.name != 'set_permanent_password' && current_user"
     />
     <div class="venue-body">
 
@@ -86,6 +86,10 @@ export default {
     }
   },
   methods: {
+    isNavbarlessView () {
+      let exclude = ['landing_page', 'login', 'attend_checker']
+      return exclude.includes(this.$route.name)
+    },
     setDarkModeValue (new_value) {
       this.dark_mode = new_value;
       // update the cookie preferences also.\

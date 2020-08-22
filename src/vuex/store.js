@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 import AuthAPI from '@/services/AuthAPI.js';
+import router from '../routes'
 
 Vue.use(Vuex)
 
@@ -24,7 +25,7 @@ export default new Vuex.Store({
     },
     CLEAR_USER_DATA() {
       localStorage.removeItem('user')
-      location.reload()
+      router.push({ name: 'login' })
     }
   },
   actions: {

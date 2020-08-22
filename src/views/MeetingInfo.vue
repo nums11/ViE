@@ -427,7 +427,8 @@ export default {
               taskName: 'QR Submission',
               taskDescription: 'Scan the QR code to submit your attendance',
               qrCode: task.code,
-              id: i
+              id: i,
+              meetingId: this.$route.params.meeting_id
             }
           }
 
