@@ -28,6 +28,7 @@
         <input
           ref="inputArea"
           v-on:keydown.tab="(e) => { if (tabDisabled ())  disableTab(e) }"
+          v-on:keydown.enter="onEnter"
           @focus="inputFocus"
           @blur="inputBlur"
           :type="getInputType()"
@@ -63,11 +64,19 @@ export default {
     }
   },
   methods: {
+    onEnter (e) {
+      if (this.hasKey(this.config, 'onenter')) {
+        this.config.onenter ()
+      }
+    },
     tabDisabled () {
       if (this.hasKey(this.config, 'tabDisabled')) {
         return this.config.tabDisabled
       }
       return false
+    },
+    focus () {
+      this.$refs.inputArea.focus ()
     },
     disableTab (e) {
       e.preventDefault ()

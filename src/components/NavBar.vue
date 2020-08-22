@@ -10,19 +10,51 @@
                 <div @click="update ()">
                   <router-link to="/dashboard"><div :class="`nav-link ${isPage('dashboard') ? 'active' : ''}`">Dashboard</div></router-link>
                 </div>
-                <div :class="`course-nav-link nav-link ${isPage('course_info') ? 'active' : ''}`"  @click="update ()">Courses
-                  <div class="course-list-dropdown">
-                    <ul>
-                      <router-link v-for="(course, i) in user_courses" :key="i" :to="`/course_info/${course._id}`"><li>{{ course.name }}</li></router-link>
-                    </ul>
+                <div class="dropdown-collection">
+
+
+                  <div 
+                    :class="`course-nav-link nav-link ${isPage('course_info') ? 'active' : ''}`"  
+                    v-on:mouseover="focusMenuDropdown('course')"
+                    v-on:mouseleave="unfocusMenuDropdown()"
+                    @click="update ()">Courses</div>
+                  <div 
+                    :class="`course-nav-link nav-link ${isPage('org_info') ? 'active' : ''}`"
+                    v-on:mouseover="focusMenuDropdown('organization')"
+                    v-on:mouseleave="unfocusMenuDropdown()"
+                    @click="update ()">Organizations</div>
+
+                  <div class="dropdown-collection-dropdown">
+                    
+                    <div
+                    v-on:mouseover="focusMenuDropdown('course')"
+                    v-on:mouseleave="unfocusMenuDropdown()" 
+                    :class="`dropdown-column ${dropdown_focus == 'course' ? 'focus' : 'unfocus'}`">
+                      <div class="title">COURSES</div>
+                      <ul v-if="user_courses && user_courses.length > 0">
+                        <router-link v-for="(course, i) in user_courses" :key="i" :to="`/course_info/${course._id}`" @click="update"><li>{{ course.name }}</li></router-link>
+                      </ul>
+                      <ul v-else>
+                        <li>No courses</li>
+                      </ul>
+                    </div>
+
+                    <div 
+                    v-on:mouseover="focusMenuDropdown('organization')"
+                    v-on:mouseleave="unfocusMenuDropdown()"
+                    :class="`dropdown-column ${dropdown_focus == 'organization' ? 'focus' : 'unfocus'}`">
+                      <div class="title">ORGANIZATIONS</div>
+                      <ul v-if="user_orgs && user_orgs.length > 0">
+                        <router-link v-for="(org, i) in user_orgs" :key="i" :to="{name: 'org_info', params: { id: org._id }}" @click="update"><li>{{ org.name }}</li></router-link>
+                      </ul>
+                      <ul v-else>
+                        <li>No organizations.</li>
+                      </ul>
+                    </div>
+
                   </div>
-                </div>
-                <div :class="`course-nav-link nav-link ${isPage('org_info') ? 'active' : ''}`" @click="update ()">Organizations
-                  <div class="course-list-dropdown">
-                    <ul>
-                      <router-link v-for="(org, i) in user_orgs" :key="i" :to="{name: 'org_info', params: { id: org._id }}"><li>{{ org.name }}</li></router-link>
-                    </ul>
-                  </div>
+                  
+
                 </div>
             </div>
         </div>
@@ -121,7 +153,8 @@
         user_sections: [],
         showUserView: false,
         dark_mode: false,
-        user_orgs: []
+        user_orgs: [],
+        dropdown_focus: ''
       }
     },
     created() {
@@ -135,6 +168,12 @@
         this.getSectionsWithCourses()
     },
     methods: {
+      focusMenuDropdown (focus_key) {
+        this.dropdown_focus = focus_key
+      },
+      unfocusMenuDropdown () {
+        this.focusDropdown = ""
+      },
       handleUserModal (e) {
         // console.log(`Window: clicked`)
 
@@ -159,8 +198,8 @@
         this.$forceUpdate()
       },
       isPage (page_val) {
-        if (window.location.href.includes(page_val)) return true
-        return false
+        // console.log(this.$route.name)
+        return this.$route.name == page_val
       },
       logoutUser() {
         AuthAPI.logoutCAS().then(res => {
@@ -259,6 +298,69 @@
   }
   .venue-navbar .left-area .menu-items-area {
       display: flex;
+
+      .dropdown-collection {
+        display: flex;
+        position: relative;
+
+        .course-nav-link {
+          width: 140px;
+          text-align: center;
+        }
+
+        &:hover {
+          .dropdown-collection-dropdown {
+            visibility: visible;
+            opacity: 1;
+          transform: translateY(-2px);
+          }
+        }
+
+        .dropdown-collection-dropdown {
+          border-radius: 4px;
+          transition: visibility 0.2s, opacity 0.25s, transform 0.25s;
+          transform: translateY(20px);
+          opacity: 0;
+          visibility: hidden;
+          position: absolute;
+          top: 45px;
+          display: flex;
+          padding: 10px 0;
+          box-sizing: border-box;
+
+          .dropdown-column{
+            width: 140px;
+            margin-right: 20px;
+            box-sizing: border-box;
+            padding-left: 20px;
+            transition: opacity 0.25s;
+
+            &.focus {
+              opacity: 1;
+            }
+
+            &.unfocus {
+              opacity: 0.6;
+            }
+
+            .title {
+              font-size: 0.75rem;
+              opacity: 0.5;
+            }
+
+            ul {
+              margin: 10px 0 0 0;
+              padding: 0;
+              list-style: none;
+
+              li {
+                font-size: 0.9rem;
+                margin-bottom: 3px;
+              }
+            }
+          }
+        }
+      }
   }
   .venue-navbar .course-nav-link {
     cursor: pointer;
@@ -405,6 +507,20 @@
   }
 }
 .dark-mode {
+
+  .dropdown-collection-dropdown {
+    background-color: #22252e;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+
+    .dropdown-column {
+      ul {
+        li {
+          color: white;
+        }
+      }
+    }
+  }
+
   .course-list-dropdown {
     background-color: #22252e;
     box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
@@ -440,6 +556,21 @@
   }
 }
 .light-mode {
+
+  .dropdown-collection-dropdown {
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1);
+
+    .dropdown-column {
+      ul {
+        li {
+          color: black;
+        }
+      }
+    }
+  }
+
   .course-list-dropdown {
     background-color: white;
     box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1);

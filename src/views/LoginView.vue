@@ -12,12 +12,13 @@
         <div class="logo-area">
           <!-- <img :src="require('@/assets/venue-logo.svg')" width="100%" height="100%" /> -->
         </div>
-        <div :class="`form-input-slider ${password_stage ? 'password-stage' : ''}`">
+        <div :class="`form-input-slider ${password_stage ? 'password-stage' : 'username-stage'}`">
 
           <!-- Username Area -->
           <div class="username-area">
             <div>
               <InputField2
+                ref="usernameInput"
                 v-model="username"
                 :validate="{
                   badLength: (x) => [usernameBadLength(x), 'Username must be of length 5'],
@@ -27,7 +28,8 @@
                   width: '100%',
                   icon: 'user',
                   label: 'username',
-                  tabDisabled: true
+                  tabDisabled: true,
+                  onenter: continueLogin
                 }"
               />
             </div>
@@ -50,6 +52,7 @@
           <div class="password-area">
             <div>
               <InputField2
+                ref="passwordInput"
                 v-model="password"
                 :validate="{
                   badLength: (x) => [passwordBadLength(x), 'Password must not be empty']
@@ -59,7 +62,8 @@
                   icon: 'key',
                   label: 'password',
                   type: 'password',
-                  tabDisabled: true
+                  tabDisabled: true,
+                  onenter: initiateLogin
                 }"
               />
             </div>
@@ -96,6 +100,19 @@
             </div>
           </div>
         </transition>
+
+        <!-- Other Login Area -->
+        <div class="alternative-logins-area">
+          <Button2 
+            :style="{marginBottom: '20px'}"
+            text="CAS Login"
+            :onClick="initiateCASLogin"
+            :config="{
+              width: '100%',
+              icon: 'sign-in',
+              iconSide: 'right',
+            }" />
+        </div>
       </div>
 
     </div>
@@ -124,8 +141,11 @@ export default {
     }
   },
   methods: {
+    initiateCASLogin () {
+
+    },
     initiateLogin () {
-      console.log(`Initiating LOGIN!!`)
+      if (!this.passwordValid()) return
 
       this.$store.dispatch('login', {
         user_id: this.username,
@@ -133,15 +153,25 @@ export default {
       })
       .then(() => this.$router.push({name: 'dashboard'}))
       .catch((err) => {
+
         this.login_error = true
         this.password_stage = false
+
+        setTimeout(() => {
+          this.$refs.usernameInput.focus ()
+        }, 250);
       })
     },
     continueLogin () {
-      this.password_stage = true
+      if (this.usernameValid()) {
+        this.password_stage = true
+        setTimeout(() => {
+          this.$refs.passwordInput.focus ()
+        }, 250);
+        // this.$refs.passwordInput.focus ()
+      }
     },
     backToUsername () {
-      console.log(`BACK TO USERNAME`)
       this.password_stage = false
     },
     usernameBadLength (x) {
@@ -213,12 +243,12 @@ export default {
 
     .login-form-center {
       width: 450px;
-      height: 300px;
+      height: 400px;
       box-sizing: border-box;
       padding: 10px 10px;
       margin: 0 auto;
       position: relative;
-      top: 40%;
+      top: 45%;
       transform: translateY(-50%);
       overflow: hidden;
 
@@ -234,11 +264,19 @@ export default {
       .form-input-slider {
         width: 882px;
         position: relative;
-        transition: left 0.25s;
-        left: 0px;
+        transition: transform 0.25s;
+        // left: 0px;
+        // transform: translateX(0px);
         
         &.password-stage {
-          left: -452px;
+          // left: -452px;
+        transition: transform 0.25s;
+        transform: translateX(-452px);
+        }
+
+        &.username-stage {
+          transition: transform 0.25s;
+          transform: translateX(0px);
         }
       }
 
@@ -277,6 +315,23 @@ export default {
             transform: translateY(4px);
             opacity: 0.8;
           }
+        }
+      }
+
+      .alternative-logins-area{
+        position: relative;
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+
+        &:before {
+          content: 'or';
+          position: absolute;
+          left: 0;
+          right: 0;
+          font-size: 0.9rem;
+          text-align: center;
+          top: -10px;
         }
       }
     }
