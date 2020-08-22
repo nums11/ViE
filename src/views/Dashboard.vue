@@ -200,7 +200,8 @@
 <style scoped>
 
 #dashboard-container {
-  width: 90%;
+  width: 89%;
+  margin: auto;
 }
 
 .dashboard-page {

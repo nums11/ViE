@@ -162,14 +162,18 @@ export default {
   /*border-right: 1px solid #00FFFF;
   border-left: 1px solid #00FFFF;*/
 }
+/*
 .venue-body {
   margin-left: 70px;
 }
+*/
+/*
 @media only screen and (max-width: 900px) {
   .venue-body {
     margin-left: 0px;
   }
 }
+*/
 .fade-enter-active,
 .fade-leave-active {
   transition-duration: 0.3s;

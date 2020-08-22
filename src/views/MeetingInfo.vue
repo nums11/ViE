@@ -1,4 +1,3 @@
-
 <template>
   <div class="meeting-info">
     <div id="qr-scanning-container" v-if="qr_scanning_window_open">
@@ -303,7 +302,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #qr-scanning-container {
   position: absolute;
   width: 100%;
@@ -314,78 +313,77 @@ export default {
 }
 
 .meeting-info {
-    // Header, With title and Schedule Slider
-    .header {
-        position: fixed;
-        left: 90px;
-        right: 20px;
-        top: 70px;
-        z-index: 3;
-        .page-title {
-            font-weight: 600;
-        }
-        .page-info-area {
-            display: flex;
-            .left-side {
-                width: 330px;
-                min-width: 300px;
-            }
-            .right-side {
-                width: 75%;
-                position: relative;
-            }
-        }
+  border: blue solid;
+  // Header, With title and Schedule Slider
+  .header {
+    border: black solid;
+    position: fixed;
+    z-index: 3;
+    .page-title {
+        font-weight: 600;
     }
-    .top-spacer {
-        height: 138px;
-    }
-    .left-spacer {
-        width: 300px;
-        min-width: 300px;
-    }
-    // Left Hand Side Area
-    .sidebar-area {
-        width: 300px;
-        // background-color: green;
-        position: fixed;
-        bottom: 0;
-        top: 230px;
-        left: 90px;
-        right: 50px;
-        z-index: 3;
-        .instructor-info {
-            display: flex;
-            align-items: center;
-            height: 40px;
-            width: 300px;
-            margin-bottom: 30px;
-            .name {
-                flex-grow: 1;
-            }
-            .email-icon {
-                width: 20px;
-                height: 20px;
-                line-height: 25px;
-                font-size: 1.2rem;
-                text-align: center;
-            }
-        }
-    }
-    // Main body area
-    .content-area-wrapper {
+    .page-info-area {
         display: flex;
-    }
-    .content-area {
-        position: relative;
-        width: 72%;
-        margin-right: 30px;
-        margin-left: 30px;
-        box-sizing: border-box;
-        .title {
-            margin-top: 10px;
-            margin-bottom: 10px;
+        .left-side {
+            width: 330px;
+            min-width: 300px;
+        }
+        .right-side {
+            width: 75%;
+            position: relative;
         }
     }
+  }
+  .top-spacer {
+      height: 138px;
+  }
+  .left-spacer {
+      width: 300px;
+      min-width: 300px;
+  }
+  // Left Hand Side Area
+  .sidebar-area {
+      width: 300px;
+      // background-color: green;
+      position: fixed;
+      bottom: 0;
+      top: 230px;
+      left: 90px;
+      right: 50px;
+      z-index: 3;
+      .instructor-info {
+          display: flex;
+          align-items: center;
+          height: 40px;
+          width: 300px;
+          margin-bottom: 30px;
+          .name {
+              flex-grow: 1;
+          }
+          .email-icon {
+              width: 20px;
+              height: 20px;
+              line-height: 25px;
+              font-size: 1.2rem;
+              text-align: center;
+          }
+      }
+  }
+  // Main body area
+  .content-area-wrapper {
+      display: flex;
+  }
+  .content-area {
+      position: relative;
+      width: 72%;
+      margin-right: 30px;
+      margin-left: 30px;
+      box-sizing: border-box;
+      .title {
+          margin-top: 10px;
+          margin-bottom: 10px;
+      }
+  }
 }
 .dark-mode {
     .meeting-info {
