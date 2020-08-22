@@ -3,7 +3,10 @@
     <div class="task-info-modal-instructor-expanded task-attendance-info-mode">
         <div class="header-area">
             <div class="left-side">
-                <div class="title-area"><h4>Student Attendance for {{ getTaskName () }}</h4></div>
+                <div class="title-area">
+                    <h4 v-if="is_qr">QR Submission</h4>
+                    <h4 v-else>Recording</h4>
+                </div>
             </div>
             <div class="right-side">
                 <div class="icon-area">
@@ -16,9 +19,9 @@
         <div class="body-area">
             
             <div class="student-attendance-list">
-                <ul>
-                    <li :key="i" v-for="i in 40">
-                        Student {{i}}
+                <ul v-if="is_qr">
+                    <li v-for="submission in task.qr_checkin_submissions" :key="i" >
+                        <p>Student {{i}}</p>
                         <sui-label v-if="i%2 == 0" size="small" class="venue-green">
                             Has Attended
                         </sui-label>
@@ -60,7 +63,8 @@ export default {
         ProgressBar
     },
     props: {
-        taskInfo: Object,
+        task: Object,
+        is_qr: Boolean,
         cancelTask: Function
     },
     methods: {

@@ -3,14 +3,17 @@
     <div class="task-info-modal-instructor-expanded">
         <div class="header-area">
             <div class="left-side">
-                <div class="title-area"><h4>{{ getTaskTitle () }}</h4></div>
+                <div class="title-area">
+                    <h4 v-if="is_qr">QR Submission </h4>
+                    <h4 v-else>Recording</h4>
+                </div>
                 <div class="subtitle-area">{{ getTaskDateTime () }}</div>
             </div>
             <div class="right-side">
                 <div class="icon-area">
                     <!-- SPACE AVAILABLE -->
                     <sui-button 
-                    v-if="taskInfo.taskType == 'qr-code'"
+                    v-if="is_qr"
                     @click="expandQRCode"
                     compact icon="expand" />
                 </div>
@@ -22,8 +25,8 @@
             <div class="body-contents">
                 <qrcode 
                     :style="{margin: '0 auto'}"
-                    v-if="taskInfo.taskType == 'qr-code'"
-                    :value="taskInfo.qrCode"
+                    v-if="is_qr"
+                    :value="task.code"
                     :options="{
                         width: 400,
                     }"
@@ -53,10 +56,10 @@
 
                 <div class="full-content-area">
 
-                    <div class="qr-code-fullscreen" v-if="taskInfo.taskType == 'qr-code'">
+                    <div class="qr-code-fullscreen" v-if="is_qr">
                         <qrcode 
                             :style="{margin: '0 auto'}"
-                            :value="taskInfo.qrCode"
+                            :value="task.code"
                             :options="{
                                 width: 800,
                             }"
@@ -87,7 +90,8 @@ export default {
         QrcodeStream
     },
     props: {
-        taskInfo: Object,
+        task: Object,
+        is_qr: Boolean,
         cancelTask: Function
     },
     data () {
@@ -107,12 +111,17 @@ export default {
         },
         getTaskDateTime () {
             // Thurs. August 23rd, 2:00pm-3:00pm
-            let start_ = new Date(this.taskInfo.startTime)
-            let end_ = new Date(this.taskInfo.endTime)
+            let start_ = null
+            let end_ = null
+            if(this.is_qr) {
+              start_ = new Date(this.task.qr_checkin_start_time)
+              end_ = new Date(this.task.qr_checkin_end_time)
+            } else {
+              start_ = new Date(this.task.recording_submission_start_time)
+              end_ = new Date(this.task.recording_submission_end_time)
+            }
 
-            let dt = `${this.DAY_OF_WEEK[start_.getDay()]}. ${this.MONTHS[start_.getMonth()]} ${start_.getDate()}, ${this.getHourMinute(start_)}`
-            if (this.taskInfo.endTime) dt += `-${this.getHourMinute(end_)}`
-            return dt
+            return `${this.DAY_OF_WEEK[start_.getDay()]}. ${this.MONTHS[start_.getMonth()]} ${start_.getDate()}, ${this.getHourMinute(start_)}-${this.getHourMinute(end_)}`
         },
         getHourMinute (time) {
             let hour = (time.getHours () + 1) % 12

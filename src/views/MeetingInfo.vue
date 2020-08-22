@@ -67,7 +67,8 @@
                   :task="qr_checkin"
                   :is_qr="true"
                   v-on:show-task-qr="showTaskQR"
-                  v-on:show-qr-scanning-window="showQRScanningWindow" />
+                  v-on:show-qr-scanning-window="showQRScanningWindow"
+                  v-on:show-task-attendance="showTaskAttendance" />
 <!--                 <div v-if="is_instructor">
                   <TaskInfoModalInstructor 
                     v-for="(task, i) in tasks_summary"
@@ -95,6 +96,20 @@
                   </h3>
                 </div>
               </div>
+            </div>
+            <div key="2" v-else>
+              <TaskInfoModalInstructorExpanded 
+                v-if="task_focus_mode == 'show-info'"
+                :task="focused_task"
+                :cancelTask="cancelTask"
+                :is_qr="focused_task.code != null"
+              />
+              <TaskAttendanceInfo 
+                v-else-if="task_focus_mode == 'show-attendance'"
+                :task="focused_task"
+                :cancelTask="cancelTask"
+                :is_qr="focused_task.code != null"
+              />
             </div>
           </transition-group>
         </div>
@@ -132,6 +147,7 @@ export default {
     data () {
         return {
             task_focus: null,
+            focused_task: {},
             task_focus_mode: String, // "show-info" or "show-attendance"
             tasks_summary: [],
             qr_scanning_window_open: false,
@@ -214,14 +230,20 @@ export default {
           this.task_focus = task_id
           this.task_focus_mode = "show-info"
       },
-      showTaskQR (task_id) {
-          console.log("In showTaskQR")
-          this.task_focus = task_id
+      showTaskQR (task) {
+          this.task_focus = -1
+          console.log("In func")
+          this.focused_task = task
           this.task_focus_mode = "show-info"
       },
       focusTaskAttendance (task_id) {
           this.task_focus = task_id
           this.task_focus_mode = "show-attendance"
+      },
+      showTaskAttendance(task) {
+        this.task_focus = -1
+        this.focused_task = task
+        this.task_focus_mode = "show-attendance"
       },
       cancelTask () {
           this.task_focus = null

@@ -18,14 +18,14 @@
   </div>
   <div class="lower-area">
     <div class="left-side">
-        <!-- <ProgressBar :value="0.5" suffix="Attendance" /> -->
+        <ProgressBar :value="0.5" suffix="Attendance" />
     </div>
     <div v-if="is_instructor" class="right-side">
       <sui-button 
           v-if="is_qr"
-          @click="$emit('show-task-qr',task_number)"
+          @click="$emit('show-task-qr',task)"
           secondary>Show QR Code</sui-button>
-      <sui-button class="venue-blue" @click="shouldFocusTaskAttendance(task._id)">See Who Attended</sui-button>
+      <sui-button class="venue-blue" @click="$emit('show-task-attendance',task)">See Who Attended</sui-button>
     </div>
     <div v-else>
       <sui-button 
@@ -58,6 +58,7 @@ export default {
         }
     },
     created () {
+      console.log("Task Number",this.task_number)
       this.current_user = this.$store.state.user.current_user
       this.is_instructor = this.current_user.is_instructor
     },
@@ -92,6 +93,7 @@ export default {
 <style lang="scss">
 
 .task-info-modal-instructor {
+    margin-top:1rem;
     border-radius: 5px;
 
     .upper-area {
