@@ -185,4 +185,8 @@ export default {
   opacity: 0;
 }
 
+.inline-block {
+  display: inline-block;
+}
+
 </style>

@@ -4,14 +4,15 @@
       <button @click="closeQRScanningWindow" id="exit_preview_btn" tabindex="0" aria-label="Close QR Scanner">X</button>
       <qrcode-stream id="video_preview" @decode="attemptQRCheckinSubmission"></qrcode-stream>
     </div>
-    <div class="header">
+    <SquareLoader v-if="!meeting_has_loaded" />
+    <div v-else class="header">
       <!-- Page Title -->
       <div class="page-title">Meeting Info</div>
       <div class="page-info-area">
         <!-- Meeting Info Side -->
-        <SquareLoader v-if="!meeting_has_loaded" />
-        <div v-else class="left-side">
-            <h2>{{ meeting == null ? '' : meeting.title }}</h2>
+        <div class="left-side">
+            <h2 class="inline-block">{{ meeting == null ? '' : meeting.title }}</h2>
+            <sui-label v-if="meeting_is_live" class="inline-block" id="live-label">Live</sui-label>
             <div class="details-area">
               <sui-label :style="{marginBottom: '5px'}" v-if="for_course">
                   Course
@@ -156,22 +157,19 @@ export default {
             for_course: Boolean,
             meeting_has_loaded: false,
             is_instructor: Boolean,
+            meeting_is_live: false
         }
     },
-    created () {
-
+    async created () {
       this.current_user = this.$store.state.user.current_user
       this.is_instructor = this.current_user.is_instructor
-
-      this.getMeeting ()
-
+      await this.getMeeting ()
+      this.getMeetingStatus()
     },
     methods: {
-
       isQrTask (taskInfo) {
         return taskInfo && taskInfo.qrCode
       },
-
       manageScheduleTabClick (props) {
 
         if (this.isQrTask (props)) {
@@ -247,6 +245,12 @@ export default {
       cancelTask () {
           this.task_focus = null
       },
+      getMeetingStatus () {
+        console.log("In this func")
+        let current_time = new Date()
+        this.meeting_is_live = current_time >= new Date(this.meeting.start_time) &&
+          current_time <= new Date(this.meeting.end_time)
+      },
       async getMeeting() {
         this.meeting_id = this.$route.params.meeting_id
         const response = await MeetingAPI.getMeeting(this.meeting_id)
@@ -313,27 +317,39 @@ export default {
 }
 
 .meeting-info {
-  border: blue solid;
+  margin: auto;
+  width: 89%;
+
   // Header, With title and Schedule Slider
   .header {
-    border: black solid;
-    position: fixed;
-    z-index: 3;
+
     .page-title {
-        font-weight: 600;
+      font-weight: 600;
     }
+
     .page-info-area {
-        display: flex;
-        .left-side {
-            width: 330px;
-            min-width: 300px;
+      display: flex;
+
+      .left-side {
+        width: 25%;
+        min-width: 300px;
+
+        #live-label {
+          margin-left: 3rem;
+          background-color: #5EFFB4;
         }
-        .right-side {
-            width: 75%;
-            position: relative;
-        }
+
+      }
+
+      .right-side {
+        width: 75%;
+        position: relative;
+      }
+
     }
+
   }
+
   .top-spacer {
       height: 138px;
   }
