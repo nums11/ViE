@@ -18,11 +18,6 @@
     <div class="body-area">
       <div class="inline-block student-attendance-list">
         <h3>Present ({{present_attendees.length}}/{{attendees.length}})</h3>
-<!--         <ul v-if="is_qr">
-          <li v-for="submission in task.qr_checkin_submissions" :key="submission._id" >
-            <p>{{ submission.submitter.user_id }}</p>
-          </li>
-        </ul> -->
         <sui-label v-for="attendee in present_attendees"
         :key="attendee._id"
         class="venue-green">
@@ -37,15 +32,6 @@
           <p>{{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})</p>
         </sui-label>
       </div>
- <!--            <sui-label v-if="i%2 == 0" size="small" class="venue-green">
-                Has Attended
-            </sui-label>
-            <sui-label v-if="i%2 == 1" size="small" class="venue-red">
-                Has Not Attended
-            </sui-label>
-          </li> -->
-        <!-- </ul> -->
-      <!-- </div> -->
     </div>
 
     <!-- Footer Area -->

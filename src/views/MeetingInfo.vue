@@ -334,12 +334,11 @@ export default {
         let submissions = qr_checkin.qr_checkin_submissions
         let student_has_submitted = false
         for(let i = 0; i < submissions.length; i++) {
-          if(submissions[i].user_id === this.current_user.user_id){
+          if(submissions[i].submitter.user_id === this.current_user.user_id){
             student_has_submitted = true
             break
           }
         }
-        console.log("Student has submitted", student_has_submitted)
         return student_has_submitted
       },
       createTasksSummary () {

@@ -41,7 +41,6 @@ export default {
     console.log("Active Tasks", this.active_tasks)
   },
   methods: {
-
   }
 }
 </script>
