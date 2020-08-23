@@ -1,94 +1,65 @@
 <template>
-
-    <div class="task-info-modal-instructor-expanded">
-        <div class="header-area">
-            <div class="left-side">
-                <div class="title-area">
-                    <h4 v-if="is_qr">QR Submission </h4>
-                    <h4 v-else>Recording</h4>
-                </div>
-                <div class="subtitle-area">{{ getTaskDateTime () }}</div>
-            </div>
-            <div class="right-side">
-                <div class="icon-area">
-                    <!-- SPACE AVAILABLE -->
-                    <sui-button 
-                    v-if="is_qr"
-                    @click="showFullScreenQRCodeModal"
-                    compact icon="expand" />
-                </div>
-            </div>
+  <div class="task-info-modal-instructor-expanded">
+    <div class="header-area">
+      <div class="left-side">
+        <div class="title-area">
+          <h4 v-if="is_qr">QR Submission </h4>
+          <h4 v-else>Recording</h4>
         </div>
-
-        <!-- Body Area -->
-        <div class="body-area">
-            <div class="body-contents">
-                <QRCode 
-                    :style="{margin: '0 auto'}"
-                    v-if="is_qr"
-                    :value="task.code"
-                    :options="{
-                        width: 400,
-                    }"
-                />
-            </div>
+        <div class="subtitle-area">{{ getTaskDateTime () }}</div>
+      </div>
+      <div class="right-side">
+        <div class="icon-area">
+          <!-- SPACE AVAILABLE -->
+          <sui-button 
+          v-if="is_qr"
+          @click="$emit('show-fullscreen-code',task.code)"
+          compact icon="expand" />
         </div>
-
-        <!-- Footer Area -->
-        <div class="footer-area">
-            <div class="left-side">
-                <sui-button 
-                    compact icon="left arrow" 
-                    label-position="left" 
-                    @click="cancelTask"
-                    content="Back" />
-            </div>
-            <div class="center-area">
-                <ProgressBar :value="0.8" />
-            </div>
-            <div class="right-side">
-                <!-- RIGHT FOOTER PLACEHOLDER -->
-            </div>
-        </div>
-
-<!--         <transition name="fade" mode="out-in">
-            <div class="fullscreen-modal" v-if="show_fullscreen_modal">
-
-                <div class="full-content-area">
-
-                    <div class="qr-code-fullscreen" v-if="is_qr">
-                        <qrcode 
-                            :style="{margin: '0 auto'}"
-                            :value="task.code"
-                            :options="{
-                                width: 800,
-                            }"
-                        />
-                    </div>
-
-                </div>
-
-                <div class="bottom-controls">
-                    <sui-button @click="show_fullscreen_modal = false">Close</sui-button>
-                </div>
-            </div>
-        </transition> -->
-        <FullScreenQRCodeModal v-if="show_qr_code_modal"
-        v-on:hide-modal="hideFullScreenQRCodeModal" :code="task.code" />
-
+      </div>
     </div>
 
+    <!-- Body Area -->
+    <div class="body-area">
+      <div class="body-contents">
+        <QRCode 
+          :style="{margin: '0 auto'}"
+          v-if="is_qr"
+          :value="task.code"
+          :options="{
+              width: 400,
+          }"
+        />
+      </div>
+    </div>
+
+    <!-- Footer Area -->
+    <div class="footer-area">
+      <div class="left-side">
+        <sui-button 
+          compact icon="left arrow" 
+          label-position="left" 
+          @click="cancelTask"
+          content="Back" />
+      </div>
+      <div class="center-area">
+        <ProgressBar :value="0.8" />
+      </div>
+      <div class="right-side">
+          <!-- RIGHT FOOTER PLACEHOLDER -->
+      </div>
+    </div>
+  </div>
 </template>
+
 <script>
 import ProgressBar from "@/components/ProgressBar.vue";
-import FullScreenQRCodeModal from '@/components/FullScreenQRCodeModal.vue';
 import QRCode from '@chenfengyuan/vue-qrcode';
 
 export default {
   name: 'TaskInfoModalInstructorExpanded',
   components: {
     ProgressBar,
-    FullScreenQRCodeModal,
     QRCode
   },
   props: {
@@ -104,12 +75,6 @@ export default {
     }
   },
   methods: {
-    showFullScreenQRCodeModal () {
-      this.show_qr_code_modal = true
-    },
-    hideFullScreenQRCodeModal() {
-      this.show_qr_code_modal = false
-    },
     getTaskTitle () {
         if (this.taskInfo.taskType == 'qr-code') return `QR Submission`
     },

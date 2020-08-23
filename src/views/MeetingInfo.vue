@@ -6,6 +6,9 @@
       <qrcode-stream id="video_preview" @decode="attemptQRCheckinSubmission"></qrcode-stream>
     </div>
 
+    <FullScreenQRCodeModal v-if="show_qr_code_modal"
+    v-on:hide-modal="hideFullScreenQRCodeModal" :code="full_screen_code" />
+
     <!-- Header -->
     <SquareLoader v-if="!meeting_has_loaded" />
     <div v-else class="header">
@@ -108,6 +111,7 @@
                 :task="focused_task"
                 :cancelTask="cancelTask"
                 :is_qr="focused_task.code != null"
+                v-on:show-fullscreen-code="showFullScreenQRCodeModal"
               />
               <TaskAttendanceInfo 
                 v-else-if="task_focus_mode == 'show-attendance'"
@@ -126,6 +130,7 @@
 
 <script>
 import MeetingInfoScheduleSlider from '@/components/MeetingInfoScheduleSlider.vue'
+import FullScreenQRCodeModal from '@/components/FullScreenQRCodeModal.vue';
 import ActiveTasksList from '@/components/ActiveTasksList.vue'
 import TaskInfoModal from '@/components/TaskInfoModal.vue'
 import TaskInfoModalExpanded from '@/components/TaskInfoModalExpanded.vue'
@@ -142,6 +147,7 @@ export default {
     name: 'MeetingInfo',
     components: {
         MeetingInfoScheduleSlider,
+        FullScreenQRCodeModal,
         ActiveTasksList,
         TaskInfoModal,
         TaskInfoModalExpanded,
@@ -164,7 +170,9 @@ export default {
             for_course: Boolean,
             meeting_has_loaded: false,
             is_instructor: Boolean,
-            meeting_is_live: false
+            meeting_is_live: false,
+            show_qr_code_modal: false,
+            full_screen_code: "",
         }
     },
     async created () {
@@ -319,6 +327,14 @@ export default {
         alert("Live Submission Recorded")
         this.$router.go()
       },
+      showFullScreenQRCodeModal (code) {
+        this.full_screen_code = code
+        this.show_qr_code_modal = true
+      },
+      hideFullScreenQRCodeModal() {
+        this.full_screen_code = ""
+        this.show_qr_code_modal = false
+      }
     }
 }
 </script>

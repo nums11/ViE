@@ -13,17 +13,15 @@
 </template>
 
 <script>
-import QrCodeSVG from "@/assets/icons/001-qr-code.svg"
-import RecordingSVG from "@/assets/icons/003-play-button.svg"
-
 export default {
   name: 'ActiveTasksList',
+  components:{
+  },
   props: {
     active_tasks: Array
   },
   data () {
     return {
-      QrCodeSVG: QrCodeSVG,
     }
   },
   created () {
