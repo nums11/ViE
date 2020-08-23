@@ -34,10 +34,11 @@
         </div>
         <!-- Schedule Area -->
         <div class="right-side">
-            <MeetingInfoScheduleSlider 
+          <ActiveTasksList :active_tasks="active_tasks" />
+<!--             <MeetingInfoScheduleSlider 
               :tasksInfo="tasks_summary"
               :manageScheduleTabClick="manageScheduleTabClick"
-            />
+            /> -->
         </div>
       </div>
     </div>
@@ -125,6 +126,7 @@
 
 <script>
 import MeetingInfoScheduleSlider from '@/components/MeetingInfoScheduleSlider.vue'
+import ActiveTasksList from '@/components/ActiveTasksList.vue'
 import TaskInfoModal from '@/components/TaskInfoModal.vue'
 import TaskInfoModalExpanded from '@/components/TaskInfoModalExpanded.vue'
 import TaskInfoModalInstructor from '@/components/TaskInfoModalInstructor.vue'
@@ -140,6 +142,7 @@ export default {
     name: 'MeetingInfo',
     components: {
         MeetingInfoScheduleSlider,
+        ActiveTasksList,
         TaskInfoModal,
         TaskInfoModalExpanded,
         TaskInfoModalInstructor,
@@ -169,6 +172,8 @@ export default {
       this.is_instructor = this.current_user.is_instructor
       await this.getMeeting ()
       this.getMeetingStatus()
+      this.getActiveTasksForMeeting()
+      this.meeting_has_loaded = true
     },
     methods: {
       isQrTask (taskInfo) {
@@ -261,23 +266,31 @@ export default {
         this.meeting = response.data
         console.log("meeting", this.meeting)
         this.for_course = this.meeting.for_course
-        this.meeting_has_loaded = true
       },
       getActiveTasksForMeeting () {
-
         let current_time = new Date ();
         if (this.meeting.has_live_attendance) {
           this.meeting.live_attendance.qr_checkins
           .forEach(qr_checkin => {
-
-            if (current_time, new Date(qr_checkin.qr_checkin_start_time), new Date(qr_checkin.qr_checkin_end_time)) {
+            if (this.isBetweenTimes(current_time, new Date(qr_checkin.qr_checkin_start_time),
+              new Date(qr_checkin.qr_checkin_end_time))) {
               this.active_tasks.push(qr_checkin)
             }
-
           })
-
-          this.createTasksSummary ()
         }
+        if(this.meeting.has_async_attendance) {
+          this.meeting.async_attendance.recordings
+          .forEach(recording => {
+            if(this.isBetweenTimes(current_time, new Date(recording.recording_submission_start_time),
+              new Date(recording.recording_submission_end_time))) {
+              this.active_tasks.push(recording)
+            }
+          })
+        }
+      },
+      isBetweenTimes(time, start_time, end_time) {
+        return time >= start_time &&
+          time <= end_time
       },
       createTasksSummary () {
         this.tasks_summary = this.active_tasks.map((task, i) => {
