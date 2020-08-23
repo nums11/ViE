@@ -63,7 +63,7 @@
             </div>
           </hide-at>
           <show-at breakpoint="small">
-            <div class="mobile-navbar" @click="showMobileMenu = true">
+            <div class="mobile-navbar">
               <div class="hamburger-icon" @click="showMobileMenu = true">
                 <sui-icon name="bars" />
               </div>
@@ -75,7 +75,11 @@
 
         </div>
         <div class="right-area">
-        
+            <show-at breakpoint="small">
+              <div>
+                <sui-button icon="cog" @click="showMobileUserAction = true" />
+              </div>
+            </show-at>
             <hide-at breakpoint="small">
                 <div class="user-action">
                   <div :style="{display: 'inline-block'}">
@@ -129,22 +133,11 @@
     </div>
     <div class="navbar-spacer"></div>
 
-    <show-at breakpoint="small">
-        <div class="bottom-bar-mobile">
-            <sui-dropdown text="David Goldschmidt" direction="upward">
-                <sui-dropdown-menu>
-                <sui-dropdown-item>Settings</sui-dropdown-item>
-                <sui-dropdown-item @click="logoutUser ()">Log Out</sui-dropdown-item>
-                </sui-dropdown-menu>
-            </sui-dropdown>
-        </div>
-    </show-at>
-
     <!-- SLIDE MENU -->
     <show-at breakpoint="small" v-if="showMobileMenu">
       <transition name="fade" mode="out-in">
         <div class="off-canvas-menu-back" @click="showMobileMenu = false">
-          <div class="off-canvas-menu">
+          <div class="off-canvas-menu left">
 
             <ul>
               <router-link to="/dashboard"><li>Dashboard</li></router-link>
@@ -164,6 +157,29 @@
         </div>
       </transition>
     </show-at>
+    <!-- MOBILE SETTINGS SLIDE MENU -->
+    <show-at breakpoint="small" v-if="showMobileUserAction">
+      <transition name="fade" mode="out-in">
+        <div class="off-canvas-menu-back" @click="showMobileUserAction = false">
+          <div class="off-canvas-menu right">
+
+            <div class="user-fullname-area">
+              {{ current_user.first_name }} {{ current_user.last_name }}
+            </div>
+
+            <div class="actions-area">
+
+            </div>
+
+            <div class="logout-area">
+              <sui-button class="venue-red" @click="logoutUser ()">Logout</sui-button>
+            </div>
+
+          </div>
+        </div>
+      </transition>
+    </show-at>
+
   </div>
 
 </template>
@@ -207,7 +223,8 @@
         dark_mode: false,
         user_orgs: [],
         dropdown_focus: '',
-        showMobileMenu: false
+        showMobileMenu: false,
+        showMobileUserAction: false
       }
     },
     created() {
@@ -357,13 +374,26 @@
     
     .off-canvas-menu {
       position: absolute;
-      left: 0;
       top: 0;
       bottom: 0;
       width: 300px;
       z-index: 10000000000;
       box-sizing: border-box;
       padding: 50px;
+
+      &.left {
+        left: 0;
+      }
+
+      &.right {
+        right: 0;
+
+        .user-fullname-area {
+          font-size: 2rem;
+          line-height: 35px;
+          margin-bottom: 20px;
+        }
+      }
 
       ul {
         list-style: none;
