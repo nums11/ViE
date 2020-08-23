@@ -136,7 +136,7 @@ import { QrcodeStream } from 'vue-qrcode-reader';
 import { showAt, hideAt } from 'vue-breakpoints';
 import VueLottiePlayer from 'vue-lottie-player';
 import io from 'socket.io-client';
-import { baseURL } from '@/services/API';
+import { baseURL, baseSourceURL } from '@/services/API';
 
 export default {
     name: 'TaskInfoModalInstructorExpanded',
@@ -168,14 +168,14 @@ export default {
             
             console.log(`initializing socket`)
             // console.log(baseURL)
-            let client_io = io (baseURL, {forceNew: true})
+            let client_io = io (baseURL(), {forceNew: true})
             client_io.emit('start attendance update', {
                 task_id: this.taskInfo._id,
                 type: this.taskInfo.taskType,
             })
         },
         getUrlEncoded () {
-            return `http://localhost:8080/#/attend/${this.taskInfo.meetingId}/${this.taskInfo.qrCode}`
+            return `${baseSourceURL()}/#/attend/${this.taskInfo.meetingId}/${this.taskInfo.qrCode}`
         },
         expandQRCode () {
             this.show_fullscreen_modal = true;

@@ -103,13 +103,24 @@ function start() {
     });
   });
 
-  app.use(cors(
-    { 
-      origin:['http://localhost:8080'],
-      methods:['GET','POST'],
-      credentials: true
-    }
-  ));
+let whitelist = ['http://localhost:8080']
+// try to whitelist mobile and source ip's
+if (process.env.SOURCE_IP) {
+  whitelist.push(`http://${process.env.SOURCE_IP}:8080`)
+}
+if (process.env.MOBILE_IP) {
+  whitelist.push(`http://${process.env.MOBILE_IP}:8080`)
+}
+console.log(`Whitelist:`)
+console.log(whitelist)
+
+app.use(cors(
+  { 
+    origin: whitelist,
+    methods:['GET','POST'],
+    credentials: true
+  }
+));
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
 
