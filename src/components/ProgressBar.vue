@@ -44,6 +44,7 @@ export default {
                 background-color: #5EFFB4;
                 height: 100%;
                 border-radius: 10px;
+                transition: width 0.25s;
             }
         }
 

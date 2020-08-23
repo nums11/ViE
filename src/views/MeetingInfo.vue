@@ -236,6 +236,7 @@
                         v-if="is_instructor && task_focus_mode == 'show-info'"
                         :taskInfo="live_tasks_summary[task_focus]"
                         :cancelTask="cancelTask"
+                        :students="students"
                     />
                     <TaskAttendanceInfo 
                         v-else-if="is_instructor && task_focus_mode == 'show-attendance'"
@@ -278,6 +279,7 @@ import SquareLoader from "@/components/Loaders/SquareLoader.vue"
 
 import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 import MeetingAPI from '@/services/MeetingAPI.js';
+import UserAPI from '@/services/UserAPI.js';
 import qrcode from '@chenfengyuan/vue-qrcode';
 import { QrcodeStream } from 'vue-qrcode-reader'
 
@@ -303,6 +305,7 @@ export default {
             meeting: null,
             live_tasks_arr: [],
             async_tasks_arr: [],
+            students: [],
             for_course: Boolean,
             meeting_has_loaded: false,
             is_instructor: Boolean,
@@ -396,7 +399,34 @@ export default {
 
           // get active tasks now
           this.getActiveTasksForMeeting ()
+          this.getStudents ()
         })
+      },
+      getStudents () {
+          // this.students
+          if (this.meeting.for_course) {
+              this.students = this.meeting.course.students
+          }
+          else {
+              this.students = this.eeting.org.general_members
+          }
+
+          // populate the students information
+          let student_promises = []
+          this.students.forEach(student_id => {
+
+              student_promises.push(UserAPI.getUser(student_id))
+
+          })
+
+          Promise.all(student_promises)
+          .then(all_students => {
+
+              this.students = all_students.map(student_ => {
+                  return student_.data
+              })
+          })
+
       },
       getActiveTasksForMeeting () {
 
@@ -439,7 +469,8 @@ export default {
               id: i,
               _id: task._id,
               meetingId: this.$route.params.meeting_id,
-              taskMode: `async`
+              taskMode: `async`,
+              submissions: task.qr_checkin_submissions
             }
           }
 

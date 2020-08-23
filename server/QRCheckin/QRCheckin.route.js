@@ -22,12 +22,28 @@ qrcheckin/attend
   - on failure => 
 - 
 */
+
+qrCheckinRoutes.post('/testSocketQueue', (req, res) => {
+
+  let socketQueue = req.socketQueue
+  console.log(socketQueue.getQueue ())
+  console.log(socketQueue.getQueue()['5f4268103975e34c2816ac29'])
+  res.json({
+    test: 'yes',
+    socketQueue: socketQueue,
+    task: Array.from(socketQueue.getQueue()['5f4268103975e34c2816ac29'])
+  })
+})
+
 qrCheckinRoutes.post('/attend', async (req, res) => {
 
   // Get the required body parameters
   let user_id = req.body.user_id
   let meeting_id = req.body.meeting_id
   let qr_code = req.body.qr_code
+
+  let socketQueue = req.socketQueue
+  let io = req.socketIO
 
   if (user_id == null || meeting_id == null || qr_code == null) {
     if (user_id == null) console.log(`<ERROR> (qrcheckin/attend) user_id is not specified`)
@@ -138,7 +154,31 @@ qrCheckinRoutes.post('/attend', async (req, res) => {
               
               let new_submission_doc = await new_live_submission.save ()
               qr_checkin.qr_checkin_submissions.push(new_submission_doc._id)
-              qr_checkin.save ()
+              let new_qr_checkin = await qr_checkin.save ()
+              await QRCheckin.populate(
+                new_qr_checkin,
+                {
+                path: 'qr_checkin_submissions',
+                populate: {
+                  path: 'submitter'
+                }
+              })
+
+              // get the sockets !!
+              let responseSockets = socketQueue.getSockets(new_qr_checkin._id)
+              
+              console.log(new_qr_checkin)
+
+              Array.from(responseSockets).forEach(socket_id => {
+
+                io.to(socket_id).emit('attendance update', {
+                  data: new_qr_checkin.qr_checkin_submissions.map(submission => {
+                    return submission.submitter
+                  })
+                })
+              })
+
+              // !!!
               res.json({
                 success: true,
                 data: {

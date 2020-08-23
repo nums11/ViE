@@ -42,7 +42,7 @@
                         content="Back" />
                 </div>
                 <div class="center-area">
-                    <ProgressBar :value="0.8" />
+                    <ProgressBar :value="(attended_students.size) / students.length" />
                 </div>
                 <div class="right-side">
                     <!-- RIGHT FOOTER PLACEHOLDER -->
@@ -65,6 +65,23 @@
                         </div>
 
                     </div>
+                    <div class="student-attendance-area">
+                        
+                        <div class="header-area">
+                            <div class="status-area">STATUS</div>
+                            <div class="student-area">STUDENT</div>
+                            <div class="total-col">{{(attended_students.size)}}/{{students.length}} Submissions</div>
+                        </div>
+
+                        <div class="entry-area" v-for="(student, i) in students" :key="i">
+                            <div class="status-area">
+                                <sui-icon name="check" class="venue-green-text" v-if="hasAttended(student)"/>
+                                <sui-icon name="ellipsis horizontal"  class="venue-red-text" v-else />
+                            </div>
+                            <div class="student-area">{{student.first_name}} {{student.last_name}}</div>
+                        </div>
+
+                    </div>
 
                     <div class="bottom-controls">
                         <sui-button @click="show_fullscreen_modal = false">Close</sui-button>
@@ -78,37 +95,41 @@
                 <div class="header-area">
                     <div class="status-col">STATUS</div>
                     <div class="student-col">STUDENT NAME</div>
-                    <div class="total-col">15/30 Submissions</div>
+                    <div class="total-col">{{(attended_students.size)}}/{{students.length}} Submissions</div>
                 </div>
 
                 <div class="attendance-entry-container">
-                    <div class="entry-area" v-for="i in 50" :key="i">
+                    <div class="entry-area" v-for="(student, i) in students" :key="i">
                         <div class="status-col">
 
                             <!-- Lottie Status Animation -->
-                            <v-lottie-player
-                                name="check"
-                                :animationData="require('@/assets/lottie/check.json')"
-                                width="20px"
-                                height="20px"
-                                :loop="1"
-                                :style="{margin: '0 auto'}"
+                            <div v-if="hasAttended(student)">
+                                <!-- <v-lottie-player
+                                    name="check"
+                                    :animationData="require('@/assets/lottie/check.json')"
+                                    width="20px"
+                                    height="20px"
+                                    :loop="1"
+                                    :style="{margin: '0 auto'}"
 
-                                v-if="i%2 == 0"
-                            />
-                            <v-lottie-player
-                                name="check"
-                                :animationData="require('@/assets/lottie/wait-dots.json')"
-                                width="20px"
-                                height="20px"
-                                loop
-                                :style="{margin: '0 auto'}"
+                                /> -->
+                                <sui-icon name="check" class="venue-green-text" />
+                            </div>
+                            <div v-else>
+                                <sui-icon name="ellipsis horizontal" class="venue-red-text" />
+                                <!-- <v-lottie-player
+                                    name="check"
+                                    :animationData="require('@/assets/lottie/wait-dots.json')"
+                                    width="20px"
+                                    height="20px"
+                                    loop
+                                    :style="{margin: '0 auto'}"
 
-                                v-else
-                            />
+                                /> -->
+                            </div>
 
                         </div>
-                        <div class="student-col">Firstname Lastname</div>
+                        <div class="student-col">{{student.first_name}} {{student.last_name}}</div>
                     </div>
                 </div>
 
@@ -149,21 +170,32 @@ export default {
     },
     props: {
         taskInfo: Object,
-        cancelTask: Function
+        cancelTask: Function,
+        students: Array
     },
     created () {
 
+        this.setupInitalSubmissionsData ()
         this.initializeAttendanceRealTimeUpdate ()
     },
     data () {
         return {
             show_fullscreen_modal: false,
-
+            attended_students: new Set (),
             DAY_OF_WEEK: ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri'],
             MONTHS: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         }
     },
     methods: {
+        setupInitalSubmissionsData () {
+
+            if (this.taskInfo.submissions) {
+                this.taskInfo.submissions.forEach(submission_ => {
+                    this.attended_students.add (submission_.submitter._id)
+                })
+            }
+
+        },
         initializeAttendanceRealTimeUpdate () {
             
             console.log(`initializing socket`)
@@ -172,6 +204,17 @@ export default {
             client_io.emit('start attendance update', {
                 task_id: this.taskInfo._id,
                 type: this.taskInfo.taskType,
+            })
+
+            client_io.on('attendance update', (data) => {
+                console.log(`SOCKET UPDATED`)
+                console.log(data)
+
+                // the data should be an array of User objects
+                data.data.forEach(user => {
+                    this.attended_students.add(user._id)
+                    this.$forceUpdate ()
+                })
             })
         },
         getUrlEncoded () {
@@ -182,6 +225,13 @@ export default {
         },
         getTaskTitle () {
             if (this.taskInfo.taskType == 'qr-code') return `QR Submission`
+        },
+        hasAttended (student_) {
+            console.log(student_)
+            console.log(student_._id)
+            console.log(this.attended_students)
+            console.log(this.attended_students.has(student_._id))
+            return this.attended_students.has(student_._id)
         },
         getTaskDateTime () {
             // Thurs. August 23rd, 2:00pm-3:00pm
@@ -243,10 +293,6 @@ export default {
                 font-weight: 600;
                 padding-left: 5px;
             }
-
-            .total-col {
-                padding-right: 15px;
-            }
         }
 
         .attendance-entry-container {
@@ -306,6 +352,7 @@ export default {
         right: 0;
         bottom: 0;
         z-index: 2000;
+        display: flex;
 
         .bottom-controls {
             position: absolute;
@@ -318,6 +365,65 @@ export default {
             .qr-code-fullscreen {
                 width: 800px;
                 margin: 0 auto;
+            }
+            flex-grow: 1;
+        }
+
+        .student-attendance-area {
+            width: 30%;
+            min-width: 30%;
+            padding: 0;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+
+            .header-area {
+                display: flex;
+                padding: 0;
+                height: 30px;
+                line-height: 30px;
+                font-weight: 600;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+                .status-area {
+                    font-weight: 600;
+                    width: 85px;
+                    min-width: 40px;
+                    height: 30px;
+                    text-align: center;
+                }
+                .student-area {
+                    font-weight: 600;
+                    flex-grow: 1;
+                    height: 30px;
+                    padding-left: 15px;
+                }
+                .total-col {
+                    padding-right: 10px;
+                }
+            }
+
+            .entry-area {
+                display: flex;
+                padding: 0;
+                height: 30px;
+                line-height: 30px;
+                font-weight: 600;
+
+                .status-area {
+                    width: 85px;
+                    min-width: 40px;
+                    height: 30px;
+                    text-align: center;
+                }
+                .student-area {
+                    flex-grow: 1;
+                    height: 30px;
+                    padding-left: 15px;
+                }
+
+                .total-col {
+                    padding-right: 10px;
+                    background-color: red;
+                }
             }
         }
     }

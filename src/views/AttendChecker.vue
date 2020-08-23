@@ -37,6 +37,9 @@ export default {
   name: 'AttendChecker',
   created () {
 
+    console.log(`STORE`)
+    console.log(this.$store)
+
     let current_user = this.$store.state.user
     if (!this.$store.state.user) {
       // redirect to login that should redirect back to this page.

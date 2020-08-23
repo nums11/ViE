@@ -12,6 +12,7 @@ const LOCAL_PORT = 4000;
 const passport = require('passport')
 const session = require('express-session')
 var cookieParser = require('cookie-parser');
+const RealTimeAttendanceQueue = require('./socket/RealTimeAttendanceQueue')
 
 // For Concurrency
 const throng = require('throng')
@@ -23,6 +24,8 @@ throng({
 }, start);
 
 function start() {
+
+  let attendanceSocketQueue = new RealTimeAttendanceQueue ()
 
   function jwtVerify(req,res,next) {
     const bearerHeader = req.headers['authorization']
@@ -63,6 +66,8 @@ function start() {
   const qrCheckinRouter = require('./QRCheckin/QRCheckin.route')
   const AttendanceFinder = require('./socket/AttendanceFinder')
 
+  let io;
+
   // Connect to the database before starting the application server.
   mongoose.connect(process.env.MONGODB_URI || config.DB, function (err, client) {
     if (err) {
@@ -74,27 +79,37 @@ function start() {
     var server = app.listen(process.env.PORT || LOCAL_PORT, function () {
       var port = server.address().port;
       console.log("App is now running on port", port);
-      const io = require('socket.io')(server);
+      io = require('socket.io')(server);
       io.on('connection', (socket) => {
           console.log(`<SOCKETIO> Connection recieved.`)
 
           socket.on('disconnect', () => {
               console.log("<SOCKETIO> A user disconnected");
+              attendanceSocketQueue.removeFromQueue(socket.id)
           });
 
           // Handle attendance real time updates through websocket
           socket.on('start attendance update', (task_info) => {
             console.log(`Attendance update initialized`)
 
-            AttendanceFinder.find(task_info)
-            .then(res => {
-              console.log(`Attendance Finder result:`)
-              console.log(res)
-            })
-            .catch(err => {
-              console.log(`Error`)
-              console.log(err)
-            })
+            console.log(attendanceSocketQueue.getQueue())
+            if (attendanceSocketQueue.addToQueue(socket.id, task_info.task_id)) {
+              console.log(`<SOCKETIO/start attendance update> Successfully added socket ${socket.id} to queue.`)
+              console.log(attendanceSocketQueue.getQueue())
+            }
+            else {
+              console.log(`<SOCKETIO/start attendance update> Problem occurred while adding socket to queue.`)
+            }
+
+            // AttendanceFinder.find(task_info)
+            // .then(res => {
+            //   console.log(`Attendance Finder result:`)
+            //   console.log(res)
+            // })
+            // .catch(err => {
+            //   console.log(`Error`)
+            //   console.log(err)
+            // })
             
           })
           
@@ -141,6 +156,13 @@ app.use(cors(
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // middleware for attendance tracker
+  app.use((req, res, next) => {
+    req.socketQueue = attendanceSocketQueue
+    req.socketIO = io
+    next()
+  })
+
   app.use('/users', jwtVerify, userRouter);
   app.use('/courses', jwtVerify, courseRouter);
   app.use('/sections', jwtVerify, sectionRouter);
@@ -151,4 +173,6 @@ app.use(cors(
   app.use('/recordings', recordingRouter);
   app.use('/asyncsubmissions', asyncSubmissionRouter);
   app.use('/qrcheckin', qrCheckinRouter);
+
+
 }

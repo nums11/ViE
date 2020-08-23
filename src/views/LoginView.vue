@@ -242,7 +242,7 @@ export default {
     flex-grow: 1;
 
     .login-form-center {
-      width: 450px;
+      width: 325px;
       height: 400px;
       box-sizing: border-box;
       padding: 10px 10px;
@@ -271,7 +271,7 @@ export default {
         &.password-stage {
           // left: -452px;
         transition: transform 0.25s;
-        transform: translateX(-452px);
+        transform: translateX(-320px);
         }
 
         &.username-stage {
@@ -281,13 +281,13 @@ export default {
       }
 
       .username-area {
-        width: 430px;
+        width: 300px;
         display: inline-block;
         box-sizing: border-box;
       }
 
       .password-area {
-        width: 430px;
+        width: 300px;
         display: inline-block;
         margin-left: 20px;
         box-sizing: border-box;
