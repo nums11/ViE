@@ -1,5 +1,4 @@
 <template>
-
   <div>
     <div class="venue-navbar">
         <div class="left-area">

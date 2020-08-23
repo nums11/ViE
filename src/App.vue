@@ -1,6 +1,6 @@
 <template>
   <div id="app" :class="dark_mode ? 'dark-mode' : 'light-mode'">
-  <portal-target name="semantic-ui-vue" />
+    <portal-target name="semantic-ui-vue" />
     <NavBar 
       :setDarkModeValue="setDarkModeValue"
       :initialDarkModeValue="dark_mode"
@@ -8,13 +8,12 @@
       v-if="this.$route.name != 'landing_page' && this.$route.name != 'set_permanent_password' && current_user"
     />
     <div class="venue-body">
-
-    <transition
-        name="fade"
-        mode="out-in"
-      >
-      <router-view :key="$route.fullPath" />
-    </transition>
+      <transition
+          name="fade"
+          mode="out-in"
+        >
+        <router-view :key="$route.fullPath" />
+      </transition>
     </div>
   </div>
 </template>

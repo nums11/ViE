@@ -1,18 +1,21 @@
 <template>
   <div class="meeting-info">
+    <!-- QR Scanning Container -->
     <div id="qr-scanning-container" v-if="qr_scanning_window_open">
       <button @click="closeQRScanningWindow" id="exit_preview_btn" tabindex="0" aria-label="Close QR Scanner">X</button>
       <qrcode-stream id="video_preview" @decode="attemptQRCheckinSubmission"></qrcode-stream>
     </div>
+
+    <!-- Header -->
     <SquareLoader v-if="!meeting_has_loaded" />
     <div v-else class="header">
       <!-- Page Title -->
-      <div class="page-title">Meeting Info</div>
+      <div class="inline-block page-title">Meeting Info</div>
+      <sui-label v-if="meeting_is_live" class="inline-block" id="live-label">Live</sui-label>
       <div class="page-info-area">
         <!-- Meeting Info Side -->
         <div class="left-side">
             <h2 class="inline-block">{{ meeting == null ? '' : meeting.title }}</h2>
-            <sui-label v-if="meeting_is_live" class="inline-block" id="live-label">Live</sui-label>
             <div class="details-area">
               <sui-label :style="{marginBottom: '5px'}" v-if="for_course">
                   Course
@@ -23,7 +26,7 @@
                 <sui-label-detail>{{ meeting == null ? 'N/A' : meeting.org.name }}</sui-label-detail>
               </sui-label>
 
-              <sui-label class="venue-red" :style="{marginBottom: '5px'}">
+              <sui-label class="venue-red" id="dept-text" :style="{marginBottom: '5px'}">
                   Dept
                 <sui-label-detail>{{meeting == null ? '' : meeting.course.dept }} {{ meeting == null ? '' : meeting.course.course_number }}</sui-label-detail>
               </sui-label>
@@ -38,6 +41,7 @@
         </div>
       </div>
     </div>
+
     <div class="sidebar-area">
       <div class="instructor-info">
         <div class="name">Prof. David Goldschmidt</div>
@@ -47,7 +51,7 @@
       </div>
     </div>
 
-    <div class="top-spacer"></div>
+    <!-- <div class="top-spacer"></div> -->
 
     <div class="content-area-wrapper">
       <div class="left-spacer"></div>
@@ -327,18 +331,18 @@ export default {
       font-weight: 600;
     }
 
+    #live-label {
+      margin-left: 1rem;
+      background-color: #5EFFB4;
+    }
+
     .page-info-area {
       display: flex;
+      margin-top: 1rem;
 
       .left-side {
         width: 25%;
         min-width: 300px;
-
-        #live-label {
-          margin-left: 3rem;
-          background-color: #5EFFB4;
-        }
-
       }
 
       .right-side {
@@ -401,6 +405,7 @@ export default {
       }
   }
 }
+
 .dark-mode {
     .meeting-info {
         .page-title {
