@@ -11,11 +11,10 @@
     <!-- Header -->
     <SquareLoader v-if="!meeting_has_loaded" />
     <div v-else class="header">
-      <!-- Page Title -->
       <div class="inline-block page-title">Meeting Info</div>
       <sui-label v-if="meeting_is_live" class="inline-block" id="live-label">Live</sui-label>
       <div class="page-info-area">
-        <!-- Meeting Info Side -->
+        <!-- Page Info -->
         <div class="left-side">
             <h2 class="inline-block">{{ meeting == null ? '' : meeting.title }}</h2>
             <div class="details-area">
@@ -34,15 +33,11 @@
               </sui-label>
             </div>
         </div>
-        <!-- Schedule Area -->
+        <!-- Active Tasks -->
         <div class="right-side">
           <ActiveTasksList :active_tasks="active_tasks"
           v-on:show-fullscreen-code="showFullScreenQRCodeModal"
           v-on:show-scanning-window="showQRScanningWindow"/>
-<!--             <MeetingInfoScheduleSlider 
-              :tasksInfo="tasks_summary"
-              :manageScheduleTabClick="manageScheduleTabClick"
-            /> -->
         </div>
       </div>
     </div>
@@ -56,8 +51,6 @@
       </div>
     </div>
 
-    <!-- <div class="top-spacer"></div> -->
-
     <div class="content-area-wrapper">
       <div class="left-spacer"></div>
         <div class="content-area">
@@ -70,7 +63,7 @@
                   <h3>({{ meeting.live_attendance.qr_checkins.length }}) Live Task<span v-if="meeting.live_attendance.qr_checkins.length != 1">s</span>
                   </h3>
                 </div>
-                  <TaskInfoModalInstructor 
+                  <TaskInfoContainer 
                   v-for="(qr_checkin,i) in meeting.live_attendance.qr_checkins"
                   :task_number="i"
                   :task="qr_checkin"
@@ -79,7 +72,7 @@
                   v-on:show-qr-scanning-window="showQRScanningWindow"
                   v-on:show-task-attendance="showTaskAttendance" />
 <!--                 <div v-if="is_instructor">
-                  <TaskInfoModalInstructor 
+                  <TaskInfoContainer 
                     v-for="(task, i) in tasks_summary"
                     :key="i"
                     :taskInfo="task"
@@ -88,7 +81,7 @@
                   />
                 </div>
                 <div v-else>
-                  <TaskInfoModalInstructor 
+                  <TaskInfoContainer 
                     v-for="(task, i) in tasks_summary"
                     :key="i"
                     :taskInfo="task"
@@ -107,14 +100,14 @@
               </div>
             </div>
             <div key="2" v-else>
-              <TaskInfoModalInstructorExpanded 
+              <TaskInfoContainerExpanded 
                 v-if="task_focus_mode == 'show-info'"
                 :task="focused_task"
                 :cancelTask="cancelTask"
                 :is_qr="focused_task.code != null"
                 v-on:show-fullscreen-code="showFullScreenQRCodeModal"
               />
-              <TaskAttendanceInfo 
+              <TaskAttendanceList 
                 v-else-if="task_focus_mode == 'show-attendance'"
                 :task="focused_task"
                 :cancelTask="cancelTask"
@@ -136,9 +129,9 @@ import QRScanningWindow from '@/components/QRScanningWindow.vue';
 import ActiveTasksList from '@/components/ActiveTasksList.vue'
 import TaskInfoModal from '@/components/TaskInfoModal.vue'
 import TaskInfoModalExpanded from '@/components/TaskInfoModalExpanded.vue'
-import TaskInfoModalInstructor from '@/components/TaskInfoModalInstructor.vue'
-import TaskInfoModalInstructorExpanded from '@/components/TaskInfoModalInstructorExpanded.vue'
-import TaskAttendanceInfo from '@/components/TaskAttendanceInfo.vue'
+import TaskInfoContainer from '@/components/TaskInfoContainer.vue'
+import TaskInfoContainerExpanded from '@/components/TaskInfoContainerExpanded.vue'
+import TaskAttendanceList from '@/components/TaskAttendanceList.vue'
 import SquareLoader from "@/components/Loaders/SquareLoader.vue"
 import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 import MeetingAPI from '@/services/MeetingAPI.js';
@@ -153,9 +146,9 @@ export default {
         ActiveTasksList,
         TaskInfoModal,
         TaskInfoModalExpanded,
-        TaskInfoModalInstructor,
-        TaskInfoModalInstructorExpanded,
-        TaskAttendanceInfo,
+        TaskInfoContainer,
+        TaskInfoContainerExpanded,
+        TaskAttendanceList,
         SquareLoader
     },
     data () {

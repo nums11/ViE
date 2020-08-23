@@ -1,5 +1,5 @@
 <template>
-<div class="task-info-modal-instructor">
+<div class="task-info-container">
   <div class="upper-area">
     <div class="left-side">
         <div class="title-area">
@@ -40,7 +40,7 @@
 import ProgressBar from "@/components/ProgressBar.vue"
 
 export default {
-    name: 'TaskInfoModalInstructor',
+    name: 'TaskInfoContainer',
     props: {
       task: Object,
       is_qr: Boolean,
@@ -90,7 +90,7 @@ export default {
 </script>
 <style lang="scss">
 
-.task-info-modal-instructor {
+.task-info-container {
     margin-top:1rem;
     border-radius: 5px;
 
@@ -133,7 +133,7 @@ export default {
 }
 
 .light-mode {
-    .task-info-modal-instructor {
+    .task-info-container {
         background-color: white;
         border: 1px solid rgba(0, 0, 0, 0.25);
             box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
@@ -146,7 +146,7 @@ export default {
 
 .dark-mode {
     // 282c36
-    .task-info-modal-instructor {
+    .task-info-container {
         background-color: #282c36;
 
         .lower-area {

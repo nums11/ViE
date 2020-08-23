@@ -1,5 +1,5 @@
 <template>
-  <div class="task-info-modal-instructor-expanded">
+  <div class="task-info-container-expanded">
     <div class="header-area">
       <div class="left-side">
         <div class="title-area">
@@ -57,7 +57,7 @@ import ProgressBar from "@/components/ProgressBar.vue";
 import QRCode from '@chenfengyuan/vue-qrcode';
 
 export default {
-  name: 'TaskInfoModalInstructorExpanded',
+  name: 'TaskInfoContainerExpanded',
   components: {
     ProgressBar,
     QRCode
@@ -104,7 +104,7 @@ export default {
 </script>
 <style lang="scss">
 
-.task-info-modal-instructor-expanded {
+.task-info-container-expanded {
     border-radius: 3px;
     margin-bottom: 30px;
 
@@ -173,7 +173,7 @@ export default {
 }
 
 .light-mode {
-    .task-info-modal-instructor-expanded {
+    .task-info-container-expanded {
         background-color: white;
         border: 1px solid rgba(0, 0, 0, 0.25);
             box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
@@ -189,7 +189,7 @@ export default {
 
 .dark-mode {
     // 282c36
-    .task-info-modal-instructor-expanded {
+    .task-info-container--expanded {
         background-color: #282c36;
 
         .footer-area {

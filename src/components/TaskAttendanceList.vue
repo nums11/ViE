@@ -1,64 +1,61 @@
 <template>
-
-    <div class="task-info-modal-instructor-expanded task-attendance-info-mode">
-        <div class="header-area">
-            <div class="left-side">
-                <div class="title-area">
-                    <h4 v-if="is_qr">QR Submission</h4>
-                    <h4 v-else>Recording</h4>
-                </div>
-            </div>
-            <div class="right-side">
-                <div class="icon-area">
-                    <!-- SPACE AVAILABLE -->
-                </div>
-            </div>
+  <div class="task-info-modal-instructor-expanded task-attendance-info-mode">
+    <div class="header-area">
+      <div class="left-side">
+        <div class="title-area">
+          <h4 v-if="is_qr">QR Submission</h4>
+          <h4 v-else>Recording</h4>
         </div>
-
-        <!-- Body Area -->
-        <div class="body-area">
-            
-            <div class="student-attendance-list">
-                <ul v-if="is_qr">
-                    <li v-for="submission in task.qr_checkin_submissions" :key="i" >
-                        <p>Student {{i}}</p>
-                        <sui-label v-if="i%2 == 0" size="small" class="venue-green">
-                            Has Attended
-                        </sui-label>
-                        <sui-label v-if="i%2 == 1" size="small" class="venue-red">
-                            Has Not Attended
-                        </sui-label>
-                    </li>
-                </ul>
-            </div>
-
+      </div>
+      <div class="right-side">
+        <div class="icon-area">
+          <!-- SPACE AVAILABLE -->
         </div>
-
-        <!-- Footer Area -->
-        <div class="footer-area">
-            <div class="left-side">
-                <sui-button 
-                    compact icon="left arrow" 
-                    label-position="left" 
-                    @click="cancelTask"
-                    content="Back" />
-            </div>
-            <div class="center-area">
-                <ProgressBar :value="0.8" />
-            </div>
-            <div class="right-side">
-                <!-- RIGHT FOOTER PLACEHOLDER -->
-            </div>
-        </div>
+      </div>
     </div>
 
+    <!-- Body Area -->
+    <div class="body-area">
+      <div class="student-attendance-list">
+        <ul v-if="is_qr">
+          <li v-for="submission in task.qr_checkin_submissions" :key="i" >
+            <p>Student {{i}}</p>
+            <sui-label v-if="i%2 == 0" size="small" class="venue-green">
+                Has Attended
+            </sui-label>
+            <sui-label v-if="i%2 == 1" size="small" class="venue-red">
+                Has Not Attended
+            </sui-label>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Footer Area -->
+    <div class="footer-area">
+      <div class="left-side">
+        <sui-button 
+          compact icon="left arrow" 
+          label-position="left" 
+          @click="cancelTask"
+          content="Back" />
+      </div>
+      <div class="center-area">
+        <ProgressBar :value="0.8" />
+      </div>
+      <div class="right-side">
+          <!-- RIGHT FOOTER PLACEHOLDER -->
+      </div>
+    </div>
+  </div>
 </template>
+
 <script>
 
 import ProgressBar from "@/components/ProgressBar.vue";
 
 export default {
-    name: 'TaskAttendanceInfo',
+    name: 'TaskAttendanceList',
     components: {
         ProgressBar
     },
