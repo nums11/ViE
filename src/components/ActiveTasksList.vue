@@ -1,5 +1,6 @@
 <template>
   <div class="active-tasks-list">
+    <h3 class="inline-block active-tasks-header">Active Tasks:</h3>
     <div class="inline-block active-task-container" v-for="task in active_tasks"
     :key="task._id">
       <!-- Recording Button -->
@@ -38,7 +39,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.active-task-container {
-  margin-left: 2rem;
+.active-tasks-list {
+
+  .active-tasks-header {
+    margin-left: 2rem;
+  }
+
+  .active-task-container {
+    margin-left: 2rem;
+  }
+
 }
 </style>
