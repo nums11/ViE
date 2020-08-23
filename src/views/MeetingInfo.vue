@@ -37,7 +37,8 @@
         </div>
         <!-- Schedule Area -->
         <div class="right-side">
-          <ActiveTasksList :active_tasks="active_tasks" />
+          <ActiveTasksList :active_tasks="active_tasks"
+          v-on:show-fullscreen-code="showFullScreenQRCodeModal"/>
 <!--             <MeetingInfoScheduleSlider 
               :tasksInfo="tasks_summary"
               :manageScheduleTabClick="manageScheduleTabClick"
