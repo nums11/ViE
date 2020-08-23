@@ -5,16 +5,14 @@
       <!-- Recording Button -->
       <router-link v-if="task.qr_checkin_start_time == null"
       :to="{name: 'watch_recording', params: {recording_id: task._id}}"
-      @click="$emit('show-fullscreen-code',task.code)" basic>
-        <sui-button icon="play circle" label-position="left">
-          <a is="sui-label" slot="label" basic>Watch Recording</a>
-        </sui-button>
+      @click="$emit('show-fullscreen-code',task.code)">
+        <sui-button content="Watch Recording" icon="play circle"
+        label-position="right" color="violet" />
       </router-link>
       <!-- QR Button -->
       <div v-else @click="$emit('show-fullscreen-code',task.code)">
-        <sui-button icon="qrcode" label-position="left">
-          <a is="sui-label" slot="label" basic>Show QR Code</a>
-        </sui-button>
+        <sui-button content="Show QR Code" icon="qrcode"
+        label-position="right" color="teal" />
       </div>
     </div>
   </div>

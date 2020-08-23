@@ -21,10 +21,8 @@
         <ProgressBar :value="0.5" suffix="Attendance" />
     </div>
     <div v-if="is_instructor" class="right-side">
-      <sui-button 
-          v-if="is_qr"
-          @click="$emit('show-task-qr',task)"
-          secondary>Show QR Code</sui-button>
+      <sui-button v-if="is_qr" @click="$emit('show-task-qr',task)"
+      content="Show QR Code" icon="qrcode" label-position="right" color="teal" />
       <sui-button class="venue-blue" @click="$emit('show-task-attendance',task)">See Who Attended</sui-button>
     </div>
     <div v-else>
