@@ -110,8 +110,8 @@
               <TaskAttendanceList 
                 v-else-if="task_focus_mode == 'show-attendance'"
                 :task="focused_task"
+                :attendees="attendees"
                 :cancelTask="cancelTask"
-                :is_qr="focused_task.code != null"
               />
             </div>
           </transition-group>
@@ -168,14 +168,17 @@ export default {
             show_qr_code_modal: false,
             full_screen_code: "",
             show_qr_scanning_window: false,
+            attendees: []
         }
     },
     async created () {
       this.current_user = this.$store.state.user.current_user
       this.is_instructor = this.current_user.is_instructor
       await this.getMeeting ()
+      console.log("Meeting",this.meeting)
       this.getMeetingStatus()
       this.getActiveTasksForMeeting()
+      this.getMeetingAttendees()
       this.meeting_has_loaded = true
     },
     methods: {
@@ -296,6 +299,12 @@ export default {
             }
           })
         }
+      },
+      getMeetingAttendees() {
+        if(this.for_course)
+          this.attendees = this.meeting.course.students
+        else
+          this.attendees = this.meeting.org.general_members
       },
       isBetweenTimes(time, start_time, end_time) {
         return time >= start_time &&

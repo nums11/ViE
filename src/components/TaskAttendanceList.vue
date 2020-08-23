@@ -16,19 +16,36 @@
 
     <!-- Body Area -->
     <div class="body-area">
-      <div class="student-attendance-list">
-        <ul v-if="is_qr">
-          <li v-for="submission in task.qr_checkin_submissions" :key="i" >
-            <p>Student {{i}}</p>
-            <sui-label v-if="i%2 == 0" size="small" class="venue-green">
+      <div class="inline-block student-attendance-list">
+        <h3>Present ({{present_attendees.length}}/{{attendees.length}})</h3>
+<!--         <ul v-if="is_qr">
+          <li v-for="submission in task.qr_checkin_submissions" :key="submission._id" >
+            <p>{{ submission.submitter.user_id }}</p>
+          </li>
+        </ul> -->
+        <sui-label v-for="attendee in present_attendees"
+        :key="attendee._id"
+        class="venue-green">
+          <p>{{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})</p>
+        </sui-label>
+      </div>
+      <div class="inline-block student-attendance-list">
+        <h3>Absent ({{absent_attendees.length}}/{{attendees.length}})</h3>
+        <sui-label v-for="attendee in absent_attendees"
+        :key="attendee._id"
+        class="venue-red">
+          <p>{{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})</p>
+        </sui-label>
+      </div>
+ <!--            <sui-label v-if="i%2 == 0" size="small" class="venue-green">
                 Has Attended
             </sui-label>
             <sui-label v-if="i%2 == 1" size="small" class="venue-red">
                 Has Not Attended
             </sui-label>
-          </li>
-        </ul>
-      </div>
+          </li> -->
+        <!-- </ul> -->
+      <!-- </div> -->
     </div>
 
     <!-- Footer Area -->
@@ -57,17 +74,56 @@ import ProgressBar from "@/components/ProgressBar.vue";
 export default {
     name: 'TaskAttendanceList',
     components: {
-        ProgressBar
+      ProgressBar
     },
     props: {
-        task: Object,
-        is_qr: Boolean,
-        cancelTask: Function
+      task: {
+        type: Object,
+        required: true
+      },
+      attendees: {
+        type: Array,
+        required: true
+      },
+      cancelTask: {
+        type: Function,
+        required: true
+      }
+    },
+    data() {
+      return {
+        is_qr: false,
+        present_attendees: [],
+        absent_attendees: []
+      }
+    },
+    created() {
+      this.is_qr = this.task.code != null
+      this.separateAttendees()
+      console.log("Attendees", this.attendees)
     },
     methods: {
-        getTaskName () {
-            return this.taskInfo.taskName
-        }
+      separateAttendees() {
+        let submission_ids = this.getSubmissionIds()
+        this.attendees.forEach(attendee => {
+          if(submission_ids.has(attendee.user_id))
+            this.present_attendees.push(attendee)
+          else
+            this.absent_attendees.push(attendee)
+        })
+        console.log("Present", this.present_attendees)
+        console.log("Absent", this.absent_attendees)
+      },
+      getSubmissionIds() {
+        let task_submissions = this.is_qr ? 
+        this.task.qr_checkin_submissions :
+        this.task.recording_submissions
+        let submission_ids = new Set()
+        task_submissions.forEach(submission => {
+          submission_ids.add(submission.submitter.user_id)
+        })
+        return submission_ids
+      }
     }
 }
 </script>
@@ -76,6 +132,9 @@ export default {
 .task-attendance-info-mode {
     
     .student-attendance-list {
+      width: 50%;
+      vertical-align: top;
+      text-align: center;
         
         ul {
             list-style: none;

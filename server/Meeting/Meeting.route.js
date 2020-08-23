@@ -270,11 +270,18 @@ meetingRoutes.route('/get/:id').get(function (req, res) {
   Meeting.findById(id).
   populate({
     path: 'course',
-    populate: {
+    populate: [{
       path: 'instructor'
+    }, {
+      path: 'students'
+    }]
+  }).
+  populate({
+    path: 'org',
+    populate: {
+      path: 'general_members'
     }
   }).
-  populate('org').
   populate({
     path: 'live_attendance',
     populate: [{
