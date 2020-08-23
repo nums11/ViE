@@ -1,6 +1,8 @@
 <template>
   <div class="active-tasks-list">
-    <h3 class="inline-block active-tasks-header">Active Tasks:</h3>
+    <h3 v-if="active_tasks.length >0"
+    class="inline-block active-tasks-header">Active Tasks</h3>
+    <h3 v-else class="inline-block active-tasks-header">No Active Tasks</h3>
     <div class="inline-block active-task-container" v-for="task in active_tasks"
     :key="task._id">
       <!-- Recording Button -->
