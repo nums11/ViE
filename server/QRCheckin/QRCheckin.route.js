@@ -132,8 +132,13 @@ qrCheckinRoutes.post('/attend', async (req, res) => {
                 is_qr_checkin_submission: true,
                 qr_checkin: qr_checkin._id
               })
+
+              // add the live submission to the qr checkin submission array
+
               
               let new_submission_doc = await new_live_submission.save ()
+              qr_checkin.qr_checkin_submissions.push(new_submission_doc._id)
+              qr_checkin.save ()
               res.json({
                 success: true,
                 data: {
