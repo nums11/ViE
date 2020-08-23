@@ -14,7 +14,7 @@
                     <!-- SPACE AVAILABLE -->
                     <sui-button 
                     v-if="is_qr"
-                    @click="expandQRCode"
+                    @click="showFullScreenQRCodeModal"
                     compact icon="expand" />
                 </div>
             </div>
@@ -23,7 +23,7 @@
         <!-- Body Area -->
         <div class="body-area">
             <div class="body-contents">
-                <qrcode 
+                <QRCode 
                     :style="{margin: '0 auto'}"
                     v-if="is_qr"
                     :value="task.code"
@@ -51,7 +51,7 @@
             </div>
         </div>
 
-        <transition name="fade" mode="out-in">
+<!--         <transition name="fade" mode="out-in">
             <div class="fullscreen-modal" v-if="show_fullscreen_modal">
 
                 <div class="full-content-area">
@@ -72,66 +72,69 @@
                     <sui-button @click="show_fullscreen_modal = false">Close</sui-button>
                 </div>
             </div>
-        </transition>
+        </transition> -->
+        <FullScreenQRCodeModal v-if="show_qr_code_modal"
+        v-on:hide-modal="hideFullScreenQRCodeModal" :code="task.code" />
+
     </div>
 
 </template>
 <script>
-
 import ProgressBar from "@/components/ProgressBar.vue";
-import qrcode from '@chenfengyuan/vue-qrcode';
-import { QrcodeStream } from 'vue-qrcode-reader';
+import FullScreenQRCodeModal from '@/components/FullScreenQRCodeModal.vue';
+import QRCode from '@chenfengyuan/vue-qrcode';
 
 export default {
-    name: 'TaskInfoModalInstructorExpanded',
-    components: {
-        ProgressBar,
-        qrcode,
-        QrcodeStream
-    },
-    props: {
-        task: Object,
-        is_qr: Boolean,
-        cancelTask: Function
-    },
-    data () {
-        return {
-            show_fullscreen_modal: false,
-
-            DAY_OF_WEEK: ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri'],
-            MONTHS: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-        }
-    },
-    methods: {
-        expandQRCode () {
-            this.show_fullscreen_modal = true;
-        },
-        getTaskTitle () {
-            if (this.taskInfo.taskType == 'qr-code') return `QR Submission`
-        },
-        getTaskDateTime () {
-            // Thurs. August 23rd, 2:00pm-3:00pm
-            let start_ = null
-            let end_ = null
-            if(this.is_qr) {
-              start_ = new Date(this.task.qr_checkin_start_time)
-              end_ = new Date(this.task.qr_checkin_end_time)
-            } else {
-              start_ = new Date(this.task.recording_submission_start_time)
-              end_ = new Date(this.task.recording_submission_end_time)
-            }
-
-            return `${this.DAY_OF_WEEK[start_.getDay()]}. ${this.MONTHS[start_.getMonth()]} ${start_.getDate()}, ${this.getHourMinute(start_)}-${this.getHourMinute(end_)}`
-        },
-        getHourMinute (time) {
-            let hour = (time.getHours () + 1) % 12
-            let minute = time.getMinutes () < 10 ? `0${time.getMinutes()}` : time.getMinutes()
-            let suffix = hour >= 11 ? 'pm' : 'am'
-
-            return `${hour}:${minute}${suffix}`
-        }
-
+  name: 'TaskInfoModalInstructorExpanded',
+  components: {
+    ProgressBar,
+    FullScreenQRCodeModal,
+    QRCode
+  },
+  props: {
+    task: Object,
+    is_qr: Boolean,
+    cancelTask: Function
+  },
+  data () {
+    return {
+      show_qr_code_modal: false,
+      DAY_OF_WEEK: ['Sun', 'Mon', 'Tues', 'Wed', 'Thurs', 'Fri'],
+      MONTHS: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
     }
+  },
+  methods: {
+    showFullScreenQRCodeModal () {
+      this.show_qr_code_modal = true
+    },
+    hideFullScreenQRCodeModal() {
+      this.show_qr_code_modal = false
+    },
+    getTaskTitle () {
+        if (this.taskInfo.taskType == 'qr-code') return `QR Submission`
+    },
+    getTaskDateTime () {
+        // Thurs. August 23rd, 2:00pm-3:00pm
+        let start_ = null
+        let end_ = null
+        if(this.is_qr) {
+          start_ = new Date(this.task.qr_checkin_start_time)
+          end_ = new Date(this.task.qr_checkin_end_time)
+        } else {
+          start_ = new Date(this.task.recording_submission_start_time)
+          end_ = new Date(this.task.recording_submission_end_time)
+        }
+
+        return `${this.DAY_OF_WEEK[start_.getDay()]}. ${this.MONTHS[start_.getMonth()]} ${start_.getDate()}, ${this.getHourMinute(start_)}-${this.getHourMinute(end_)}`
+    },
+    getHourMinute (time) {
+        let hour = (time.getHours () + 1) % 12
+        let minute = time.getMinutes () < 10 ? `0${time.getMinutes()}` : time.getMinutes()
+        let suffix = hour >= 11 ? 'pm' : 'am'
+
+        return `${hour}:${minute}${suffix}`
+    }
+  }
 }
 </script>
 <style lang="scss">
