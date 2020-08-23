@@ -4048,6 +4048,14 @@ select.uk-form-width-xsmall {
  * 2. Size and style
  * 3. Allow scrolling
  */
+ .dark-mode .uk-offcanvas-bar {
+   background: #0b0b0d;
+   color: white;
+ }
+.light-mode .uk-offcanvas-bar {
+  background: white;
+  color: black;
+}
 .uk-offcanvas-bar {
   /* 1 */
   position: absolute;
@@ -4058,7 +4066,7 @@ select.uk-form-width-xsmall {
   box-sizing: border-box;
   width: 270px;
   padding: 20px 20px;
-  background: #222;
+  /* background: #222; */
   /* 3 */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;

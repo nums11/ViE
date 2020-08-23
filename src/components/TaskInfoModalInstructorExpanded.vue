@@ -78,7 +78,7 @@
                 <div class="header-area">
                     <div class="status-col">STATUS</div>
                     <div class="student-col">STUDENT NAME</div>
-                    <div class="total-col">15/30 Attended</div>
+                    <div class="total-col">15/30 Submissions</div>
                 </div>
 
                 <div class="attendance-entry-container">
@@ -91,8 +91,20 @@
                                 :animationData="require('@/assets/lottie/check.json')"
                                 width="20px"
                                 height="20px"
-                                loop="1"
+                                :loop="1"
                                 :style="{margin: '0 auto'}"
+
+                                v-if="i%2 == 0"
+                            />
+                            <v-lottie-player
+                                name="check"
+                                :animationData="require('@/assets/lottie/wait-dots.json')"
+                                width="20px"
+                                height="20px"
+                                loop
+                                :style="{margin: '0 auto'}"
+
+                                v-else
                             />
 
                         </div>
@@ -123,6 +135,8 @@ import qrcode from '@chenfengyuan/vue-qrcode';
 import { QrcodeStream } from 'vue-qrcode-reader';
 import { showAt, hideAt } from 'vue-breakpoints';
 import VueLottiePlayer from 'vue-lottie-player';
+import io from 'socket.io-client';
+import { baseURL } from '@/services/API';
 
 export default {
     name: 'TaskInfoModalInstructorExpanded',
@@ -137,6 +151,10 @@ export default {
         taskInfo: Object,
         cancelTask: Function
     },
+    created () {
+
+        this.initializeAttendanceRealTimeUpdate ()
+    },
     data () {
         return {
             show_fullscreen_modal: false,
@@ -146,6 +164,16 @@ export default {
         }
     },
     methods: {
+        initializeAttendanceRealTimeUpdate () {
+            
+            console.log(`initializing socket`)
+            // console.log(baseURL)
+            let client_io = io (baseURL, {forceNew: true})
+            client_io.emit('start attendance update', {
+                task_id: this.taskInfo._id,
+                type: this.taskInfo.taskType,
+            })
+        },
         getUrlEncoded () {
             return `http://localhost:8080/#/attend/${this.taskInfo.meetingId}/${this.taskInfo.qrCode}`
         },
@@ -193,6 +221,7 @@ export default {
         position: relative;
         
         .header-area {
+            overflow: hidden;
             display: flex;
             margin: 0;
             padding: 0;

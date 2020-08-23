@@ -3,9 +3,13 @@
   <div>
     <div class="venue-navbar">
         <div class="left-area">
+
+          <hide-at breakpoint="small">
             <div class="logo-area">
                 <router-link to="/dashboard"><img src="@/assets/venue-logo.svg" class="image-logo" /></router-link>
             </div>
+          </hide-at>
+          <hide-at breakpoint="small">
             <div class="menu-items-area">
                 <div @click="update ()">
                   <router-link to="/dashboard"><div :class="`nav-link ${isPage('dashboard') ? 'active' : ''}`">Dashboard</div></router-link>
@@ -57,17 +61,40 @@
 
                 </div>
             </div>
+          </hide-at>
+          <show-at breakpoint="small">
+            <div class="mobile-navbar" @click="showMobileMenu = true">
+              <div class="hamburger-icon" @click="showMobileMenu = true">
+                <sui-icon name="bars" />
+              </div>
+              <div class="logo-area-mobile">
+                <router-link to="/dashboard"><img src="@/assets/venue-logo.svg" width="100%" height="100%" class="image-logo" /></router-link>
+              </div>
+            </div>
+          </show-at>
+
         </div>
         <div class="right-area">
         
             <hide-at breakpoint="small">
                 <div class="user-action">
-                  <sui-button compact icon="cog" 
-                    id="user-action-toggle-button"
-                    label-position="left" 
-                    :content="`${current_user.first_name} ${current_user.last_name}`"
-                    @click="toggleUserView"
-                  />
+                  <div :style="{display: 'inline-block'}">
+                    <show-at breakpoint="large">
+                      <sui-button compact icon="cog" 
+                        id="user-action-toggle-button"
+                        label-position="left" 
+                        :content="`${current_user.first_name} ${current_user.last_name}`"
+                        @click="toggleUserView"
+                      />
+                    </show-at>
+                    <hide-at breakpoint="large">
+                      <sui-button
+                        id="user-action-toggle-button-min"
+                        icon="cog"
+                        @click="toggleUserView"
+                      />
+                    </hide-at>
+                  </div>
                     <!-- <span v-on:click="toggleUserView" :style="{cursor: 'pointer'}">
                       {{ current_user.first_name }} {{ current_user.last_name }}
                       </span> -->
@@ -112,6 +139,31 @@
             </sui-dropdown>
         </div>
     </show-at>
+
+    <!-- SLIDE MENU -->
+    <show-at breakpoint="small" v-if="showMobileMenu">
+      <transition name="fade" mode="out-in">
+        <div class="off-canvas-menu-back" @click="showMobileMenu = false">
+          <div class="off-canvas-menu">
+
+            <ul>
+              <router-link to="/dashboard"><li>Dashboard</li></router-link>
+              <li v-if="user_courses && user_courses.length > 0">Courses
+                <ul>
+                  <router-link v-for="(course, i) in user_courses" :key="i" :to="`/course_info/${course._id}`" @click="update"><li>{{ course.name }}</li></router-link>
+                </ul>
+              </li>
+              <li v-if="user_orgs && user_orgs.length > 0">Organizations
+                <ul>
+                  <router-link v-for="(org, i) in user_orgs" :key="i" :to="{name: 'org_info', params: { id: org._id }}" @click="update"><li>{{ org.name }}</li></router-link>
+                </ul>
+              </li>
+            </ul>
+
+          </div>
+        </div>
+      </transition>
+    </show-at>
   </div>
 
 </template>
@@ -154,7 +206,8 @@
         showUserView: false,
         dark_mode: false,
         user_orgs: [],
-        dropdown_focus: ''
+        dropdown_focus: '',
+        showMobileMenu: false
       }
     },
     created() {
@@ -168,6 +221,9 @@
         this.getSectionsWithCourses()
     },
     methods: {
+      toggleMobileMenu () {
+        this.push = true
+      },
       focusMenuDropdown (focus_key) {
         this.dropdown_focus = focus_key
       },
@@ -179,6 +235,7 @@
 
         let modal_ = document.getElementById('user-action-modal')
         let userActionControl = document.getElementById('user-action-toggle-button')
+        if (!userActionControl) userActionControl = document.getElementById('user-action-toggle-button-min')
         let target_ = e.target
 
         if (target_ == userActionControl) return;
@@ -207,7 +264,8 @@
         })
       },
       toggleUserView () {
-          this.showUserView = !this.showUserView;
+        console.log(`CLICKED`)
+        this.showUserView = !this.showUserView;
       },
       getCurrentUser() {
         this.current_user = this.$store.state.user.current_user
@@ -262,8 +320,91 @@
 </script>
 
 <style lang="scss">
+.dark-mode {
+  .off-canvas-menu {
+    color: white;
+    background-color: #121419;
+
+    ul {
+      li {
+        color: white;
+      }
+    }
+  }
+}
+.light-mode {
+  .off-canvas-menu {
+    color: black;
+    background-color: white;
+
+    ul {
+      li {
+        color: black;
+      }
+    }
+  }
+}
 .dark-mode, .light-mode {
   
+  .off-canvas-menu-back {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 1000000000;
+    
+    .off-canvas-menu {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 300px;
+      z-index: 10000000000;
+      box-sizing: border-box;
+      padding: 50px;
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        li {
+          font-size: 1.5rem;
+          margin-bottom: 20px;
+
+          ul {
+            margin-left: 30px;
+            margin-top: 20px;
+          }
+        }
+      }
+    }
+  }
+
+  .mobile-navbar {
+
+    .logo-area-mobile {
+      width: 40px;
+      height: 40px;
+      display: inline-block;
+      vertical-align: top;
+    }
+
+    .hamburger-icon {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      margin-right: 15px;
+      vertical-align: top;
+      text-align: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+  }
+
   .venue-navbar {
       height: 70px;
       position: fixed;
@@ -289,6 +430,7 @@
   }
   .venue-navbar .left-area .logo-area {
       width: 70px;
+      min-width: 70px;
       text-align: center;
       height: 40px;
       align-items: center;

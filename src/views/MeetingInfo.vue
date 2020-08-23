@@ -3,123 +3,165 @@
 
     <div class="meeting-info">
 
-        <div class="header">
+        <transition name="fade" mode="out-in">
+        <div v-if="!meeting_has_loaded" key="1">
+            <SquareLoader />
+        </div>
+        <div v-else key="2">
+            <div class="header">
 
-            <!-- Page Title -->
-            <div class="page-title">Meeting Info</div>
-            <div class="page-info-area">
+                <!-- Page Title -->
+                <div class="page-title">Meeting Info</div>
+                <div class="page-info-area">
 
-                <!-- Meeting Info Side -->
-                <div class="left-side">
-                    <h2>{{ meeting == null ? '' : meeting.title }}</h2>
-                    <div class="details-area">
-                        <sui-label :style="{marginBottom: '5px'}" v-if="for_course">
-                            Course
-                            <sui-label-detail>{{ meeting == null ? '(untitled)' : meeting.course.name }}</sui-label-detail>
-                        </sui-label>
+                    <!-- Meeting Info Side -->
+                    <div class="left-side">
+                        <h2>{{ meeting == null ? '' : meeting.title }}</h2>
+                        <div class="details-area">
+                            <sui-label :style="{marginBottom: '5px'}" v-if="for_course">
+                                Course
+                                <sui-label-detail>{{ meeting == null ? '(untitled)' : meeting.course.name }}</sui-label-detail>
+                            </sui-label>
 
-                        <sui-label :style="{marginBottom: '5px'}" v-else>
-                            Organization
-                            <sui-label-detail>{{ meeting == null ? 'N/A' : meeting.org.name }}</sui-label-detail>
-                        </sui-label>
+                            <sui-label :style="{marginBottom: '5px'}" v-else>
+                                Organization
+                                <sui-label-detail>{{ meeting == null ? 'N/A' : meeting.org.name }}</sui-label-detail>
+                            </sui-label>
 
-                        <sui-label class="venue-red" :style="{marginBottom: '5px'}">
-                            Dept
-                            <sui-label-detail>{{meeting == null ? '' : meeting.course.dept }} {{ meeting == null ? '' : meeting.course.course_number }}</sui-label-detail>
-                        </sui-label>
+                            <sui-label class="venue-red" :style="{marginBottom: '5px'}">
+                                Dept
+                                <sui-label-detail>{{meeting == null ? '' : meeting.course.dept }} {{ meeting == null ? '' : meeting.course.course_number }}</sui-label-detail>
+                            </sui-label>
 
-                        <sui-label :style="{marginBottom: '5px'}">
-                            Time Block
-                            <sui-label-detail>{{getStartTime()}} - {{getEndTime()}}</sui-label-detail>
-                        </sui-label>
+                            <sui-label :style="{marginBottom: '5px'}">
+                                Time Block
+                                <sui-label-detail>{{getStartTime()}} - {{getEndTime()}}</sui-label-detail>
+                            </sui-label>
+                        </div>
+                    </div>
+
+                    <!-- Schedule Area -->
+                    <div class="right-side">
+                        <MeetingInfoScheduleSlider 
+                        :tasksInfo="[...live_tasks_summary, ...async_tasks_summary]"
+                        :manageScheduleTabClick="manageScheduleTabClick"
+                        />
+
+                        <!-- Example of the Structure of the Data MeetingInfoScheduleSlider expects -->
+                        <!-- <MeetingInfoScheduleSlider
+                            :tasksInfo="[{
+                                startTime: '2020-08-12T08:51:42.612Z',
+                                endTime: '2020-08-12T10:51:42.612Z',
+                                taskType: 'qr-code',
+                                taskName: 'QR Attendance Submission',
+                                taskDescription: 'Scan the QR code to submit your attendance for this meeting',
+                                id: 1
+                            },{
+                                startTime: '2020-08-12T08:51:42.612Z',
+                                taskType: 'poll',
+                                taskName: 'Rate your summer break from 1 to 10',
+                                taskDescription: 'Submit your results for the poll for your instructor to view',
+                                id: 2
+                            },{
+                                startTime: '2020-08-12T08:51:42.612Z',
+                                taskType: 'file-download',
+                                taskName: 'Textbook PDF',
+                                taskDescription: 'Download the file document uploaded by your instructor',
+                                id: 3
+                            },{
+                                startTime: '2020-08-13T08:51:42.612Z',
+                                taskType: 'file-download',
+                                taskName: 'Lecture 1 PDF',
+                                taskDescription: 'Download the file document uploaded by your instructor',
+                                id: 4
+                            },{
+                                startTime: '2020-08-13T08:51:42.612Z',
+                                taskType: 'file-download',
+                                taskName: 'Lecture 2 PDF',
+                                taskDescription: 'Download the file document uploaded by your instructor',
+                                id: 5
+                            },{
+                                startTime: '2020-08-14T08:51:42.612Z',
+                                taskType: 'file-download',
+                                taskName: 'Lecture 3 PDF',
+                                taskDescription: 'Download the file document uploaded by your instructor',
+                                id: 6
+                            }]"
+                        /> -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-area">
+                
+                <div class="instructor-info">
+                    <div class="name">Prof. David Goldschmidt</div>
+                    <div class="email-icon">
+                        <span class="icon-email"></span>
                     </div>
                 </div>
 
-                <!-- Schedule Area -->
-                <div class="right-side">
-                    <MeetingInfoScheduleSlider 
-                      :tasksInfo="[...live_tasks_summary, ...async_tasks_summary]"
-                      :manageScheduleTabClick="manageScheduleTabClick"
-                    />
-
-                    <!-- Example of the Structure of the Data MeetingInfoScheduleSlider expects -->
-                    <!-- <MeetingInfoScheduleSlider
-                        :tasksInfo="[{
-                            startTime: '2020-08-12T08:51:42.612Z',
-                            endTime: '2020-08-12T10:51:42.612Z',
-                            taskType: 'qr-code',
-                            taskName: 'QR Attendance Submission',
-                            taskDescription: 'Scan the QR code to submit your attendance for this meeting',
-                            id: 1
-                        },{
-                            startTime: '2020-08-12T08:51:42.612Z',
-                            taskType: 'poll',
-                            taskName: 'Rate your summer break from 1 to 10',
-                            taskDescription: 'Submit your results for the poll for your instructor to view',
-                            id: 2
-                        },{
-                            startTime: '2020-08-12T08:51:42.612Z',
-                            taskType: 'file-download',
-                            taskName: 'Textbook PDF',
-                            taskDescription: 'Download the file document uploaded by your instructor',
-                            id: 3
-                        },{
-                            startTime: '2020-08-13T08:51:42.612Z',
-                            taskType: 'file-download',
-                            taskName: 'Lecture 1 PDF',
-                            taskDescription: 'Download the file document uploaded by your instructor',
-                            id: 4
-                        },{
-                            startTime: '2020-08-13T08:51:42.612Z',
-                            taskType: 'file-download',
-                            taskName: 'Lecture 2 PDF',
-                            taskDescription: 'Download the file document uploaded by your instructor',
-                            id: 5
-                        },{
-                            startTime: '2020-08-14T08:51:42.612Z',
-                            taskType: 'file-download',
-                            taskName: 'Lecture 3 PDF',
-                            taskDescription: 'Download the file document uploaded by your instructor',
-                            id: 6
-                        }]"
-                    /> -->
-                </div>
-            </div>
-        </div>
-
-        <div class="sidebar-area">
-            
-            <div class="instructor-info">
-                <div class="name">Prof. David Goldschmidt</div>
-                <div class="email-icon">
-                    <span class="icon-email"></span>
-                </div>
             </div>
 
-        </div>
+            <div class="top-spacer"></div>
+            <div class="content-area-wrapper">
+                <div class="left-spacer"></div>
+                <div class="content-area">
 
-        <div class="top-spacer"></div>
-        <div class="content-area-wrapper">
-            <div class="left-spacer"></div>
-            <div class="content-area">
-
-                <transition
-                    name="fade"
-                    mode="out-in"
-                >
-                <div key="1" v-if="task_focus == null">
-                    <div v-if="getLiveTaskCount() > 0" :style="{marginBottom: '30px'}">
-                        <div class="title"><h3>{{ getLiveTaskString() }}</h3></div>
-                        <div v-if="is_instructor">
-                        <TaskInfoModalInstructor 
-                            v-for="(task, i) in live_tasks_summary"
-                            :key="i"
-                            :taskInfo="task"
-                            :shouldFocus="focusTask"
-                            :shouldFocusTaskAttendance="focusTaskAttendance"
-                        />
+                    <transition
+                        name="fade"
+                        mode="out-in"
+                    >
+                    <div key="1" v-if="task_focus == null">
+                        <div v-if="getLiveTaskCount() > 0" :style="{marginBottom: '30px'}">
+                            <div class="title"><h3>{{ getLiveTaskString() }}</h3></div>
+                            <div v-if="is_instructor">
+                            <TaskInfoModalInstructor 
+                                v-for="(task, i) in live_tasks_summary"
+                                :key="i"
+                                :taskInfo="task"
+                                :shouldFocus="focusTask"
+                                :shouldFocusTaskAttendance="focusTaskAttendance"
+                            />
+                            </div>
+                            <div v-else>
+                                <TaskInfoModal
+                                    :taskInfo="{
+                                            startTime: '2020-08-12T02:51:42.612Z',
+                                            endTime: '2020-08-12T10:51:42.612Z',
+                                            taskType: 'qr-code',
+                                            taskName: 'QR Submission',
+                                            taskDescription: 'Scan the QR code to submit your attendance',
+                                            id: 1
+                                        }"
+                                    :shouldFocus="focusTask"
+                                />
+                                <TaskInfoModal
+                                    :taskInfo="{
+                                            startTime: '2020-08-12T02:51:42.612Z',
+                                            taskType: 'poll',
+                                            taskName: 'Poll',
+                                            taskSubname: 'How many days do you need to complete the assignment?',
+                                            taskDescription: 'Answer the poll before the submission time ends.',
+                                            id: 2
+                                        }"
+                                    :shouldFocus="focusTask"
+                                />
+                            </div>
                         </div>
-                        <div v-else>
+
+                        <div v-if="getAsyncTaskCount() > 0">
+                            <div class="title"><h3>{{ getAsyncTaskString() }}</h3></div>
+                            <div v-if="is_instructor">
+                                <TaskInfoModalInstructor 
+                                    v-for="(task, i) in async_tasks_summary"
+                                    :key="i"
+                                    :taskInfo="task"
+                                    :shouldFocus="focusTask"
+                                    :shouldFocusTaskAttendance="focusTaskAttendance"
+                                />
+                            </div>
+                            <div v-else-if="false">
                             <TaskInfoModal
                                 :taskInfo="{
                                         startTime: '2020-08-12T02:51:42.612Z',
@@ -127,7 +169,7 @@
                                         taskType: 'qr-code',
                                         taskName: 'QR Submission',
                                         taskDescription: 'Scan the QR code to submit your attendance',
-                                        id: 1
+                                        id: 7
                                     }"
                                 :shouldFocus="focusTask"
                             />
@@ -138,123 +180,88 @@
                                         taskName: 'Poll',
                                         taskSubname: 'How many days do you need to complete the assignment?',
                                         taskDescription: 'Answer the poll before the submission time ends.',
-                                        id: 2
+                                        id: 8
                                     }"
                                 :shouldFocus="focusTask"
                             />
-                        </div>
-                    </div>
-
-                    <div v-if="getAsyncTaskCount() > 0">
-                        <div class="title"><h3>{{ getAsyncTaskString() }}</h3></div>
-                        <div v-if="is_instructor">
-                            <TaskInfoModalInstructor 
-                                v-for="(task, i) in async_tasks_summary"
-                                :key="i"
-                                :taskInfo="task"
+                            <TaskInfoModal
+                                :taskInfo="{
+                                        startTime: '2020-08-14T02:51:42.612Z',
+                                        taskType: 'file-download',
+                                        taskName: 'Lecture 3 PDF',
+                                        taskSubname: 'GalaxiesTextbook.pdf',
+                                        taskDescription: 'Download the file document uploaded by your instructor',
+                                        id: 9
+                                    }"
                                 :shouldFocus="focusTask"
-                                :shouldFocusTaskAttendance="focusTaskAttendance"
                             />
-                        </div>
-                        <div v-else-if="false">
-                        <TaskInfoModal
-                            :taskInfo="{
-                                    startTime: '2020-08-12T02:51:42.612Z',
-                                    endTime: '2020-08-12T10:51:42.612Z',
-                                    taskType: 'qr-code',
-                                    taskName: 'QR Submission',
-                                    taskDescription: 'Scan the QR code to submit your attendance',
-                                    id: 7
-                                }"
-                            :shouldFocus="focusTask"
-                        />
-                        <TaskInfoModal
-                            :taskInfo="{
-                                    startTime: '2020-08-12T02:51:42.612Z',
-                                    taskType: 'poll',
-                                    taskName: 'Poll',
-                                    taskSubname: 'How many days do you need to complete the assignment?',
-                                    taskDescription: 'Answer the poll before the submission time ends.',
-                                    id: 8
-                                }"
-                            :shouldFocus="focusTask"
-                        />
-                        <TaskInfoModal
-                            :taskInfo="{
-                                    startTime: '2020-08-14T02:51:42.612Z',
-                                    taskType: 'file-download',
-                                    taskName: 'Lecture 3 PDF',
-                                    taskSubname: 'GalaxiesTextbook.pdf',
-                                    taskDescription: 'Download the file document uploaded by your instructor',
-                                    id: 9
-                                }"
-                            :shouldFocus="focusTask"
-                        />
-                        <TaskInfoModal
-                            :taskInfo="{
-                                    startTime: '2020-08-12T02:51:42.612Z',
-                                    taskType: 'link',
-                                    taskName: 'Physics Web Module',
-                                    taskSubname: 'Play around with the physics module',
-                                    taskDescription: 'Click the link',
-                                    id: 10
-                                }"
-                            :shouldFocus="focusTask"
-                        />
-                        <TaskInfoModal
-                            :taskInfo="{
-                                    startTime: '2020-08-12T02:51:42.612Z',
-                                    taskType: 'file-download',
-                                    taskName: 'Physics Textbook',
-                                    taskSubname: 'IntroToPhysics.pdf',
-                                    taskDescription: 'Download the file document uploaded by your instructor',
-                                    id: 11
-                                }"
-                            :shouldFocus="focusTask"
-                        />
-                        <TaskInfoModal
-                            :taskInfo="{
-                                    startTime: '2020-08-12T02:51:42.612Z',
-                                    taskType: 'recording',
-                                    taskName: 'Prerecorded Lecture 1',
-                                    taskSubname: 'Intro to Physics',
-                                    taskDescription: 'Watch the recording uploaded by your instructor',
-                                    id: 12
-                                }"
-                            :shouldFocus="focusTask"
-                        />
+                            <TaskInfoModal
+                                :taskInfo="{
+                                        startTime: '2020-08-12T02:51:42.612Z',
+                                        taskType: 'link',
+                                        taskName: 'Physics Web Module',
+                                        taskSubname: 'Play around with the physics module',
+                                        taskDescription: 'Click the link',
+                                        id: 10
+                                    }"
+                                :shouldFocus="focusTask"
+                            />
+                            <TaskInfoModal
+                                :taskInfo="{
+                                        startTime: '2020-08-12T02:51:42.612Z',
+                                        taskType: 'file-download',
+                                        taskName: 'Physics Textbook',
+                                        taskSubname: 'IntroToPhysics.pdf',
+                                        taskDescription: 'Download the file document uploaded by your instructor',
+                                        id: 11
+                                    }"
+                                :shouldFocus="focusTask"
+                            />
+                            <TaskInfoModal
+                                :taskInfo="{
+                                        startTime: '2020-08-12T02:51:42.612Z',
+                                        taskType: 'recording',
+                                        taskName: 'Prerecorded Lecture 1',
+                                        taskSubname: 'Intro to Physics',
+                                        taskDescription: 'Watch the recording uploaded by your instructor',
+                                        id: 12
+                                    }"
+                                :shouldFocus="focusTask"
+                            />
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div key="2" v-else>
-                  <TaskInfoModalInstructorExpanded 
-                    v-if="is_instructor && task_focus_mode == 'show-info'"
-                    :taskInfo="live_tasks_summary[task_focus]"
-                    :cancelTask="cancelTask"
-                  />
-                  <TaskAttendanceInfo 
-                    v-else-if="is_instructor && task_focus_mode == 'show-attendance'"
-                    :taskInfo="live_tasks_summary[task_focus]"
-                    :cancelTask="cancelTask"
-                  />
-                  <TaskInfoModalExpanded 
-                    v-else
-                    :taskInfo="{
-                            startTime: '2020-08-12T02:51:42.612Z',
-                            taskType: 'poll',
-                            taskName: 'Poll',
-                            taskSubname: 'How many days do you need to complete the assignment?',
-                            taskDescription: 'Answer the poll before the submission time ends.',
-                            pollOptions: [1, 2, 3, 4],
-                            id: 8
-                    }"
-                    :cancelTask="cancelTask"
-                  />
-                </div>
-                </transition>
+                    <div key="2" v-else>
+                    <TaskInfoModalInstructorExpanded 
+                        v-if="is_instructor && task_focus_mode == 'show-info'"
+                        :taskInfo="live_tasks_summary[task_focus]"
+                        :cancelTask="cancelTask"
+                    />
+                    <TaskAttendanceInfo 
+                        v-else-if="is_instructor && task_focus_mode == 'show-attendance'"
+                        :taskInfo="live_tasks_summary[task_focus]"
+                        :cancelTask="cancelTask"
+                    />
+                    <TaskInfoModalExpanded 
+                        v-else
+                        :taskInfo="{
+                                startTime: '2020-08-12T02:51:42.612Z',
+                                taskType: 'poll',
+                                taskName: 'Poll',
+                                taskSubname: 'How many days do you need to complete the assignment?',
+                                taskDescription: 'Answer the poll before the submission time ends.',
+                                pollOptions: [1, 2, 3, 4],
+                                id: 8
+                        }"
+                        :cancelTask="cancelTask"
+                    />
+                    </div>
+                    </transition>
 
+                </div>
             </div>
         </div>
+        </transition>
 
     </div>
 
@@ -267,6 +274,7 @@ import TaskInfoModalExpanded from '@/components/TaskInfoModalExpanded.vue'
 import TaskInfoModalInstructor from '@/components/TaskInfoModalInstructor.vue'
 import TaskInfoModalInstructorExpanded from '@/components/TaskInfoModalInstructorExpanded.vue'
 import TaskAttendanceInfo from '@/components/TaskAttendanceInfo.vue'
+import SquareLoader from "@/components/Loaders/SquareLoader.vue"
 
 import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 import MeetingAPI from '@/services/MeetingAPI.js';
@@ -281,7 +289,8 @@ export default {
         TaskInfoModalExpanded,
         TaskInfoModalInstructor,
         TaskInfoModalInstructorExpanded,
-        TaskAttendanceInfo
+        TaskAttendanceInfo,
+        SquareLoader
     },
     data () {
         return {
@@ -295,7 +304,7 @@ export default {
             live_tasks_arr: [],
             async_tasks_arr: [],
             for_course: Boolean,
-            meeting_has_loaded: Boolean,
+            meeting_has_loaded: false,
             is_instructor: Boolean,
         }
     },
@@ -428,7 +437,9 @@ export default {
               taskDescription: 'Scan the QR code to submit your attendance',
               qrCode: task.code,
               id: i,
-              meetingId: this.$route.params.meeting_id
+              _id: task._id,
+              meetingId: this.$route.params.meeting_id,
+              taskMode: `async`
             }
           }
 
@@ -442,8 +453,10 @@ export default {
                     startTime: task.recording_submission_start_time,
                     endTime: task.recording_submission_end_time,
                     taskName: 'Video Recording',
-                    id: i,
-                    taskDescription: 'Watch the video uploaded by your instructor'
+                    id: task._id,
+                    taskDescription: 'Watch the video uploaded by your instructor',
+                    meetingId: this.$route.params.meeting_id,
+                    taskMode: `live`
                 }
             }
         })

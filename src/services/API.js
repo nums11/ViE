@@ -8,3 +8,9 @@ export default() => {
     withCredentials: true
   })
 }
+
+
+const baseURL = process.env.NODE_ENV === 'production' ? `https://byakugan.herokuapp.com/` : `http://localhost:4000/`
+export {
+  baseURL
+}

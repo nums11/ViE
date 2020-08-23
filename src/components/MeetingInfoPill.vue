@@ -38,18 +38,21 @@
         </div>
       </show-at>
 
-      <div class="button-area">
+      <div class="button-area" :style="{display: 'flex'}">
         <!-- Preview Button -->
         <hide-at breakpoint="small">
-            <sui-button 
-                v-if="$resize && $mq.above(950)"
-                class="venue-blue text-white" :style="{marginLeft: '10px'}" v-on:click="showMeetingPreviewModal">
-                Preview
-            </sui-button>
+            <div v-if="$resize && $mq.above(950)" :class="{display: 'inline-block'}">
+                <sui-button 
+                    class="venue-blue text-white" :style="{marginLeft: '10px'}" v-on:click="showMeetingPreviewModal">
+                    Preview
+                </sui-button>
+            </div>
             <!-- <sui-button v-else compact icon="eye" class="venue-blue" v-on:click="showMeetingPreviewModal"/> -->
-            <sui-popup v-else content="Preview" inverted>
-                <sui-button slot="trigger" icon="eye" class="venue-blue" v-on:click="showMeetingPreviewModal" />
-            </sui-popup>
+            <div v-else>
+                <sui-popup content="Preview" inverted :class="{display: 'inline-block'}">
+                    <sui-button slot="trigger" icon="eye" class="venue-blue" v-on:click="showMeetingPreviewModal" />
+                </sui-popup>
+            </div>
         </hide-at>
         <!-- View Button -->
         <router-link :to="{name: 'meeting_info', params: { meeting_id: meeting._id }}">

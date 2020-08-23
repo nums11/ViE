@@ -61,6 +61,7 @@ function start() {
   const recordingRouter = require('./Recording/Recording.route')
   const asyncSubmissionRouter = require('./AsyncSubmission/AsyncSubmission.route')
   const qrCheckinRouter = require('./QRCheckin/QRCheckin.route')
+  const AttendanceFinder = require('./socket/AttendanceFinder')
 
   // Connect to the database before starting the application server.
   mongoose.connect(process.env.MONGODB_URI || config.DB, function (err, client) {
@@ -75,10 +76,27 @@ function start() {
       console.log("App is now running on port", port);
       const io = require('socket.io')(server);
       io.on('connection', (socket) => {
+          console.log(`<SOCKETIO> Connection recieved.`)
 
           socket.on('disconnect', () => {
-              console.log("A user disconnected");
+              console.log("<SOCKETIO> A user disconnected");
           });
+
+          // Handle attendance real time updates through websocket
+          socket.on('start attendance update', (task_info) => {
+            console.log(`Attendance update initialized`)
+
+            AttendanceFinder.find(task_info)
+            .then(res => {
+              console.log(`Attendance Finder result:`)
+              console.log(res)
+            })
+            .catch(err => {
+              console.log(`Error`)
+              console.log(err)
+            })
+            
+          })
           
           
       });
