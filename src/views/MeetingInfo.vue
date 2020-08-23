@@ -1,11 +1,10 @@
 <template>
   <div class="meeting-info">
-    <!-- QR Scanning Container -->
-    <div id="qr-scanning-container" v-if="qr_scanning_window_open">
-      <button @click="closeQRScanningWindow" id="exit_preview_btn" tabindex="0" aria-label="Close QR Scanner">X</button>
-      <qrcode-stream id="video_preview" @decode="attemptQRCheckinSubmission"></qrcode-stream>
-    </div>
-
+    <!-- QR Scanning Window -->
+    <QRScanningWindow v-if="show_qr_scanning_window"
+    v-on:hide-window="hideQRScanningWindow"
+    v-on:attempt-submission="attemptQRCheckinSubmission"/>
+    <!-- Full Screen QR Modal -->
     <FullScreenQRCodeModal v-if="show_qr_code_modal"
     v-on:hide-modal="hideFullScreenQRCodeModal" :code="full_screen_code" />
 
@@ -38,7 +37,8 @@
         <!-- Schedule Area -->
         <div class="right-side">
           <ActiveTasksList :active_tasks="active_tasks"
-          v-on:show-fullscreen-code="showFullScreenQRCodeModal"/>
+          v-on:show-fullscreen-code="showFullScreenQRCodeModal"
+          v-on:show-scanning-window="showQRScanningWindow"/>
 <!--             <MeetingInfoScheduleSlider 
               :tasksInfo="tasks_summary"
               :manageScheduleTabClick="manageScheduleTabClick"
@@ -132,6 +132,7 @@
 <script>
 import MeetingInfoScheduleSlider from '@/components/MeetingInfoScheduleSlider.vue'
 import FullScreenQRCodeModal from '@/components/FullScreenQRCodeModal.vue';
+import QRScanningWindow from '@/components/QRScanningWindow.vue';
 import ActiveTasksList from '@/components/ActiveTasksList.vue'
 import TaskInfoModal from '@/components/TaskInfoModal.vue'
 import TaskInfoModalExpanded from '@/components/TaskInfoModalExpanded.vue'
@@ -142,20 +143,19 @@ import SquareLoader from "@/components/Loaders/SquareLoader.vue"
 import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 import MeetingAPI from '@/services/MeetingAPI.js';
 import qrcode from '@chenfengyuan/vue-qrcode';
-import { QrcodeStream } from 'vue-qrcode-reader'
 
 export default {
     name: 'MeetingInfo',
     components: {
         MeetingInfoScheduleSlider,
         FullScreenQRCodeModal,
+        QRScanningWindow,
         ActiveTasksList,
         TaskInfoModal,
         TaskInfoModalExpanded,
         TaskInfoModalInstructor,
         TaskInfoModalInstructorExpanded,
         TaskAttendanceInfo,
-        QrcodeStream,
         SquareLoader
     },
     data () {
@@ -174,6 +174,7 @@ export default {
             meeting_is_live: false,
             show_qr_code_modal: false,
             full_screen_code: "",
+            show_qr_scanning_window: false,
         }
     },
     async created () {
@@ -212,7 +213,7 @@ export default {
           this.createLiveSubmission(open_checkin)
         else 
           alert("Scanned invalid code!")
-        this.closeQRScanningWindow()
+        this.hideQRScanningWindow()
       },
       getOpenQRCheckin() {
         let open_checkin = {}
@@ -224,6 +225,9 @@ export default {
           }
         }
         return open_checkin
+      },
+      isEmptyObj(obj) {
+        return Object.keys(obj).length === 0 && obj.constructor === Object
       },
       getStartTime () {
         if (this.meeting == null) return ''
@@ -304,6 +308,26 @@ export default {
         return time >= start_time &&
           time <= end_time
       },
+      getWindowStatus(task, is_qr) {
+        let current_time = new Date()
+        let window_start = null
+        let window_end = null
+        if(is_qr) {
+          window_start = new Date(task.qr_checkin_start_time)
+          window_end = new Date(task.qr_checkin_end_time)
+        } else {
+          window_start = new Date(task.recording_submission_start_time)
+          window_end = new Date(task.recording_submission_end_time)
+        }
+        let window_status = ""
+        if(current_time > window_end)
+          window_status = "closed"
+        else if(current_time < window_start)
+          window_status = "upcoming"
+        else
+          window_status = "open"
+        return window_status
+      },
       studentSubmittedToQRCheckin(qr_checkin) {
         let submissions = qr_checkin.qr_checkin_submissions
         let student_has_submitted = false
@@ -350,6 +374,12 @@ export default {
       hideFullScreenQRCodeModal() {
         this.full_screen_code = ""
         this.show_qr_code_modal = false
+      },
+      showQRScanningWindow() {
+        this.show_qr_scanning_window = true
+      },
+      hideQRScanningWindow() {
+        this.show_qr_scanning_window = false
       }
     }
 }

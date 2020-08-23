@@ -13,9 +13,13 @@
         label-position="right" color="violet" />
       </router-link>
       <!-- QR Button -->
-      <div v-else @click="$emit('show-fullscreen-code',task.code)">
-        <sui-button content="Show QR Code" icon="qrcode"
-        label-position="right" color="teal" />
+      <div v-else>
+        <sui-button v-if="is_instructor" 
+        @click="$emit('show-fullscreen-code',task.code)"
+        content="Show QR Code" icon="qrcode" label-position="right" color="teal" />
+        <sui-button v-else 
+        @click="$emit('show-scanning-window')"
+        content="Scan QR Code" icon="qrcode" label-position="right" color="teal" />
       </div>
     </div>
   </div>
@@ -32,6 +36,8 @@ export default {
     }
   },
   created () {
+    this.current_user = this.$store.state.user.current_user
+    this.is_instructor = this.current_user.is_instructor
     console.log("Active Tasks", this.active_tasks)
   },
   methods: {
