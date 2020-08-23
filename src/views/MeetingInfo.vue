@@ -283,7 +283,10 @@ export default {
           .forEach(qr_checkin => {
             if (this.isBetweenTimes(current_time, new Date(qr_checkin.qr_checkin_start_time),
               new Date(qr_checkin.qr_checkin_end_time))) {
-              this.active_tasks.push(qr_checkin)
+              if(this.is_instructor)
+                this.active_tasks.push(qr_checkin)
+              else if(!this.studentSubmittedToQRCheckin(qr_checkin))
+                this.active_tasks.push(qr_checkin)
             }
           })
         }
@@ -300,6 +303,18 @@ export default {
       isBetweenTimes(time, start_time, end_time) {
         return time >= start_time &&
           time <= end_time
+      },
+      studentSubmittedToQRCheckin(qr_checkin) {
+        let submissions = qr_checkin.qr_checkin_submissions
+        let student_has_submitted = false
+        for(let i = 0; i < submissions.length; i++) {
+          if(submissions[i].user_id === this.current_user.user_id){
+            student_has_submitted = true
+            break
+          }
+        }
+        console.log("Student has submitted", student_has_submitted)
+        return student_has_submitted
       },
       createTasksSummary () {
         this.tasks_summary = this.active_tasks.map((task, i) => {
