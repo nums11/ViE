@@ -62,8 +62,7 @@
                   <!-- Don't show total number of checkins to students -->
                   <h3 v-if="is_instructor">
                     ({{ meeting.live_attendance.qr_checkins.length }}) 
-                    Live Task
-                    <span v-if="meeting.live_attendance.qr_checkins.length != 1">s</span>
+                    Live Tasks
                   </h3>
                   <h3 v-else>Live Tasks</h3>
                 </div>

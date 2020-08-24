@@ -32,13 +32,19 @@
     <div v-else class="lower-area">
       <div class="left-side">
         <div v-if="is_qr">
-          <sui-button v-if="!studentSubmittedToQRCheckin(task)"
-          @click="$emit('show-qr-scanning-window')"
-          content="Scan QR Code" icon="qrcode" label-position="right" color="teal" />
-          <sui-label v-else color="teal">
+          <sui-label v-if="studentSubmittedToQRCheckin(task)" color="teal">
             <span>Submission Recorded</span>
             <sui-icon style="margin-left:1rem;" name="check circle" />
           </sui-label>
+          <div v-else>
+            <sui-button v-if="task_window_status === 'open'"
+            @click="$emit('show-qr-scanning-window')"
+            content="Scan QR Code" icon="qrcode" label-position="right" color="teal" />
+            <sui-label v-else color="red">
+              <span>No Submission</span>
+              <sui-icon style="margin-left:1rem;" name="x" />
+            </sui-label>
+          </div>
         </div>
         <div v-else>
           <!-- Do something else for recordings -->
@@ -72,7 +78,8 @@ export default {
   data () {
     return {
       student_task_submission: {},
-      task_attendance_percentage: 0
+      task_attendance_percentage: 0,
+      task_window_status: false
     }
   },
   created () {
@@ -80,6 +87,7 @@ export default {
     this.is_instructor = this.current_user.is_instructor
     if(this.is_instructor)
       this.getTaskAttendancePercentage()
+    this.task_window_status = this.getWindowStatus(this.task,this.is_qr)
   },
   methods: {
     studentSubmittedToQRCheckin(qr_checkin) {
@@ -113,7 +121,27 @@ export default {
         submission_ids.add(submission.submitter.user_id)
       })
       return submission_ids
-    }
+    },
+    getWindowStatus(task, is_qr) {
+      let current_time = new Date()
+      let window_start = null
+      let window_end = null
+      if(is_qr) {
+        window_start = new Date(task.qr_checkin_start_time)
+        window_end = new Date(task.qr_checkin_end_time)
+      } else {
+        window_start = new Date(task.recording_submission_start_time)
+        window_end = new Date(task.recording_submission_end_time)
+      }
+      let window_status = ""
+      if(current_time > window_end)
+        window_status = "closed"
+      else if(current_time < window_start)
+        window_status = "upcoming"
+      else
+        window_status = "open"
+      return window_status
+    },
   }
 }
 </script>
