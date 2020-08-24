@@ -58,10 +58,14 @@
             <SquareLoader key="3" v-if="!meeting_has_loaded" />
             <div key="1" v-else-if="task_focus == null">
               <div v-if="meeting.has_live_attendance">
-                <!-- Todo - Only let student know about open and past checkins -->
                 <div class="title">
-                  <h3>({{ meeting.live_attendance.qr_checkins.length }}) Live Task<span v-if="meeting.live_attendance.qr_checkins.length != 1">s</span>
+                  <!-- Don't show total number of checkins to students -->
+                  <h3 v-if="is_instructor">
+                    ({{ meeting.live_attendance.qr_checkins.length }}) 
+                    Live Task
+                    <span v-if="meeting.live_attendance.qr_checkins.length != 1">s</span>
                   </h3>
+                  <h3 v-else>Live Tasks</h3>
                 </div>
                 <div v-if="is_instructor">
                   <TaskInfoContainer 
@@ -74,6 +78,7 @@
                   v-on:show-qr-scanning-window="showQRScanningWindow"
                   v-on:show-task-attendance="showTaskAttendance" />
                 </div>
+                <!-- Only show open and closed checkins to students. No upcoming -->
                 <div v-else>
                   <div v-for="(qr_checkin,i) in meeting.live_attendance.qr_checkins">
                     <TaskInfoContainer
