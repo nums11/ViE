@@ -63,6 +63,7 @@
                   <h3>({{ meeting.live_attendance.qr_checkins.length }}) Live Task<span v-if="meeting.live_attendance.qr_checkins.length != 1">s</span>
                   </h3>
                 </div>
+                <div v-if="is_instructor">
                   <TaskInfoContainer 
                   v-for="(qr_checkin,i) in meeting.live_attendance.qr_checkins"
                   :task_number="i"
@@ -72,6 +73,21 @@
                   v-on:show-task-qr="showTaskQR"
                   v-on:show-qr-scanning-window="showQRScanningWindow"
                   v-on:show-task-attendance="showTaskAttendance" />
+                </div>
+                <div v-else>
+                  <div v-for="(qr_checkin,i) in meeting.live_attendance.qr_checkins">
+                    <TaskInfoContainer
+                    v-if="getWindowStatus(qr_checkin,true) === 'open' ||
+                    getWindowStatus(qr_checkin,true) === 'closed'"
+                    :task_number="i"
+                    :task="qr_checkin"
+                    :is_qr="true"
+                    :attendees="attendees"
+                    v-on:show-task-qr="showTaskQR"
+                    v-on:show-qr-scanning-window="showQRScanningWindow"
+                    v-on:show-task-attendance="showTaskAttendance" />
+                  </div>
+                </div>
 <!--                 <div v-if="is_instructor">
                   <TaskInfoContainer 
                     v-for="(task, i) in tasks_summary"
@@ -265,10 +281,9 @@ export default {
           this.task_focus = null
       },
       getMeetingStatus () {
-        console.log("In this func")
         let current_time = new Date()
-        this.meeting_is_live = current_time >= new Date(this.meeting.start_time) &&
-          current_time <= new Date(this.meeting.end_time)
+        this.meeting_is_live = this.isBetweenTimes(current_time,
+          new Date(this.meeting.start_time), new Date(this.meeting.end_time))
       },
       async getMeeting() {
         this.meeting_id = this.$route.params.meeting_id
