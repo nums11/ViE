@@ -12,7 +12,7 @@
     <SquareLoader v-if="!meeting_has_loaded" />
     <div v-else class="header">
       <div class="inline-block page-title">Meeting Info</div>
-      <sui-label v-if="meeting_is_live" class="inline-block" id="live-label">Live</sui-label>
+      <sui-label v-if="meeting_is_live" class="inline-block" id="live-label" color="green">Live</sui-label>
       <div class="page-info-area">
         <!-- Page Info -->
         <div class="left-side">
@@ -410,7 +410,6 @@ export default {
 
     #live-label {
       margin-left: 1rem;
-      background-color: #5EFFB4;
     }
 
     .page-info-area {

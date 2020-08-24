@@ -19,7 +19,8 @@
     <!-- Lower Area -->
     <div v-if="is_instructor" class="lower-area">
       <div class="left-side">
-        <sui-progress progress :percent="task_attendance_percentage"/>
+        <sui-progress class="attendance-progress" progress
+        :percent="task_attendance_percentage" color="green"/>
 <!--         <ProgressBar :value="getTaskAttendancePercentage" suffix="Attendance" /> -->
       </div>
       <div class="right-side">
@@ -157,6 +158,11 @@ export default {
 
         .left-side {
             flex-grow: 1;
+
+            .attendance-progress {
+              width: 70%;
+              margin-top: 1.5rem;
+            }
         }
     }
 
