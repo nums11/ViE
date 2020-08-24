@@ -21,12 +21,12 @@
       <div class="left-side">
         <sui-progress class="attendance-progress" progress
         :percent="task_attendance_percentage" color="green"/>
-<!--         <ProgressBar :value="getTaskAttendancePercentage" suffix="Attendance" /> -->
       </div>
       <div class="right-side">
         <sui-button v-if="is_qr" @click="$emit('show-task-qr',task)"
         content="Show QR Code" icon="qrcode" label-position="right" color="teal" />
-        <sui-button class="venue-blue" @click="$emit('show-task-attendance',task)">See Who Attended</sui-button>
+        <sui-button class="venue-blue" @click="$emit('show-task-attendance',task)"
+        content="View Attendance" icon="users" label-position="right" />
       </div>
     </div>
     <div v-else class="lower-area">
@@ -49,8 +49,6 @@
   </div>
 </template>
 <script>
-
-// import ProgressBar from "@/components/ProgressBar.vue"
 
 export default {
   name: 'TaskInfoContainer',
@@ -105,7 +103,6 @@ export default {
       })
       this.task_attendance_percentage = 
         ((num_submitters/this.attendees.length) * 100).toFixed(0)
-      console.log("Percentage",this.task_attendance_percentage)
     },
     getSubmissionIds() {
       let task_submissions = this.is_qr ? 
