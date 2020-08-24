@@ -56,7 +56,7 @@
         <div class="content-area">
           <transition-group name="fade"mode="out-in">
             <SquareLoader key="3" v-if="!meeting_has_loaded" />
-            <div key="1" v-if="task_focus == null">
+            <div key="1" v-else-if="task_focus == null">
               <div v-if="meeting.has_live_attendance">
                 <!-- Todo - Only let student know about open and past checkins -->
                 <div class="title">

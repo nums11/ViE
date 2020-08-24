@@ -102,9 +102,9 @@ export default {
         if(submission_ids.has(attendee.user_id))
           num_submitters++
       })
-      console.log("Num submitters", num_submitters)
-      console.log("Percent", num_submitters/this.attendees.length)
-      this.task_attendance_percentage = 10
+      this.task_attendance_percentage = 
+        ((num_submitters/this.attendees.length) * 100).toFixed(0)
+      console.log("Percentage",this.task_attendance_percentage)
     },
     getSubmissionIds() {
       let task_submissions = this.is_qr ? 
