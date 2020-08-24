@@ -68,6 +68,7 @@
                   :task_number="i"
                   :task="qr_checkin"
                   :is_qr="true"
+                  :attendees="attendees"
                   v-on:show-task-qr="showTaskQR"
                   v-on:show-qr-scanning-window="showQRScanningWindow"
                   v-on:show-task-attendance="showTaskAttendance" />
