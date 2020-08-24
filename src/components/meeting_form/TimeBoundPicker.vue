@@ -7,6 +7,7 @@
                 <VueCtkDateTimePicker 
                     @input="updateTime($event, 'start_time')"
                     v-model="start_time_local"
+                    id="left-field"
                     :min-date="config.min_start_time" />
             </div>
         </div>
@@ -17,6 +18,7 @@
                 <VueCtkDateTimePicker 
                     @input="updateTime($event, 'end_time')"
                     v-model="end_time_local"
+                    id="right-field"
                     :min-date="start_time_local" />
             </div>
         </div>

@@ -70,6 +70,52 @@
 
 import MeetingAPI from "@/services/MeetingAPI"
 
+const NewMeetingTransform = async (new_meeting, has_live, has_async) => {
+    let meeting_ = {}
+    meeting_.title = new_meeting.meta.title
+    meeting_.start_time = new_meeting.meta.start_time
+    meeting_.end_time = new_meeting.meta.end_time
+    meeting_.for_course = new_meeting.meta.forCourse
+    if (meeting_.for_course) {
+        meeting_.course = new_meeting.meta.course;
+    }
+    else {
+        meeting_.org = new_meeting.meta.org;
+    }
+    if (has_live) {
+        meeting_.has_live_attendance = true
+        meeting_.qr_checkins = []
+        meeting_.qr_checkins.push({
+            code: generateRandomCode (),
+            qr_checkin_start_time: new_meeting.live.qr_checkin.start_time,
+            qr_checkin_end_time: new_meeting.live.qr_checkin.end_time
+        })
+    }
+    if (has_async) {
+        meeting_.has_async_attendance = true
+        meeting_.recordings = []
+
+        // upload recording
+        let queue_ = [{
+            video: new_meeting.async.recording.file,
+            start_time: new_meeting.async.recording.start_time,
+            end_time: new_meeting.async.recording.end_time
+        }]
+        let upload_response = await MeetingAPI.saveRecordingVideosToGCS(queue_)
+
+        upload_response.data.forEach((upload_url, q) => {
+
+            meeting_.recordings.push({
+                video_url: upload_url,
+                recording_submission_start_time: queue_[q].start_time,
+                recording_submission_end_time: queue_[q].end_time
+            })
+        })
+    }
+
+    return meeting_
+}
+
 const MeetingTransform = async (new_meeting) => {
 
     let meeting_ = {}
@@ -207,3 +253,6 @@ const generateRandomCode = () => {
 }
 
 export default MeetingTransform
+export {
+    NewMeetingTransform
+}

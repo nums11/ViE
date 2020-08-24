@@ -17,6 +17,15 @@ var upload = multer({ storage: multer.memoryStorage() })
 
 // GCS Specific
 
+const generateRandomCode = () => {
+  const alnums = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let result = "";
+  for (let i = 15; i > 0; --i) {
+      result += alnums[Math.floor(Math.random() * alnums.length)];
+  }
+  return result;
+}
+
 const storage = new Storage({
   keyFilename: path.join(__dirname, 'venue-279902-649f22aa6e34.json'),
   projectId: "venue-279902"
@@ -26,7 +35,7 @@ const bucket = storage.bucket('venue_videos')
 
 const uploadVideoToGCS = (file) => new Promise((resolve, reject) => {
   const { originalname, buffer } = file
-  const blob = bucket.file(originalname.replace(/ /g, "_"))
+  const blob = bucket.file((originalname + generateRandomCode()).replace(/ /g, "_"))
   const blobStream = blob.createWriteStream({
     resumable: false
   })
