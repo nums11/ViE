@@ -5,23 +5,6 @@
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
-            <label>course:</label>
-            <input type="text" class="form-control" v-model="course.name" readonly>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>instructor:</label>
-            <input class="form-control" v-model="instructor.first_name" readonly>
-            <input class="form-control" v-model="instructor.last_name" readonly>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
             <label>section_number:</label>
             <input type="number" class="form-control" v-model="section.number">
           </div>
@@ -49,7 +32,6 @@
               <td>{{ student.is_instructor }}</td>
               <td>{{ student.is_ta }}</td>
               <td><button class="btn btn-danger" @click.prevent="removeStudent(student)">Remove</button></td>
-              <!-- <td v-if="is_section_view"><button class="btn btn-secondary" @click.prevent="$emit('select-student', student)">Select</button></td> -->
             </tr>
         </tbody>
     </table>
@@ -61,9 +43,9 @@
 
 <script>
   import SectionAPI from '@/services/SectionAPI.js';
-  import Courses from '../Course/Courses';
-  import Instructors from '../User/Instructors';
-  import Students from '../User/Students';
+  import Courses from '@/components/admin/Course/AdminCourses';
+  import Instructors from '@/components/admin/User/AdminInstructors';
+  import Students from '@/components/admin/User/AdminStudents';
 
   export default {
     name: 'AdminEditSection',
@@ -75,50 +57,36 @@
     data(){
       return {
         section: {},
-        course: {},
-        instructor: {},
-        students: [],
-        new_students: []
+        students: []
       }
     },
     created() {
-      this.getCurrentSection()
+      this.section_id = this.$route.params.id
+      this.getSection()
     },
     methods: {
       //TODO: Change to getSection
-      async getCurrentSection(){
-        let section_id = this.$route.params.id
-        const response = await SectionAPI.getSection(section_id)
+      async getSection(){
+        const response = await SectionAPI.getSection(this.section_id)
         this.section = response.data
-        this.getCurrentSectionInstructor()
-        this.getCurrentSectionCourse()
-        this.getCurrentSectionStudents()
-      },
-      async getCurrentSectionInstructor(){
-        const response = await SectionAPI.getInstructor(this.section._id)
-        this.instructor = response.data
-      },
-      async getCurrentSectionCourse(){
-        const response = await SectionAPI.getCourse(this.section._id)
-        this.course = response.data
-      },
-      async getCurrentSectionStudents(){
-        const response = await SectionAPI.getStudents(this.section._id)
-        this.students = response.data
+        this.students = this.section.students
       },
       addStudent(student){
-        if(!this.students.includes(student))
+        let student_in_section = false
+        this.students.forEach(section_student => {
+          if(student._id == section_student._id)
+            student_in_section = true
+        })
+        if(!student_in_section)
           this.students.push(student)
       },
       removeStudent(student){
         this.students.splice(this.students.indexOf(student),1)
       },
       async updateSection() {
-        let section_id = this.$route.params.id
-        this.section.course = this.course
         this.section.students = this.students
-        const response = await SectionAPI.updateSection(section_id, this.section)
-        this.$router.push({name: 'admin_sections'})
+        const response = await SectionAPI.updateSection(this.section_id, this.section)
+        this.$router.go()
       }
     }
   }

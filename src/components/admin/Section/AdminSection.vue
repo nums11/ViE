@@ -85,9 +85,9 @@
   import SectionAPI from '@/services/SectionAPI.js';
   import UserAPI from '@/services/UserAPI.js';
   import CourseAPI from '@/services/CourseAPI.js';
-  import Courses from '../Course/Courses'
-  import Instructors from '../User/Instructors';
-  import Sections from '../Section/Sections';
+  import Courses from '@/components/admin/Course/AdminCourses'
+  import Instructors from '@/components/admin/AdminInstructors';
+  import Sections from '@/components/admin/AdminSections';
 
   export default {
     name: 'AdminSection',

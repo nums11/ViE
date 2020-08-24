@@ -1,79 +1,85 @@
 <template>
   <div>
-    <nav id="venue-nav">
-      <!-- Logo -->
-      <router-link id="nav-logo" :to="{name: 'dashboard'}" role="link" aria-label="Dashboard">
-        <img src="@/assets/venue-logo.svg" width="30" height="30" class="d-inline-block align-top" alt="Venue Logo" aria-label="Venue Logo">
-      </router-link>
-      <!-- Nav Links -->
-      <div id="venue-nav-links">
-        <!-- Dashboard Link -->
-        <div class="venue-nav-link-container">
-          <router-link class="venue-nav-link" :class="{'active-link':is_dashboard}" :to="{name: 'dashboard'}">
-            <p>Dashboard</p>
-          </router-link>
-          <div v-if="is_dashboard" class="active-link-underline"></div>
-        </div>
-        <!-- Courses Link -->
-        <div class="venue-nav-link-container" id="course-dropdown">
-          <a data-toggle="collapse" href="#collapseExample" class="venue-nav-link" :class="{'active-link':is_course_info}" style="cursor:pointer;">Courses ▼</a>
-          <hide-at breakpoint="mediumAndBelow">
-            <div class="dropdown-content">
-              <div v-if="is_instructor">
-                <router-link v-for="course in user_courses" :key="course._id" :to="{name: 'course_info', params: { id: course._id }}">
-                  <p>{{ course.name }}</p>
-                </router-link>
-              </div>
-              <div v-else>
-                <router-link v-for="section in user_sections" :key="section._id" :to="{name: 'course_info', params: { id: section._id }}">
-                  <p>{{ section.course.name }}</p>
-                </router-link>
-              </div>
+    <div class="venue-navbar">
+        <div class="left-area">
+            <div class="logo-area">
+                <router-link to="/dashboard"><img src="@/assets/venue-logo.svg" class="image-logo" /></router-link>
             </div>
-          </hide-at>
-          <div v-if="is_course_info" class="active-link-underline"></div>
+            <div class="menu-items-area">
+                <div @click="update ()">
+                  <router-link to="/dashboard"><div :class="`nav-link ${isPage('dashboard') ? 'active' : ''}`">Dashboard</div></router-link>
+                </div>
+                <div :class="`course-nav-link nav-link ${isPage('course_info') ? 'active' : ''}`"  @click="update ()">Courses
+                  <div class="course-list-dropdown">
+                    <ul>
+                      <router-link v-for="(course, i) in user_courses" :key="i" :to="`/course_info/${course._id}`"><li>{{ course.name }}</li></router-link>
+                    </ul>
+                  </div>
+                </div>
+                <div :class="`course-nav-link nav-link ${isPage('org_info') ? 'active' : ''}`" @click="update ()">Organizations
+                  <div class="course-list-dropdown">
+                    <ul>
+                      <router-link v-for="(org, i) in user_orgs" :key="i" :to="{name: 'org_info', params: { id: org._id }}"><li>{{ org.name }}</li></router-link>
+                    </ul>
+                  </div>
+                </div>
+            </div>
         </div>
-        <!-- Statistics Link -->
-        <div v-if="is_instructor" class="venue-nav-link-container">
-          <router-link class="venue-nav-link" :class="{'active-link':is_statistics}" :to="{name: 'statistics'}">
-            Statistics
-          </router-link>
-          <div v-if="is_statistics" class="active-link-underline"></div>
+        <div class="right-area">
+        
+            <hide-at breakpoint="small">
+                <div class="user-action">
+                  <sui-button compact icon="cog" 
+                    label-position="left" 
+                    :content="`${current_user.first_name} ${current_user.last_name}`"
+                    @click="toggleUserView"
+                  />
+                    <!-- <span v-on:click="toggleUserView" :style="{cursor: 'pointer'}">
+                      {{ current_user.first_name }} {{ current_user.last_name }}
+                      </span> -->
+                    <transition 
+                        name="fade"
+                        mode="out-in">
+                        <div class="user-action-view" v-if="showUserView">
+                            <div class="user-action-haeder">
+                                <h3 is="sui-header">{{ current_user.first_name }} {{ current_user.last_name }}</h3>
+                                <sui-label :style="{backgroundColor: '#ABE5FF'}">
+                                    Type
+                                    <sui-label-detail>{{ is_instructor ? "Instructor" : "Student" }}</sui-label-detail>
+                                </sui-label>
+                            </div>
+                            <ul class="user-action-menu">
+                                <li>Settings</li>
+                            </ul>
+                            <div class="dropdown-footer">
+                                <div class="toggle-theme-area" >
+                                    <sui-checkbox label="Dark Mode" toggle v-model="dark_mode" />
+                                </div>
+                                <div>
+                                    <sui-button class="venue-red" @click="logoutUser ()">Logout</sui-button>
+                                </div>
+                            </div>
+                        </div>
+                    </transition>
+                </div>
+            </hide-at>
+
         </div>
-      </div>
-      <!-- Settings Link -->
-      <router-link :to="{name: 'settings'}" role="link" aria-label="User Settings" class="settings_link">
-        <div class="user-name float-right">
-          <hide-at breakpoint="small">
-            <p class="d-inline-block mr-2" aria-label="User Name">{{ current_user.first_name }} {{ current_user.last_name }}</p>
-          </hide-at>
-          <show-at breakpoint="small">
-            <p v-if="!is_instructor" class="d-inline-block mr-2" aria-label="User Name">{{ current_user.first_name }} {{ current_user.last_name }}</p>
-          </show-at>
-          <img src="@/assets/settings.svg" width="20" height="20" class="d-inline-block align-top settings" alt="Settings Icon" aria-label="Settings Icon">
+    </div>
+    <div class="navbar-spacer"></div>
+
+    <show-at breakpoint="small">
+        <div class="bottom-bar-mobile">
+            <sui-dropdown text="David Goldschmidt" direction="upward">
+                <sui-dropdown-menu>
+                <sui-dropdown-item>Settings</sui-dropdown-item>
+                <sui-dropdown-item @click="logoutUser ()">Log Out</sui-dropdown-item>
+                </sui-dropdown-menu>
+            </sui-dropdown>
         </div>
-      </router-link>
-    </nav>
-    <!-- Mobile Course Dropdown -->
-    <show-at breakpoint="mediumAndBelow">
-      <div class="collapse" id="collapseExample">
-        <ul class="mobile-course-list" v-if="is_instructor">
-          <li class="mobile-course-link" v-for="course in user_courses" :key="course._id">
-            <router-link :to="{name: 'course_info', params: { id: course._id }}">
-              <p class="mobile-course-link-name">{{ course.name }}</p>
-            </router-link>
-          </li>
-        </ul>
-        <ul class="mobile-course-list" v-else>
-          <li class="mobile-course-link" v-for="section in user_sections" :key="section._id">
-            <router-link :to="{name: 'course_info', params: { id: section._id }}">
-              <p class="mobile-course-link-name">{{ section.course.name }}</p>
-            </router-link>
-          </li>
-        </ul>
-      </div>
     </show-at>
   </div>
+
 </template>
 
 <script>
@@ -81,6 +87,8 @@
   import UserAPI from '@/services/UserAPI.js';
   import CourseAPI from '@/services/CourseAPI.js'
   import SectionAPI from '@/services/SectionAPI.js'
+  import OrgAPI from '@/services/OrgAPI.js'
+  import AuthAPI from '@/services/AuthAPI.js'
 
   export default {
     name: 'NavBar',
@@ -95,6 +103,10 @@
         return this.$route.name === 'statistics'
       }
     },
+    props: {
+      setDarkModeValue: Function,
+      initialDarkModeValue: Boolean
+    },
     components: {
       hideAt,
       showAt
@@ -104,10 +116,14 @@
         current_user: {},
         is_instructor: Boolean,
         user_courses: [],
-        user_sections: []
+        user_sections: [],
+        showUserView: false,
+        dark_mode: false,
+        user_orgs: []
       }
     },
     created() {
+      this.dark_mode = this.initialDarkModeValue
       this.getCurrentUser()
       if(this.is_instructor)
         this.getInstructorCourses()
@@ -115,9 +131,49 @@
         this.getSectionsWithCourses()
     },
     methods: {
+      update () {
+        this.$forceUpdate()
+      },
+      isPage (page_val) {
+        if (window.location.href.includes(page_val)) return true
+        return false
+      },
+      logoutUser() {
+        AuthAPI.logoutCAS().then(res => {
+          this.$store.dispatch('logout')
+        })
+      },
+      toggleUserView () {
+          console.log("Clicked!")
+          this.showUserView = !this.showUserView;
+      },
       getCurrentUser() {
         this.current_user = this.$store.state.user.current_user
+
         this.is_instructor = this.current_user.is_instructor
+        if (this.is_instructor) {
+          CourseAPI.getInstructorCourses(this.current_user._id)
+          .then(res => {
+            if (res.data)
+              this.user_courses = res.data
+          })
+        }
+        // TODO get courses for non-instructors
+
+        this.getUserOrgs ()
+      },
+      getUserOrgs () {
+        let user_org_data = []
+        this.current_user.user_orgs.forEach(org_id => {
+
+          user_org_data.push(OrgAPI.getOrg(org_id))
+
+        })
+
+        Promise.all(user_org_data).then(returned_org_data => {
+          console.log(returned_org_data)
+          this.user_orgs = returned_org_data.map(data_ => data_.data)
+        })
       },
       async getInstructorCourses() {
         const response = await CourseAPI.getInstructorCourses(this.current_user._id)
@@ -134,128 +190,260 @@
           }
         })
       }
+    },
+    watch: {
+      dark_mode: function (is_dark_mode) {
+        this.setDarkModeValue(is_dark_mode);
+      }
     }
   }
 </script>
 
-<style scoped>
-  #venue-nav {
-    height: 4rem;
-    padding: 1rem 2rem;
-    background: white;
-    display: block;
+<style lang="scss">
+.dark-mode, .light-mode {
+  
+  .venue-navbar {
+      height: 70px;
+      position: fixed;
+      top: 0;
+      left: 20px;
+      right: 20px;
+      z-index: 5;
+      align-items: center;
+      display: flex;
   }
-
-  #nav-logo {
-    float: left;
+  .venue-navbar .left-area {
+      display: flex;
+      height: 100%;
+      align-items: center;
+      width: 50%;
   }
-
-  #venue-nav-links {
-    margin-top: 5px;
-    float: left;
-    /*padding: 1px;*/
+  .navbar-spacer {
+      height: 93px;
   }
-
-  .venue-nav-link-container {
-    margin-left: 1.5rem;
-    display: inline-block;
+  .venue-navbar .right-area {
+      width: 50%;
+      text-align: right;
   }
-
-  #course-dropdown {
-    position: relative;
-    border-radius: 5px;
+  .venue-navbar .left-area .logo-area {
+      width: 70px;
+      text-align: center;
+      height: 40px;
+      align-items: center;
   }
-
-  .dropdown-content {
-    /*margin-top: 3px;*/
-    display: block;
-    position: absolute;
-    background-color: #f7f7f7;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 10;
-    overflow: hidden;
-    max-height:0;
-    transition: max-height 0.2s ease-in; 
+  .venue-navbar .left-area .logo-area .image-logo {
+      height: 40px;
   }
-
-  .dropdown-content a {
-    color: #2C3E50;
-    font-weight: bold;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
+  .venue-navbar .left-area .menu-items-area {
+      display: flex;
   }
-
-  .dropdown-content a:hover {
-    background-color: #466D85;
-    color: white;
-    -webkit-transition: all 150ms linear;
-    -ms-transition: all 150ms linear;
-    transition: all 150ms linear;
-  }
-
-  #course-dropdown:hover .dropdown-content {
-    max-height: 300px;
-  }
-
-  .mobile-course-list {
-    list-style-type: none;
-    padding: 0;
-  }
-
-  .mobile-course-link {
-    height: 2rem;
-  }
-
-  .mobile-course-link-name {
-    text-decoration: none;
-
-  }
-
-  .venue-nav-link{
-    text-decoration: none;
-    color: #575757;
-    font-weight: 100;
-  }
-
-  .active-link {
-    color: #466D85;
-  }
-
-  .active-link:hover,
-  .active-link:focus {
-    color: #575757;
-  }
-
-  .active-link-underline {
-    height: 2px;
-    width: 80%;
-    background-color: #466D85;
-    margin: auto;
-  }
-
-  .user-name {
-    margin-top: 5px;
-    font-weight: 100;
-  }
-
-  .settings {
+  .venue-navbar .course-nav-link {
     cursor: pointer;
-    margin-top: 2px;
+    position: relative;
+    .course-list-dropdown {
+      display: none;
+      opacity: 0;
+      transition-timing-function: ease-in-out;
+      transition: opacity 0.25s;
+    }
   }
-
-  .venue-nav-link:focus,
-  .settings_link:focus {
-    outline: none;
+  .venue-navbar .course-nav-link:hover {
+    .course-list-dropdown {
+      top: 20px;
+      opacity: 1;
+      display: block;
+    }
   }
-
-  .venue-nav-link:hover,
-  .settings_link:hover .mr-2,
-  .venue-nav-link:focus,
-  .settings_link:focus .mr-2,
-  .venue-nav-link:focus p,
-  .venue-nav-link:hover p {
+  .venue-navbar .left-area .menu-items-area .nav-link {
+      font-weight: 600;
+      margin-right: 20px;
+      font-size: 1rem;
+      position: relative;
+      .course-list-dropdown {
+        position: absolute;
+        width: 250px;
+        transition: opacity 0.25s;
+        ul {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          li {
+            height: 30px;
+            line-height: 30px;
+            box-sizing: border-box;
+            padding: 0px 15px;
+            cursor: pointer;
+            transition: background-color 0.25s;
+          }
+        }
+      }
+  }
+  .venue-navbar .user-action {
+      position: relative;
+  }
+  .venue-navbar .user-action .user-action-view {
+      position: absolute;
+      top: 40px;
+      right: 0px;
+      width: 300px;
+      box-sizing: border-box;
+      border-radius: 5px;
+      text-align: left;
+      overflow: hidden;
+      box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.15);
+      z-index: 10;
+  }
+  .light-mode .venue-navbar .user-action .user-action-view {
+      background-color: white;
+  }
+  .dark-mode .venue-navbar .user-action .user-action-view {
+      background-color: #22252e;
+  }
+  .venue-navbar .user-action .user-action-view .user-action-haeder {
+      background-color: #47C4FC;
+      padding: 10px 10px 15px 10px;
+  }
+  .venue-navbar .user-action .user-action-view .user-action-menu {
+      list-style: none;
+      margin-left: 0;
+      padding-left: 0;
+      margin-top: 0px;
+      margin-bottom: 0px;
+  }
+  .venue-navbar .user-action .user-action-view .user-action-menu li {
+      height: 35px;
+      line-height: 35px;
+      padding: 0px 10px;
+      box-sizing: border-box;
+      transition: background-color 0.25s;
+  }
+  .venue-navbar .user-action .user-action-view .user-action-menu li:hover {
+      cursor: pointer;
+  }
+  .venue-navbar .user-action .user-action-view .dropdown-footer {
+      text-align: right;
+      margin-right: 20px;
+      margin-bottom: 20px;
+      margin-top: 20px;
+      margin-left: 20px;
+      display: flex;
+      align-items: center;
+  }
+  .venue-navbar .user-action .user-action-view .dropdown-footer .toggle-theme-area {
+      flex-grow: 1;
+      text-align: left;
+  }
+  .bottom-bar-mobile {
+      position: fixed;
+      z-index: 10;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 50px;
+      box-shadow: 0px -3px 2px rgba(0, 0, 0, 0.05);
+      display: flex;
+      align-items: center;
+      padding-left: 50px;
+      padding-right: 50px;
+  }
+  @media only screen and (max-width: 900px) {
+      .venue-navbar .left-area .logo-area {
+          width: 80px;
+          text-align: left;
+          height: 40px;
+          align-items: center;
+          margin-right: 20px;
+      }
+      .venue-navbar {
+          display: flex;
+          position: static;
+          
+      }
+      .navbar-spacer {
+          height: 0px;
+      }
+  }
+}
+.dark-mode {
+  .course-list-dropdown {
+    background-color: #22252e;
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
+  }
+  .course-list-dropdown li {
+    background-color: #22252e;
+    color: white;
+    font-weight: 400;
+  }
+  .course-list-dropdown li:hover {
+    background-color: #17191f;
+  }
+  .user-action-view {
+    background-color: #22252e;
+  }
+  .user-action-menu li {
+      background-color: #22252e;
+  }
+  label {
+    color: white !important;
+  }
+  .user-action-menu li:hover {
+      background-color: #17191f;
+  }
+  .venue-navbar .left-area .menu-items-area .nav-link {
+    color: #72b3db;
+  }
+  .venue-navbar .left-area .menu-items-area .nav-link.active {
+    border-bottom: 2px solid #72b3db;
+  }
+  .venue-navbar {
+    background-color: #121419;
+  }
+}
+.light-mode {
+  .course-list-dropdown {
+    background-color: white;
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .course-list-dropdown li {
+    background-color: white;
+    color: black;
+    font-weight: 400;
+  }
+  .course-list-dropdown li:hover {
+    background-color: #f2f3f5;
+  }
+  .venue-navbar .left-area .menu-items-area .nav-link {
     color: #466D85;
+    opacity: 0.8;
+    transition: opacity 0.25s;
   }
+  .venue-navbar .left-area .menu-items-area .nav-link:hover {
+    opacity: 0.85;
+  }
+  .venue-navbar .left-area .menu-items-area .nav-link.active {
+    border-bottom: 2px solid #466D85;
+    opacity: 1;
+  }
+  .user-action-view {
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+  }
+  .user-action-view .user-action-menu li {
+      background-color: white;
+  }
+  .user-action-menu li:hover {
+      background-color: #f2f3f5;
+  }
+  
+  .venue-navbar {
+    background-color: white;
+  }
+}
+.light-mode .bottom-bar-mobile {
+  background-color: white;
+}
+.dark-mode .bottom-bar-mobile  {
+  background-color: #121419;
+}
 </style>

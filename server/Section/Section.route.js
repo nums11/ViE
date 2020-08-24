@@ -32,15 +32,23 @@ sectionRoutes.route('/').get(function (req, res) {
   });
 });
 
-sectionRoutes.route('/edit/:id').get(function (req, res) {
+sectionRoutes.route('/get/:id').get(function (req, res) {
   let id = req.params.id;
   Section.findById(id, function (err, section){
     if(err || section == null) {
       console.log("<ERROR> Getting section with ID:",id)
       res.json(err);
     } else {
-      console.log("<SUCCESS> Getting section with ID:",id)
-      res.json(section);
+			User.find({'_id': {$in: section.students}}, (error, students) => {
+				if(error || students == null) {
+					console.log("<ERROR> Getting students for section with ID:",id)
+					res.status(404).json(err);
+				} else {
+					section.students = students
+    			console.log("<SUCCESS> Getting section by ID:",id)
+					res.json(section)
+				}
+			})
     }
   });
 });
@@ -50,11 +58,9 @@ sectionRoutes.route('/update/:id').post(function (req, res) {
   let updated_section = req.body.updated_section;
   Section.findByIdAndUpdate(id,
     {
-      course: updated_section.course,
       number: updated_section.number,
       students: updated_section.students,
       teaching_assistants: updated_section.teaching_assistants,
-      events: updated_section.events
     },
     function(err, section) {
       if (err || section == null) {

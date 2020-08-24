@@ -1,19 +1,23 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router';
 import Home from './components/Home.vue';
-import Users from './components/admin/User/Users.vue';
-import EditUser from './components/admin/User/EditUser.vue';
-import Instructors from './components/admin/User/Instructors.vue';
-import Students from './components/admin/User/Students.vue';
-import Course from './components/admin/Course/Course.vue';
-import EditCourse from './components/admin/Course/EditCourse.vue';
-import NewCourse from './components/admin/Course/NewCourse.vue';
-import Courses from './components/admin/Course/Courses.vue';
+import AdminUsers from './components/admin/User/AdminUsers.vue';
+import AdminEditUser from './components/admin/User/AdminEditUser.vue';
+import AdminInstructors from './components/admin/User/AdminInstructors.vue';
+import AdminStudents from './components/admin/User/AdminStudents.vue';
+import AdminCourse from './components/admin/Course/AdminCourse.vue';
+import AdminEditCourse from './components/admin/Course/AdminEditCourse.vue';
+import AdminNewCourse from './components/admin/Course/AdminNewCourse.vue';
+import AdminCourses from './components/admin/Course/AdminCourses.vue';
 import AdminSections from './components/admin/Section/AdminSections.vue';
 import AdminEditSection from './components/admin/Section/AdminEditSection.vue';
 import AdminNewSection from './components/admin/Section/AdminNewSection.vue';
-import NewUser from './components/admin/User/NewUser.vue';
+import AdminNewUser from './components/admin/User/AdminNewUser.vue';
 import OnboardUser from './views/OnboardUser.vue';
+import AdminNewOrg from './components/admin/Organization/AdminNewOrg.vue';
+import AdminOrgs from './components/admin/Organization/AdminOrgs.vue';
+import AdminEditOrg from './components/admin/Organization/AdminEditOrg.vue';
+import NewMeeting from './views/NewMeeting.vue';
 import AdminNewEvent from './components/admin/Event/AdminNewEvent.vue';
 import AdminEvents from './components/admin/Event/AdminEvents.vue';
 import AdminEditEvent from './components/admin/Event/AdminEditEvent.vue';
@@ -24,16 +28,18 @@ import SetPermanentPassword from './views/SetPermanentPassword.vue';
 import Signup from './components/Signup.vue';
 import Dashboard from './views/Dashboard.vue';
 import CourseList from './components/CourseList.vue';
-import CourseInfo from './views/CourseInfo.vue';
+import CourseOrgInfo from './views/CourseOrgInfo.vue';
 import NewEvent from './views/NewEvent.vue';
 import EventInfo from './views/EventInfo.vue';
 import LecturePlayback from './views/LecturePlayback.vue';
 import WebexTest from './views/WebexTest.vue';
 import NewLecture from './views/NewLecture.vue';
 import LectureInfo from './views/LectureInfo.vue';
+import MeetingInfo from './views/MeetingInfo.vue';
 import Settings from './views/Settings.vue';
 import RedirectCASLogin from './views/RedirectCASLogin.vue';
 import Statistics from './views/Statistics.vue';
+import WatchRecording from './views/WatchRecording.vue';
 
 Vue.use(VueRouter);
 
@@ -56,27 +62,27 @@ const router = new VueRouter({
       }
     },
     {
-      name: 'new_user',
+      name: 'admin_new_user',
       path: '/admin/new_user',
-      component: NewUser,
+      component: AdminNewUser,
       meta: {
         requiresAuth: true,
         requiresAdmin: true
       }
     },
     {
-      name: 'users',
+      name: 'admin_users',
       path: '/admin/users',
-      component: Users,
+      component: AdminUsers,
       meta: {
         requiresAuth: true,
         requiresAdmin: true
       }
     },
     {
-      name: 'edit_user',
+      name: 'admin_edit_user',
       path: '/admin/edit_user/:id',
-      component: EditUser,
+      component: AdminEditUser,
       meta: {
         requiresAuth: true,
         requiresAdmin: true
@@ -88,61 +94,61 @@ const router = new VueRouter({
       component: OnboardUser,
       meta: {
         requiresAuth: true,
-        requiresAdmin: true
+        requiresadmIn: true
       }
     },
     {
-      name: 'instructors',
+      name: 'admin_instructors',
       path: '/admin/instructors',
-      component: Instructors,
+      component: AdminInstructors,
       meta: {
         requiresAuth: true,
         requiresAdmin: true
       }
     },
     {
-      name: 'students',
+      name: 'admin_students',
       path: '/admin/students',
-      component: Students,
+      component: AdminStudents,
       meta: {
         requiresAuth: true,
         requiresAdmin: true
       }
     },
     {
-      name: 'new_course',
+      name: 'admin_new_course',
       path: '/admin/new_course',
-      component: NewCourse,
+      component: AdminNewCourse,
+      meta: {
+        requiresAuth: true,
+        requiresadmIn: true
+      }
+    },
+    {
+      name: 'admin_course',
+      path: '/admin/course',
+      component: AdminCourse,
       meta: {
         requiresAuth: true,
         requiresAdmin: true
       }
     },
     {
-      name: 'course',
-      path: '/Course',
-      component: Course,
+      name: 'admin_edit_course',
+      path: '/admin/edit_course/:id',
+      component: AdminEditCourse,
       meta: {
         requiresAuth: true,
-        requiresAdmin: true
+        requiresadmIn: true
       }
     },
     {
-      name: 'editCourse',
-      path: '/editCourse/:id',
-      component: EditCourse,
-      meta: {
-        requiresAuth: true,
-        requiresAdmin: true
-      }
-    },
-    {
-      name: 'courses',
+      name: 'admin_courses',
       path: '/admin/courses',
-      component: Courses,
+      component: AdminCourses,
       meta: {
         requiresAuth: true,
-        requiresAdmin: true
+        requiresadmIn: true
       }
     },
     {
@@ -160,7 +166,7 @@ const router = new VueRouter({
       component: AdminEditSection,
       meta: {
         requiresAuth: true,
-        requiresAdmin: true
+        requiresadmIn: true
       }
     },
     {
@@ -247,10 +253,19 @@ const router = new VueRouter({
     {
       name: 'course_info',
       path: '/course_info/:id',
-      component: CourseInfo,
+      component: CourseOrgInfo,
       meta: {
-        title: "Venue - Course Info",
-        requiresAuth: true
+        title: "Venue - Course Info"
+        // requiresAuth: true
+      }
+    },
+    {
+      name: 'org_info',
+      path: '/org_info/:id',
+      component: CourseOrgInfo,
+      meta: {
+        title: "Venue - Org Info"
+        // requiresAuth: true
       }
     },
     {
@@ -290,6 +305,15 @@ const router = new VueRouter({
       }
     },
     {
+      name: 'watch_recording',
+      path: '/watch_recording/:recording_id',
+      component: WatchRecording,
+      meta: {
+        title: "Venue - Watch Recording",
+        requiresAuth: true,
+      }
+    },
+    {
       name: 'new_lecture',
       path: '/new_lecture/:course_id',
       component: NewLecture,
@@ -305,6 +329,15 @@ const router = new VueRouter({
       component: LectureInfo,
       meta: {
         title: "Venue - Lecture Info",
+        requiresAuth: true,
+      }
+    },
+    {
+      name: 'meeting_info',
+      path: '/meeting_info/:meeting_id',
+      component: MeetingInfo,
+      meta: {
+        title: "Venue - Meeting Info",
         requiresAuth: true,
       }
     },
@@ -334,7 +367,52 @@ const router = new VueRouter({
         requiresAuth: true,
         requiresInstructor: true
       }
-    }
+    },
+    {
+      name: 'admin_new_org',
+      path: '/admin/new_org',
+      component: AdminNewOrg,
+      meta: {
+        requiresAuth: true,
+        requiresadmIn: true
+      }
+    },
+    {
+      name: 'admin_orgs',
+      path: '/admin/orgs',
+      component: AdminOrgs,
+      meta: {
+        requiresAuth: true,
+        requiresadmIn: true
+      }
+    },
+    {
+      name: 'admin_edit_org',
+      path: '/admin/edit_org/:id',
+      component: AdminEditOrg,
+      meta: {
+        requiresAuth: true,
+        requiresadmIn: true
+      }
+    },
+    {
+      name: 'course_new_meeting',
+      path: '/course_new_meeting/:course_id',
+      component: NewMeeting,
+      meta: {
+        requiresAuth: true,
+        requiresadmIn: true
+      }
+    },
+    {
+      name: 'org_new_meeting',
+      path: '/org_new_meeting/:org_id',
+      component: NewMeeting,
+      meta: {
+        requiresAuth: true,
+        requiresadmIn: true
+      }
+    },
   ]
 })
 

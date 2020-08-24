@@ -55,11 +55,11 @@ function start() {
   const userRouter = require('./User/User.route')
   const courseRouter = require('./Course/Course.route')
   const sectionRouter = require('./Section/Section.route')
-  const eventRouter = require('./Event/Event.route')
-  const submissionRouter = require('./Submission/Submission.route')
-  const lectureRouter = require('./Lecture/Lecture.route')
-  const lectureSubmissionRouter = require('./LectureSubmission/LectureSubmission.route')
-  const pollRouter = require('./PlaybackPoll/PlaybackPoll.route')
+  const orgRouter = require('./Organization/Organization.route')
+  const meetingRouter = require('./Meeting/Meeting.route')
+  const liveSubmissionRouter = require('./LiveSubmission/LiveSubmission.route')
+  const recordingRouter = require('./Recording/Recording.route')
+  const asyncSubmissionRouter = require('./AsyncSubmission/AsyncSubmission.route')
 
   // Connect to the database before starting the application server.
   mongoose.connect(process.env.MONGODB_URI || config.DB, function (err, client) {
@@ -72,6 +72,15 @@ function start() {
     var server = app.listen(process.env.PORT || LOCAL_PORT, function () {
       var port = server.address().port;
       console.log("App is now running on port", port);
+      const io = require('socket.io')(server);
+      io.on('connection', (socket) => {
+
+          socket.on('disconnect', () => {
+              console.log("A user disconnected");
+          });
+          
+          
+      });
     });
   });
 
@@ -100,14 +109,13 @@ function start() {
   app.use(passport.initialize());
   app.use(passport.session());
 
-  app.use('/auth', authRouter);
   app.use('/users', jwtVerify, userRouter);
   app.use('/courses', jwtVerify, courseRouter);
   app.use('/sections', jwtVerify, sectionRouter);
-  app.use('/events', jwtVerify, eventRouter);
-  app.use('/submissions', jwtVerify, submissionRouter);
-  app.use('/lectures', jwtVerify, lectureRouter);
-  app.use('/polls', jwtVerify, pollRouter);
-  app.use('/lecturesubmissions', jwtVerify, lectureSubmissionRouter);
-
+  app.use('/orgs', jwtVerify, orgRouter);
+  app.use('/meetings', jwtVerify, meetingRouter);
+  app.use('/livesubmissions', liveSubmissionRouter);
+  app.use('/auth', authRouter);
+  app.use('/recordings', recordingRouter);
+  app.use('/asyncsubmissions', asyncSubmissionRouter);
 }

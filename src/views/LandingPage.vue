@@ -1,18 +1,40 @@
 <template>
-  <div>
+  <div class="landing-page-container" id="landing-page-container" style="text-align:center;">
     <div v-if="!show_login_form">
       <Logo v-bind:show_large_logo="true" />
-      <Button :cas_url="cas_url" v-bind:btn_text="'Login'"/>
-      <Button v-if="!is_production" ref="GetStartedBtn" v-bind:btn_text="'Get Started'" v-on:button-clicked="showLoginForm" />
+      <div class="button-container">
+        <Button 
+          :href="cas_url" 
+          :text="'Login'" 
+          :config="{
+            fontSize: '1.3rem'
+          }"
+        />
+      </div>
+      <div class="button-container">
+        <Button v-if="!is_production" 
+          ref="GetStartedBtn" 
+          :text="'Dev Login'" 
+          :onClick="showLoginForm"
+          :config="{
+            fontSize: '1.3rem'
+          }"
+        />
+      </div>
     </div>
     <div v-else>
       <Logo v-bind:show_large_logo="false" />
       <LoginForm ref="LoginForm" />
-      <div id="login-signup-buttons" class="hidden">
-        <Button ref="LoginBtn" v-bind:btn_text="'Login'" v-on:button-clicked="login"/>
-<!--         <p style="font-weight:bold;">or</p>
-        <Button ref="SignupBtn" v-bind:btn_text="'Sign Up'" v-on:button-clicked="signup" /> -->
-      </div>
+        <div class="button-container">
+          <Button 
+            ref="LoginBtn" 
+            :text="'Login'" 
+            :onClick="login"
+            :config="{
+              fontSize: '1.3rem'
+            }"
+          />
+        </div>
     </div>
   </div>
 </template>
@@ -38,9 +60,10 @@
       }
     },
     created() {
+
       this.setIsProduction()
       if(process.env.NODE_ENV === "production") {
-        this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fvenue-attend.herokuapp.com%2Fauth%2FloginCAS"
+        this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fbyakugan.herokuapp.com%2Fauth%2FloginCAS"
       } else {
         this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS"
       }
@@ -50,20 +73,9 @@
         this.is_production = process.env.NODE_ENV === 'production'
       },
       showLoginForm() {
-        let self = this
-        setTimeout(function(){
-          self.show_login_form = true
+        setTimeout(() => {
+          this.show_login_form = true
         }, 500)
-        this.transitionButtons()
-      },
-      transitionButtons() {
-        let get_started_btn = this.$refs.GetStartedBtn
-        get_started_btn.fadeOut()
-        setTimeout(function(){
-          let login_sign_buttons = document.getElementById("login-signup-buttons")
-          login_sign_buttons.classList.remove("hidden")
-          login_sign_buttons.classList.add("visible")
-        }, 1000)
       },
       login() {
         this.$refs.LoginForm.login()
@@ -75,7 +87,7 @@
   }
 </script>
 
-<style>
+<style lang="scss">
   .fade_out {
     visibility: hidden;
     opacity: 0;
@@ -86,9 +98,6 @@
     opacity: 1;
     transition: visibility 0s linear 0s, opacity 300ms;
   }
-  #login-signup-buttons {
-    visibility: hidden;
-  }
   .hidden {
     visibility: hidden;
     opacity: 0;
@@ -98,5 +107,29 @@
     visibility: visible;
     opacity: 1;
     transition: opacity 1s linear;
+  }
+
+  .landing-page-container {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+  }
+
+  .dark-mode {
+    .landing-page-container {
+      background-color: #121419;
+    }
+  }
+
+  .light-mode {
+    .landing-page-container {
+      background-color: white;
+    }
+  }
+
+  .button-container {
+    margin-top: 15px;
   }
 </style>
