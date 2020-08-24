@@ -42,12 +42,12 @@
       </div>
     </div>
 
-    <div class="sidebar-area">
-      <div class="instructor-info">
-        <div class="name">Prof. David Goldschmidt</div>
-        <div class="email-icon">
-            <span class="icon-email"></span>
-        </div>
+    <SquareLoader key="3" v-if="!meeting_has_loaded" />
+    <div v-else class="sidebar-area">
+      <div v-if="for_course" class="instructor-info">
+        <sui-label class="venue-blue" icon="graduation cap" label-position="right" :style="{marginBottom: '5px'}" v-if="for_course">
+            <sui-label-detail>{{ meeting.course.instructor.first_name }} {{ meeting.course.instructor.last_name }}</sui-label-detail>
+        </sui-label>
       </div>
     </div>
 
