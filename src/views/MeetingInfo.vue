@@ -37,7 +37,7 @@
         <div class="right-side">
           <ActiveTasksList :active_tasks="active_tasks"
           v-on:show-fullscreen-code="showFullScreenQRCodeModal"
-          v-on:show-scanning-window="showQRScanningWindow"/>
+          v-on:show-qr-scanning-window="showQRScanningWindow"/>
         </div>
       </div>
     </div>

@@ -18,7 +18,7 @@
         @click="$emit('show-fullscreen-code',task.code)"
         content="Show QR Code" icon="qrcode" label-position="right" color="teal" />
         <sui-button v-else 
-        @click="$emit('show-scanning-window')"
+        @click="$emit('show-qr-scanning-window')"
         content="Scan QR Code" icon="qrcode" label-position="right" color="teal" />
       </div>
     </div>

@@ -9,7 +9,9 @@ import axios from 'axios';
 import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
 import PortalVue from "portal-vue"
 import SuiVue from "semantic-ui-vue"
+import moment from 'vue-moment'
 Vue.component('VueCtkDateTimePicker', VueCtkDateTimePicker);
+Vue.use(moment)
 Vue.use(SuiVue)
 Vue.use(PortalVue)
 Vue.use(VueAxios, axios);
