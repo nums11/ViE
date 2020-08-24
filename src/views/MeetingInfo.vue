@@ -92,31 +92,21 @@
                     v-on:show-task-attendance="showTaskAttendance" />
                   </div>
                 </div>
-<!--                 <div v-if="is_instructor">
-                  <TaskInfoContainer 
-                    v-for="(task, i) in tasks_summary"
-                    :key="i"
-                    :taskInfo="task"
-                    :shouldFocus="focusTask"
-                    :shouldFocusTaskAttendance="focusTaskAttendance"
-                  />
-                </div>
-                <div v-else>
-                  <TaskInfoContainer 
-                    v-for="(task, i) in tasks_summary"
-                    :key="i"
-                    :taskInfo="task"
-                    :shouldFocus="focusTask"
-                    :shouldFocusTaskAttendance="focusTaskAttendance"
-                    v-on:show-qr-scanning-window="showQRScanningWindow"
-                  />
-                </div> -->
               </div>
-              <div v-if="meeting.has_async_attendance">
+              <div style="margin-top:3rem;" v-if="meeting.has_async_attendance">
                 <!-- Todo - Only let student know about open and past checkins -->
                 <div class="title">
                   <h3>({{ meeting.async_attendance.recordings.length }}) Asynchronous Task<span v-if="meeting.async_attendance.recordings.length != 1">s</span>
                   </h3>
+                  <TaskInfoContainer 
+                  v-for="(recording,i) in meeting.async_attendance.recordings"
+                  :task_number="i+10"
+                  :task="recording"
+                  :is_qr="false"
+                  :attendees="attendees"
+                  v-on:show-task-qr="showTaskQR"
+                  v-on:show-qr-scanning-window="showQRScanningWindow"
+                  v-on:show-task-attendance="showTaskAttendance" />
                 </div>
               </div>
             </div>
