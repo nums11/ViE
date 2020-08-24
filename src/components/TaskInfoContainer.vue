@@ -43,9 +43,7 @@
           <!-- Do something else for recordings -->
         </div>
       </div>
-      <div>
-        <span>Submitted on {{ new Date(student_task_submission.live_submission_time) | moment("dddd, MMMM Do YYYY, h:mm a") }}</span> 
-      </div>
+      <span v-if="studentSubmittedToQRCheckin(task)">Submitted on {{ new Date(student_task_submission.live_submission_time) | moment("dddd, MMMM Do YYYY, h:mm a") }}</span> 
     </div>
   </div>
 </template>
