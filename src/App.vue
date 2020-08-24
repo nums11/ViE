@@ -188,4 +188,8 @@ export default {
   display: inline-block;
 }
 
+.float-right {
+  float: right;
+}
+
 </style>

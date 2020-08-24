@@ -23,10 +23,10 @@
         :percent="task_attendance_percentage" color="green"/>
       </div>
       <div class="right-side">
-        <sui-button v-if="is_qr" @click="$emit('show-task-qr',task)"
-        content="Show QR Code" icon="qrcode" label-position="right" color="teal" />
-        <sui-button class="venue-blue" @click="$emit('show-task-attendance',task)"
+        <sui-button class="float-right venue-blue" @click="$emit('show-task-attendance',task)"
         content="View Attendance" icon="users" label-position="right" />
+        <sui-button class="float-right" v-if="is_qr && task_window_status === 'open'" @click="$emit('show-task-qr',task)"
+        content="Show QR Code" icon="qrcode" label-position="right" color="teal" />
       </div>
     </div>
     <div v-else class="lower-area">
@@ -50,7 +50,9 @@
           <!-- Do something else for recordings -->
         </div>
       </div>
-      <span v-if="studentSubmittedToQRCheckin(task)">Submitted on {{ new Date(student_task_submission.live_submission_time) | moment("dddd, MMMM Do YYYY, h:mm a") }}</span> 
+      <div class="right-side">
+        <span class="float-right" v-if="studentSubmittedToQRCheckin(task)">Submitted on {{ new Date(student_task_submission.live_submission_time) | moment("dddd, MMMM Do YYYY, h:mm a") }}</span> 
+      </div>
     </div>
   </div>
 </template>
@@ -182,12 +184,16 @@ export default {
         align-items: center;
 
         .left-side {
-            flex-grow: 1;
+          width: 35%;
 
             .attendance-progress {
-              width: 70%;
+              width: 90%;
               margin-top: 1.5rem;
             }
+        }
+
+        .right-side {
+          width: 65%;
         }
     }
 
