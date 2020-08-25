@@ -151,7 +151,15 @@ export default {
         user_id: this.username,
         password: this.password
       })
-      .then(() => this.$router.push({name: 'dashboard'}))
+      .then(() => {
+
+        if (this.$route.query.redirect) {
+          this.$router.push(this.$route.query.redirect)
+        }
+        else {
+          this.$router.push({name: 'dashboard'})
+        }
+      })
       .catch((err) => {
 
         this.login_error = true

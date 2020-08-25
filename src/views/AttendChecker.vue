@@ -44,6 +44,20 @@ export default {
     if (!this.$store.state.user) {
       // redirect to login that should redirect back to this page.
       console.log(`User not logged in...`)
+
+      // redirect to the login page
+      this.$router.push({
+        name: 'login',
+        query: {
+          redirect: {
+            name: 'attend_checker',
+            params: {
+              meeting_id: this.$route.params.meeting_id,
+              qr_key: this.$route.params.qr_key
+            }
+          }
+        }
+      })
     }
     else {
       current_user = current_user.current_user
