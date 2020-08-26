@@ -18,8 +18,9 @@
     <div class="body-area">
       <div class="inline-block student-attendance-list-container">
         <h3>Present ({{present_attendees.length}}/{{attendees.length}})</h3>
-        <p v-for="attendee in present_attendees">
+        <p v-for="(attendee,i) in present_attendees">
           {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
+          <span v-if="!is_qr">- {{ video_percentages[i].toFixed(0) }}%</span>
         </p>
       </div>
       <div class="inline-block student-attendance-list-container">
@@ -77,13 +78,14 @@ export default {
       return {
         is_qr: false,
         present_attendees: [],
-        absent_attendees: []
+        absent_attendees: [],
+        video_percentages: []
       }
     },
     created() {
       this.is_qr = this.task.code != null
       this.separateAttendees()
-      console.log("Attendees", this.attendees)
+      console.log("video_percentages", this.video_percentages)
     },
     methods: {
       separateAttendees() {
@@ -104,6 +106,8 @@ export default {
         let submission_ids = new Set()
         task_submissions.forEach(submission => {
           submission_ids.add(submission.submitter.user_id)
+          if(!this.is_qr)
+            this.video_percentages.push(submission.video_percent_watched)
         })
         return submission_ids
       }
