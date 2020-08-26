@@ -105,16 +105,10 @@
       },
       categorizeMeetings() {
         this.user_meetings.forEach(meeting => {
-          let meeting_start_time = new Date(meeting.start_time)
-          let meeting_end_time = new Date(meeting.end_time)
           if(this.hasLive(meeting))
             this.live_meetings.push(meeting)
-          else if(this.hasUpcomingLive(meeting))
-            this.upcoming_live_meetings.push(meeting)
           if(this.hasAsync(meeting))
             this.async_meetings.push(meeting)
-          if(this.hasUpcomingAsync(meeting))
-            this.upcoming_async_meetings.push(meeting)
         })
       },
       hasLive(meeting) {
@@ -168,8 +162,7 @@
         return time1 < time2
       },
       isBetweenTimes(time, start_time, end_time) {
-        return time >= start_time &&
-          time <= end_time
+        return (time >= start_time && time <= end_time)
       },
       getColor (course_info) {
         if (course_info == null || course_info._id == null) return 'grey'

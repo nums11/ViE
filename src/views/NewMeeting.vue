@@ -263,6 +263,7 @@ export default {
     async saveRecordingVideosToGCS() {
       const response = await MeetingAPI.saveRecordingVideosToGCS(this.recordings)
       let video_gcs_urls = response.data
+      console.log("video_gcs_urls", video_gcs_urls)
       for(let i = 0; i < this.recordings.length; i++) {
         this.recordings[i].video_url = video_gcs_urls[i]
         console.log("Set url",this.recordings[i].video_url)
