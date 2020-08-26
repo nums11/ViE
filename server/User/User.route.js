@@ -1,12 +1,147 @@
 const express = require('express');
 const userRoutes = express.Router();
 const bcrypt = require('bcrypt');
+const _ = require('lodash');
+const mongoose = require('mongoose');
+const ObjectID = mongoose.mongo.ObjectId;
+const randomstring = require('randomstring');
 const saltRounds = 10;
 
 let User = require('./User.model');
 let Course = require('../Course/Course.model');
 let Section = require('../Section/Section.model');
 let Lecture = require('../Lecture/Lecture.model');
+
+userRoutes.route(`/invite/course/:course_id`).post((req, res) => {
+
+  /*
+  User Invite:
+  Invite a user to a course. When a user is invited to the course,
+  they will be stored into the User collection with a confirm_key.
+
+  An email should be sent to the user that is being invited with the
+  link to complete their invite request.
+  */
+
+  // users should be an array of objects with:
+  // - firstName, lastName, and email set for each
+  let users = req.body.users
+  let course_id = req.params.course_id
+  if (!course_id) {
+    console.error(`<USER/INVITE> No course id provided.`);
+    res.json({
+      success: false,
+      error: 'No course id provided'
+    })
+    return;
+  }
+  if (!user) {
+    console.error(`<USER/INVITE> No users set.`)
+    res.json({
+      success: false,
+      error: 'No users provided.'
+    })
+  }
+
+  for (let i = 0; i < users.length; ++i) {
+    if (!_.has(users[i], 'firstName')) {
+      console.error(`<USER/INVITE> User ${i} has no firstName value`)
+      res.json({
+        success: false,
+        error: `No firstName set for user at index ${i}`
+      })
+      return;
+    }
+
+    if (!_.has(users[i], 'lastName')) {
+      console.error(`<USER/INVITE> User ${i} has no lastName value`)
+      res.json({
+        success: false,
+        error: `No lastName set for user at index ${i}`
+      })
+      return;
+    }
+
+    if (!_.has(users[i], 'email')) {
+      console.error(`<USER/INVITE> User ${i} has no email value`)
+      res.json({
+        success: false,
+        error: `No email set for user at index ${i}`
+      })
+      return;
+    }
+  } // end for
+
+  // Check to make sure the course exists
+  Course.findById(course_id, (err, course_doc) => {
+    if (error || !course_doc) {
+      res.json({
+        success: false,
+        error: 'Course does not exist.'
+      })
+    }
+    else {
+
+      // create each student object
+      let user_checks = []
+      users.forEach(user_ => {
+
+        user_checks.push(new Promise( (resolve, reject) => {
+          // check if the user already exists in the system
+          User.findOne({ email: user_.email }, (err, user_doc) => {
+            if (err || !user_doc) {
+              resolve({
+                user: user_,
+                new_user: true
+              })
+            }
+            else {
+              resolve({
+                user: user_doc,
+                new_user: false
+              })
+            }
+          })
+
+        } ))
+
+      }) // end forEach
+
+      Promise.all(user_checks)
+      .then(user_responses => {
+
+        // check the users that exist and add them to the course
+        // and the ones that don't, create their account with a
+        // confirm_key and send them an email
+
+        let actual_studenta_added = []
+        user_responses.forEach(user_ => {
+
+          if (user_.new_user) {
+
+            let new_user = new User(user_.user)
+            new_user.
+
+          }
+          else {
+
+            // add the course to the student courses
+
+            // if the user is not already in the course
+            if (_.find( user_.user.student_courses, (_id) => _id.equals(course_id) ) == undefined) {
+              user_.user.student_courses.push( ObjectID(course_id) )
+              
+            }
+
+          }
+
+        })
+
+      })
+    }
+  })
+
+})
 
 userRoutes.route('/add').post(function (req, res) {
   let user = new User(req.body.user);

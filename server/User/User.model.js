@@ -15,6 +15,7 @@ let User = new Schema({
 	email: String,
 	temp_password: String,
 	password: String,
+	confirm_key: String,
 	instructor_courses: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Course'
