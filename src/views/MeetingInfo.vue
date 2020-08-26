@@ -59,11 +59,16 @@
         <div class="content-area">
           <!-- Tabs -->
           <sui-list id="meeting-tabs" horizontal>
-            <sui-list-item class="meeting-tab" @click="showMeetingTasks">
+            <sui-list-item 
+            :class="'meeting-tab ' + (show_meeting_tasks ? 'solid-border-bottom' : '')"
+            @click="showMeetingTasks">
               <sui-icon name="tasks" class="meeting-tab-icon" />
               Tasks
             </sui-list-item>
-            <sui-list-item class="meeting-tab" id="attendance-tab" @click="showMeetingAttendance">
+            <sui-list-item
+            :class="'meeting-tab ' + (show_meeting_tasks ? '' : 'solid-border-bottom')"
+            id="attendance-tab"
+            @click="showMeetingAttendance">
               <sui-icon name="users" class="meeting-tab-icon" />
               Attendance
             </sui-list-item>
@@ -497,7 +502,6 @@ export default {
           font-size: 1.5rem;
           cursor:pointer;
           margin-bottom: 2rem;
-          border-bottom: black solid;
 
           .meeting-tab-icon {
             margin-right: 0.5rem;
@@ -518,6 +522,10 @@ export default {
 
   }
 
+}
+
+.solid-border-bottom {
+  border-bottom: black solid;
 }
 
 .dark-mode {
