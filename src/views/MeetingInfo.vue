@@ -59,7 +59,6 @@
             <div key="1" v-else-if="task_focus == null">
               <div v-if="meeting.has_live_attendance">
                 <div class="title">
-                  <!-- Don't show total number of checkins to students -->
                   <h3 v-if="is_instructor">
                     ({{ meeting.live_attendance.qr_checkins.length }}) 
                     Live Tasks
@@ -94,20 +93,22 @@
                 </div>
               </div>
               <div style="margin-top:3rem;" v-if="meeting.has_async_attendance">
-                <!-- Todo - Only let student know about open and past checkins -->
                 <div class="title">
-                  <h3>({{ meeting.async_attendance.recordings.length }}) Asynchronous Task<span v-if="meeting.async_attendance.recordings.length != 1">s</span>
+                  <h3 v-if="is_instructor">
+                    ({{ meeting.async_attendance.recordings.length }}) 
+                    Asynchronous Tasks
                   </h3>
-                  <TaskInfoContainer 
-                  v-for="(recording,i) in meeting.async_attendance.recordings"
-                  :task_number="i+10"
-                  :task="recording"
-                  :is_qr="false"
-                  :attendees="attendees"
-                  v-on:show-task-qr="showTaskQR"
-                  v-on:show-qr-scanning-window="showQRScanningWindow"
-                  v-on:show-task-attendance="showTaskAttendance" />
+                  <h3 v-else>Asynchronous Tasks</h3>
                 </div>
+                <TaskInfoContainer 
+                v-for="(recording,i) in meeting.async_attendance.recordings"
+                :task_number="i+10"
+                :task="recording"
+                :is_qr="false"
+                :attendees="attendees"
+                v-on:show-task-qr="showTaskQR"
+                v-on:show-qr-scanning-window="showQRScanningWindow"
+                v-on:show-task-attendance="showTaskAttendance" />
               </div>
             </div>
             <div key="2" v-else>
