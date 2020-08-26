@@ -42,6 +42,7 @@
       </div>
     </div>
 
+    <!-- Sidebar -->
     <SquareLoader key="3" v-if="!meeting_has_loaded" />
     <div v-else class="sidebar-area">
       <div v-if="for_course" class="instructor-info">
@@ -51,6 +52,7 @@
       </div>
     </div>
 
+    <!-- Body -->
     <div class="content-area-wrapper">
       <div class="left-spacer"></div>
         <div class="content-area">
@@ -60,37 +62,18 @@
               <div v-if="meeting.has_live_attendance">
                 <div class="title">
                   <h3 v-if="is_instructor">
-                    ({{ meeting.live_attendance.qr_checkins.length }}) 
+                    ({{ meeting.live_attendance.qr_checkins.length }})
                     Live Tasks
                   </h3>
                   <h3 v-else>Live Tasks</h3>
                 </div>
-                <div v-if="is_instructor">
-                  <TaskInfoContainer 
-                  v-for="(qr_checkin,i) in meeting.live_attendance.qr_checkins"
-                  :task_number="i"
-                  :task="qr_checkin"
-                  :is_qr="true"
-                  :attendees="attendees"
-                  v-on:show-task-qr="showTaskQR"
-                  v-on:show-qr-scanning-window="showQRScanningWindow"
-                  v-on:show-task-attendance="showTaskAttendance" />
-                </div>
-                <!-- Only show open and closed checkins to students. No upcoming -->
-                <div v-else>
-                  <div v-for="(qr_checkin,i) in meeting.live_attendance.qr_checkins">
-                    <TaskInfoContainer
-                    v-if="getWindowStatus(qr_checkin,true) === 'open' ||
-                    getWindowStatus(qr_checkin,true) === 'closed'"
-                    :task_number="i"
-                    :task="qr_checkin"
-                    :is_qr="true"
-                    :attendees="attendees"
-                    v-on:show-task-qr="showTaskQR"
-                    v-on:show-qr-scanning-window="showQRScanningWindow"
-                    v-on:show-task-attendance="showTaskAttendance" />
-                  </div>
-                </div>
+                <MeetingTaskList
+                :tasks="meeting.live_attendance.qr_checkins"
+                :is_live="true"
+                :attendees="attendees"
+                v-on:show-task-qr="showTaskQR"
+                v-on:show-qr-scanning-window="showQRScanningWindow"
+                v-on:show-task-attendance="showTaskAttendance" />
               </div>
               <div style="margin-top:3rem;" v-if="meeting.has_async_attendance">
                 <div class="title">
@@ -100,15 +83,11 @@
                   </h3>
                   <h3 v-else>Asynchronous Tasks</h3>
                 </div>
-                <TaskInfoContainer 
-                v-for="(recording,i) in meeting.async_attendance.recordings"
-                :task_number="i+10"
-                :task="recording"
-                :is_qr="false"
+                <MeetingTaskList
+                :tasks="meeting.async_attendance.recordings"
+                :is_live="false"
                 :attendees="attendees"
-                v-on:show-task-qr="showTaskQR"
-                v-on:show-qr-scanning-window="showQRScanningWindow"
-                v-on:show-task-attendance="showTaskAttendance" />
+                v-on:show-task-attendance="showTaskAttendance"  />
               </div>
             </div>
             <div key="2" v-else>
@@ -141,7 +120,7 @@ import QRScanningWindow from '@/components/QRScanningWindow.vue';
 import ActiveTasksList from '@/components/ActiveTasksList.vue'
 import TaskInfoModal from '@/components/TaskInfoModal.vue'
 import TaskInfoModalExpanded from '@/components/TaskInfoModalExpanded.vue'
-import TaskInfoContainer from '@/components/TaskInfoContainer.vue'
+import MeetingTaskList from '@/components/MeetingTaskList.vue'
 import TaskInfoContainerExpanded from '@/components/TaskInfoContainerExpanded.vue'
 import TaskAttendanceList from '@/components/TaskAttendanceList.vue'
 import SquareLoader from "@/components/Loaders/SquareLoader.vue"
@@ -150,250 +129,250 @@ import MeetingAPI from '@/services/MeetingAPI.js';
 import qrcode from '@chenfengyuan/vue-qrcode';
 
 export default {
-    name: 'MeetingInfo',
-    components: {
-        MeetingInfoScheduleSlider,
-        FullScreenQRCodeModal,
-        QRScanningWindow,
-        ActiveTasksList,
-        TaskInfoModal,
-        TaskInfoModalExpanded,
-        TaskInfoContainer,
-        TaskInfoContainerExpanded,
-        TaskAttendanceList,
-        SquareLoader
+  name: 'MeetingInfo',
+  components: {
+    MeetingInfoScheduleSlider,
+    FullScreenQRCodeModal,
+    QRScanningWindow,
+    ActiveTasksList,
+    TaskInfoModal,
+    TaskInfoModalExpanded,
+    TaskInfoContainerExpanded,
+    TaskAttendanceList,
+    SquareLoader,
+    MeetingTaskList
+  },
+  data () {
+    return {
+      task_focus: null,
+      focused_task: {},
+      task_focus_mode: String, // "show-info" or "show-attendance"
+      tasks_summary: [],
+      qr_scanning_window_open: false,
+      current_user: {},
+      meeting: {},
+      active_tasks: [],
+      for_course: Boolean,
+      meeting_has_loaded: false,
+      is_instructor: Boolean,
+      meeting_is_live: false,
+      show_qr_code_modal: false,
+      full_screen_code: "",
+      show_qr_scanning_window: false,
+      attendees: []
+    }
+  },
+  async created () {
+    this.current_user = this.$store.state.user.current_user
+    this.is_instructor = this.current_user.is_instructor
+    await this.getMeeting ()
+    console.log("Meeting",this.meeting)
+    this.getMeetingStatus()
+    this.getActiveTasksForMeeting()
+    this.getMeetingAttendees()
+    this.meeting_has_loaded = true
+  },
+  methods: {
+    isQrTask (taskInfo) {
+      return taskInfo && taskInfo.qrCode
     },
-    data () {
-        return {
-            task_focus: null,
-            focused_task: {},
-            task_focus_mode: String, // "show-info" or "show-attendance"
-            tasks_summary: [],
-            qr_scanning_window_open: false,
-            current_user: {},
-            meeting: {},
-            active_tasks: [],
-            for_course: Boolean,
-            meeting_has_loaded: false,
-            is_instructor: Boolean,
-            meeting_is_live: false,
-            show_qr_code_modal: false,
-            full_screen_code: "",
-            show_qr_scanning_window: false,
-            attendees: []
-        }
-    },
-    async created () {
-      this.current_user = this.$store.state.user.current_user
-      this.is_instructor = this.current_user.is_instructor
-      await this.getMeeting ()
-      console.log("Meeting",this.meeting)
-      this.getMeetingStatus()
-      this.getActiveTasksForMeeting()
-      this.getMeetingAttendees()
-      this.meeting_has_loaded = true
-    },
-    methods: {
-      isQrTask (taskInfo) {
-        return taskInfo && taskInfo.qrCode
-      },
-      manageScheduleTabClick (props) {
+    manageScheduleTabClick (props) {
 
-        if (this.isQrTask (props)) {
-          this.task_focus = props.id
-          this.task_focus_mode = 'show-info'
+      if (this.isQrTask (props)) {
+        this.task_focus = props.id
+        this.task_focus_mode = 'show-info'
+      }
+    },
+    showQRScanningWindow() {
+      this.qr_scanning_window_open = true
+    },
+    closeQRScanningWindow() {
+      this.qr_scanning_window_open = false
+    },
+    attemptQRCheckinSubmission(scanned_code) {
+      let open_checkin = this.getOpenQRCheckin()
+      console.log("Open checkin", open_checkin)
+      console.log("Open Checkin code", open_checkin.code)
+      console.log("Scanned code", scanned_code)
+      if(this.isEmptyObj(open_checkin))
+        alert("No Open QR Checkins")
+      else if(open_checkin.code === scanned_code)
+        this.createLiveSubmission(open_checkin)
+      else 
+        alert("Scanned invalid code!")
+      this.hideQRScanningWindow()
+    },
+    getOpenQRCheckin() {
+      let open_checkin = {}
+      let meeting_checkins = this.meeting.live_attendance.qr_checkins
+      for(let i = 0; i < meeting_checkins.length; i++) {
+        if(this.getWindowStatus(meeting_checkins[i], true) === "open"){
+          open_checkin = meeting_checkins[i]
+          break
         }
-      },
-      showQRScanningWindow() {
-        this.qr_scanning_window_open = true
-      },
-      closeQRScanningWindow() {
-        this.qr_scanning_window_open = false
-      },
-      attemptQRCheckinSubmission(scanned_code) {
-        let open_checkin = this.getOpenQRCheckin()
-        console.log("Open checkin", open_checkin)
-        console.log("Open Checkin code", open_checkin.code)
-        console.log("Scanned code", scanned_code)
-        if(this.isEmptyObj(open_checkin))
-          alert("No Open QR Checkins")
-        else if(open_checkin.code === scanned_code)
-          this.createLiveSubmission(open_checkin)
-        else 
-          alert("Scanned invalid code!")
-        this.hideQRScanningWindow()
-      },
-      getOpenQRCheckin() {
-        let open_checkin = {}
-        let meeting_checkins = this.meeting.live_attendance.qr_checkins
-        for(let i = 0; i < meeting_checkins.length; i++) {
-          if(this.getWindowStatus(meeting_checkins[i], true) === "open"){
-            open_checkin = meeting_checkins[i]
-            break
-          }
-        }
-        return open_checkin
-      },
-      isEmptyObj(obj) {
-        return Object.keys(obj).length === 0 && obj.constructor === Object
-      },
-      getStartTime () {
-        if (this.meeting == null) return ''
-        let start_ = new Date (this.meeting.start_time)
-        let hours = (start_.getHours() + 1) % 12
-        let minutes = start_.getMinutes() < 10 ? `0${start_.getMinutes()}` : start_.getMinutes()
-        let suffix = start_.getHours() >= 11 ? 'pm' : 'am'
-        return `${hours}:${minutes}${suffix}`
-      },
-      getEndTime () {
-        if (this.meeting == null) return ''
-        let end_ = new Date (this.meeting.end_time)
-        let hours = (end_.getHours() + 1) % 12
-        let minutes = end_.getMinutes() < 10 ? `0${end_.getMinutes()}` : end_.getMinutes()
-        let suffix = end_.getHours() >= 11 ? 'pm' : 'am'
-        return `${hours}:${minutes}${suffix}`
-      },
-      focusTask (task_id) {
-          this.task_focus = task_id
-          this.task_focus_mode = "show-info"
-      },
-      showTaskQR (task) {
-          this.task_focus = -1
-          console.log("In func")
-          this.focused_task = task
-          this.task_focus_mode = "show-info"
-      },
-      focusTaskAttendance (task_id) {
-          this.task_focus = task_id
-          this.task_focus_mode = "show-attendance"
-      },
-      showTaskAttendance(task) {
+      }
+      return open_checkin
+    },
+    isEmptyObj(obj) {
+      return Object.keys(obj).length === 0 && obj.constructor === Object
+    },
+    getStartTime () {
+      if (this.meeting == null) return ''
+      let start_ = new Date (this.meeting.start_time)
+      let hours = (start_.getHours() + 1) % 12
+      let minutes = start_.getMinutes() < 10 ? `0${start_.getMinutes()}` : start_.getMinutes()
+      let suffix = start_.getHours() >= 11 ? 'pm' : 'am'
+      return `${hours}:${minutes}${suffix}`
+    },
+    getEndTime () {
+      if (this.meeting == null) return ''
+      let end_ = new Date (this.meeting.end_time)
+      let hours = (end_.getHours() + 1) % 12
+      let minutes = end_.getMinutes() < 10 ? `0${end_.getMinutes()}` : end_.getMinutes()
+      let suffix = end_.getHours() >= 11 ? 'pm' : 'am'
+      return `${hours}:${minutes}${suffix}`
+    },
+    focusTask (task_id) {
+        this.task_focus = task_id
+        this.task_focus_mode = "show-info"
+    },
+    showTaskQR (task) {
         this.task_focus = -1
+        console.log("In func")
         this.focused_task = task
+        this.task_focus_mode = "show-info"
+    },
+    focusTaskAttendance (task_id) {
+        this.task_focus = task_id
         this.task_focus_mode = "show-attendance"
-      },
-      cancelTask () {
-          this.task_focus = null
-      },
-      getMeetingStatus () {
-        let current_time = new Date()
-        this.meeting_is_live = this.isBetweenTimes(current_time,
-          new Date(this.meeting.start_time), new Date(this.meeting.end_time))
-      },
-      async getMeeting() {
-        this.meeting_id = this.$route.params.meeting_id
-        const response = await MeetingAPI.getMeeting(this.meeting_id)
-        this.meeting = response.data
-        console.log("meeting", this.meeting)
-        this.for_course = this.meeting.for_course
-      },
-      getActiveTasksForMeeting () {
-        let current_time = new Date ();
-        if (this.meeting.has_live_attendance) {
-          this.meeting.live_attendance.qr_checkins
-          .forEach(qr_checkin => {
-            if (this.isBetweenTimes(current_time, new Date(qr_checkin.qr_checkin_start_time),
-              new Date(qr_checkin.qr_checkin_end_time))) {
-              if(this.is_instructor)
-                this.active_tasks.push(qr_checkin)
-              else if(!this.studentSubmittedToQRCheckin(qr_checkin))
-                this.active_tasks.push(qr_checkin)
-            }
-          })
-        }
-        if(this.meeting.has_async_attendance) {
-          this.meeting.async_attendance.recordings
-          .forEach(recording => {
-            if(this.isBetweenTimes(current_time, new Date(recording.recording_submission_start_time),
-              new Date(recording.recording_submission_end_time))) {
-              this.active_tasks.push(recording)
-            }
-          })
-        }
-      },
-      getMeetingAttendees() {
-        if(this.for_course)
-          this.attendees = this.meeting.course.students
-        else
-          this.attendees = this.meeting.org.general_members
-      },
-      isBetweenTimes(time, start_time, end_time) {
-        return time >= start_time &&
-          time <= end_time
-      },
-      getWindowStatus(task, is_qr) {
-        let current_time = new Date()
-        let window_start = null
-        let window_end = null
-        if(is_qr) {
-          window_start = new Date(task.qr_checkin_start_time)
-          window_end = new Date(task.qr_checkin_end_time)
-        } else {
-          window_start = new Date(task.recording_submission_start_time)
-          window_end = new Date(task.recording_submission_end_time)
-        }
-        let window_status = ""
-        if(current_time > window_end)
-          window_status = "closed"
-        else if(current_time < window_start)
-          window_status = "upcoming"
-        else
-          window_status = "open"
-        return window_status
-      },
-      studentSubmittedToQRCheckin(qr_checkin) {
-        let submissions = qr_checkin.qr_checkin_submissions
-        let student_has_submitted = false
-        for(let i = 0; i < submissions.length; i++) {
-          if(submissions[i].submitter.user_id === this.current_user.user_id){
-            student_has_submitted = true
-            break
-          }
-        }
-        return student_has_submitted
-      },
-      createTasksSummary () {
-        this.tasks_summary = this.active_tasks.map((task, i) => {
-          if (Object.prototype.hasOwnProperty.call( task, 'qr_checkin_start_time' )) {
-            return {
-              taskType: 'qr-code',
-              startTime: task.qr_checkin_start_time,
-              endTime: task.qr_checkin_end_time,
-              taskName: 'QR Submission',
-              taskDescription: 'Scan the QR code to submit your attendance',
-              qrCode: task.code,
-              id: i,
-              submissions: task.qr_checkin_submissions
-            }
+    },
+    showTaskAttendance(task) {
+      this.task_focus = -1
+      this.focused_task = task
+      this.task_focus_mode = "show-attendance"
+    },
+    cancelTask () {
+        this.task_focus = null
+    },
+    getMeetingStatus () {
+      let current_time = new Date()
+      this.meeting_is_live = this.isBetweenTimes(current_time,
+        new Date(this.meeting.start_time), new Date(this.meeting.end_time))
+    },
+    async getMeeting() {
+      this.meeting_id = this.$route.params.meeting_id
+      const response = await MeetingAPI.getMeeting(this.meeting_id)
+      this.meeting = response.data
+      console.log("meeting", this.meeting)
+      this.for_course = this.meeting.for_course
+    },
+    getActiveTasksForMeeting () {
+      let current_time = new Date ();
+      if (this.meeting.has_live_attendance) {
+        this.meeting.live_attendance.qr_checkins
+        .forEach(qr_checkin => {
+          if (this.isBetweenTimes(current_time, new Date(qr_checkin.qr_checkin_start_time),
+            new Date(qr_checkin.qr_checkin_end_time))) {
+            if(this.is_instructor)
+              this.active_tasks.push(qr_checkin)
+            else if(!this.studentSubmittedToQRCheckin(qr_checkin))
+              this.active_tasks.push(qr_checkin)
           }
         })
-      },
-      async createLiveSubmission(open_checkin) {
-        let live_submission = {
-          submitter: this.$store.state.user.current_user,
-          is_qr_checkin_submission: true,
-          qr_checkin: open_checkin,
-          live_submission_time: new Date()
-        }
-        const response = await LiveSubmissionAPI.addLiveSubmission(live_submission)
-        alert("Live Submission Recorded")
-        this.$router.go()
-      },
-      showFullScreenQRCodeModal (code) {
-        this.full_screen_code = code
-        this.show_qr_code_modal = true
-      },
-      hideFullScreenQRCodeModal() {
-        this.full_screen_code = ""
-        this.show_qr_code_modal = false
-      },
-      showQRScanningWindow() {
-        this.show_qr_scanning_window = true
-      },
-      hideQRScanningWindow() {
-        this.show_qr_scanning_window = false
       }
+      if(this.meeting.has_async_attendance) {
+        this.meeting.async_attendance.recordings
+        .forEach(recording => {
+          if(this.isBetweenTimes(current_time, new Date(recording.recording_submission_start_time),
+            new Date(recording.recording_submission_end_time))) {
+            this.active_tasks.push(recording)
+          }
+        })
+      }
+    },
+    getMeetingAttendees() {
+      if(this.for_course)
+        this.attendees = this.meeting.course.students
+      else
+        this.attendees = this.meeting.org.general_members
+    },
+    isBetweenTimes(time, start_time, end_time) {
+      return time >= start_time &&
+        time <= end_time
+    },
+    getWindowStatus(task, is_qr) {
+      let current_time = new Date()
+      let window_start = null
+      let window_end = null
+      if(is_qr) {
+        window_start = new Date(task.qr_checkin_start_time)
+        window_end = new Date(task.qr_checkin_end_time)
+      } else {
+        window_start = new Date(task.recording_submission_start_time)
+        window_end = new Date(task.recording_submission_end_time)
+      }
+      let window_status = ""
+      if(current_time > window_end)
+        window_status = "closed"
+      else if(current_time < window_start)
+        window_status = "upcoming"
+      else
+        window_status = "open"
+      return window_status
+    },
+    studentSubmittedToQRCheckin(qr_checkin) {
+      let submissions = qr_checkin.qr_checkin_submissions
+      let student_has_submitted = false
+      for(let i = 0; i < submissions.length; i++) {
+        if(submissions[i].submitter.user_id === this.current_user.user_id){
+          student_has_submitted = true
+          break
+        }
+      }
+      return student_has_submitted
+    },
+    createTasksSummary () {
+      this.tasks_summary = this.active_tasks.map((task, i) => {
+        if (Object.prototype.hasOwnProperty.call( task, 'qr_checkin_start_time' )) {
+          return {
+            taskType: 'qr-code',
+            startTime: task.qr_checkin_start_time,
+            endTime: task.qr_checkin_end_time,
+            taskName: 'QR Submission',
+            taskDescription: 'Scan the QR code to submit your attendance',
+            qrCode: task.code,
+            id: i,
+            submissions: task.qr_checkin_submissions
+          }
+        }
+      })
+    },
+    async createLiveSubmission(open_checkin) {
+      let live_submission = {
+        submitter: this.$store.state.user.current_user,
+        is_qr_checkin_submission: true,
+        qr_checkin: open_checkin,
+        live_submission_time: new Date()
+      }
+      const response = await LiveSubmissionAPI.addLiveSubmission(live_submission)
+      alert("Live Submission Recorded")
+      this.$router.go()
+    },
+    showFullScreenQRCodeModal (code) {
+      this.full_screen_code = code
+      this.show_qr_code_modal = true
+    },
+    hideFullScreenQRCodeModal() {
+      this.full_screen_code = ""
+      this.show_qr_code_modal = false
+    },
+    showQRScanningWindow() {
+      this.show_qr_scanning_window = true
+    },
+    hideQRScanningWindow() {
+      this.show_qr_scanning_window = false
     }
+  }
 }
 </script>
 
