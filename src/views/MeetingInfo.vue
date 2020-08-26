@@ -127,7 +127,9 @@
           </div>
           <!-- Meeting Attendance -->
           <div v-else>
-            <h1>Attendance!</h1>
+            <transition name="fade" mode="out-in">
+              <MeetingAttendanceList key="1" :meeting="meeting" :attendees="attendees" />
+            </transition>
           </div>
         </div>
       </div>
@@ -146,6 +148,7 @@ import TaskInfoModalExpanded from '@/components/TaskInfoModalExpanded.vue'
 import MeetingTaskList from '@/components/MeetingTaskList.vue'
 import TaskInfoContainerExpanded from '@/components/TaskInfoContainerExpanded.vue'
 import TaskAttendanceList from '@/components/TaskAttendanceList.vue'
+import MeetingAttendanceList from '@/components/MeetingAttendanceList.vue';
 import SquareLoader from "@/components/Loaders/SquareLoader.vue"
 import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 import MeetingAPI from '@/services/MeetingAPI.js';
@@ -163,7 +166,8 @@ export default {
     TaskInfoContainerExpanded,
     TaskAttendanceList,
     SquareLoader,
-    MeetingTaskList
+    MeetingTaskList,
+    MeetingAttendanceList
   },
   data () {
     return {
