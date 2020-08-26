@@ -58,7 +58,7 @@
       <div class="left-spacer"></div>
         <div class="content-area">
           <!-- Tabs -->
-          <sui-list id="meeting-tabs" horizontal>
+          <sui-list v-if="is_instructor" id="meeting-tabs" horizontal>
             <sui-list-item 
             :class="'meeting-tab ' + (show_meeting_tasks ? 'solid-border-bottom' : '')"
             @click="showMeetingTasks">
