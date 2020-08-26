@@ -11,6 +11,7 @@ body {
     .venue-blue     { background-color: #47C4FC !important; }
     .venue-green    { background-color: #5EFFB4 !important; }
     .venue-orange   { background-color: #FC9547 !important; }
+    .venue-grey     { background-color: #d1d1d1 !important; }
 
     
     .venue-red-text      { color: #FF5E5E !important; }
@@ -25,6 +26,10 @@ body {
 
     background-color: white;
     color: black;
+
+    .ui.button {
+        font-weight: 600 !important;
+    }
 
     .ui.button.dropdown .menu {
         

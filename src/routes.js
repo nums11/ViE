@@ -18,6 +18,7 @@ import AdminNewOrg from './components/admin/Organization/AdminNewOrg.vue';
 import AdminOrgs from './components/admin/Organization/AdminOrgs.vue';
 import AdminEditOrg from './components/admin/Organization/AdminEditOrg.vue';
 import NewMeeting from './views/NewMeeting.vue';
+import NewMeeting_Update from './views/NewMeeting_Update.vue';
 import AdminNewEvent from './components/admin/Event/AdminNewEvent.vue';
 import AdminEvents from './components/admin/Event/AdminEvents.vue';
 import AdminEditEvent from './components/admin/Event/AdminEditEvent.vue';
@@ -41,12 +42,22 @@ import RedirectCASLogin from './views/RedirectCASLogin.vue';
 import Statistics from './views/Statistics.vue';
 import WatchRecording from './views/WatchRecording.vue';
 import AttendChecker from './views/AttendChecker.vue';
+import LoginView from './views/LoginView.vue';
 
 Vue.use(VueRouter);
 
 const router = new VueRouter({
   // mode: 'history',
   routes: [
+    {
+      name: 'login',
+      path: '/login',
+      component: LoginView,
+      meta: {
+        title: 'Venue - Login',
+        requiresNoLogin: true
+      }
+    },
     {
       name: 'landing_page',
       path: '/',
@@ -399,7 +410,7 @@ const router = new VueRouter({
     {
       name: 'course_new_meeting',
       path: '/course_new_meeting/:course_id',
-      component: NewMeeting,
+      component: NewMeeting_Update,
       meta: {
         requiresAuth: true,
         requiresadmIn: true
@@ -408,7 +419,7 @@ const router = new VueRouter({
     {
       name: 'org_new_meeting',
       path: '/org_new_meeting/:org_id',
-      component: NewMeeting,
+      component: NewMeeting_Update,
       meta: {
         requiresAuth: true,
         requiresadmIn: true
