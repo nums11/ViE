@@ -41,12 +41,22 @@ import Settings from './views/Settings.vue';
 import RedirectCASLogin from './views/RedirectCASLogin.vue';
 import Statistics from './views/Statistics.vue';
 import WatchRecording from './views/WatchRecording.vue';
+import LoginView from './views/LoginView.vue';
 
 Vue.use(VueRouter);
 
 const router = new VueRouter({
   // mode: 'history',
   routes: [
+    {
+      name: 'login',
+      path: '/login',
+      component: LoginView,
+      meta: {
+        title: 'Venue - Login',
+        requiresNoLogin: true
+      }
+    },
     {
       name: 'landing_page',
       path: '/',
