@@ -5,11 +5,11 @@
     <div v-else class="lecture-card-background" :class="{'playback-lecture':lecture_type === 'Playback', 'recent-lecture':lecture_type === 'Recent', 'upcoming-lecture':lecture_type === 'Upcoming'}">
     </div>
     <div class="lecture-card-foreground">
-      <router-link class="lecture_card_link" :to="{name: 'lecture_info', params: { lecture_id: lecture._id }}" :aria-label="'Lecture Info - '+ lecture_course.name +' - '+lecture.title">
-        <div class="lecture-card-section" id="left-section">
+      <router-link class="lecture_card_link" :to="{name: 'lecture_info', params: { lecture_id: lecture._id }}" :aria-label="'Lecture Info - '+ ' - '+lecture.title">
+<!--         <div class="lecture-card-section" id="left-section">
           <p class="course-name">{{ lecture_course.name }}</p>
           <p class="course-title">{{ lecture_course.dept }} {{ lecture_course.course_number }}</p>
-        </div>
+        </div> -->
         <div class="lecture-card-section" id="middle-section">
           <p class="lecture-name">{{ lecture.title }}</p>
         </div>
@@ -60,7 +60,7 @@
     created() {
       // TODO: Change plabyack and recent sections to show percentages like in figma
       this.is_instructor = this.$store.state.user.current_user.is_instructor
-      this.lecture_course = this.lecture.sections[0].course
+      // this.lecture_course = this.lecture.sections[0].course
     },
     methods: {
       getTimeToWindowCloseString(is_playback) {
@@ -174,7 +174,7 @@
   }
 
   #middle-section {
-    width: 40%;
+    width: 70%;
   }
 
   #right-section {

@@ -3,8 +3,7 @@
     <div class="header-area">
       <div class="left-side">
         <div class="title-area">
-          <h4 v-if="is_qr">QR Submission</h4>
-          <h4 v-else>Recording</h4>
+          <h4>Meeting Attendance</h4>
         </div>
       </div>
       <div class="right-side">
@@ -18,9 +17,8 @@
     <div class="body-area">
       <div class="inline-block student-attendance-list-container">
         <h3>Present ({{present_attendees.length}}/{{attendees.length}})</h3>
-        <p v-for="(attendee,i) in present_attendees">
+        <p v-for="attendee in present_attendees">
           {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
-          <span v-if="!is_qr">- {{ video_percentages[i].toFixed(0) }}%</span>
         </p>
       </div>
       <div class="inline-block student-attendance-list-container">
@@ -35,14 +33,14 @@
     <!-- Footer Area -->
     <div class="footer-area">
       <div class="left-side">
-        <sui-button 
+<!--         <sui-button 
           compact icon="left arrow" 
           label-position="left" 
           @click="cancelTask"
-          content="Back" />
+          content="Back" /> -->
       </div>
       <div class="center-area">
-        <ProgressBar :value="0.8" />
+        <!-- <ProgressBar :value="0.8" /> -->
       </div>
       <div class="right-side">
           <!-- RIGHT FOOTER PLACEHOLDER -->
@@ -61,31 +59,23 @@ export default {
       ProgressBar
     },
     props: {
-      task: {
+      meeting: {
         type: Object,
         required: true
       },
       attendees: {
         type: Array,
         required: true
-      },
-      cancelTask: {
-        type: Function,
-        required: true
       }
     },
     data() {
       return {
-        is_qr: false,
         present_attendees: [],
-        absent_attendees: [],
-        video_percentages: []
+        absent_attendees: []
       }
     },
     created() {
-      this.is_qr = this.task.code != null
       this.separateAttendees()
-      console.log("video_percentages", this.video_percentages)
     },
     methods: {
       separateAttendees() {
@@ -96,25 +86,27 @@ export default {
           else
             this.absent_attendees.push(attendee)
         })
-        console.log("Present", this.present_attendees)
-        console.log("Absent", this.absent_attendees)
       },
       getSubmissionIds() {
-        let task_submissions = this.is_qr ? 
-        this.task.qr_checkin_submissions :
-        this.task.recording_submissions
         let submission_ids = new Set()
-        task_submissions.forEach(submission => {
-          submission_ids.add(submission.submitter.user_id)
-          if(!this.is_qr)
-            this.video_percentages.push(submission.video_percent_watched)
+        this.meeting.live_attendance.qr_checkins.forEach(qr_checkin => {
+          let submissions = qr_checkin.qr_checkin_submissions
+          submissions.forEach(submission => {
+            submission_ids.add(submission.submitter.user_id)
+          })
+        })
+        this.meeting.async_attendance.recordings.forEach(recording => {
+          let submissions = recording.recording_submissions
+          submissions.forEach(submission => {
+            submission_ids.add(submission.submitter.user_id)
+          })
         })
         return submission_ids
       }
     }
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 
 .task-attendance-info-mode {
     
