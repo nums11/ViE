@@ -40,6 +40,7 @@ import Settings from './views/Settings.vue';
 import RedirectCASLogin from './views/RedirectCASLogin.vue';
 import Statistics from './views/Statistics.vue';
 import WatchRecording from './views/WatchRecording.vue';
+import AttendChecker from './views/AttendChecker.vue';
 
 Vue.use(VueRouter);
 
@@ -413,6 +414,14 @@ const router = new VueRouter({
         requiresadmIn: true
       }
     },
+    {
+      name: 'attend_checker',
+      path: '/attend/:meeting_id/:qr_key',
+      component: AttendChecker,
+      meta: {
+        requiresAuth: false
+      }
+    }
   ]
 })
 
