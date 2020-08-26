@@ -142,13 +142,14 @@ export default {
     }
 
     .body-area {
-        min-height: 450px;
-        box-sizing: border-box;
-        padding: 10px 15px;
+      margin-top: 1rem;
+      min-height: 450px;
+      box-sizing: border-box;
+      padding: 10px 15px;
 
-        .body-contents {
-            text-align: center;
-        }
+      .body-contents {
+          text-align: center;
+      }
     }
 
     .footer-area {
