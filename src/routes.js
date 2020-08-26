@@ -266,8 +266,8 @@ const router = new VueRouter({
       path: '/course_info/:id',
       component: CourseOrgInfo,
       meta: {
-        title: "Venue - Course Info"
-        // requiresAuth: true
+        title: "Venue - Course Info",
+        requiresAuth: true
       }
     },
     {
@@ -275,8 +275,8 @@ const router = new VueRouter({
       path: '/org_info/:id',
       component: CourseOrgInfo,
       meta: {
-        title: "Venue - Org Info"
-        // requiresAuth: true
+        title: "Venue - Org Info",
+        requiresAuth: true
       }
     },
     {
