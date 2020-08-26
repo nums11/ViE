@@ -37,7 +37,7 @@
     <div v-else class="lower-area">
       <div class="left-side">
         <div v-if="is_qr">
-          <sui-label v-if="studentSubmittedToQRCheckin(task)" color="teal">
+          <sui-label v-if="studentSubmittedToTask(task)" color="teal">
             <span>Submission Recorded</span>
             <sui-icon style="margin-left:1rem;" name="check circle" />
           </sui-label>

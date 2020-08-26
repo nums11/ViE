@@ -16,20 +16,17 @@
 
     <!-- Body Area -->
     <div class="body-area">
-      <div class="inline-block student-attendance-list">
+      <div class="inline-block student-attendance-list-container">
         <h3>Present ({{present_attendees.length}}/{{attendees.length}})</h3>
-        <sui-label v-for="attendee in present_attendees"
-        :key="attendee._id"
-        class="venue-green">
-          <p>{{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})</p>
-        </sui-label>
+        <p v-for="attendee in present_attendees">
+          {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
+        </p>
       </div>
-      <div class="inline-block student-attendance-list">
+      <div class="inline-block student-attendance-list-container">
         <h3>Absent ({{absent_attendees.length}}/{{attendees.length}})</h3>
-        <sui-label v-for="attendee in absent_attendees"
-        :key="attendee._id"
-        class="venue-red">
-          <p>{{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})</p>
+        <p v-for="attendee in absent_attendees">
+          {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
+        </p>
         </sui-label>
       </div>
     </div>
@@ -117,21 +114,12 @@ export default {
 
 .task-attendance-info-mode {
     
-    .student-attendance-list {
-      width: 50%;
-      vertical-align: top;
-      text-align: center;
-        
-        ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
+  .student-attendance-list-container {
+    width: 50%;
+    vertical-align: top;
+    text-align: center;
+  }
 
-            li {
-                height: 35px;
-            }
-        }
-    }
 }
 
 .task-info-modal-instructor-expanded {
@@ -154,13 +142,14 @@ export default {
     }
 
     .body-area {
-        min-height: 450px;
-        box-sizing: border-box;
-        padding: 10px 15px;
+      margin-top: 1rem;
+      min-height: 450px;
+      box-sizing: border-box;
+      padding: 10px 15px;
 
-        .body-contents {
-            text-align: center;
-        }
+      .body-contents {
+          text-align: center;
+      }
     }
 
     .footer-area {
