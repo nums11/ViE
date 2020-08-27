@@ -28,7 +28,7 @@
 <script>
 import ProgressBar from '@/components/ProgressBar.vue'
 import QRCode from '@chenfengyuan/vue-qrcode';
-import { baseURL, baseSourceURL } from '@/services/API';
+import { APIServerBaseURL, FrontEndServerBaseURL } from '@/services/API';
 import io from 'socket.io-client';
 
 export default {
