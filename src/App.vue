@@ -46,6 +46,7 @@ export default {
     }
   },
   created() {
+    console.log("env", process.env)
     axios.defaults.headers.common['Access-Control-Allow-Methods'] = ["GET, POST, DELETE"]
 
     // window.onbeforeunload = () => {
