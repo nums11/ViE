@@ -6,7 +6,7 @@
           <div class="qr-code-fullscreen">
             <QRCode 
               :style="{margin: '0 auto'}"
-              :value="code"
+              :value="getUrlEncoded()"
               :options="{
                   width: 800,
               }"
@@ -23,6 +23,7 @@
 
 <script>
 import QRCode from '@chenfengyuan/vue-qrcode';
+import { APIServerBaseURL, FrontEndServerBaseURL } from '@/services/API';
 
 export default {
   name: 'FullScreenQRCodeModal',
@@ -40,6 +41,11 @@ export default {
     }
   },
   methods: {
+    
+    getUrlEncoded () {
+
+      return `${FrontEndServerBaseURL()}/#/attend/${this.$route.params.meeting_id}/${this.code}`
+    },
   }
 }
 </script>
