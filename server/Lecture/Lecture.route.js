@@ -133,7 +133,7 @@
 // 										//send email
 // 										let myhtml = ""
 // 										if(process.env.NODE_ENV === "production") {
-// 											myhtml = '<p>New Lecture available for playback <a href="https://venue-attend.herokuapp.com/#/lecture_playback/' + updated_lecture._id + '">here</a>!</p>'
+// 											myhtml = '<p>New Lecture available for playback <a href="https://byakugan.herokuapp.com/#/lecture_playback/' + updated_lecture._id + '">here</a>!</p>'
 // 										} else {
 // 											myhtml = '<p>New Lecture available for playback <a href="http://localhost:8080/#/lecture_playback/' + updated_lecture._id + '">here</a>!</p>'
 // 										}
@@ -526,7 +526,7 @@
 // 						} else {
 // 							let myhtml = ""
 // 							if(process.env.NODE_ENV === "production") {
-// 								myhtml = '<p>Click <a href="https://venue-attend.herokuapp.com/#/lecture_info/' + lect._id + '">here</a> to upload your lecture recording</p>'
+// 								myhtml = '<p>Click <a href="https://byakugan.herokuapp.com/#/lecture_info/' + lect._id + '">here</a> to upload your lecture recording</p>'
 // 							} else {
 // 								myhtml = '<p>Click <a href="http://localhost:8080/#/lecture_info/' + lect._id + '">here</a> to upload your lecture recording</p>'
 // 							}
