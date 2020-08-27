@@ -24,6 +24,17 @@ export default {
         meeting: meeting
     })
   },
+  addRecordingToMeeting(
+    meeting_id,
+    recording
+  ) {
+
+    return API().post(`meetings/update/add_recording/${meeting_id}`, 
+    {
+      recording
+    })
+
+  },
   getMeeting(id) {
     return API().get('meetings/get/' + id)
   },

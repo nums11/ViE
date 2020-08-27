@@ -11,6 +11,7 @@ const APIServerBaseURL = () => {
   return `http://localhost:4000/`
 }
 
+
 const FrontEndServerBaseURL = () => {
   if (process.env.NODE_ENV === 'production') return `https://venue-attend.herokuapp.com/`
   // Try to connect desktop IP
@@ -201,7 +202,6 @@ authRoutes.get("/loginCAS", (req, res, next) => {
                   }
                 }
               })
-            } else {
               return res.redirect(FrontEndServerBaseURL());
             }
           })
