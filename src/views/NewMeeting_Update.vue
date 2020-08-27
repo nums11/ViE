@@ -55,17 +55,16 @@
                 <VueCtkDateTimePicker 
                   @input="$forceUpdate ()"
                   v-model="meeting_data.meta.start_time"
-                  id="input1"
-                  :min-date="(new Date()).toISOString()"
-                  :max-date="meeting_data.meta.end_time"  
+                  id="input1"  
                 />
+                <!-- :min-date="(new Date()).toISOString()"
+                  :max-date="meeting_data.meta.end_time" -->
 
                   <div class="date-label" :style="{marginTop: '20px'}">END TIME</div>
                   <VueCtkDateTimePicker 
                     @input="$forceUpdate ()"
                     v-model="meeting_data.meta.end_time"
                     id="input2"
-                    :min-date="meeting_data.meta.start_time"
                   />
 
                   <div class="info-area" :style="{transform: `translateY(18px)`}">
@@ -80,15 +79,14 @@
                   @input="$forceUpdate ()"
                   v-model="meeting_data.live.qr_checkin.start_time"
                   id="input3"
-                  :min-date="(new Date()).toISOString()"
-                  :max-date="meeting_data.live.qr_checkin.end_time" />
+                  />
 
                   <div class="date-label" :style="{marginTop: '20px'}">END TIME</div>
                   <VueCtkDateTimePicker 
                     @input="$forceUpdate ()"
                     v-model="meeting_data.live.qr_checkin.end_time"
                     id="input4"
-                    :min-date="meeting_data.live.qr_checkin.start_time" />
+                  />
 
                   <div class="info-area" :style="{transform: `translateY(18px)`}">
                     Pick the start time and end time that your students will be able to submit

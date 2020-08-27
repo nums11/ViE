@@ -17,18 +17,17 @@
     <!-- Body Area -->
     <div class="body-area">
       <div class="inline-block student-attendance-list-container">
-        <h3>Present ({{present_attendees.length}}/{{attendees.length}})</h3>
-        <p v-for="(attendee,i) in present_attendees" :key="i">
-          {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
+        <h3>Present ({{present_attendees.size}}/{{attendees.length}})</h3>
+        <p v-for="(attendee_id,i) in Array.from(present_attendees)" :key="i">
+          {{ students[attendee_id].first_name }} {{ students[attendee_id].last_name }} ({{ students[attendee_id].user_id }})
           <span v-if="!is_qr">- {{ video_percentages[i].toFixed(0) }}%</span>
         </p>
       </div>
       <div class="inline-block student-attendance-list-container">
-        <h3>Absent ({{absent_attendees.length}}/{{attendees.length}})</h3>
-        <p v-for="(attendee, i) in absent_attendees" :key="i">
-          {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
+        <h3>Absent ({{absent_attendees.size}}/{{attendees.length}})</h3>
+        <p v-for="(attendee_id, i) in Array.from(absent_attendees)" :key="i">
+          {{ students[attendee_id].first_name }} {{ students[attendee_id].last_name }} ({{ students[attendee_id].user_id }})
         </p>
-        </sui-label>
       </div>
     </div>
 
@@ -42,7 +41,7 @@
           content="Back" />
       </div>
       <div class="center-area">
-        <ProgressBar :value="0.8" />
+        <ProgressBar :value="present_attendees.size/attendees.length" />
       </div>
       <div class="right-side">
           <!-- RIGHT FOOTER PLACEHOLDER -->
@@ -54,6 +53,8 @@
 <script>
 
 import ProgressBar from "@/components/ProgressBar.vue";
+import io from 'socket.io-client';
+import { baseURL, baseSourceURL } from '@/services/API';
 
 export default {
     name: 'TaskAttendanceList',
@@ -77,24 +78,50 @@ export default {
     data() {
       return {
         is_qr: false,
-        present_attendees: [],
-        absent_attendees: [],
+        present_attendees: new Set(),
+        absent_attendees: new Set(),
+        students: {},
         video_percentages: []
       }
     },
     created() {
       this.is_qr = this.task.code != null
       this.separateAttendees()
+      this.initializeAttendanceRealTimeUpdate ()
       console.log("video_percentages", this.video_percentages)
     },
     methods: {
+      initializeAttendanceRealTimeUpdate () {
+            
+          console.log(`initializing socket`)
+          // console.log(baseURL)
+          console.log(`base url: ${baseURL()}`)
+          let client_io = io (baseURL(), {forceNew: true})
+          client_io.emit('start attendance update', {
+              task_id: this.task._id,
+              type: this.is_qr ? 'qr-code': 'unhandled type',
+          })
+          client_io.on('attendance update', (data) => {
+              console.log(`SOCKET UPDATED`)
+              console.log(data)
+              // the data should be an array of User objects
+              data.data.forEach(user => {
+                  this.present_attendees.add(user._id)
+                  this.absent_attendees.delete(user._id)
+              })
+              this.$forceUpdate ()
+          })
+      },
       separateAttendees() {
         let submission_ids = this.getSubmissionIds()
         this.attendees.forEach(attendee => {
+
+          this.students[attendee._id] = attendee
+
           if(submission_ids.has(attendee.user_id))
-            this.present_attendees.push(attendee)
+            this.present_attendees.add(attendee._id)
           else
-            this.absent_attendees.push(attendee)
+            this.absent_attendees.add(attendee._id)
         })
         console.log("Present", this.present_attendees)
         console.log("Absent", this.absent_attendees)
