@@ -50,6 +50,32 @@
             <sui-label-detail>{{ meeting.course.instructor.first_name }} {{ meeting.course.instructor.last_name }}</sui-label-detail>
         </sui-label>
       </div>
+
+      <div v-if="current_user.is_instructor">
+        <sui-button class="venue-blue" @click="show_add_recording = true">Add Recording</sui-button>
+
+        <div class="add-recording-modal" v-if="show_add_recording">
+
+          <div class="center-modal">
+            <div><h3>Add Recording</h3></div>
+            <div :class="`add-recording ${recording_to_upload == null ? '' : 'active'}`" @click="addFileRecording">
+              <div v-if="recording_to_upload == null">Click to add a recording</div>
+              <div v-else>{{ recording_to_upload.name }}</div>
+              <input type="file" ref="recordingUploadFileBrowser" @change="setFileRecording" />
+            </div>
+            <div class="submit-line" :style="{display: 'flex'}">
+              <div :style="{flexGrow: 1}">
+                <sui-button @click="cancelAddRecording" content="Cancel" icon="left arrow" label-position="left" />
+              </div>
+              <div>
+                <sui-button @click="addRecording" class="venue-blue">Upload Recording</sui-button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
 
     <!-- Body -->
@@ -187,7 +213,9 @@ export default {
       full_screen_code: "",
       show_qr_scanning_window: false,
       attendees: [],
-      show_meeting_tasks: true
+      show_meeting_tasks: true,
+      show_add_recording: false,
+      recording_to_upload: null
     }
   },
   async created () {
@@ -201,6 +229,25 @@ export default {
     this.meeting_has_loaded = true
   },
   methods: {
+    addRecording () {
+
+      // TODO upload this.recording_to_upload to the current meeting
+      if (this.recording_to_upload != null) {
+        console.log(`ADDING RECORDING`)
+      }
+    },
+    cancelAddRecording () {
+      this.show_add_recording = false
+      this.recording_to_upload = null
+    },
+    setFileRecording (e) {
+      let file_ = e.target.files[0]
+      // todo check if valid file extension
+      this.recording_to_upload = file_
+    },
+    addFileRecording () {
+      this.$refs.recordingUploadFileBrowser.click ()
+    },
     isQrTask (taskInfo) {
       return taskInfo && taskInfo.qrCode
     },
@@ -411,6 +458,60 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+.dark-mode .add-recording-modal {
+  background-color: #121419;
+
+  
+  .add-recording {
+    border: 3px dashed rgba(255, 255, 255, 0.5);
+  }
+}
+
+.light-mode .add-recording-modal {
+  background-color: white;
+
+  .add-recording {
+    border: 3px dashed rgba(0, 0, 0, 0.5);
+  }
+}
+
+.add-recording-modal {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100000;
+
+  .center-modal {
+    width: 500px;
+    margin: 0 auto;
+    position: relative;
+    top: 40%;
+    transform: translateY(-50%);
+
+    .add-recording {
+      margin: 10px 0;
+      height: 100px;
+      border-radius: 5px;
+      box-sizing: border-box;
+      padding: 30px 0 0 0;
+      font-size: 1.2rem;
+      text-align: center;
+      cursor: pointer;
+
+      input[type=file] {
+        visibility: hidden;
+      }
+
+      &.active {
+        border: 3px dashed #47C4FC;
+      }
+    }
+  }
+}
+
 #qr-scanning-container {
   position: absolute;
   width: 100%;
