@@ -207,7 +207,6 @@ import SquareLoader from "@/components/Loaders/SquareLoader.vue"
 import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 import MeetingAPI from '@/services/MeetingAPI.js';
 import qrcode from '@chenfengyuan/vue-qrcode';
-import { FrontEndServerBaseURL } from '@/services/API.js';
 
 export default {
   name: 'MeetingInfo',
@@ -352,7 +351,7 @@ export default {
       console.log("Scanned code", scanned_code)
       if(this.isEmptyObj(open_checkin))
         alert("No Open QR Checkins")
-      else if(`${FrontEndServerBaseURL()}/#/attend/${this.$route.params.meeting_id}/${open_checkin.code}` === scanned_code)
+      else if(`https://byakugan.herokuapp.com/#/attend/${this.$route.params.meeting_id}/${open_checkin.code}` === scanned_code)
         this.createLiveSubmission(open_checkin)
       else 
         alert("Scanned invalid code!")

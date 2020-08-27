@@ -4,21 +4,6 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-const APIServerBaseURL = () => {
-  if (process.env.NODE_ENV === 'production') return `https://venue-attend.herokuapp.com/`
-  // Try to connect desktop IP
-  if (process.env.SOURCE_IP) return `http://${process.env.SOURCE_IP}:4000/`
-  return `http://localhost:4000/`
-}
-
-
-const FrontEndServerBaseURL = () => {
-  if (process.env.NODE_ENV === 'production') return `https://venue-attend.herokuapp.com/`
-  // Try to connect desktop IP
-  if (process.env.SOURCE_IP) return `http://${process.env.SOURCE_IP}:8080/`
-  return `http://localhost:8080/`
-}
-
 let User = require('../User/User.model');
 
 const alnums = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -66,7 +51,7 @@ if(process.env.NODE_ENV === "production") {
   passport.use(new (require('passport-cas').Strategy)({
     version: 'CAS3.0',
     ssoBaseURL: 'https://cas-auth.rpi.edu/cas',
-    serverBaseURL: APIServerBaseURL()
+    serverBaseURL: 'http://localhost:4000'
   }, function(profile, done) {
     var login = profile.user.toLowerCase();
     User.findOne({user_id: login}, function (err, user) {
@@ -178,7 +163,7 @@ authRoutes.get("/loginCAS", (req, res, next) => {
       if(process.env.NODE_ENV === "production") {
         return res.redirect('https://venue-attend.herokuapp.com');
       } else {
-        return res.redirect(FrontEndServerBaseURL());
+        return res.redirect('http://localhost:8080');
       }
     } else {
       req.logIn(user, function (err) {
@@ -197,12 +182,12 @@ authRoutes.get("/loginCAS", (req, res, next) => {
                   if(process.env.NODE_ENV === "production") {
                     return res.redirect('https://venue-attend.herokuapp.com/#/redirectCASLogin');
                   } else {
-                    console.log("I entered here. using url", FrontEndServerBaseURL())
-                    return res.redirect(`${FrontEndServerBaseURL()}/#/redirectCASLogin`);
+                    return res.redirect('http://localhost:8080/#/redirectCASLogin');
                   }
                 }
               })
-              return res.redirect(FrontEndServerBaseURL());
+            } else {
+              return res.redirect('http://localhost:8080');
             }
           })
         }
