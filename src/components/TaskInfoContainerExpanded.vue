@@ -78,7 +78,7 @@ export default {
   methods: {
     getUrlEncoded () {
 
-      return `https://byakugan.herokuapp.com/#/attend/${this.$route.params.meeting_id}/${this.task.code}`
+      return `https://venue-attend.herokuapp.com/#/attend/${this.$route.params.meeting_id}/${this.task.code}`
     },
     getTaskTitle () {
         if (this.taskInfo.taskType == 'qr-code') return `QR Submission`

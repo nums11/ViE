@@ -62,7 +62,7 @@ export default {
     initializeAttendanceRealTimeUpdate () {
             
       console.log(`initializing socket`)
-      let client_io = io ('https://byakugan.herokuapp.com/', {forceNew: true})
+      let client_io = io ('https://venue-attend.herokuapp.com/', {forceNew: true})
       client_io.emit('start attendance update', {
           task_id: this.task._id,
           type: this.is_qr ? 'qr-code': 'unhandled type',
@@ -80,7 +80,7 @@ export default {
     
     getUrlEncoded () {
 
-      return `https://byakugan.herokuapp.com/#/attend/${this.$route.params.meeting_id}/${this.code}`
+      return `https://venue-attend.herokuapp.com/#/attend/${this.$route.params.meeting_id}/${this.code}`
     },
   }
 }
