@@ -175,6 +175,19 @@
 
     </div>
 
+  <div v-if="meeting_submission_in_progress" class="submission-fullscreen">
+    <div class="centerer">
+      <v-lottie-player 
+        name="QR CODE"
+        :animationData="require('@/assets/lottie/uploading.json')"
+        loop
+        width="300px"
+        height="300px"
+        autoplay
+      />
+    </div>
+  </div>
+
   </div>
 
 </template>
@@ -186,12 +199,14 @@ import MeetingAPI from '@/services/MeetingAPI'
 import CourseAPI from '@/services/CourseAPI'
 import OrgAPI from '@/services/OrgAPI'
 import {NewMeetingTransform} from '@/modules/MeetingTransform.module'
+import VueLottiePlayer from 'vue-lottie-player'
 
 export default {
   name: 'NewMeeting',
   components: {
     InputField2,
-    Button2
+    Button2,
+    vLottiePlayer: VueLottiePlayer
   },
   data () {
     return {
@@ -200,7 +215,8 @@ export default {
       meeting_data: {},
       has_live: false,
       has_async: false,
-      course_org_info: null
+      course_org_info: null,
+      meeting_submission_in_progress: false
     }
   },
   created () {
@@ -236,18 +252,21 @@ export default {
 
     },
     async createMeeting () {
+      this.meeting_submission_in_progress = true
       let result = await NewMeetingTransform(this.meeting_data, this.has_live, this.has_async)
       // console.log(result)
 
-      // create the meeting
-      MeetingAPI.addMeeting(result, 
-        this.meeting_data.meta.forCourse,
-        this.meeting_data.meta.forCourse ? this.meeting_data.meta.course : this.meeting_data.meta.org
-      )
-      .then(res => {
-        console.log(res)
-        this.$router.push({name: 'meeting_info', params: { meeting_id: res.data._id }})
-      })
+      setTimeout(() => {
+        // create the meeting
+        MeetingAPI.addMeeting(result, 
+          this.meeting_data.meta.forCourse,
+          this.meeting_data.meta.forCourse ? this.meeting_data.meta.course : this.meeting_data.meta.org
+        )
+        .then(res => {
+          console.log(res)
+          this.$router.push({name: 'meeting_info', params: { meeting_id: res.data._id }})
+        })
+      }, 500)
     },
     getCourseOrgInfo () {
       console.log(this.$route)
@@ -305,6 +324,35 @@ export default {
 }
 </script>
 <style lang="scss">
+
+.light-mode {
+  .submission-fullscreen {
+    background-color: white;
+  }
+}
+
+.dark-mode {
+  .submission-fullscreen {
+    background-color: #121419;
+  }
+}
+
+.submission-fullscreen {
+  position:fixed;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+
+  .centerer {
+    width: 300px;
+    height: 300px;
+    margin: 0 auto;
+    position: relative;
+    top: 25%;
+  }
+}
 
 .new-meeting-form {
   position: fixed;
