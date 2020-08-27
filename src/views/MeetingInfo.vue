@@ -6,7 +6,11 @@
     v-on:attempt-submission="attemptQRCheckinSubmission"/>
     <!-- Full Screen QR Modal -->
     <FullScreenQRCodeModal v-if="show_qr_code_modal"
-    v-on:hide-modal="hideFullScreenQRCodeModal" :code="full_screen_code" />
+      v-on:hide-modal="hideFullScreenQRCodeModal"
+      :task="findMainQRTask()" 
+      :code="full_screen_code" 
+      :students="findStudentsData()"
+    />
 
     <!-- Header -->
     <SquareLoader v-if="!meeting_has_loaded" />
@@ -255,6 +259,20 @@ export default {
     this.meeting_has_loaded = true
   },
   methods: {
+    findStudentsData () {
+      if (this.meeting.course) {
+        return this.meeting.course.students
+      }
+      else if (this.meeting.org) {
+        return this.meeting.org.general_members
+      }
+    },
+    findMainQRTask () {
+      if (this.meeting.live_attendance && this.meeting.live_attendance.qr_checkins) {
+        return this.meeting.live_attendance.qr_checkins[0]
+      }
+      return null
+    },
     addRecording () {
 
       // TODO upload this.recording_to_upload to the current meeting
@@ -497,6 +515,7 @@ export default {
     },
     showFullScreenQRCodeModal (code) {
       this.full_screen_code = code
+      this.full_screen_task = 
       this.show_qr_code_modal = true
     },
     hideFullScreenQRCodeModal() {

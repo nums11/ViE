@@ -12,6 +12,10 @@
               }"
             />
           </div>
+          <div class="progress-bar-area">
+            <div class="title-area">{{attended.size}}/{{students.length}} Attended</div>
+            <ProgressBar :value="attended.size/students.length" />
+          </div>
         </div>
         <div class="bottom-controls">
             <sui-button @click="$emit('hide-modal')">Close</sui-button>
@@ -22,25 +26,60 @@
 </template>
 
 <script>
+import ProgressBar from '@/components/ProgressBar.vue'
 import QRCode from '@chenfengyuan/vue-qrcode';
 import { baseURL, baseSourceURL } from '@/services/API';
+import io from 'socket.io-client';
 
 export default {
   name: 'FullScreenQRCodeModal',
   components: {
     QRCode,
+    ProgressBar
   },
   props: {
     code: {
       type: String,
       required: true
-    }
+    },
+    task: Object,
+    students: Array
   },
   data () {
     return {
+      attended: new Set()
     }
   },
+  created () {
+    this.getInitialAttended ()
+    this.initializeAttendanceRealTimeUpdate ()
+  },
   methods: {
+    getInitialAttended () {
+      this.task.qr_checkin_submissions.forEach(submission_ => {
+        this.attended.add(submission_._id)
+      })
+    },
+    initializeAttendanceRealTimeUpdate () {
+            
+      console.log(`initializing socket`)
+      // console.log(baseURL)
+      console.log(`base url: ${baseURL()}`)
+      let client_io = io (baseURL(), {forceNew: true})
+      client_io.emit('start attendance update', {
+          task_id: this.task._id,
+          type: this.is_qr ? 'qr-code': 'unhandled type',
+      })
+      client_io.on('attendance update', (data) => {
+          console.log(`SOCKET UPDATED`)
+          console.log(data)
+          // the data should be an array of User objects
+          data.data.forEach(user => {
+              this.attended.add(user._id)
+          })
+          this.$forceUpdate ()
+      })
+    },
     
     getUrlEncoded () {
 
@@ -70,6 +109,17 @@ export default {
     .qr-code-fullscreen {
         width: 800px;
         margin: 0 auto;
+    }
+
+    .progress-bar-area {
+      width: 400px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .title-area {
+      font-size: 1.2rem;
+      font-weight: 600;
     }
 
   }
