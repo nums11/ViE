@@ -8,7 +8,7 @@
               :style="{margin: '0 auto'}"
               :value="getUrlEncoded()"
               :options="{
-                  width: 800,
+                  width: 650,
               }"
             />
           </div>
@@ -107,7 +107,7 @@ export default {
   .full-content-area {
 
     .qr-code-fullscreen {
-        width: 800px;
+        width: 650px;
         margin: 0 auto;
     }
 
