@@ -2,13 +2,13 @@ import axios from 'axios'
 
 export default() => {
   return axios.create({
-    baseURL: (baseURL()),
+    baseURL: (APIServerBaseURL()),
     withCredentials: true
   })
 }
 
 
-const baseURL = () => {
+const APIServerBaseURL = () => {
   if (process.env.NODE_ENV === 'production') return `https://venue-attend.herokuapp.com/`
   // Try to connect desktop IP
   if (process.env.VUE_APP_SOURCE_IP){ 
@@ -17,7 +17,7 @@ const baseURL = () => {
   return `http://localhost:4000/`
 }
 
-const baseSourceURL = () => {
+const FrontEndServerBaseURL = () => {
   if (process.env.NODE_ENV === 'production') return `https://venue-attend.herokuapp.com/`
   // Try to connect desktop IP
   if (process.env.VUE_APP_SOURCE_IP) return `http://${process.env.VUE_APP_SOURCE_IP}:8080/`
@@ -25,6 +25,6 @@ const baseSourceURL = () => {
 }
 
 export {
-  baseURL,
-  baseSourceURL
+  APIServerBaseURL,
+  FrontEndServerBaseURL
 }

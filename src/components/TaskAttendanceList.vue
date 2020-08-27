@@ -54,7 +54,7 @@
 
 import ProgressBar from "@/components/ProgressBar.vue";
 import io from 'socket.io-client';
-import { baseURL, baseSourceURL } from '@/services/API';
+import { APIServerBaseURL, FrontEndServerBaseURL } from '@/services/API';
 
 export default {
     name: 'TaskAttendanceList',
@@ -94,9 +94,9 @@ export default {
       initializeAttendanceRealTimeUpdate () {
             
           console.log(`initializing socket`)
-          // console.log(baseURL)
-          console.log(`base url: ${baseURL()}`)
-          let client_io = io (baseURL(), {forceNew: true})
+          // console.log(APIServerBaseURL)
+          console.log(`base url: ${APIServerBaseURL()}`)
+          let client_io = io (APIServerBaseURL(), {forceNew: true})
           client_io.emit('start attendance update', {
               task_id: this.task._id,
               type: this.is_qr ? 'qr-code': 'unhandled type',

@@ -56,7 +56,7 @@
 <script>
 import ProgressBar from "@/components/ProgressBar.vue";
 import QRCode from '@chenfengyuan/vue-qrcode';
-import { baseURL, baseSourceURL } from '@/services/API';
+import { APIServerBaseURL, FrontEndServerBaseURL } from '@/services/API';
 
 export default {
   name: 'TaskInfoContainerExpanded',
@@ -79,7 +79,7 @@ export default {
   methods: {
     getUrlEncoded () {
 
-      return `${baseSourceURL()}/#/attend/${this.$route.params.meeting_id}/${this.task.code}`
+      return `${FrontEndServerBaseURL()}/#/attend/${this.$route.params.meeting_id}/${this.task.code}`
     },
     getTaskTitle () {
         if (this.taskInfo.taskType == 'qr-code') return `QR Submission`

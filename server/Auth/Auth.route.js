@@ -4,14 +4,14 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-const baseURL = () => {
+const APIServerBaseURL = () => {
   if (process.env.NODE_ENV === 'production') return `https://venue-attend.herokuapp.com/`
   // Try to connect desktop IP
   if (process.env.SOURCE_IP) return `http://${process.env.SOURCE_IP}:4000/`
   return `http://localhost:4000/`
 }
 
-const baseSourceURL = () => {
+const FrontEndServerBaseURL = () => {
   if (process.env.NODE_ENV === 'production') return `https://venue-attend.herokuapp.com/`
   // Try to connect desktop IP
   if (process.env.SOURCE_IP) return `http://${process.env.SOURCE_IP}:8080/`
@@ -65,7 +65,7 @@ if(process.env.NODE_ENV === "production") {
   passport.use(new (require('passport-cas').Strategy)({
     version: 'CAS3.0',
     ssoBaseURL: 'https://cas-auth.rpi.edu/cas',
-    serverBaseURL: baseURL()
+    serverBaseURL: APIServerBaseURL()
   }, function(profile, done) {
     var login = profile.user.toLowerCase();
     User.findOne({user_id: login}, function (err, user) {
@@ -177,7 +177,7 @@ authRoutes.get("/loginCAS", (req, res, next) => {
       if(process.env.NODE_ENV === "production") {
         return res.redirect('https://byakugan.herokuapp.com');
       } else {
-        return res.redirect(baseSourceURL());
+        return res.redirect(FrontEndServerBaseURL());
       }
     } else {
       req.logIn(user, function (err) {
@@ -196,13 +196,13 @@ authRoutes.get("/loginCAS", (req, res, next) => {
                   if(process.env.NODE_ENV === "production") {
                     return res.redirect('https://byakugan.herokuapp.com/#/redirectCASLogin');
                   } else {
-                    console.log("I entered here. using url", baseSourceURL())
-                    return res.redirect(`${baseSourceURL()}/#/redirectCASLogin`);
+                    console.log("I entered here. using url", FrontEndServerBaseURL())
+                    return res.redirect(`${FrontEndServerBaseURL()}/#/redirectCASLogin`);
                   }
                 }
               })
             } else {
-              return res.redirect(baseSourceURL());
+              return res.redirect(FrontEndServerBaseURL());
             }
           })
         }

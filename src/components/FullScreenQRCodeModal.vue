@@ -23,7 +23,7 @@
 
 <script>
 import QRCode from '@chenfengyuan/vue-qrcode';
-import { baseURL, baseSourceURL } from '@/services/API';
+import { APIServerBaseURL, FrontEndServerBaseURL } from '@/services/API';
 
 export default {
   name: 'FullScreenQRCodeModal',
@@ -44,7 +44,7 @@ export default {
     
     getUrlEncoded () {
 
-      return `${baseSourceURL()}/#/attend/${this.$route.params.meeting_id}/${this.code}`
+      return `${FrontEndServerBaseURL()}/#/attend/${this.$route.params.meeting_id}/${this.code}`
     },
   }
 }
