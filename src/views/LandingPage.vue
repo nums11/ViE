@@ -12,7 +12,7 @@
         />
       </div>
       <div class="button-container">
-        <Button v-if="!is_production" 
+        <Button
           ref="GetStartedBtn" 
           :text="'Dev Login'" 
           :onClick="showLoginForm"
