@@ -46,7 +46,8 @@
         <ProgressBar :value="0.8" />
       </div>
       <div class="right-side">
-          <!-- RIGHT FOOTER PLACEHOLDER -->
+          <sui-button class="float-right venue-blue" @click="$emit('show-task-attendance',task)"
+        content="View Attendance" icon="users" label-position="right" />
       </div>
     </div>
   </div>

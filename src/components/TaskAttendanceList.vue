@@ -18,14 +18,14 @@
     <div class="body-area">
       <div class="inline-block student-attendance-list-container">
         <h3>Present ({{present_attendees.length}}/{{attendees.length}})</h3>
-        <p v-for="(attendee,i) in present_attendees">
+        <p v-for="(attendee,i) in present_attendees" :key="i">
           {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
           <span v-if="!is_qr">- {{ video_percentages[i].toFixed(0) }}%</span>
         </p>
       </div>
       <div class="inline-block student-attendance-list-container">
         <h3>Absent ({{absent_attendees.length}}/{{attendees.length}})</h3>
-        <p v-for="attendee in absent_attendees">
+        <p v-for="(attendee, i) in absent_attendees" :key="i">
           {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
         </p>
         </sui-label>
