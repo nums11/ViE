@@ -63,10 +63,34 @@
               <div v-else>{{ recording_to_upload.name }}</div>
               <input type="file" ref="recordingUploadFileBrowser" @change="setFileRecording" />
             </div>
+
+            <div class="time-picker-area">
+              <div class="picker">
+                <div class="label">START</div>
+                <VueCtkDateTimePicker 
+                  @input="$forceUpdate ()"
+                  v-model="recording_upload_start"
+                  id="date-input1"
+                  :min-date="(new Date()).toISOString()"
+                />
+              </div>
+              <div class="spacer"></div>
+              <div class="picker end">
+                <div class="label">END</div>
+                <VueCtkDateTimePicker 
+                  @input="$forceUpdate ()"
+                  v-model="recording_upload_end"
+                  id="date-input2"
+                  :min-date="(new Date()).toISOString()"
+                />
+              </div>
+            </div>
+
             <div class="submit-line" :style="{display: 'flex'}">
               <div :style="{flexGrow: 1}">
                 <sui-button @click="cancelAddRecording" content="Cancel" icon="left arrow" label-position="left" />
               </div>
+
               <div>
                 <sui-button @click="addRecording" class="venue-blue">Upload Recording</sui-button>
               </div>
@@ -215,7 +239,9 @@ export default {
       attendees: [],
       show_meeting_tasks: true,
       show_add_recording: false,
-      recording_to_upload: null
+      recording_to_upload: null,
+      recording_upload_start: (new Date()).toISOString (),
+      recording_upload_end: null
     }
   },
   async created () {
@@ -232,8 +258,44 @@ export default {
     addRecording () {
 
       // TODO upload this.recording_to_upload to the current meeting
-      if (this.recording_to_upload != null) {
+      if (this.recording_to_upload != null && this.recording_upload_start != null && this.recording_upload_end != null) {
         console.log(`ADDING RECORDING`)
+
+        // (1) Upload to Google Cloud
+        MeetingAPI.saveRecordingVideosToGCS([{
+          video: this.recording_to_upload
+        }])
+        .then(res => {
+          console.log(res)
+          let video_url = res.data[0]
+
+          let recording = {
+            video_url: video_url,
+            allow_recording_submissions: true,
+            recording_submission_start_time: new Date(this.recording_upload_start),
+            recording_submission_end_time: new Date(this.recording_upload_end)
+          }
+
+          MeetingAPI.addRecordingToMeeting (
+            this.$route.params.meeting_id,
+            recording
+          ).then(res => {
+
+            console.log(`Meeting updated`)
+            console.log(res)
+
+            this.$router.go()
+          })
+          .catch(err => {
+            console.log(`Error updating meeting`)
+            console.log(err)
+          })
+
+        })
+        .catch(err => {
+          console.log(`Error uploading to google cloud.`)
+          console.log(err)
+        })
       }
     },
     cancelAddRecording () {
@@ -458,6 +520,19 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+.time-picker-area {
+  display: flex;
+  margin: 20px 0;
+
+  .end {
+    text-align: right;
+  }
+
+  .spacer {
+    flex-grow: 1;
+  }
+}
 
 .dark-mode .add-recording-modal {
   background-color: #121419;
