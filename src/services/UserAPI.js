@@ -32,7 +32,7 @@ export default {
     })
   },
   getUser(id) {
-    return API().get('users/edit/' + id)
+    return API().get('users/get/' + id)
   },
   updateUser(id, user){
     return API().post('users/update/' + id, {

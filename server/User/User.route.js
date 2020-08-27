@@ -65,17 +65,38 @@ userRoutes.get('/', (req, res) => {
   })
 })
 
-userRoutes.route('/edit/:id').get(function (req, res) {
+userRoutes.route('/get/:id').get(function (req, res) {
   let id = req.params.id;
-  User.findById(id, function (err, user){
-    if(err || user == null) {
-      console.log("<ERROR> Getting user by ID:",id)
-      res.json(err);
+  User.findById(id).
+  populate('instructor_courses').
+  populate('student_courses').
+  populate('user_orgs').
+  populate({
+    path: 'meetings',
+    populate: [{
+      path: 'course',
+    }, {
+      path: 'org'
+    }, {
+      path: 'live_attendance',
+    }, {
+      path: 'async_attendance',
+      populate: {
+        path: 'recordings'
+      }
+    }]
+  }).
+  populate('live_submissions').
+  populate('async_submissions').
+  exec((error,user) => {
+    if(error || user == null){
+      console.log("<ERROR> (users/get) Getting user with ID:",id,error)
+      res.status(404).json(error);
     } else {
-      console.log("<SUCCESS> Getting user by ID:",id)
+      console.log("<SUCCESS> (users/get) Getting user by ID:",id)
       res.json(user);
     }
-  });
+  })
 });
 
 userRoutes.route('/change_password/').post((req, res) => {

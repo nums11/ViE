@@ -1,13 +1,18 @@
 <template>
-  <div class="container" style="padding:2rem;">
-    <a :href="cas_url" tabindex="-1">
-      <button @click="$emit('button-clicked')" v-bind:class="{hidden:fade_out, visible:fade_in}" type="button" class="btn button shadow venue-btn" tabindex="0">
+      <button 
+        @click="handleButtonClick" 
+        v-bind:class="{hidden:fade_out, visible:fade_in}" 
+        type="button" class="btn button shadow venue-btn" 
+        tabindex="0"
+
+        :style="{
+          fontSize: getFontSize ()
+        }"
+      >
         <!-- <div v-if="show_login_text">Login</div> -->
         <!-- <div v-else>Get Started</div> -->
-        <div>{{ btn_text }}</div>
+        <div>{{ text }}</div>
       </button>
-    </a>
-  </div>
 </template>
 
 <script>
@@ -15,8 +20,10 @@
     name: 'Button',
     props: {
       // btn_str: String
-      cas_url: String,
-      btn_text: String
+      href: String,
+      text: String,
+      onClick: Function,
+      config: Object
     },
     data() {
       return {
@@ -28,6 +35,20 @@
     created() {
     },
     methods: {
+      getFontSize () {
+        if (this.config && this.config.fontSize) return this.config.fontSize
+        return '1rem'
+      },
+      handleButtonClick () {
+
+        if (this.href != null && this.href != "") {
+          window.location.href = this.href
+        }
+
+        else if (this.onClick) {
+          this.onClick ()
+        }
+      },
       toggleBtnText() {
         this.show_login_text = !this.show_login_text
       },
@@ -41,32 +62,46 @@
   }
 </script>
 
-<style scoped>
-  .button {
+<style lang="scss" scoped>
+
+.venue-btn {
+  padding: 10px 20px;
+  font-weight: 600;
+  border: 4px solid #47C4FC;
+  cursor: pointer;
+  transition: background-color 0.25s;
+
+  &:hover {
+    background-color: #47C4FC;
+  }
+}
+
+.dark-mode {
+
+  .venue-btn {
+    background-color: #121419;
+    // color: white;
+    color: #47C4FC;
+
+    &:hover {
+      background-color: #47C4FC;
+      color: white;
+    }
+  }
+}
+
+.light-mode {
+
+  .venue-btn {
     background-color: white;
-    font-size: 1.5rem;
-    width: 12rem;
-    /*margin-top: 1rem;*/
-    border: #0078c2 solid;
-    color: #0078c2;
-    border-radius: 5px;
-  }
+    // color: black;
+    color: #46b0e0;
 
-  .venue-btn:hover,
-  .venue-btn:focus {
-    background-color: #0078c2;
-    color: white;
+    &:hover {
+      background-color: #47C4FC;
+      color: white;
+    }
   }
+}
 
-  .hidden {
-    visibility: hidden;
-    opacity: 0;
-    transition: visibility 0.2s linear, opacity 0.2s linear;
-  }
-
-  .visible {
-    visibility: visible;
-    opacity: 1;
-    transition: visibility 0.2s linear, opacity 0.2s linear;
-  }
 </style>

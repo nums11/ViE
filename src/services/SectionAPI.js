@@ -10,7 +10,7 @@ export default {
     })
   },
   getSection(id) {
-    return API().get('sections/edit/' + id)
+    return API().get('sections/get/' + id)
   },
   updateSection(id, section){
     return API().post('sections/update/' + id, {
