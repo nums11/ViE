@@ -25,7 +25,7 @@
         <QRCode 
           :style="{margin: '0 auto'}"
           v-if="is_qr"
-          :value="task.code"
+          :value="getUrlEncoded()"
           :options="{
               width: 400,
           }"
@@ -46,7 +46,8 @@
         <ProgressBar :value="0.8" />
       </div>
       <div class="right-side">
-          <!-- RIGHT FOOTER PLACEHOLDER -->
+          <sui-button class="float-right venue-blue" @click="$emit('show-task-attendance',task)"
+        content="View Attendance" icon="users" label-position="right" />
       </div>
     </div>
   </div>
@@ -55,6 +56,7 @@
 <script>
 import ProgressBar from "@/components/ProgressBar.vue";
 import QRCode from '@chenfengyuan/vue-qrcode';
+import { APIServerBaseURL, FrontEndServerBaseURL } from '@/services/API';
 
 export default {
   name: 'TaskInfoContainerExpanded',
@@ -75,6 +77,10 @@ export default {
     }
   },
   methods: {
+    getUrlEncoded () {
+
+      return `${FrontEndServerBaseURL()}/#/attend/${this.$route.params.meeting_id}/${this.task.code}`
+    },
     getTaskTitle () {
         if (this.taskInfo.taskType == 'qr-code') return `QR Submission`
     },
