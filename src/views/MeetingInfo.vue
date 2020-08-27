@@ -53,59 +53,84 @@
     </div>
 
     <!-- Body -->
-    <div class="content-area-wrapper">
+    <SquareLoader v-if="!meeting_has_loaded" />
+    <div v-else class="content-area-wrapper">
       <div class="left-spacer"></div>
         <div class="content-area">
-          <transition-group name="fade"mode="out-in">
-            <SquareLoader key="3" v-if="!meeting_has_loaded" />
-            <div key="1" v-else-if="task_focus == null">
-              <div v-if="meeting.has_live_attendance">
-                <div class="title">
-                  <h3 v-if="is_instructor">
-                    ({{ meeting.live_attendance.qr_checkins.length }})
-                    Live Tasks
-                  </h3>
-                  <h3 v-else>Live Tasks</h3>
+          <!-- Tabs -->
+          <sui-list v-if="is_instructor" id="meeting-tabs" horizontal>
+            <sui-list-item 
+            :class="'meeting-tab ' + (show_meeting_tasks ? 'solid-border-bottom' : '')"
+            @click="showMeetingTasks">
+              <sui-icon name="tasks" class="meeting-tab-icon" />
+              Tasks
+            </sui-list-item>
+            <sui-list-item
+            :class="'meeting-tab ' + (show_meeting_tasks ? '' : 'solid-border-bottom')"
+            id="attendance-tab"
+            @click="showMeetingAttendance">
+              <sui-icon name="users" class="meeting-tab-icon" />
+              Attendance
+            </sui-list-item>
+          </sui-list>
+          <!-- Meeting Tasks -->
+          <div v-if="show_meeting_tasks">
+            <transition-group name="fade" mode="out-in">
+              <div key="1" v-if="task_focus == null">
+                <div v-if="meeting.has_live_attendance">
+                  <div class="title">
+                    <h3 v-if="is_instructor">
+                      ({{ meeting.live_attendance.qr_checkins.length }})
+                      Live Tasks
+                    </h3>
+                    <h3 v-else>Live Tasks</h3>
+                  </div>
+                  <MeetingTaskList
+                  :tasks="meeting.live_attendance.qr_checkins"
+                  :is_live="true"
+                  :attendees="attendees"
+                  v-on:show-task-qr="showTaskQR"
+                  v-on:show-qr-scanning-window="showQRScanningWindow"
+                  v-on:show-task-attendance="showTaskAttendance" />
                 </div>
-                <MeetingTaskList
-                :tasks="meeting.live_attendance.qr_checkins"
-                :is_live="true"
-                :attendees="attendees"
-                v-on:show-task-qr="showTaskQR"
-                v-on:show-qr-scanning-window="showQRScanningWindow"
-                v-on:show-task-attendance="showTaskAttendance" />
-              </div>
-              <div style="margin-top:3rem;" v-if="meeting.has_async_attendance">
-                <div class="title">
-                  <h3 v-if="is_instructor">
-                    ({{ meeting.async_attendance.recordings.length }}) 
-                    Asynchronous Tasks
-                  </h3>
-                  <h3 v-else>Asynchronous Tasks</h3>
+                <div style="margin-top:3rem;" v-if="meeting.has_async_attendance">
+                  <div class="title">
+                    <h3 v-if="is_instructor">
+                      ({{ meeting.async_attendance.recordings.length }}) 
+                      Asynchronous Tasks
+                    </h3>
+                    <h3 v-else>Asynchronous Tasks</h3>
+                  </div>
+                  <MeetingTaskList
+                  :tasks="meeting.async_attendance.recordings"
+                  :is_live="false"
+                  :attendees="attendees"
+                  v-on:show-task-attendance="showTaskAttendance"  />
                 </div>
-                <MeetingTaskList
-                :tasks="meeting.async_attendance.recordings"
-                :is_live="false"
-                :attendees="attendees"
-                v-on:show-task-attendance="showTaskAttendance"  />
               </div>
-            </div>
-            <div key="2" v-else>
-              <TaskInfoContainerExpanded 
-                v-if="task_focus_mode == 'show-info'"
-                :task="focused_task"
-                :cancelTask="cancelTask"
-                :is_qr="focused_task.code != null"
-                v-on:show-fullscreen-code="showFullScreenQRCodeModal"
-              />
-              <TaskAttendanceList 
-                v-else-if="task_focus_mode == 'show-attendance'"
-                :task="focused_task"
-                :attendees="attendees"
-                :cancelTask="cancelTask"
-              />
-            </div>
-          </transition-group>
+              <div key="2" v-else>
+                <TaskInfoContainerExpanded 
+                  v-if="task_focus_mode == 'show-info'"
+                  :task="focused_task"
+                  :cancelTask="cancelTask"
+                  :is_qr="focused_task.code != null"
+                  v-on:show-fullscreen-code="showFullScreenQRCodeModal"
+                />
+                <TaskAttendanceList 
+                  v-else-if="task_focus_mode == 'show-attendance'"
+                  :task="focused_task"
+                  :attendees="attendees"
+                  :cancelTask="cancelTask"
+                />
+              </div>
+            </transition-group>
+          </div>
+          <!-- Meeting Attendance -->
+          <div v-else>
+            <transition name="fade" mode="out-in">
+              <MeetingAttendanceList key="1" :meeting="meeting" :attendees="attendees" />
+            </transition>
+          </div>
         </div>
       </div>
     </div>
@@ -123,6 +148,7 @@ import TaskInfoModalExpanded from '@/components/TaskInfoModalExpanded.vue'
 import MeetingTaskList from '@/components/MeetingTaskList.vue'
 import TaskInfoContainerExpanded from '@/components/TaskInfoContainerExpanded.vue'
 import TaskAttendanceList from '@/components/TaskAttendanceList.vue'
+import MeetingAttendanceList from '@/components/MeetingAttendanceList.vue';
 import SquareLoader from "@/components/Loaders/SquareLoader.vue"
 import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 import MeetingAPI from '@/services/MeetingAPI.js';
@@ -140,7 +166,8 @@ export default {
     TaskInfoContainerExpanded,
     TaskAttendanceList,
     SquareLoader,
-    MeetingTaskList
+    MeetingTaskList,
+    MeetingAttendanceList
   },
   data () {
     return {
@@ -159,7 +186,8 @@ export default {
       show_qr_code_modal: false,
       full_screen_code: "",
       show_qr_scanning_window: false,
-      attendees: []
+      attendees: [],
+      show_meeting_tasks: true
     }
   },
   async created () {
@@ -371,6 +399,12 @@ export default {
     },
     hideQRScanningWindow() {
       this.show_qr_scanning_window = false
+    },
+    showMeetingTasks() {
+      this.show_meeting_tasks = true
+    },
+    showMeetingAttendance() {
+      this.show_meeting_tasks = false
     }
   }
 }
@@ -458,17 +492,44 @@ export default {
   .content-area-wrapper {
       display: flex;
   }
+
   .content-area {
       position: relative;
       width: 72%;
       margin-right: 30px;
       margin-left: 30px;
       box-sizing: border-box;
+
+      #meeting-tabs {
+
+        .meeting-tab {
+          font-size: 1.5rem;
+          cursor:pointer;
+          margin-bottom: 2rem;
+
+          .meeting-tab-icon {
+            margin-right: 0.5rem;
+          }
+
+        }
+
+        #attendance-tab {
+          margin-left: 5rem;
+        }
+
+      }
+
       .title {
           margin-top: 10px;
           margin-bottom: 10px;
       }
+
   }
+
+}
+
+.solid-border-bottom {
+  border-bottom: black solid;
 }
 
 .dark-mode {

@@ -188,6 +188,7 @@ import MeetingAPI from '@/services/MeetingAPI'
 import CourseAPI from '@/services/CourseAPI'
 import OrgAPI from '@/services/OrgAPI'
 import {NewMeetingTransform} from '@/modules/MeetingTransform.module'
+
 export default {
   name: 'NewMeeting',
   components: {
@@ -228,15 +229,18 @@ export default {
         }
       }
     }
+
     // load course or org info
     this.getCourseOrgInfo ()
   },
   methods: {
     updateTime () {
+
     },
     async createMeeting () {
       let result = await NewMeetingTransform(this.meeting_data, this.has_live, this.has_async)
       // console.log(result)
+
       // create the meeting
       MeetingAPI.addMeeting(result, 
         this.meeting_data.meta.forCourse,
@@ -303,6 +307,7 @@ export default {
 }
 </script>
 <style lang="scss">
+
 .new-meeting-form {
   position: fixed;
   left: 0;
@@ -310,12 +315,14 @@ export default {
   top: 0;
   bottom: 0;
   overflow-y: scroll;
+
   .form-center {
     width: 1000px;
     margin: 0 auto;
     margin-top: 50px;
     display: flex;
     position: relative;
+
     .left-side-area {
       width: 250px;
       min-width: 250px;
@@ -325,6 +332,7 @@ export default {
       position: fixed;
       top: 50px;
       bottom: 50px;
+
       .logo-area {
         width: 50px;
         height: 50px;
@@ -333,41 +341,51 @@ export default {
         background-size: 100%;
         margin-bottom: 15px;
       }
+
       .tasks-list {
         margin-top: 10px;
         margin-bottom: 25px;
+
         .section-header {
           font-size: 0.85rem;
           margin-bottom: 8px;
           opacity: 0.9;
         }
+
         .empty-area {
           font-size: 1rem;
           font-style: italic;
         }
       }
     }
+
     .right-side-area {
       width: 750px;
       transform: translateX(250px);
+
       .info-area {
         font-size: 0.8rem;
         position: relative;
         top: -8px;
       }
+
       .new-meeting-title {
         height: 50px;
         margin-bottom: 30px;
+
         h3 {
           margin: 0;
         }
+
         .label {
           font-size: 0.8rem;
         }
       }
+
       .live-meeting-portion {
         margin-top: 30px;
         margin-bottom: 30px;
+
         .video-upload-holder {
           height: 100px;
           border: 2px dashed #eee;
@@ -376,31 +394,39 @@ export default {
           text-align: center;
           padding-top: 30px;
           cursor: pointer;
+
           .clear {
             text-decoration: underline;
           }
+
           &.active {
             border: 2px dashed #268ebd;
           }
+
           input[type=file] {
             display: none;
           }
+
           .small {
             font-size: 0.7rem;
             opacity: 0.9;
           }
         }
+
         .checkbox {
           margin-bottom: 5px;
           margin-top: 5px;
+
           input {
             
           }
+
           label {
             margin-left: 8px;
             font-size: 0.9rem;
           }
         }
+
         .meeting-time-picker-area {
           
           .date-label {
@@ -410,17 +436,21 @@ export default {
       }
     }
   }
+
   input.field-input {
     border: 2px solid #47C4FC !important;
     transition: border 0.25s;
+
     &:focus {
       border: 2px solid #268ebd !important; 
     }
   }
+
   .time-picker-column-item-effect,
   .datepicker-day.selected .datepicker-day-effect,
   .header-picker {
     background-color: #47C4FC !important;
   }
 }
+
 </style>

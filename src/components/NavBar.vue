@@ -1,47 +1,112 @@
 <template>
+
   <div>
     <div class="venue-navbar">
         <div class="left-area">
+
+          <hide-at breakpoint="small">
             <div class="logo-area">
                 <router-link to="/dashboard"><img src="@/assets/venue-logo.svg" class="image-logo" /></router-link>
             </div>
+          </hide-at>
+          <hide-at breakpoint="small">
             <div class="menu-items-area">
                 <div @click="update ()">
                   <router-link to="/dashboard"><div :class="`nav-link ${isPage('dashboard') ? 'active' : ''}`">Dashboard</div></router-link>
                 </div>
-                <div :class="`course-nav-link nav-link ${isPage('course_info') ? 'active' : ''}`"  @click="update ()">Courses
-                  <div class="course-list-dropdown">
-                    <ul>
-                      <router-link v-for="(course, i) in user_courses" :key="i" :to="`/course_info/${course._id}`"><li>{{ course.name }}</li></router-link>
-                    </ul>
+                <div class="dropdown-collection">
+
+
+                  <div 
+                    :class="`course-nav-link nav-link ${isPage('course_info') ? 'active' : ''}`"  
+                    v-on:mouseover="focusMenuDropdown('course')"
+                    v-on:mouseleave="unfocusMenuDropdown()"
+                    @click="update ()">Courses</div>
+                  <div 
+                    :class="`course-nav-link nav-link ${isPage('org_info') ? 'active' : ''}`"
+                    v-on:mouseover="focusMenuDropdown('organization')"
+                    v-on:mouseleave="unfocusMenuDropdown()"
+                    @click="update ()">Organizations</div>
+
+                  <div class="dropdown-collection-dropdown">
+                    
+                    <div
+                    v-on:mouseover="focusMenuDropdown('course')"
+                    v-on:mouseleave="unfocusMenuDropdown()" 
+                    :class="`dropdown-column ${dropdown_focus == 'course' ? 'focus' : 'unfocus'}`">
+                      <div class="title">COURSES</div>
+                      <ul v-if="user_courses && user_courses.length > 0">
+                        <router-link v-for="(course, i) in user_courses" :key="i" :to="`/course_info/${course._id}`" @click="update"><li>{{ course.name }}</li></router-link>
+                      </ul>
+                      <ul v-else>
+                        <li>No courses</li>
+                      </ul>
+                    </div>
+
+                    <div 
+                    v-on:mouseover="focusMenuDropdown('organization')"
+                    v-on:mouseleave="unfocusMenuDropdown()"
+                    :class="`dropdown-column ${dropdown_focus == 'organization' ? 'focus' : 'unfocus'}`">
+                      <div class="title">ORGANIZATIONS</div>
+                      <ul v-if="user_orgs && user_orgs.length > 0">
+                        <router-link v-for="(org, i) in user_orgs" :key="i" :to="{name: 'org_info', params: { id: org._id }}" @click="update"><li>{{ org.name }}</li></router-link>
+                      </ul>
+                      <ul v-else>
+                        <li>No organizations.</li>
+                      </ul>
+                    </div>
+
                   </div>
-                </div>
-                <div :class="`course-nav-link nav-link ${isPage('org_info') ? 'active' : ''}`" @click="update ()">Organizations
-                  <div class="course-list-dropdown">
-                    <ul>
-                      <router-link v-for="(org, i) in user_orgs" :key="i" :to="{name: 'org_info', params: { id: org._id }}"><li>{{ org.name }}</li></router-link>
-                    </ul>
-                  </div>
+                  
+
                 </div>
             </div>
+          </hide-at>
+          <show-at breakpoint="small">
+            <div class="mobile-navbar">
+              <div class="hamburger-icon" @click="showMobileMenu = true">
+                <sui-icon name="bars" />
+              </div>
+              <div class="logo-area-mobile">
+                <router-link to="/dashboard"><img src="@/assets/venue-logo.svg" width="100%" height="100%" class="image-logo" /></router-link>
+              </div>
+            </div>
+          </show-at>
+
         </div>
         <div class="right-area">
-        
+            <show-at breakpoint="small">
+              <div>
+                <sui-button icon="cog" @click="showMobileUserAction = true" />
+              </div>
+            </show-at>
             <hide-at breakpoint="small">
                 <div class="user-action">
-                  <sui-button compact icon="cog" 
-                    label-position="left" 
-                    :content="`${current_user.first_name} ${current_user.last_name}`"
-                    @click="toggleUserView"
-                  />
+                  <div :style="{display: 'inline-block'}">
+                    <show-at breakpoint="large">
+                      <sui-button compact icon="cog" 
+                        id="user-action-toggle-button"
+                        label-position="left" 
+                        :content="`${current_user.first_name} ${current_user.last_name}`"
+                        @click="toggleUserView"
+                      />
+                    </show-at>
+                    <hide-at breakpoint="large">
+                      <sui-button
+                        id="user-action-toggle-button-min"
+                        icon="cog"
+                        @click="toggleUserView"
+                      />
+                    </hide-at>
+                  </div>
                     <!-- <span v-on:click="toggleUserView" :style="{cursor: 'pointer'}">
                       {{ current_user.first_name }} {{ current_user.last_name }}
                       </span> -->
                     <transition 
                         name="fade"
                         mode="out-in">
-                        <div class="user-action-view" v-if="showUserView">
-                            <div class="user-action-haeder">
+                        <div class="user-action-view" id="user-action-modal" v-if="showUserView">
+                            <div class="user-action-header">
                                 <h3 is="sui-header">{{ current_user.first_name }} {{ current_user.last_name }}</h3>
                                 <sui-label :style="{backgroundColor: '#ABE5FF'}">
                                     Type
@@ -68,16 +133,53 @@
     </div>
     <div class="navbar-spacer"></div>
 
-    <show-at breakpoint="small">
-        <div class="bottom-bar-mobile">
-            <sui-dropdown text="David Goldschmidt" direction="upward">
-                <sui-dropdown-menu>
-                <sui-dropdown-item>Settings</sui-dropdown-item>
-                <sui-dropdown-item @click="logoutUser ()">Log Out</sui-dropdown-item>
-                </sui-dropdown-menu>
-            </sui-dropdown>
+    <!-- SLIDE MENU -->
+    <show-at breakpoint="small" v-if="showMobileMenu">
+      <transition name="fade" mode="out-in">
+        <div class="off-canvas-menu-back" @click="showMobileMenu = false">
+          <div class="off-canvas-menu left">
+
+            <ul>
+              <router-link to="/dashboard"><li>Dashboard</li></router-link>
+              <li v-if="user_courses && user_courses.length > 0">Courses
+                <ul>
+                  <router-link v-for="(course, i) in user_courses" :key="i" :to="`/course_info/${course._id}`" @click="update"><li>{{ course.name }}</li></router-link>
+                </ul>
+              </li>
+              <li v-if="user_orgs && user_orgs.length > 0">Organizations
+                <ul>
+                  <router-link v-for="(org, i) in user_orgs" :key="i" :to="{name: 'org_info', params: { id: org._id }}" @click="update"><li>{{ org.name }}</li></router-link>
+                </ul>
+              </li>
+            </ul>
+
+          </div>
         </div>
+      </transition>
     </show-at>
+    <!-- MOBILE SETTINGS SLIDE MENU -->
+    <show-at breakpoint="small" v-if="showMobileUserAction">
+      <transition name="fade" mode="out-in">
+        <div class="off-canvas-menu-back" @click="showMobileUserAction = false">
+          <div class="off-canvas-menu right">
+
+            <div class="user-fullname-area">
+              {{ current_user.first_name }} {{ current_user.last_name }}
+            </div>
+
+            <div class="actions-area">
+
+            </div>
+
+            <div class="logout-area">
+              <sui-button class="venue-red" @click="logoutUser ()">Logout</sui-button>
+            </div>
+
+          </div>
+        </div>
+      </transition>
+    </show-at>
+
   </div>
 
 </template>
@@ -89,7 +191,6 @@
   import SectionAPI from '@/services/SectionAPI.js'
   import OrgAPI from '@/services/OrgAPI.js'
   import AuthAPI from '@/services/AuthAPI.js'
-
   export default {
     name: 'NavBar',
     computed: {
@@ -119,10 +220,14 @@
         user_sections: [],
         showUserView: false,
         dark_mode: false,
-        user_orgs: []
+        user_orgs: [],
+        dropdown_focus: '',
+        showMobileMenu: false,
+        showMobileUserAction: false
       }
     },
     created() {
+      window.addEventListener('click', this.handleUserModal)
       this.dark_mode = this.initialDarkModeValue
       this.getCurrentUser()
       if(this.is_instructor)
@@ -131,12 +236,39 @@
         this.getSectionsWithCourses()
     },
     methods: {
+      toggleMobileMenu () {
+        this.push = true
+      },
+      focusMenuDropdown (focus_key) {
+        this.dropdown_focus = focus_key
+      },
+      unfocusMenuDropdown () {
+        this.focusDropdown = ""
+      },
+      handleUserModal (e) {
+        // console.log(`Window: clicked`)
+        let modal_ = document.getElementById('user-action-modal')
+        let userActionControl = document.getElementById('user-action-toggle-button')
+        if (!userActionControl) userActionControl = document.getElementById('user-action-toggle-button-min')
+        let target_ = e.target
+        if (target_ == userActionControl) return;
+        
+        if (this.showUserView && !this.withinSource (target_, modal_)) {
+          this.showUserView = false
+        }
+      },
+      withinSource (focus, target) {
+        // check whether target == focus, or if any of focus's parents == target
+        if (focus == document) return false;
+        if (target == focus) return true;
+        return this.withinSource (focus.parentNode, target);
+      },
       update () {
         this.$forceUpdate()
       },
       isPage (page_val) {
-        if (window.location.href.includes(page_val)) return true
-        return false
+        // console.log(this.$route.name)
+        return this.$route.name == page_val
       },
       logoutUser() {
         AuthAPI.logoutCAS().then(res => {
@@ -144,12 +276,11 @@
         })
       },
       toggleUserView () {
-          console.log("Clicked!")
-          this.showUserView = !this.showUserView;
+        console.log(`CLICKED`)
+        this.showUserView = !this.showUserView;
       },
       getCurrentUser() {
         this.current_user = this.$store.state.user.current_user
-
         this.is_instructor = this.current_user.is_instructor
         if (this.is_instructor) {
           CourseAPI.getInstructorCourses(this.current_user._id)
@@ -159,17 +290,13 @@
           })
         }
         // TODO get courses for non-instructors
-
         this.getUserOrgs ()
       },
       getUserOrgs () {
         let user_org_data = []
         this.current_user.user_orgs.forEach(org_id => {
-
           user_org_data.push(OrgAPI.getOrg(org_id))
-
         })
-
         Promise.all(user_org_data).then(returned_org_data => {
           console.log(returned_org_data)
           this.user_orgs = returned_org_data.map(data_ => data_.data)
@@ -200,8 +327,92 @@
 </script>
 
 <style lang="scss">
+.dark-mode {
+  .off-canvas-menu {
+    color: white;
+    background-color: #121419;
+    ul {
+      li {
+        color: white;
+      }
+    }
+  }
+}
+.light-mode {
+  .off-canvas-menu {
+    color: black;
+    background-color: white;
+    ul {
+      li {
+        color: black;
+      }
+    }
+  }
+}
 .dark-mode, .light-mode {
   
+  .off-canvas-menu-back {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: 1000000000;
+    
+    .off-canvas-menu {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 300px;
+      z-index: 10000000000;
+      box-sizing: border-box;
+      padding: 50px;
+      &.left {
+        left: 0;
+      }
+      &.right {
+        right: 0;
+        .user-fullname-area {
+          font-size: 2rem;
+          line-height: 35px;
+          margin-bottom: 20px;
+        }
+      }
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        li {
+          font-size: 1.5rem;
+          margin-bottom: 20px;
+          ul {
+            margin-left: 30px;
+            margin-top: 20px;
+          }
+        }
+      }
+    }
+  }
+  .mobile-navbar {
+    .logo-area-mobile {
+      width: 40px;
+      height: 40px;
+      display: inline-block;
+      vertical-align: top;
+    }
+    .hamburger-icon {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      margin-right: 15px;
+      vertical-align: top;
+      text-align: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+  }
   .venue-navbar {
       height: 70px;
       position: fixed;
@@ -227,6 +438,7 @@
   }
   .venue-navbar .left-area .logo-area {
       width: 70px;
+      min-width: 70px;
       text-align: center;
       height: 40px;
       align-items: center;
@@ -236,47 +448,114 @@
   }
   .venue-navbar .left-area .menu-items-area {
       display: flex;
+      .dropdown-collection {
+        display: flex;
+        position: relative;
+        .course-nav-link {
+          width: 140px;
+          text-align: center;
+        }
+        &:hover {
+          .dropdown-collection-dropdown {
+            visibility: visible;
+            opacity: 1;
+          transform: translateY(-2px);
+          }
+        }
+        .dropdown-collection-dropdown {
+          border-radius: 4px;
+          transition: visibility 0.2s, opacity 0.25s, transform 0.25s;
+          transform: translateY(20px);
+          opacity: 0;
+          visibility: hidden;
+          position: absolute;
+          top: 45px;
+          display: flex;
+          padding: 10px 0;
+          box-sizing: border-box;
+          .dropdown-column{
+            width: 140px;
+            margin-right: 20px;
+            box-sizing: border-box;
+            padding-left: 20px;
+            transition: opacity 0.25s;
+            &.focus {
+              opacity: 1;
+            }
+            &.unfocus {
+              opacity: 0.6;
+            }
+            .title {
+              font-size: 0.75rem;
+              opacity: 0.5;
+            }
+            ul {
+              margin: 10px 0 0 0;
+              padding: 0;
+              list-style: none;
+              li {
+                font-size: 0.9rem;
+                margin-bottom: 3px;
+              }
+            }
+          }
+        }
+      }
   }
   .venue-navbar .course-nav-link {
     cursor: pointer;
     position: relative;
+    &:hover {
+      .course-list-dropdown {
+        opacity: 1;
+        visibility: visible;
+        transform: translate(0px, -2px);
+        transition: opacity 0.25s, transform 0.35s, visibility 0.35s;
+      }
+    }
     .course-list-dropdown {
-      display: none;
       opacity: 0;
       transition-timing-function: ease-in-out;
-      transition: opacity 0.25s;
+      transition: opacity 0.25s, transform 0.35s, visibility 0.35s;
+      visibility: hidden;
+      position: absolute;
+      width: 250px;
+      transform: translate(0px, 20px);
+      border-radius: 5px;
+      overflow: hidden;
+      left: 0;
+      z-index: 10;
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        li {
+          height: 40px;
+          line-height: 40px;
+          box-sizing: border-box;
+          padding: 0px 15px;
+          cursor: pointer;
+          font-weight: 600;
+          transition: background-color 0.25s;
+        }
+      }
     }
   }
-  .venue-navbar .course-nav-link:hover {
-    .course-list-dropdown {
-      top: 20px;
-      opacity: 1;
-      display: block;
-    }
-  }
+  // .venue-navbar .course-nav-link:hover {
+  //   .course-list-dropdown {
+  //     opacity: 1;
+  //     visibility: visible;
+  //     transform: translate(0, 0px);
+  //   }
+  // }
   .venue-navbar .left-area .menu-items-area .nav-link {
       font-weight: 600;
       margin-right: 20px;
       font-size: 1rem;
       position: relative;
-      .course-list-dropdown {
-        position: absolute;
-        width: 250px;
-        transition: opacity 0.25s;
-        ul {
-          list-style: none;
-          margin: 0;
-          padding: 0;
-          li {
-            height: 30px;
-            line-height: 30px;
-            box-sizing: border-box;
-            padding: 0px 15px;
-            cursor: pointer;
-            transition: background-color 0.25s;
-          }
-        }
-      }
+      height: 40px;
+      line-height: 40px;
+      padding: 0 15px;
   }
   .venue-navbar .user-action {
       position: relative;
@@ -299,7 +578,7 @@
   .dark-mode .venue-navbar .user-action .user-action-view {
       background-color: #22252e;
   }
-  .venue-navbar .user-action .user-action-view .user-action-haeder {
+  .venue-navbar .user-action .user-action-view .user-action-header {
       background-color: #47C4FC;
       padding: 10px 10px 15px 10px;
   }
@@ -365,6 +644,17 @@
   }
 }
 .dark-mode {
+  .dropdown-collection-dropdown {
+    background-color: #22252e;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+    .dropdown-column {
+      ul {
+        li {
+          color: white;
+        }
+      }
+    }
+  }
   .course-list-dropdown {
     background-color: #22252e;
     box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
@@ -400,9 +690,22 @@
   }
 }
 .light-mode {
+  .dropdown-collection-dropdown {
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1);
+    .dropdown-column {
+      ul {
+        li {
+          color: black;
+        }
+      }
+    }
+  }
   .course-list-dropdown {
     background-color: white;
     box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
   }
   
   .course-list-dropdown li {
