@@ -403,12 +403,12 @@
     }
     .hamburger-icon {
       display: inline-block;
-      width: 40px;
+      width: 27px;
       height: 40px;
       line-height: 40px;
       margin-right: 15px;
       vertical-align: top;
-      text-align: center;
+      text-align: left;
       font-size: 1.5rem;
       cursor: pointer;
     }
