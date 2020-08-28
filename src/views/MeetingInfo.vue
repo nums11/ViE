@@ -618,7 +618,6 @@ export default {
 
 .meeting-info {
   margin: auto;
-  width: 89%;
 
   // Header, With title and Schedule Slider
   .header {

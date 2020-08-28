@@ -430,18 +430,19 @@
       width: 50%;
   }
   .navbar-spacer {
-      height: 93px;
+    height: 60px;
   }
   .venue-navbar .right-area {
       width: 50%;
       text-align: right;
   }
   .venue-navbar .left-area .logo-area {
-      width: 70px;
-      min-width: 70px;
-      text-align: center;
+      width: 40px;
+      min-width: 40px;
+      text-align: left;
       height: 40px;
       align-items: center;
+      margin-right: 10px;
   }
   .venue-navbar .left-area .logo-area .image-logo {
       height: 40px;

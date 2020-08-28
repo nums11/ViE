@@ -193,7 +193,6 @@
 <style lang="scss" scoped>
 
 #dashboard-container {
-  width: 89%;
   margin: auto;
 }
 
