@@ -239,7 +239,7 @@
   font-size: 1rem;
 }
 
-@media only screen and (max-width: 900px) {
+@media only screen and (max-width: 1000px) {
   .dashboard-page .dashboard-row {
     display: block;
   }
@@ -249,7 +249,7 @@
   }
 }
 
-@media only screen and (max-width: 750px) {
+@media only screen and (max-width: 1000px) {
   #dashboard-container {
     width: 100%;
 

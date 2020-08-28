@@ -232,4 +232,27 @@ export default {
         }
     }
 }
+
+// lower-area 
+@media only screen and (max-width: 1000px) {
+  .task-info-container {
+    .lower-area {
+      display: block;
+      height: 130px;
+      text-align: center;
+
+      .left-side {
+        width: 100%;
+        display: inline-block;
+        text-align: center;
+      }
+
+      .right-side {
+        width: 100%;
+        display: inline-block;
+        text-align: center;
+      }
+    }
+  }
+}
 </style>
