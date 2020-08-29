@@ -1,9 +1,166 @@
 const express = require('express');
 const courseRoutes = express.Router();
+const randomstring = require('randomstring')
+const _ = require('lodash')
 
 let Course = require('./Course.model');
 let Section = require('../Section/Section.model');
 let User = require('../User/User.model');
+
+/*
+InviteStudentToCourse:
+- Invite a single student to the course. If the user already exists,
+add them to the course,
+*/
+const inviteStudentToCourse = async (course_doc, first_name, last_name, email) => {
+
+  return new Promise((resolve, reject) => {
+
+    if (first_name == null) {
+      reject({
+        error: 'No first name provided'
+      })
+    }
+    if (last_name == null) {
+      reject({
+        error: 'No last name provided'
+      })
+    }
+    if (email == null) {
+      reject({
+        error: 'No email provided'
+      })
+    }
+    if (course_doc == null) {
+      reject({
+        error: 'No course document provided.'
+      })
+    }
+
+    // Check if the user exists in the database
+    User.findOne({ email: email }, async (err, user_doc) => {
+      if (err) {
+        reject ({
+          error: `Error querying user with email ${email}`
+        })
+      }
+      else if (user_doc) {
+        // User exists
+        
+        // if the student is not already in the course ...
+        if (course_doc.students.indexOf( user_doc._id ) == -1) {
+
+          // add to the course and add the course to the student's user document
+          course_doc.students.push(user_doc._id)
+          user_doc.student_courses.push(course_doc._id)
+
+          // await course_doc.save ()
+          user_doc.save ()
+
+          // TODO send email to student informing them that they have
+          // been invited to this course.
+
+          resolve ({
+            response: `Student with email [${email}] has been invited to course ${course_doc.name}`,
+            user_status: `existing`,
+            user: user_doc
+          })
+
+        }
+        else {
+          resolve({
+            response: `Student is already in this course`
+          })
+        }
+
+      }
+      else {
+        // User does not exist
+
+        let confirm_key = randomstring.generate(64)
+        let new_user = new User({
+          first_name,
+          last_name,
+          user_id: email.replace('@rpi.edu', ''),
+          email,
+          confirm_key: confirm_key,
+          student_courses: [ course_doc._id ]
+        })
+
+        // add the course to the student's list and the student to the course
+        let saved_user = await new_user.save ()
+        course_doc.students.push(saved_user._id)
+        // await course_doc.save ()
+
+        // TODO send email to student informing them that they have been added
+        // to the course
+        
+        resolve ({
+          response: `Student with email [${email}] has been invited to course ${course_doc.name}`,
+          user_status: `new`,
+          user: saved_user
+        })
+      }
+    })
+
+  })
+
+}
+
+courseRoutes.route('/invite/:course_id').post((req, res) => {
+
+  if (!_.has(req.body, 'users')) {
+    res.error('<INVITE/STUDENTS: Error> No users found in body.')
+    res.json({
+      success: false,
+      error: 'No users found in body'
+    })
+    return;
+  }
+
+  let users = req.body.users
+
+  let course_id = req.params.course_id
+  Course.findById(course_id, (err, course_doc) => {
+    if (err || !course_doc) {
+      console.error(`<INVITE/STUDENTS: Error> Course with id ${course_id} does not exist.`)
+      res.json({
+        success: false,
+        error: `Course with id ${course_id} could not be found`
+      })
+    }
+    else {
+
+      let invite_promises = []
+      users.forEach(user => {
+        invite_promises.push(inviteStudentToCourse(course_doc, user.first_name, user.last_name, user.email))
+      })
+
+      Promise.all(invite_promises).then(async (successful_invite) => {
+        console.log(`Successfully invited ${successful_invite.length} students to the course.`)
+        
+        await course_doc.save ()
+        
+        res.json({
+          success: true,
+          data: {
+            course: course_doc,
+            invites: successful_invite
+          }
+        })
+      })
+      .catch(err => {
+        console.log(`<INVITE/STUDENTS: Error> An error occurred while trying to invite a student to the course`)
+        console.log(err)
+        res.json({
+          success: false,
+          error: err
+        })
+      })
+
+    }
+  })
+})
 
 courseRoutes.route('/add').post(function (req, res) {
   let course = new Course(req.body.course);

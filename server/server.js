@@ -34,8 +34,9 @@ function start() {
       const bearerToken = bearer[1]
       req.token = bearerToken
       jwt.verify(req.token, process.env.AUTH_KEY, err => {
-        if(err)
+        if(err) {
           res.sendStatus(401).send("Unauthorized access")
+        }
         else
           next()
       })
@@ -164,7 +165,7 @@ app.use(cors(
   })
 
   app.use('/users', jwtVerify, userRouter);
-  app.use('/courses', jwtVerify, courseRouter);
+  app.use('/courses', /*jwtVerify,*/ courseRouter);
   app.use('/sections', jwtVerify, sectionRouter);
   app.use('/orgs', jwtVerify, orgRouter);
   app.use('/meetings', jwtVerify, meetingRouter);
