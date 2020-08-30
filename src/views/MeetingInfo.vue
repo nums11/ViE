@@ -33,7 +33,7 @@
 
               <sui-label class="venue-red" id="dept-text" :style="{marginBottom: '5px'}">
                   Dept
-                <sui-label-detail>{{meeting == null ? '' : meeting.course.dept }} {{ meeting == null ? '' : meeting.course.course_number }}</sui-label-detail>
+                <sui-label-detail>{{meeting == null ? '' : meeting.course.dept }} {{ meeting == null ? '' : getFormattedCourseNumber(meeting.course.course_number) }}</sui-label-detail>
               </sui-label>
             </div>
         </div>
@@ -534,6 +534,15 @@ export default {
     },
     showMeetingAttendance() {
       this.show_meeting_tasks = false
+    },
+    getFormattedCourseNumber(course_number) {
+      let course_number_str = course_number.toString()
+      let num_digits = course_number_str.length
+      if(num_digits <= 4) {
+        return course_number
+      } else {
+        return course_number_str.slice(0,4) + "/" + course_number_str.slice(4,num_digits)
+      }
     }
   }
 }
