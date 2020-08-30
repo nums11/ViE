@@ -48,7 +48,6 @@ function start() {
   // get environment variabless when not in production
   if (process.env.NODE_ENV !== 'production')
     require('dotenv').config({ path: path.resolve(__dirname, '../variables.env') })
-
   // ensure auth key is available in environment
   if(!process.env.AUTH_KEY){
     console.log("No auth key")
@@ -165,7 +164,7 @@ app.use(cors(
   })
 
   app.use('/users', jwtVerify, userRouter);
-  app.use('/courses', /*jwtVerify,*/ courseRouter);
+  app.use('/courses', jwtVerify, courseRouter);
   app.use('/sections', jwtVerify, sectionRouter);
   app.use('/orgs', jwtVerify, orgRouter);
   app.use('/meetings', jwtVerify, meetingRouter);

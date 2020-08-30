@@ -2,6 +2,7 @@ const express = require('express');
 const courseRoutes = express.Router();
 const randomstring = require('randomstring')
 const _ = require('lodash')
+const sgMail = require('@sendgrid/mail')
 
 let Course = require('./Course.model');
 let Section = require('../Section/Section.model');
@@ -12,6 +13,41 @@ const createUserId = (email) => {
   let main_ = split_[0]
   return `${main_}#${  ((Math.random() * 9000) + 1000).toFixed(0) }`
 }
+
+const sendInviteEmail = (first_name, last_name, target_email, course_name) => {
+
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  const msg = {
+    to: target_email,
+    from: process.env.VENUE_EMAIL,
+    template_id: "d-6de977e651844de7a67ba2a50ebedc6d",
+    dynamic_template_data: {
+      subject: `[Venue] ${course_name} Invite`,
+      first_name,
+      last_name,
+      course_name
+    }
+    // text: '',
+    // html: `
+    // <h3>Venue</h3>
+    // <p>Hello ${first_name} ${last_name}</p>
+    // <p>
+    //   You have been invite to the course <string>${course_name}</string>
+    // </p>
+    // <a>Venue</a>
+    // `,
+  };
+  sgMail.send(msg)
+  .then(res => {
+    console.log(`SUCCESS`)
+    console.log(res)
+  })
+  .catch(err => {
+    console.log(err)
+    console.log(err.response.body.errors)
+  })
+}
+
 /*
 InviteStudentToCourse:
 - Invite a single student to the course. If the user already exists,
@@ -71,6 +107,7 @@ const inviteStudentToCourse = async (course_doc, first_name, last_name, email) =
 
           // TODO send email to student informing them that they have
           // been invited to this course.
+          sendInviteEmail(first_name, last_name, email, course_doc.name)
 
           resolve ({
             response: `Student with email [${email}] has been invited to course ${course_doc.name}`,
@@ -106,6 +143,7 @@ const inviteStudentToCourse = async (course_doc, first_name, last_name, email) =
 
         // TODO send email to student informing them that they have been added
         // to the course
+        sendInviteEmail(first_name, last_name, email, course_doc.name)
         
         resolve ({
           response: `Student with email [${email}] has been invited to course ${course_doc.name}`,
