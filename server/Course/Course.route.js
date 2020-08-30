@@ -7,6 +7,11 @@ let Course = require('./Course.model');
 let Section = require('../Section/Section.model');
 let User = require('../User/User.model');
 
+const createUserId = (email) => {
+  let split_ = email.split('@')
+  let main_ = split_[0]
+  return `${main_}#${  ((Math.random() * 9000) + 1000).toFixed(0) }`
+}
 /*
 InviteStudentToCourse:
 - Invite a single student to the course. If the user already exists,
@@ -81,7 +86,7 @@ const inviteStudentToCourse = async (course_doc, first_name, last_name, email) =
         let new_user = new User({
           first_name,
           last_name,
-          user_id: email.replace('@rpi.edu', ''),
+          user_id: createUserId(email),
           email,
           confirm_key: confirm_key,
           student_courses: [ course_doc._id ]

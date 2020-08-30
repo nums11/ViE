@@ -73,33 +73,66 @@
         </div>
 
       </div>
+      <div>
+        <Button2 
+          :style="{marginTop: '20px', marginRight: '2%'}"
+          :onClick="goToDashboard"
+          :config="{
+            width: '18%',
+            iconOnly: true,
+            icon: 'arrow left',
+            color: 'venue-grey'
+          }" />
+      </div>
     </div>
+
+    <transition name="fade" mode="out-in">
+      <div class="uploading" v-if="uploading">
+        <div class="centerer">
+          <v-lottie-player 
+            name="QR CODE"
+            :animationData="require('@/assets/lottie/uploading.json')"
+            loop
+            width="300px"
+            height="300px"
+            autoplay
+          />
+        </div>
+      </div>
+    </transition>
 
   </div>
 </template>
 <script>
 
 import InputField2 from '@/components/InputField2.vue'
+import CourseAPI from '@/services/CourseAPI'
 import Button2 from '@/components/Button2.vue'
 import xlsx from 'xlsx'
+import VueLottiePlayer from 'vue-lottie-player'
 
 export default {
   name: 'InviteStudents',
   components: {
     InputField2,
-    Button2
+    Button2,
+    vLottiePlayer: VueLottiePlayer
   },
   data () {
     return {
       student_email: "",
       invited_students: [],
       excel_file: null,
-      excel_binary: null
+      excel_binary: null,
+      uploading: false
     }
   },
   mounted () {
   },
   methods: {
+    goToDashboard () {
+      this.$router.push({ name: 'dashboard' })
+    },
     inviteStudentsThroughExcel () {
 
       if (this.excel_binary == null) return;
@@ -122,6 +155,93 @@ export default {
 
       console.log(main_sheet)
       console.log(keys_)
+
+      const getCol = (x) => {
+        if (!x) return null
+        return x.substring(0, 1)
+      }
+      const getRow = (x) => {
+        return x.substring(1)
+      }
+
+      const col_map = {}
+
+      let current_col = getCol (null)
+      keys_.forEach(key_ => {
+        current_col = getCol (key_);
+
+        // must be the column name
+        if (!Object.prototype.hasOwnProperty.call(col_map, current_col)) {
+          col_map[current_col] = main_sheet[key_].v
+        }
+
+        // must be the column value
+        else {
+          let row_ = getRow (key_)
+          while(parsed_user_data.length <= row_) {
+            parsed_user_data.push ({})
+          }
+
+          parsed_user_data[ row_ ][ col_map[current_col] ] = main_sheet[key_].v
+        }
+
+      })
+
+      // get rid of objects in parsed_user_data that have inadequate data
+      for(let i = parsed_user_data.length - 1; i >= 0; --i) {
+        if (!Object.prototype.hasOwnProperty.call( parsed_user_data[i], 'First Name' )) {
+          parsed_user_data.splice(i, 1);
+          continue;
+        }
+        if (!Object.prototype.hasOwnProperty.call( parsed_user_data[i], 'Last Name' )) {
+          parsed_user_data.splice(i, 1);
+          continue;
+        }
+        if (!Object.prototype.hasOwnProperty.call( parsed_user_data[i], 'Email' )) {
+          parsed_user_data.splice(i, 1);
+          continue;
+        }
+      }
+
+      if (parsed_user_data.length == 0) {
+        console.log(`No users to add...`)
+        return;
+      }
+
+      parsed_user_data = parsed_user_data.map(user => {
+
+        return {
+          first_name: user["First Name"],
+          last_name:  user["Last Name"],
+          email:  user["Email"]
+        }
+      })
+
+      // invite the students now
+      // console.log(this.$router.currentRoute)
+      let course_org_id;
+      if (this.$router.currentRoute.name == 'course_invite_students') {
+        // Course invite
+        course_org_id = this.$router.currentRoute.params.course_id
+        console.log(`Inviting to course: ${course_org_id}`)
+
+        this.uploading = true
+
+        CourseAPI.inviteStudents(course_org_id, parsed_user_data)
+        .then(res => {
+          console.log(res)
+
+          this.goToDashboard ()
+        })
+        .catch(err => {
+          console.log(err)
+        })
+
+      }
+      else {
+        // TODO org invite
+        console.error(`Org invite has not been implemented yet`)
+      }
 
     },
     uploadExcel (e) {
@@ -156,13 +276,13 @@ export default {
 </script>
 <style lang="scss">
 .dark-mode {
-  .invite-students-page {
+  .invite-students-page, .uploading {
     background-color: #121419;
   }
 }
 
 .light-mode {
-  .invite-students-page {
+  .invite-students-page, .uploading {
     background-color: white;
   }
 }
@@ -174,6 +294,23 @@ export default {
   top: 0;
   bottom: 0;
   z-index: 100;
+
+  .uploading {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 101;
+
+    .centerer {
+      width: 300px;
+      height: 300px;
+      margin: 0 auto;
+      position: relative;
+      top: 30%;
+    }
+  }
 
   .center-container {
     width: 500px;

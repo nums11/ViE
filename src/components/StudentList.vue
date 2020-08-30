@@ -18,7 +18,8 @@
       <div class="firstname-area">{{ student.first_name }}</div>
       <div class="lastname-area">{{ student.last_name }}</div>
       <div class="email-area">{{ student.email }}</div>
-      <div class="status-area enrolled">Enrolled</div>
+      <div class="status-area enrolled" v-if="isEnrolled(student)">Enrolled</div>
+      <div class="status-area pending" v-if="isInvited(student)">Pending</div>
     </div>
   </div>
 
@@ -28,6 +29,14 @@ export default {
   name: "StudentList",
   props: {
     students: {}
+  },
+  methods: {
+    isEnrolled (student) {
+      return !Object.prototype.hasOwnProperty.call(student, 'confirm_key')
+    },
+    isInvited (student) {
+      return Object.prototype.hasOwnProperty.call(student, 'confirm_key')
+    }
   }
 }
 </script>
@@ -105,6 +114,9 @@ export default {
 
       &.enrolled {
         color: #49de99;
+      }
+      &.pending {
+        color: #FC9547;
       }
     }
   }

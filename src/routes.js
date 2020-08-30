@@ -440,7 +440,8 @@ const router = new VueRouter({
       path: '/course/invite/:course_id',
       component: InviteStudents,
       meta: {
-        requiresInstructor: true
+        requiresInstructor: true,
+        requiresAuth: true
       }
     },
     {
@@ -448,7 +449,8 @@ const router = new VueRouter({
       path: '/org/invite/:org_id',
       component: InviteStudents,
       meta: {
-        requiresInstructor: true
+        requiresInstructor: true,
+        requiresAuth: true
       }
     }
   ]

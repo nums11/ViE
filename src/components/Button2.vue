@@ -47,7 +47,7 @@ export default {
     },
     getHeight () {
       if (this.hasKey(this.config, 'height')) return this.config.height
-      return 'inherit'
+      return '40px'
     },
     getLineHeight () {
       if (this.hasKey(this.config, 'lineHeight')) return this.config.lineHeight
