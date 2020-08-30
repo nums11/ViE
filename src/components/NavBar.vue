@@ -430,7 +430,7 @@
       width: 50%;
   }
   .navbar-spacer {
-    height: 60px;
+    height: 80px;
   }
   .venue-navbar .right-area {
       width: 50%;

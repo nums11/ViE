@@ -43,6 +43,7 @@ import Statistics from './views/Statistics.vue';
 import WatchRecording from './views/WatchRecording.vue';
 import AttendChecker from './views/AttendChecker.vue';
 import LoginView from './views/LoginView.vue';
+import CourseOrgInfo_Update from './views/CourseOrgInfo_Update.vue'
 
 Vue.use(VueRouter);
 
@@ -265,7 +266,7 @@ const router = new VueRouter({
     {
       name: 'course_info',
       path: '/course_info/:id',
-      component: CourseOrgInfo,
+      component: CourseOrgInfo_Update,
       meta: {
         title: "Venue - Course Info",
         requiresAuth: true
@@ -274,7 +275,7 @@ const router = new VueRouter({
     {
       name: 'org_info',
       path: '/org_info/:id',
-      component: CourseOrgInfo,
+      component: CourseOrgInfo_Update,
       meta: {
         title: "Venue - Org Info",
         requiresAuth: true
