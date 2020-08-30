@@ -3,7 +3,8 @@
 
     <div class="center-container">
       <div class="header">
-        <h3>Invite Students</h3>
+        <h3>Invite Students to {{for_course ? course.name : org.name}}
+        </h3>
       </div>
       <div class="header">
         <h5>Single Invite</h5>
@@ -107,6 +108,7 @@
 
 import InputField2 from '@/components/InputField2.vue'
 import CourseAPI from '@/services/CourseAPI'
+import OrgAPI from '@/services/OrgAPI'
 import Button2 from '@/components/Button2.vue'
 import xlsx from 'xlsx'
 import VueLottiePlayer from 'vue-lottie-player'
@@ -124,12 +126,36 @@ export default {
       invited_students: [],
       excel_file: null,
       excel_binary: null,
-      uploading: false
+      uploading: false,
+      course: {},
+      org: {},
+      for_course: false
     }
   },
   mounted () {
   },
+  created () {
+
+    this.getCourseOrgInfo ()
+  },
   methods: {
+    getCourseOrgInfo () {
+
+      if (this.$router.currentRoute.name == 'course_invite_students') {
+        this.for_course = true
+        CourseAPI.getCourse (this.$router.currentRoute.params.course_id)
+        .then(res => {
+          this.course = res.data
+        })
+      }
+      else {
+        OrgAPI.getOrg(this.$router.currentRoute.params.org_id)
+        .then(res => {
+          this.org = res.data
+        })
+      }
+
+    },
     goToDashboard () {
       this.$router.push({ name: 'dashboard' })
     },
@@ -240,7 +266,18 @@ export default {
       }
       else {
         // TODO org invite
-        console.error(`Org invite has not been implemented yet`)
+        course_org_id = this.$router.currentRoute.params.org_id
+        console.log(`Inviting to course: ${course_org_id}`)
+        this.uploading = true
+
+        OrgAPI.inviteMembers (course_org_id, parsed_user_data)
+        .then(res => {
+          console.log(res)
+          this.goToDashboard ()
+        })
+        .catch(err => [
+          console.log(er)
+        ])
       }
 
     },

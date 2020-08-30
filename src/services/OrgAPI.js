@@ -24,6 +24,11 @@ export default {
   getOrg(id) {
     return API().get('orgs/get/' + id)
   },
+  inviteMembers (org_id, students) {
+    return API().post(`orgs/invite/${org_id}`, {
+      users: students
+    })
+  },
   updateOrg(id, org){
     return API().post('orgs/update/' + id, {
       updated_org: org
