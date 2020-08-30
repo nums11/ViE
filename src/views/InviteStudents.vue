@@ -61,6 +61,7 @@
         </div>
         <div class="button-area">
           <Button2
+            :onClick="inviteStudentsThroughExcel"
             text="Invite Students" 
             :valid="excel_file != null"
             :disabled="excel_file == null"
@@ -80,6 +81,7 @@
 
 import InputField2 from '@/components/InputField2.vue'
 import Button2 from '@/components/Button2.vue'
+import xlsx from 'xlsx'
 
 export default {
   name: 'InviteStudents',
@@ -91,12 +93,37 @@ export default {
     return {
       student_email: "",
       invited_students: [],
-      excel_file: null
+      excel_file: null,
+      excel_binary: null
     }
   },
   mounted () {
   },
   methods: {
+    inviteStudentsThroughExcel () {
+
+      if (this.excel_binary == null) return;
+
+      // (1) parse the excel file
+      let xl_result = xlsx.read(this.excel_binary, {
+        type: "binary"
+      })
+      
+      let parsed_user_data = []
+      // We will only parse the first sheet
+      if (Object.keys(xl_result.Sheets).length == 0) {
+        console.error(`Excel file doesn't have any sheets`)
+      }
+
+      let main_sheet = xl_result.Sheets[ Object.keys(xl_result.Sheets)[0] ]
+      delete main_sheet['!ref']
+      let keys_ = Object.keys(main_sheet)
+      keys_.sort ()
+
+      console.log(main_sheet)
+      console.log(keys_)
+
+    },
     uploadExcel (e) {
       let file_ = e.target.files[0]
       
@@ -109,6 +136,11 @@ export default {
       }
 
       this.excel_file = file_
+      let fileReader = new FileReader ()
+      fileReader.onload = () => {
+        this.excel_binary = fileReader.result
+      }
+      fileReader.readAsBinaryString(file_)
     },
     initiateExcelUpload () {
       let file_uploader = document.getElementById(`excel_import_file`)
