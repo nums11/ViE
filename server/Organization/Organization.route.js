@@ -1,5 +1,6 @@
 const express = require('express');
 const orgRoutes = express.Router();
+var mongoose = require('mongoose');
 
 let Org = require('./Organization.model');
 let User = require('../User/User.model');
@@ -9,7 +10,6 @@ const createUserId = (email) => {
   let main_ = split_[0]
   return `${main_}#${  ((Math.random() * 9000) + 1000).toFixed(0) }`
 }
-
 
 const sendInviteEmail = (first_name, last_name, target_email, course_name) => {
 
@@ -88,10 +88,16 @@ const inviteStudentToCourse = async (org_doc, first_name, last_name, email) => {
           // user_doc.user_orgs.push(org_doc._id)
 
           if (_.has(user_doc, 'pending_org_invites')) {
-            user_doc.pending_org_invites.push(org_doc._id)
+            user_doc.pending_org_invites.push({
+              org_id: org_doc._id,
+              invite_key: mongoose.Types.ObjectId()
+            })
           }
           else {
-            user_doc.pending_org_invites = [org_doc._id]
+            user_doc.pending_org_invites = [{
+              org_id: org_doc._id,
+              invite_key: mongoose.Types.ObjectId()
+            }]
           }
 
           user_doc.save ()
@@ -124,7 +130,10 @@ const inviteStudentToCourse = async (org_doc, first_name, last_name, email) => {
           user_id: createUserId(email),
           email,
           confirm_key: confirm_key,
-          pending_org_invites: [ org_doc._id ]
+          pending_org_invites: [{
+            org_id: org_doc._id,
+            invite_key: mongoose.Types.ObjectId()
+          }]
         })
 
         // add the course to the student's list and the student to the course
@@ -146,6 +155,71 @@ const inviteStudentToCourse = async (org_doc, first_name, last_name, email) => {
   })
 
 }
+
+orgRoutes.route('/invite/accept/:user_id/:invite_key').post((req, res) => {
+
+  let invite_key = req.params.invite_key
+  let user_id = req.params.user_id
+
+  if (!invite_key) {
+    console.log(`<ORG INVITE ACCEPT: ERROR> No invite key found`)
+    res.json({
+      success: false,
+      error: 'No invite key found'
+    })
+    return;
+  }
+
+  if (!user_id) {
+    console.log(`<ORG INVITE ACCEPT: ERROR> No user id found`)
+    res.json({
+      success: false,
+      error: 'No user id found'
+    })
+    return;
+  }
+
+  User.findById(user_id, (err, user_doc) => {
+    if (err || !user_doc) {
+      console.error(`<ORG INVITE ACCEPT: ERROR> User doc not found for id ${user_id}`)
+      res.json({
+        success: false,
+        error: 'No user found'
+      })
+    }
+    else {
+
+      let target_index = null
+      let org_info = user_doc.pending_org_invites.filter((invite_data, i) => {
+        if (invite_data.invite_key == invite_key) {
+          target_index = i
+          return true
+        }
+        else return false
+      })
+      if (org_info.length != 1) {
+        res.json({
+          success: false,
+          error: 'Could not find the invite with the invite key'
+        })
+      }
+      else {
+
+        let org_id = org_info.org_id
+        user_doc.pending_org_invites.splice(target_index, 1)
+        user_doc.user_orgs.push(org_id)
+        user_doc.save ()
+
+        res.json({
+          success: true,
+          user: user_doc
+        })
+
+      }
+    }
+  })
+
+})
 
 orgRoutes.route('/invite/:org_id').post((req, res) => {
 

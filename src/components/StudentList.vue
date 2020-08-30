@@ -45,10 +45,19 @@ export default {
     },
     isInvited (student) {
       if (this.for_course) {
-        return student.pending_course_invites.includes(this.course_id)
+        
+        for (let i = 0; i < student.pending_course_invites.length; ++i) {
+          if (student.pending_course_invites[i].course_id == this.course_id) return true
+        }
+        return false
+
+        // return student.pending_course_invites.includes(this.course_id)
       }
       else {
-        return student.pending_org_invites.includes(this.org_id)
+        for (let i = 0; i < student.pending_org_invites.length; ++i) {
+          if (student.pending_course_invites[i].org_id == this.org_id) return true
+        }
+        return false
       }
     }
   }

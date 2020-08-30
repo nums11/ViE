@@ -17,12 +17,22 @@ let User = new Schema({
 	password: String,
 	confirm_key: String,
 	pending_course_invites: [{
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Course'
+		invite_key: {
+			type: mongoose.Schema.Types.ObjectId,
+		},
+		course_id: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Course'
+		}
 	}],
 	pending_org_invites: [{
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Organization'
+		invite_key: {
+			type: mongoose.Schema.Types.ObjectId,
+		},
+		org_id: {
+			type: mongoose.Schema.Types.ObjectId,
+			ref: 'Organization'
+		}
 	}],
 	instructor_courses: [{
 		type: mongoose.Schema.Types.ObjectId,

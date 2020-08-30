@@ -3,6 +3,7 @@ const courseRoutes = express.Router();
 const randomstring = require('randomstring')
 const _ = require('lodash')
 const sgMail = require('@sendgrid/mail')
+var mongoose = require('mongoose');
 
 let Course = require('./Course.model');
 let Section = require('../Section/Section.model');
@@ -96,10 +97,16 @@ const inviteStudentToCourse = async (course_doc, first_name, last_name, email) =
           // user_doc.student_courses.push(course_doc._id)
 
           if (_.has(user_doc, 'pending_course_invites')) {
-            user_doc.pending_course_invites.push(course_doc._id)
+            user_doc.pending_course_invites.push({
+              course_id: course_doc._id,
+              invite_key: mongoose.Types.ObjectId()
+            })
           }
           else {
-            user_doc.pending_course_invites = [course_doc._id]
+            user_doc.pending_course_invites = [{
+              course_id: course_doc._id,
+              invite_key: mongoose.Types.ObjectId()
+            }]
           }
 
           // await course_doc.save ()
@@ -133,7 +140,10 @@ const inviteStudentToCourse = async (course_doc, first_name, last_name, email) =
           user_id: createUserId(email),
           email,
           confirm_key: confirm_key,
-          pending_course_invites: [ course_doc._id ]
+          pending_course_invites: [{
+            course_id: course_doc._id,
+            invite_key: mongoose.Types.ObjectId()
+          }]
         })
 
         // add the course to the student's list and the student to the course
@@ -210,6 +220,71 @@ courseRoutes.route('/invite/:course_id').post((req, res) => {
 
     }
   })
+})
+
+courseRoutes.route('/invite/accept/:user_id/:invite_key').post((req, res) => {
+
+  let invite_key = req.params.invite_key
+  let user_id = req.params.user_id
+
+  if (!invite_key) {
+    console.log(`<COURSE INVITE ACCEPT: ERROR> No invite key found`)
+    res.json({
+      success: false,
+      error: 'No invite key found'
+    })
+    return;
+  }
+
+  if (!user_id) {
+    console.log(`<COURSE INVITE ACCEPT: ERROR> No user id found`)
+    res.json({
+      success: false,
+      error: 'No user id found'
+    })
+    return;
+  }
+
+  User.findById(user_id, (err, user_doc) => {
+    if (err || !user_doc) {
+      console.error(`<COURSE INVITE ACCEPT: ERROR> User doc not found for id ${user_id}`)
+      res.json({
+        success: false,
+        error: 'No user found'
+      })
+    }
+    else {
+
+      let target_index = null
+      let course_info = user_doc.pending_course_invites.filter((invite_data, i) => {
+        if (invite_data.invite_key == invite_key) {
+          target_index = i
+          return true
+        }
+        else return false
+      })
+      if (course_info.length != 1) {
+        res.json({
+          success: false,
+          error: 'Could not find the invite with the invite key'
+        })
+      }
+      else {
+
+        let course_id = course_info.course_id
+        user_doc.pending_course_invites.splice(target_index, 1)
+        user_doc.student_courses.push(course_id)
+        user_doc.save ()
+
+        res.json({
+          success: true,
+          user: user_doc
+        })
+
+      }
+    }
+  })
+
 })
 
 courseRoutes.route('/add').post(function (req, res) {

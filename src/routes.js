@@ -45,12 +45,29 @@ import AttendChecker from './views/AttendChecker.vue';
 import LoginView from './views/LoginView.vue';
 import CourseOrgInfo_Update from './views/CourseOrgInfo_Update.vue'
 import InviteStudents from './views/InviteStudents.vue'
+import CourseOrgAcceptInvite from './views/CourseOrgAcceptInvite.vue'
 
 Vue.use(VueRouter);
 
 const router = new VueRouter({
   // mode: 'history',
   routes: [
+    {
+      name: 'course_accept_invite',
+      path: '/course/accept_invite/:invite_key',
+      component: CourseOrgAcceptInvite,
+      meta: {
+        title: 'Venue - Accept Invite'
+      }
+    },
+    {
+      name: 'org_accept_invite',
+      path: '/org/accept_invite/:invite_key',
+      component: CourseOrgAcceptInvite,
+      meta: {
+        title: 'Venue - Accept Invite'
+      }
+    },
     {
       name: 'login',
       path: '/login',
