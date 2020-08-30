@@ -10,6 +10,41 @@ const createUserId = (email) => {
   return `${main_}#${  ((Math.random() * 9000) + 1000).toFixed(0) }`
 }
 
+
+const sendInviteEmail = (first_name, last_name, target_email, course_name) => {
+
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  const msg = {
+    to: target_email,
+    from: process.env.VENUE_EMAIL,
+    template_id: "d-6de977e651844de7a67ba2a50ebedc6d",
+    dynamic_template_data: {
+      subject: `[Venue] ${course_name} Invite`,
+      first_name,
+      last_name,
+      course_name
+    }
+    // text: '',
+    // html: `
+    // <h3>Venue</h3>
+    // <p>Hello ${first_name} ${last_name}</p>
+    // <p>
+    //   You have been invite to the course <string>${course_name}</string>
+    // </p>
+    // <a>Venue</a>
+    // `,
+  };
+  sgMail.send(msg)
+  .then(res => {
+    console.log(`SUCCESS`)
+    console.log(res)
+  })
+  .catch(err => {
+    console.log(err)
+    console.log(err.response.body.errors)
+  })
+}
+
 const inviteStudentToCourse = async (org_doc, first_name, last_name, email) => {
 
   return new Promise((resolve, reject) => {
@@ -63,6 +98,7 @@ const inviteStudentToCourse = async (org_doc, first_name, last_name, email) => {
 
           // TODO send email to student informing them that they have
           // been invited to this course.
+          sendInviteEmail(first_name, last_name, email, org_doc.name)
 
           resolve ({
             response: `Student with email [${email}] has been invited to org ${org_doc.name}`,
@@ -97,6 +133,7 @@ const inviteStudentToCourse = async (org_doc, first_name, last_name, email) => {
 
         // TODO send email to student informing them that they have been added
         // to the course
+        sendInviteEmail(first_name, last_name, email, org_doc.name)
         
         resolve ({
           response: `Student with email [${email}] has been invited to course ${org_doc.name}`,
