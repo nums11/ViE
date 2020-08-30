@@ -5,9 +5,21 @@
     <!-- Header Area -->
     <div class="header-area">
       <div class="left-side">
-        <div class="title"><h3>Data Structures</h3></div>
+        <div class="title"><h3>{{
+          for_course ? course.name : org.name
+        }}</h3></div>
       </div>
       <div class="right-side">
+        <sui-button 
+          compact 
+          icon="plus" 
+          label-position="left" 
+          content="Invite Students" 
+          class="venue-orange"
+        />
+        <router-link :to="for_course ? 
+        {name: 'course_new_meeting', params: { course_id: course._id }} 
+        : {name: 'org_new_meeting', params: { org_id: org._id }}">
         <sui-button 
           compact 
           icon="plus" 
@@ -15,10 +27,41 @@
           content="Schedule Meeting" 
           class="venue-green"
         />
+        </router-link>
       </div>
     </div>
 
     <!-- Body Area -->
+    <show-at breakpoint="small">
+
+      <div class="mobile-navbar">
+        
+        <div class="mobile-navbar-container">
+
+          <div class="navbar-area">
+
+            <div @click="active_tab = 'course_info'" :class="`navbar-option ${active_tab == 'course_info' ? 'active' : ''}`">
+              <div class="icon-area"><sui-icon name="info" /></div>
+              <div class="navbar-label-area">Course Info</div>
+            </div>
+
+            <div @click="active_tab = 'statistics'" :class="`navbar-option ${active_tab == 'statistics' ? 'active' : ''}`">
+              <div class="icon-area"><sui-icon name="chart line" /></div>
+              <div class="navbar-label-area">Statistics</div>
+            </div>
+
+            <div v-if="current_user.is_instructor" @click="active_tab = 'manage_students'" :class="`navbar-option ${active_tab == 'manage_students' ? 'active' : ''}`">
+              <div class="icon-area"><sui-icon name="users" /></div>
+              <div class="navbar-label-area">Manage Students</div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </show-at>
     <div class="body-area">
       <hide-at breakpoint="small">
 
@@ -33,7 +76,7 @@
               <div class="icon-area"><sui-icon name="chart line" /></div>
               <div class="text-area">Statistics</div>
             </div>
-            <div @click="active_tab = 'manage_students'" :class="`navbar-option ${active_tab == 'manage_students' ? 'active' : ''}`">
+            <div v-if="current_user.is_instructor" @click="active_tab = 'manage_students'" :class="`navbar-option ${active_tab == 'manage_students' ? 'active' : ''}`">
               <div class="icon-area"><sui-icon name="users" /></div>
               <div class="text-area">Manage Students</div>
             </div>
@@ -42,36 +85,6 @@
         </div>
 
       </hide-at>
-      <show-at breakpoint="small">
-
-        <div class="mobile-navbar">
-          
-          <div class="mobile-navbar-container">
-
-            <div class="navbar-area">
-
-              <div @click="active_tab = 'course_info'" :class="`navbar-option ${active_tab == 'course_info' ? 'active' : ''}`">
-                <div class="icon-area"><sui-icon name="info" /></div>
-                <div class="navbar-label-area">Course Info</div>
-              </div>
-
-              <div @click="active_tab = 'statistics'" :class="`navbar-option ${active_tab == 'statistics' ? 'active' : ''}`">
-                <div class="icon-area"><sui-icon name="chart line" /></div>
-                <div class="navbar-label-area">Statistics</div>
-              </div>
-
-              <div @click="active_tab = 'manage_students'" :class="`navbar-option ${active_tab == 'manage_students' ? 'active' : ''}`">
-                <div class="icon-area"><sui-icon name="users" /></div>
-                <div class="navbar-label-area">Manage Students</div>
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </show-at>
       <div class="content">
 
         <transition name="fade" mode="out-in">
@@ -79,6 +92,20 @@
           <!-- Course Info -->
           <div class="section" :key="1" v-if="active_tab == 'course_info'">
             <div class="title-area"><h4>Course Info</h4></div>
+
+            <div class="body-area">
+              <div v-if="getMeetings() && getMeetings().length > 0">
+                <MeetingAttendancePill 
+                  v-for="(meeting, i) in getMeetings()"
+                  :key="i"
+                  :meeting="meeting"
+                />
+              </div>
+              <div :style="{textAlign: 'center', width: '100%'}" v-else>
+                No meetings available
+              </div>
+            </div>
+
           </div>
 
           <!-- Statistics -->
@@ -89,6 +116,10 @@
           <!-- Manage Students -->
           <div class="section" :key="3" v-if="active_tab == 'manage_students'">
             <div class="title-area"><h4>Manage Students</h4></div>
+
+            <div class="body-area">
+              <StudentList :students="getStudents ()" />
+            </div>
           </div>
 
         </transition>
@@ -98,19 +129,56 @@
 
 </template>
 <script>
+import StudentList from '@/components/StudentList.vue'
+import MeetingAttendancePill from '@/components/MeetingAttendancePill_New.vue'
 import {showAt, hideAt} from 'vue-breakpoints'
+import CourseAPI from "@/services/CourseAPI"
+import OrgAPI from "@/services/OrgAPI"
 export default {
   name: 'CourseOrgInfo',
   components: {
-    showAt, hideAt
+    showAt, hideAt,
+    MeetingAttendancePill,
+    StudentList
   },
   data () {
     return {
-      active_tab: 'course_info'
+      active_tab: 'course_info',
+      current_user: {},
+      for_course: false,
+      course: {},
+      org: {},
+
     }
   },
+  async created () {
+      this.getCurrentUser()
+      await this.getCourseOrOrg();
+  },
   methods: {
-
+    getCurrentUser() {
+      this.current_user = this.$store.state.user.current_user
+    },
+    async getCourseOrOrg () {
+      if(this.$route.name === "course_info"){
+        let course_id = this.$route.params.id;
+        this.for_course = true
+        const response = await CourseAPI.getCourse(course_id)
+        this.course = response.data
+      } else {
+        let org_id = this.$route.params.id;
+        const response = await OrgAPI.getOrg(org_id)
+        this.org = response.data
+      }
+    },
+    getMeetings () {
+      if (this.for_course) return this.course.meetings
+      else return this.org.course_meetings
+    },
+    getStudents () {
+      if (this.for_course) return this.course.students
+      else return this.org.general_members
+    }
   }
 }
 </script>
@@ -127,43 +195,46 @@ export default {
     }
   }
 
-  .body-area {
-    display: flex;
-    flex-wrap: wrap;
+  .mobile-navbar {
+    display: block;
+    width: 100%;
+    height: 60px;
+    margin-bottom: 20px;
 
-    .mobile-navbar {
-      display: block;
-      width: 100%;
+    .navbar-area {
+      border-radius: 5px;
+      overflow: hidden;
+      cursor: pointer;
+      display: flex;
+      text-align: center;
+      width: 370px;
+      margin: 0 auto;
       height: 60px;
-      margin-bottom: 20px;
 
-      .navbar-area {
-        border-radius: 5px;
-        overflow: hidden;
-        cursor: pointer;
-        display: flex;
-        text-align: center;
-        width: 370px;
-        margin: 0 auto;
-        height: 60px;
+      .navbar-option {
+        width: 200px;
+        padding-top: 10px;
+        transition: background 0.25s;
 
-        .navbar-option {
-          width: 200px;
-          padding-top: 10px;
-          transition: background 0.25s;
+        .icon-area {
+          font-size: 1.3rem;
+          margin-bottom: 5px;
+        }
 
-          .icon-area {
-            font-size: 1.3rem;
-            margin-bottom: 5px;
-          }
-
-          .navbar-label-area {
-            font-size: 0.65em;
-            text-transform: uppercase;
-          }
+        .navbar-label-area {
+          font-size: 0.65em;
+          text-transform: uppercase;
         }
       }
     }
+  }
+
+  .title-area {
+    margin-bottom: 10px;
+  }
+
+  .body-area {
+    display: flex;
 
     .left-navbar {
       width: 300px;
@@ -209,12 +280,12 @@ export default {
     }
     .content {
       flex-grow: 1;
-      border: 1px solid purple;
 
       .section {
 
-        .title-area {
-
+        .body-area {
+          display: flex;
+          flex-wrap: wrap;
         }
       }
     }
@@ -252,6 +323,11 @@ export default {
         background-color: #494e5c;
       }
     }
+  }
+}
+
+@media only screen and (max-width: 670px) {
+  .body-area {
   }
 }
 </style>
