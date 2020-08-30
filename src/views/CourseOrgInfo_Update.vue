@@ -122,7 +122,12 @@
             <div class="title-area"><h4>Manage Students</h4></div>
 
             <div class="body-area">
-              <StudentList :students="getStudents ()" />
+              <StudentList
+                :for_course="for_course"
+                :course_id="for_course ? course._id : ''"
+                :org_id="for_course ? '' : org._id"
+                :students="getStudents ()" 
+              />
             </div>
           </div>
 

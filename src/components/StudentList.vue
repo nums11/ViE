@@ -19,7 +19,7 @@
       <div class="lastname-area">{{ student.last_name }}</div>
       <div class="email-area">{{ student.email }}</div>
       <div class="status-area enrolled" v-if="isEnrolled(student)">Enrolled</div>
-      <div class="status-area pending" v-if="isInvited(student)">Pending</div>
+      <div class="status-area pending" v-else-if="isInvited(student)">Pending</div>
     </div>
   </div>
 
@@ -28,14 +28,28 @@
 export default {
   name: "StudentList",
   props: {
-    students: {}
+    students: {},
+    course_id: String,
+    org_id: String,
+    for_course: Boolean
   },
   methods: {
     isEnrolled (student) {
-      return !Object.prototype.hasOwnProperty.call(student, 'confirm_key')
+      if (this.for_course) {
+        return student.student_courses.includes(this.course_id)
+      }
+      else {
+        return student.user_orgs.includes(this.org_id)
+      }
+
     },
     isInvited (student) {
-      return Object.prototype.hasOwnProperty.call(student, 'confirm_key')
+      if (this.for_course) {
+        return student.pending_course_invites.includes(this.course_id)
+      }
+      else {
+        return student.pending_org_invites.includes(this.org_id)
+      }
     }
   }
 }

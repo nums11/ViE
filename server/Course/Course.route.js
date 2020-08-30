@@ -57,7 +57,14 @@ const inviteStudentToCourse = async (course_doc, first_name, last_name, email) =
 
           // add to the course and add the course to the student's user document
           course_doc.students.push(user_doc._id)
-          user_doc.student_courses.push(course_doc._id)
+          // user_doc.student_courses.push(course_doc._id)
+
+          if (_.has(user_doc, 'pending_course_invites')) {
+            user_doc.pending_course_invites.push(course_doc._id)
+          }
+          else {
+            user_doc.pending_course_invites = [course_doc._id]
+          }
 
           // await course_doc.save ()
           user_doc.save ()
@@ -89,7 +96,7 @@ const inviteStudentToCourse = async (course_doc, first_name, last_name, email) =
           user_id: createUserId(email),
           email,
           confirm_key: confirm_key,
-          student_courses: [ course_doc._id ]
+          pending_course_invites: [ course_doc._id ]
         })
 
         // add the course to the student's list and the student to the course

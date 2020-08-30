@@ -16,6 +16,14 @@ let User = new Schema({
 	temp_password: String,
 	password: String,
 	confirm_key: String,
+	pending_course_invites: [{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Course'
+	}],
+	pending_org_invites: [{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Organization'
+	}],
 	instructor_courses: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Course'

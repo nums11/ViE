@@ -50,7 +50,14 @@ const inviteStudentToCourse = async (org_doc, first_name, last_name, email) => {
 
           // add to the course and add the course to the student's user document
           org_doc.general_members.push(user_doc._id)
-          user_doc.user_orgs.push(org_doc._id)
+          // user_doc.user_orgs.push(org_doc._id)
+
+          if (_.has(user_doc, 'pending_org_invites')) {
+            user_doc.pending_org_invites.push(org_doc._id)
+          }
+          else {
+            user_doc.pending_org_invites = [org_doc._id]
+          }
 
           user_doc.save ()
 
@@ -81,7 +88,7 @@ const inviteStudentToCourse = async (org_doc, first_name, last_name, email) => {
           user_id: createUserId(email),
           email,
           confirm_key: confirm_key,
-          user_orgs: [ org_doc._id ]
+          pending_org_invites: [ org_doc._id ]
         })
 
         // add the course to the student's list and the student to the course
