@@ -53,22 +53,6 @@ const router = new VueRouter({
   // mode: 'history',
   routes: [
     {
-      name: 'course_accept_invite',
-      path: '/course/accept_invite/:invite_key',
-      component: CourseOrgAcceptInvite,
-      meta: {
-        title: 'Venue - Accept Invite'
-      }
-    },
-    {
-      name: 'org_accept_invite',
-      path: '/org/accept_invite/:invite_key',
-      component: CourseOrgAcceptInvite,
-      meta: {
-        title: 'Venue - Accept Invite'
-      }
-    },
-    {
       name: 'login',
       path: '/login',
       component: LoginView,
@@ -469,7 +453,23 @@ const router = new VueRouter({
         requiresInstructor: true,
         requiresAuth: true
       }
-    }
+    },
+    {
+      name: 'course_accept_invite',
+      path: '/course/accept_invite/:user_id/:invite_key',
+      component: CourseOrgAcceptInvite,
+      meta: {
+        title: 'Venue - Accept Invite'
+      }
+    },
+    {
+      name: 'org_accept_invite',
+      path: '/org/accept_invite/:user_id/:invite_key',
+      component: CourseOrgAcceptInvite,
+      meta: {
+        title: 'Venue - Accept Invite'
+      }
+    },
   ]
 })
 

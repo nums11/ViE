@@ -45,6 +45,12 @@ export default {
   getInstructors() {
     return API().get('users/instructors')
   },
+  getCourseForUserInvite (user_id, invite_key) {
+    return API().get(`users/course_for_invite/${user_id}/${invite_key}`)
+  },
+  getOrgForUserInvite (user_id, invite_key) {
+    return API().get(`users/org_for_invite/${user_id}/${invite_key}`)
+  },
   getStudents() {
     return API().get('users/students')
   },

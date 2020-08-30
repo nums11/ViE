@@ -51,6 +51,11 @@
   font-weight: lighter;
 }
 
+@font-face {
+  font-family: Ubuntu;
+  src: url(../fonts/Ubuntu/UbuntuMono-Bold.ttf);
+}
+
 /* CSS Style */
 body, * {
   font-family: Arial, NotoSans;

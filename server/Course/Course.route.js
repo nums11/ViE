@@ -4,6 +4,7 @@ const randomstring = require('randomstring')
 const _ = require('lodash')
 const sgMail = require('@sendgrid/mail')
 var mongoose = require('mongoose');
+const {FrontEndServerBaseURL} = require('../Auth/API_URL')
 
 let Course = require('./Course.model');
 let Section = require('../Section/Section.model');
@@ -15,7 +16,7 @@ const createUserId = (email) => {
   return `${main_}#${  ((Math.random() * 9000) + 1000).toFixed(0) }`
 }
 
-const sendInviteEmail = (first_name, last_name, target_email, course_name) => {
+const sendInviteEmail = (first_name, last_name, target_email, course_name, user_id, invite_key) => {
 
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
   const msg = {
@@ -26,7 +27,8 @@ const sendInviteEmail = (first_name, last_name, target_email, course_name) => {
       subject: `[Venue] ${course_name} Invite`,
       first_name,
       last_name,
-      course_name
+      course_name,
+      invite_link: `${FrontEndServerBaseURL()}#/course/accept_invite/${user_id}/${invite_key}`
     }
     // text: '',
     // html: `
@@ -96,16 +98,17 @@ const inviteStudentToCourse = async (course_doc, first_name, last_name, email) =
           course_doc.students.push(user_doc._id)
           // user_doc.student_courses.push(course_doc._id)
 
+          let invite_key_ = mongoose.Types.ObjectId()
           if (_.has(user_doc, 'pending_course_invites')) {
             user_doc.pending_course_invites.push({
               course_id: course_doc._id,
-              invite_key: mongoose.Types.ObjectId()
+              invite_key: invite_key_
             })
           }
           else {
             user_doc.pending_course_invites = [{
               course_id: course_doc._id,
-              invite_key: mongoose.Types.ObjectId()
+              invite_key: invite_key_
             }]
           }
 
@@ -114,7 +117,7 @@ const inviteStudentToCourse = async (course_doc, first_name, last_name, email) =
 
           // TODO send email to student informing them that they have
           // been invited to this course.
-          sendInviteEmail(first_name, last_name, email, course_doc.name)
+          sendInviteEmail(first_name, last_name, email, course_doc.name, user_doc._id, invite_key_)
 
           resolve ({
             response: `Student with email [${email}] has been invited to course ${course_doc.name}`,
@@ -133,6 +136,7 @@ const inviteStudentToCourse = async (course_doc, first_name, last_name, email) =
       else {
         // User does not exist
 
+        let invite_key_ = mongoose.Types.ObjectId()
         let confirm_key = randomstring.generate(64)
         let new_user = new User({
           first_name,
@@ -142,7 +146,7 @@ const inviteStudentToCourse = async (course_doc, first_name, last_name, email) =
           confirm_key: confirm_key,
           pending_course_invites: [{
             course_id: course_doc._id,
-            invite_key: mongoose.Types.ObjectId()
+            invite_key: invite_key_
           }]
         })
 
@@ -153,7 +157,7 @@ const inviteStudentToCourse = async (course_doc, first_name, last_name, email) =
 
         // TODO send email to student informing them that they have been added
         // to the course
-        sendInviteEmail(first_name, last_name, email, course_doc.name)
+        sendInviteEmail(first_name, last_name, email, course_doc.name, saved_user._id, invite_key_)
         
         resolve ({
           response: `Student with email [${email}] has been invited to course ${course_doc.name}`,
@@ -271,7 +275,9 @@ courseRoutes.route('/invite/accept/:user_id/:invite_key').post((req, res) => {
       }
       else {
 
-        let course_id = course_info.course_id
+        console.log(`Course info:`)
+        console.log(course_info)
+        let course_id = course_info[0].course_id
         user_doc.pending_course_invites.splice(target_index, 1)
         user_doc.student_courses.push(course_id)
         user_doc.save ()

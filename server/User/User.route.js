@@ -2,9 +2,11 @@ const express = require('express');
 const userRoutes = express.Router();
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const _ = require('lodash')
 
 let User = require('./User.model');
 let Course = require('../Course/Course.model');
+let Organization = require('../Organization/Organization.model');
 let Section = require('../Section/Section.model');
 let Lecture = require('../Lecture/Lecture.model');
 
@@ -165,6 +167,167 @@ userRoutes.route('/delete/:id').delete(function (req, res) {
     }
   });
 });
+
+userRoutes.route('/course_for_invite/:user_id/:invite_key').get((req, res) => {
+
+  let user_id = req.params.user_id
+  let invite_key = req.params.invite_key
+
+  if (!user_id) {
+    console.log(`<USER/GET COURSE FOR INVITE:ERROR> No user id provided`)
+    res.json({
+      success: false,
+      error: "No user id provided"
+    })
+    return;
+  }
+
+  if (!invite_key) {
+    console.log(`<USER/GET COURSE FOR INVITE:ERROR> No invite key provided`)
+    res.json({
+      success: false,
+      error: "No invite key provided"
+    })
+    return;
+  }
+
+  User.findById(user_id, (err, user_doc) => {
+
+    if (err || !user_doc) {
+      console.log(`<USER/GET COURSE FOR INVITE:ERROR> No user found with user id ${user_id}`)
+      res.json({
+        success: false,
+        error: `No user for id ${user_id}`
+      })
+    }
+    else {
+      if (!_.has(user_doc.toObject (), 'pending_course_invites')) {
+        console.error(`<USER/GET COURSE FOR INVITE:ERROR> No pending invites for user ${user_doc._id}`)
+        res.json({
+          success: false,
+          error: `No pending invite for user`
+        })
+      }
+      else {
+
+        let course_id = null
+        user_doc.pending_course_invites.forEach(invite_data => {
+          if (invite_data.invite_key == invite_key) course_id = invite_data.course_id
+        })
+
+        if (course_id == null) {
+          console.error(`<USER/GET COURSE FOR INVITE:ERROR> No course found for invite key`)
+          res.json({
+            success: false,
+            error: `No course found for invite key`
+          })
+        }
+        else {
+          Course.findById(course_id, (err, course_doc) => {
+            if (err || !course_doc) {
+              console.log(`<USER/GET COURSE FOR INVITE:ERROR> No course found for id ${course_id}`)
+              res.json({
+                success: false,
+                error: `No course found for id ${course_id}`
+              })
+            }
+            else {
+              res.json({
+                success: true,
+                data: course_doc
+              })
+            }
+          })
+        }
+
+      }
+
+    }
+
+  })
+
+})
+
+userRoutes.route('/org_for_invite/:user_id/:invite_key').get((req, res) => {
+
+  let user_id = req.params.user_id
+  let invite_key = req.params.invite_key
+
+  if (!user_id) {
+    console.log(`<USER/GET ORG FOR INVITE:ERROR> No user id provided`)
+    res.json({
+      success: false,
+      error: "No user id provided"
+    })
+    return;
+  }
+
+  if (!invite_key) {
+    console.log(`<USER/GET ORG FOR INVITE:ERROR> No invite key provided`)
+    res.json({
+      success: false,
+      error: "No invite key provided"
+    })
+    return;
+  }
+
+  User.findById(user_id, (err, user_doc) => {
+
+    if (err || !user_doc) {
+      console.log(`<USER/GET ORG FOR INVITE:ERROR> No user found with user id ${user_id}`)
+      res.json({
+        success: false,
+        error: `No user for id ${user_id}`
+      })
+    }
+    else {
+
+      if (!_.has(user_doc.toObject(), 'pending_org_invites')) {
+        console.error(`<USER/GET ORG FOR INVITE:ERROR> No pending invites for user ${user_doc._id}`)
+        res.json({
+          success: false,
+          error: `No pending invite for user`
+        })
+      }
+      else {
+
+        let org_id = null
+        user_doc.pending_org_invites.forEach(invite_data => {
+          if (invite_data.invite_key == invite_key) org_id = invite_data.org_id
+        })
+
+        if (org_id == null) {
+          console.error(`<USER/GET ORG FOR INVITE:ERROR> No org found for invite key`)
+          res.json({
+            success: false,
+            error: `No org found for invite key`
+          })
+        }
+        else {
+          Organization.findById(org_id, (err, org_doc) => {
+            if (err || !org_doc) {
+              console.log(`<USER/GET ORG FOR INVITE:ERROR> No org urse found for id ${org_id}`)
+              res.json({
+                success: false,
+                error: `No org found for id ${org_id}`
+              })
+            }
+            else {
+              res.json({
+                success: true,
+                data: org_doc
+              })
+            }
+          })
+        }
+
+      }
+
+    }
+
+  })
+
+})
 
 userRoutes.route('/instructors').get(function (req, res) {
   User.find({is_instructor: true},function(err, instructors){

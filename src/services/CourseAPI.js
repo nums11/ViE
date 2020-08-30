@@ -31,7 +31,7 @@ export default {
   inviteStudents (course_id, students) {
     return API().post(`courses/invite/${course_id}`, {
       users: students
-    })
+  })
   },
   acceptInvite (user_id, invite_key) {
     return API().post(`courses/invite/accept/${user_id}/${invite_key}`)

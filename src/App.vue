@@ -89,7 +89,8 @@ export default {
     isNavbarlessView () {
       let exclude = ['landing_page', 'login', 'attend_checker', 
       'course_new_meeting', 'org_new_meeting',
-      'org_invite_students', 'course_invite_students']
+      'org_invite_students', 'course_invite_students',
+      'course_accept_invite', 'org_accept_invite']
       return exclude.includes(this.$route.name)
     },
     setDarkModeValue (new_value) {
