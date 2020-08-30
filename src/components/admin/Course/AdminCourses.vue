@@ -14,7 +14,7 @@
             <tr v-for="course in courses" :key="course._id">
               <td>{{ course.name }}</td>
               <td>{{ course.dept }}</td>
-              <td>{{ course.course_number }}</td>
+              <td>{{ getFormattedCourseNumber(course.course_number) }}</td>
               <td v-if="course.instructor">{{ course.instructor.first_name }} {{ course.instructor.last_name }}</td>
               <div v-if="is_course_view">
                 <td><router-link :to="{name: 'admin_edit_course', params: { id: course._id }}" class="btn btn-primary">Edit</router-link></td>
@@ -31,7 +31,7 @@
   import CourseAPI from '@/services/CourseAPI.js';
 
   export default {
-    name: 'Courses',
+    name: 'AdminCourses',
     data(){
       return {
         courses: [],
@@ -60,6 +60,15 @@
       },
       setIsCourseView() {
         this.is_course_view = this.$router.currentRoute.name === "admin_courses"
+      },
+      getFormattedCourseNumber(course_number) {
+        let course_number_str = course_number.toString()
+        let num_digits = course_number_str.length
+        if(num_digits <= 4) {
+          return course_number
+        } else {
+          return course_number_str.slice(0,4) + "/" + course_number_str.slice(4,num_digits)
+        }
       }
     }
   }
