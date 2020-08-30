@@ -44,6 +44,7 @@ import WatchRecording from './views/WatchRecording.vue';
 import AttendChecker from './views/AttendChecker.vue';
 import LoginView from './views/LoginView.vue';
 import CourseOrgInfo_Update from './views/CourseOrgInfo_Update.vue'
+import InviteStudents from './views/InviteStudents.vue'
 
 Vue.use(VueRouter);
 
@@ -432,6 +433,22 @@ const router = new VueRouter({
       component: AttendChecker,
       meta: {
         requiresAuth: false
+      }
+    },
+    {
+      name: 'course_invite_students',
+      path: '/course/invite/:course_id',
+      component: InviteStudents,
+      meta: {
+        requiresInstructor: true
+      }
+    },
+    {
+      name: 'org_invite_students',
+      path: '/org/invite/:org_id',
+      component: InviteStudents,
+      meta: {
+        requiresInstructor: true
       }
     }
   ]

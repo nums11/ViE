@@ -10,6 +10,9 @@
         }}</h3></div>
       </div>
       <div class="right-side">
+        <router-link :to="for_course ? 
+        {name: 'course_invite_students', params: { course_id: course._id }} 
+        : {name: 'org_invite_students', params: { org_id: org._id }}">
         <sui-button 
           compact 
           icon="plus" 
@@ -17,6 +20,7 @@
           content="Invite Students" 
           class="venue-orange"
         />
+        </router-link>
         <router-link :to="for_course ? 
         {name: 'course_new_meeting', params: { course_id: course._id }} 
         : {name: 'org_new_meeting', params: { org_id: org._id }}">
@@ -147,8 +151,7 @@ export default {
       current_user: {},
       for_course: false,
       course: {},
-      org: {},
-
+      org: {}
     }
   },
   async created () {
@@ -183,11 +186,12 @@ export default {
 }
 </script>
 <style lang="scss">
-.course-info-page {
 
+.course-info-page {
   .header-area {
     margin-bottom: 20px;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
 
     .left-side {

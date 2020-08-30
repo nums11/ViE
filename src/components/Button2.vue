@@ -4,7 +4,9 @@
     :class="`venue-button-2 ${valid ? getColor() : 'venue-red'} ${disabled ? 'disabled' : ''}`" 
     @click="handleClick"
     :style="{
-      width: getWidth()
+      width: getWidth(),
+      height: getHeight(),
+      lineHeight: getLineHeight()
     }">
     <div v-if="iconOnly()" class="icon-button-container">
       <i :class="`icon ${hasIcon () ? config.icon : ''}`"></i>
@@ -13,7 +15,7 @@
       <div class="icon-area left" v-if="hasIcon() && iconLeft()">
         <i :class="`icon ${config.icon}`"></i>
       </div>
-      <div class="text-area">
+      <div class="text-area" :style="{transform: `translateY(${ getLineHeight() })`}">
         {{ text }}
       </div>
       <div class="icon-area right" v-if="hasIcon() && iconRight()">
@@ -42,6 +44,14 @@ export default {
   methods: {
     handleClick () {
       if (this.onClick && !this.disabled) this.onClick ()
+    },
+    getHeight () {
+      if (this.hasKey(this.config, 'height')) return this.config.height
+      return 'inherit'
+    },
+    getLineHeight () {
+      if (this.hasKey(this.config, 'lineHeight')) return this.config.lineHeight
+      return 'inherit'
     },
     getWidth () {
       if (this.hasKey(this.config, 'width')) return this.config.width

@@ -150,6 +150,18 @@ export default {
 </script>
 <style lang="scss">
 
+  .dark-mode {
+    .venue-input-field-2 {
+
+      .input-field {
+
+        input {
+          color: white;
+        }
+      }
+    }
+  }
+
   .venue-input-field-2 {
     border: 2px solid #47C4FC;
     display: flex;
