@@ -1,41 +1,45 @@
 <template>
   <div>
-<!--     <h3>First Name: {{user.first_name}}</h3>
-    <h3>Last Name: {{user.last_name}}</h3>
-    <h3>User ID: {{user.user_id}}</h3>
-    <h3>Instructor Courses</h3>
-    <p v-for="course in user.instructor_courses">
-      {{ course.name }}
-    </p>
- -->
-    <div class="container">
-      <div class="row">
-        <div class="col-md">
-          <h3 style="font-weight: bold">First Name:</h3>
-          <h3 style="font-weight: bold">Last Name:</h3>
-          <h3 style="font-weight: bold">User ID:</h3>
-          <h3 style="font-weight: bold">Email:</h3>
-          <h3 style="font-weight: bold">is_instructor:</h3>
-          <h3 style="font-weight: bold">is_admin:</h3>
-<!--           <h3 style="font-weight: bold">Instructor Courses:</h3>
-          <h3 style="font-weight: bold">Student Courses:</h3>
-          <h3 style="font-weight: bold">User Orgs:</h3>
-          <h3 style="font-weight: bold">Meetings:</h3>
-          <h3 style="font-weight: bold">Live Submissions:</h3>
-          <h3 style="font-weight: bold">Async Submissions:</h3> -->
-
-        </div>
-        <div class="col-md">
-          <h3>{{ user.first_name }}</h3>
-          <h3>{{ user.last_name }}</h3>
-          <h3>{{ user.user_id }}</h3>
-          <h3>{{ user.email }}</h3>
-          <h3>{{ user.is_instructor }}</h3>
-          <h3>{{ user.is_admin }}</h3>
-<!--           <h3 v-for="course in user.instructor_courses">{{ course.name }}</h3> -->
-        </div>
-      </div>
+    <div class="spinner-border" role="status" v-if="!user_has_loaded">
+      <span class="sr-only">Loading...</span>
     </div>
+
+    <form v-else @submit.prevent="updateUser">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" class="form-control" v-model="user.first_name">
+          </div>
+        </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>Last Name</label>
+              <input class="form-control" v-model="user.last_name" rows="5">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>User ID</label>
+              <input type="text" class="form-control" v-model="user.user_id" rows="5">
+            </div>
+          </div>
+        </div><br />
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label>is_instructor</label>
+                <input type="checkbox" class="form-control" v-model="user.is_instructor" rows="5">
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <button class="btn btn-primary">Update</button>
+        </div>
+    </form>
+
     <div class="container">
       <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">Instructor Courses</h3>
       <h4 v-for="course in user.instructor_courses">{{ course.name }}</h4>
@@ -66,23 +70,18 @@ export default {
   data() {
     return {
       user: {},
-      instructor_courses: [],
-      sections: [],
-      section_instructors_have_loaded: false,
-      section_courses_have_loaded: false
+      user_has_loaded: false
     };
   },
   created() {
     this.getCurrentUser();
-    // this.getInstructorCourses();
   },
   methods: {
     async getCurrentUser() {
       let user_id = this.$route.params.id;
       const response = await UserAPI.getUser(user_id);
       this.user = response.data;
-      console.log(this.user)
-      // if (!this.user.is_instructor) this.getSections();
+      this.user_has_loaded = true
     },
     async getSections() {
       let user_id = this.$route.params.id;
@@ -114,7 +113,7 @@ export default {
     async updateUser() {
       let user_id = this.$route.params.id;
       const response = await UserAPI.updateUser(user_id, this.user);
-      this.$router.push({ name: "users" });
+      this.$router.push({ name: "admin_users" });
     },
     async getInstructorCourses() {
       let user_id = this.$route.params.id;
@@ -127,4 +126,8 @@ export default {
 
 <style scoped>
   
+h4 {
+  font-weight: normal;
+}
+
 </style>
