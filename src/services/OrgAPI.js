@@ -29,6 +29,9 @@ export default {
       users: students
     })
   },
+  acceptInvite (user_id, invite_key) {
+    return API().post(`orgs/invite/accept/${user_id}/${invite_key}`)
+  },
   updateOrg(id, org){
     return API().post('orgs/update/' + id, {
       updated_org: org
