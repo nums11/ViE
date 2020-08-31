@@ -24,6 +24,17 @@ liveSubmissionRoutes.route('/add').post(async function (req, res) {
           } else {
             console.log("<SUCCESS> (live_submissions/add) Adding live submission for QR checkin")
 
+            // Populate the QR Checkin
+            await QRCheckin.popupate(
+              qr_checkin,
+              {
+                path: 'qr_checkin_submissions',
+                popupate: {
+                  path: 'submitter'
+                }
+              }
+            )
+
             // TODO Add to QR live update socket
             let responseSockets = socketQueue.getSockets(qr_checkin._id)
             console.log(`Listening Sockets`)
