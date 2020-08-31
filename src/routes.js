@@ -430,7 +430,8 @@ const router = new VueRouter({
       path: '/attend/:meeting_id/:qr_key',
       component: AttendChecker,
       meta: {
-        requiresAuth: false
+        requiresAuth: true,
+        requiresAdmin: true
       }
     }
   ]
