@@ -10,58 +10,6 @@ let Organization = require('../Organization/Organization.model');
 let Section = require('../Section/Section.model');
 let Lecture = require('../Lecture/Lecture.model');
 
-userRoutes.route('/change_password/:user_id').post((req, res) => {
-  let new_password = req.body.password
-  let user_id = req.params.user_id
-
-  if (!new_password) {
-    console.log(`<USER/Change Pass: Error> No new password found`)
-    res.json({
-      success: false,
-      error: `No new password found`
-    })
-    return;
-  }
-
-  if (!user_id) {
-    console.log(`<USER/Change Pass: Error> No user id found`)
-    res.json({
-      success: false,
-      error: `No user id found`
-    })
-    return;
-  }
-
-  User.findById(user_id, (err, user_doc) => {
-
-    if (err || !user_doc) {
-      res.json({
-        success: false,
-        error: `No user id found for id ${user_id}`
-      })
-    }
-    else {
-
-      bcrypt.hash(new_password, saltRounds, (err, hash) => {
-        if (err || hash == null) {
-          console.log(`<USER/Change Password: Error> Filed to hash password`)
-          res.json(err)
-        }
-        else {
-          user_doc.password = hash
-          await user_doc.save ()
-
-          console.log(`<User/Change Pass> Successfully changed password!`)
-          res.json({
-            success: true
-          })
-        }
-      })
-    }
-  })
-
-})
-
 userRoutes.route('/add').post(function (req, res) {
   let user = new User(req.body.user);
   bcrypt.hash(user.password, saltRounds, (err, hash) => {

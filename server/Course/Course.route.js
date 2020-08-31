@@ -16,7 +16,7 @@ const createUserId = (email) => {
   return `${main_}#${  ((Math.random() * 9000) + 1000).toFixed(0) }`
 }
 
-const sendInviteEmail = (first_name, last_name, target_email, course_name, user_id, invite_key) => {
+const sendInviteEmail = (first_name, last_name, target_email, course_name, user_id, invite_key, confirm_key = 'autoconfirm') => {
 
   sgMail.setApiKey(process.env.SENDGRID_API_KEY);
   const msg = {
@@ -28,7 +28,7 @@ const sendInviteEmail = (first_name, last_name, target_email, course_name, user_
       first_name,
       last_name,
       course_name,
-      invite_link: `${FrontEndServerBaseURL()}#/course/accept_invite/${user_id}/${invite_key}`
+      invite_link: `${FrontEndServerBaseURL()}#/course/accept_invite/${user_id}/${invite_key}/${confirm_key}`,
     }
     // text: '',
     // html: `
@@ -157,7 +157,7 @@ const inviteStudentToCourse = async (course_doc, first_name, last_name, email) =
 
         // TODO send email to student informing them that they have been added
         // to the course
-        sendInviteEmail(first_name, last_name, email, course_doc.name, saved_user._id, invite_key_)
+        sendInviteEmail(first_name, last_name, email, course_doc.name, saved_user._id, invite_key_, confirm_key)
         
         resolve ({
           response: `Student with email [${email}] has been invited to course ${course_doc.name}`,

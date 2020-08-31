@@ -27,7 +27,7 @@
                 :config="{
                   width: '100%',
                   icon: 'user',
-                  label: 'username',
+                  label: 'username / email',
                   tabDisabled: true,
                   onenter: continueLogin
                 }"

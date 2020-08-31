@@ -11,6 +11,11 @@ export default {
       user: user
     })
   },
+  silentLogin(user) {
+    return API().post(`auth/silent_login`, {
+      user: user
+    })
+  },
   loginStatus() {
     return API().get('auth/loginStatus')
   },
@@ -23,6 +28,12 @@ export default {
   setPermanentPassword(user) {
     return API().post('auth/set_permanent_pasword', {
       user: user
+    })
+  },
+  setPassword (user_id, new_password, confirm_key) {
+    return API().post(`auth/set_password/${user_id}`, {
+      password: new_password,
+      confirm_key: confirm_key
     })
   },
 }

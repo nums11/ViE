@@ -34,6 +34,12 @@ export default new Vuex.Store({
           commit('SET_USER_DATA', data)
         })
     },
+    silentLogin({ commit }, user) {
+      return AuthAPI.silentLogin(user)
+        .then(({data}) => {
+          commit('SET_USER_DATA', data)
+        })
+    },
     loginCAS({ commit }) {
       return AuthAPI.loginStatus()
         .then(({data}) => {

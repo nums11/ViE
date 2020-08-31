@@ -65,6 +65,28 @@ export default {
 
     let user_id = this.$router.currentRoute.params.user_id
     let invite_key = this.$router.currentRoute.params.invite_key
+    let confirm_key = this.$router.currentRoute.params.confirm_key
+
+    if (confirm_key != 'autoconfirm') {
+      // need to route the user to finish creating their account, then route back to here.
+      this.$router.push({
+        name: 'finish_account_creation',
+        params: {user_id: user_id, confirm_key: confirm_key},
+        query: {
+
+          // tell it to redirect back to here once complete
+          redirect: {
+            name: this.$router.currentRoute.name,
+            params: {
+              user_id: user_id,
+              invite_key: invite_key,
+              confirm_key: 'autoconfirm'
+            }
+          }
+        }
+      })
+    }
+
     console.log(`User id: ${user_id}`)
     console.log(`Invite key: ${invite_key}`)
     if (this.$router.currentRoute.name == 'course_accept_invite') {

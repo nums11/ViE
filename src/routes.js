@@ -457,7 +457,7 @@ const router = new VueRouter({
     },
     {
       name: 'course_accept_invite',
-      path: '/course/accept_invite/:user_id/:invite_key',
+      path: '/course/accept_invite/:user_id/:invite_key/:confirm_key',
       component: CourseOrgAcceptInvite,
       meta: {
         title: 'Venue - Accept Invite'
@@ -473,7 +473,7 @@ const router = new VueRouter({
     },
     {
       name: 'finish_account_creation',
-      path: '/auth/setup/:user_id',
+      path: '/auth/setup/:user_id/:confirm_key',
       component: FinishAccountCreation,
       meta: {
         title: 'Venue - Account Setup'
