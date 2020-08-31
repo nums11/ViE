@@ -10,7 +10,7 @@
         }}</h3></div>
       </div>
       <div class="right-side">
-        <router-link :to="for_course ? 
+        <!-- <router-link :to="for_course ? 
         {name: 'course_invite_students', params: { course_id: course._id }} 
         : {name: 'org_invite_students', params: { org_id: org._id }}">
         <sui-button 
@@ -20,7 +20,7 @@
           content="Invite Students" 
           class="venue-orange"
         />
-        </router-link>
+        </router-link> -->
         <router-link :to="for_course ? 
         {name: 'course_new_meeting', params: { course_id: course._id }} 
         : {name: 'org_new_meeting', params: { org_id: org._id }}">
