@@ -25,7 +25,7 @@ liveSubmissionRoutes.route('/add').post(async function (req, res) {
             console.log("<SUCCESS> (live_submissions/add) Adding live submission for QR checkin")
 
             // Populate the QR Checkin
-            await QRCheckin.popupate(
+            await QRCheckin.populate(
               qr_checkin,
               {
                 path: 'qr_checkin_submissions',
