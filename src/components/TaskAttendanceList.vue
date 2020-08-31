@@ -41,7 +41,7 @@
           content="Back" />
       </div>
       <div class="center-area">
-        <ProgressBar :value="present_attendees.size/attendees.length" />
+        <!-- <ProgressBar :value="present_attendees.size/attendees.length" /> -->
       </div>
       <div class="right-side">
           <!-- RIGHT FOOTER PLACEHOLDER -->
