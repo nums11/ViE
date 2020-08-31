@@ -17,7 +17,7 @@
 
               <sui-label v-if="for_course" class="venue-red" :style="{marginBottom: '5px'}">
                   Dept
-                  <sui-label-detail>{{ course.dept }} {{ course.course_number }}</sui-label-detail>
+                  <sui-label-detail v-if="course.course_number">{{ course.dept }} {{ getFormattedCourseNumber(course.course_number) }}</sui-label-detail>
               </sui-label>
 
 <!--               <sui-label :style="{marginBottom: '5px'}">
@@ -236,6 +236,15 @@ export default {
       },
       toggleSectionStatistics(section) {
         this.statisticsSections[section].display = !this.statisticsSections[section].display
+      },
+      getFormattedCourseNumber(course_number) {
+        let course_number_str = course_number.toString()
+        let num_digits = course_number_str.length
+        if(num_digits <= 4) {
+          return course_number
+        } else {
+          return course_number_str.slice(0,4) + "/" + course_number_str.slice(4,num_digits)
+        }
       }
     }
 }

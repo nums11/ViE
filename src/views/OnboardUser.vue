@@ -55,7 +55,7 @@
         this.setEmail()
         // this.setTempPassword()
         const response = await UserAPI.onboardUser(this.user);
-        this.$router.push({name: 'users'});
+        this.$router.push({name: 'admin_users'});
       },
       setEmail() {
         this.user.email = this.user.user_id + "@rpi.edu"

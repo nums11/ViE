@@ -31,6 +31,7 @@ userRoutes.route('/add').post(function (req, res) {
 
 userRoutes.route('/onboard').post(function (req, res) {
   let new_user = new User(req.body.user);
+  console.log("Onboard", new_user)
   User.find({user_id: new_user.user_id}, (error, existing_users) => {
     if(error || existing_users == null){
       console.log("<ERROR> Onboarding new user with user_id:", new_user.user_id)
@@ -136,18 +137,15 @@ userRoutes.route('/update/:id').post(function (req, res) {
     {
       first_name: updated_user.first_name,
       last_name: updated_user.last_name,
-      email: updated_user.email,
-      password: updated_user.password,
+      user_id: updated_user.user_id,
       is_instructor: updated_user.is_instructor,
-      ta_sections: updated_user.ta_sections,
-      submissions: updated_user.submissions
     },
     function(err, user) {
       if (err || user == null) {
-        console.log("<ERROR> Updating user by ID:",id,"with:",updated_user)
-        res.status(404).send("user not found");
+        console.log("<ERROR> (users/update) Updating user by ID:",id,"with:",updated_user)
+        res.json(err)
       } else {
-        console.log("<SUCCESS> Updating user by ID:",id,"with:",updated_user)
+        console.log("<SUCCESS> (users/update) Updating user by ID:",id)
         res.json(user);
       }
     }

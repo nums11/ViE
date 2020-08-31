@@ -42,7 +42,7 @@ export default {
   data() {
     return {
       current_user: null,
-      dark_mode: Boolean
+      dark_mode: false
     }
   },
   created() {

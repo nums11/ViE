@@ -230,10 +230,6 @@
       window.addEventListener('click', this.handleUserModal)
       this.dark_mode = this.initialDarkModeValue
       this.getCurrentUser()
-      if(this.is_instructor)
-        this.getInstructorCourses()
-      else
-        this.getSectionsWithCourses()
     },
     methods: {
       toggleMobileMenu () {
@@ -279,32 +275,16 @@
         console.log(`CLICKED`)
         this.showUserView = !this.showUserView;
       },
-      getCurrentUser() {
+      async getCurrentUser() {
         this.current_user = this.$store.state.user.current_user
         this.is_instructor = this.current_user.is_instructor
-        if (this.is_instructor) {
-          CourseAPI.getInstructorCourses(this.current_user._id)
-          .then(res => {
-            if (res.data)
-              this.user_courses = res.data
-          })
-        }
-        // TODO get courses for non-instructors
-        this.getUserOrgs ()
-      },
-      getUserOrgs () {
-        let user_org_data = []
-        this.current_user.user_orgs.forEach(org_id => {
-          user_org_data.push(OrgAPI.getOrg(org_id))
-        })
-        Promise.all(user_org_data).then(returned_org_data => {
-          console.log(returned_org_data)
-          this.user_orgs = returned_org_data.map(data_ => data_.data)
-        })
-      },
-      async getInstructorCourses() {
-        const response = await CourseAPI.getInstructorCourses(this.current_user._id)
-        this.user_courses = response.data
+        const response = await UserAPI.getUser(this.current_user._id)
+        let user = response.data
+        if (user.is_instructor)
+          this.user_courses = user.instructor_courses
+        else
+          this.user_courses = user.student_courses
+        this.user_orgs = user.user_orgs
       },
       async getSectionsWithCourses() {
         const response = await SectionAPI.getSectionsWithCoursesForStudent(this.current_user._id)
@@ -403,12 +383,12 @@
     }
     .hamburger-icon {
       display: inline-block;
-      width: 40px;
+      width: 27px;
       height: 40px;
       line-height: 40px;
       margin-right: 15px;
       vertical-align: top;
-      text-align: center;
+      text-align: left;
       font-size: 1.5rem;
       cursor: pointer;
     }

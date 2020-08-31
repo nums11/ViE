@@ -190,7 +190,7 @@
   }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
 #dashboard-container {
   width: 89%;
@@ -205,6 +205,7 @@
     display: flex;
     align-items: flex-end;
     margin-bottom: 30px;
+    display: none;
   }
 }
 
@@ -246,6 +247,16 @@
   .dashboard-page .dashboard-row .dashboard-section {
     width: 100%;
     margin-bottom: 30px;
+  }
+}
+
+@media only screen and (max-width: 750px) {
+  #dashboard-container {
+    width: 100%;
+
+    .dashboard-section {
+      padding-right: 0;
+    }
   }
 }
 </style>
