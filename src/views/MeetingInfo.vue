@@ -119,13 +119,13 @@
               <sui-icon name="tasks" class="meeting-tab-icon" />
               Tasks
             </sui-list-item>
-            <sui-list-item
+<!--             <sui-list-item
             :class="'meeting-tab ' + (show_meeting_tasks ? '' : 'solid-border-bottom')"
             id="attendance-tab"
             @click="showMeetingAttendance">
               <sui-icon name="users" class="meeting-tab-icon" />
               Attendance
-            </sui-list-item>
+            </sui-list-item> -->
           </sui-list>
           <!-- Meeting Tasks -->
           <div v-if="show_meeting_tasks">
