@@ -16,7 +16,7 @@ liveSubmissionRoutes.route('/add').post(async function (req, res) {
     if(saved_live_submission.is_qr_checkin_submission) {
       QRCheckin.findByIdAndUpdate(saved_live_submission.qr_checkin,
         {$push: {qr_checkin_submissions: saved_live_submission._id}},
-        (error, qr_checkin) => {
+        async (error, qr_checkin) => {
           if(error || qr_checkin == null) {
             console.log("<ERROR> (live_submissions/add) Updating QR checkin with id:",
               saved_live_submission.qr_checkin,error)
