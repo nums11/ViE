@@ -28,6 +28,7 @@ liveSubmissionRoutes.route('/add').post(async function (req, res) {
             let responseSockets = socketQueue.getSockets(qr_checkin._id)
             console.log(`Listening Sockets`)
             console.log(Array.from(responseSockets))
+            console.log(qr_checkin)
             console.log(qr_checkin.qr_checkin_submissions.map(submission => {
               return submission.submitter
             }))
