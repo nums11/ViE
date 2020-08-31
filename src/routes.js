@@ -46,6 +46,7 @@ import LoginView from './views/LoginView.vue';
 import CourseOrgInfo_Update from './views/CourseOrgInfo_Update.vue'
 import InviteStudents from './views/InviteStudents.vue'
 import CourseOrgAcceptInvite from './views/CourseOrgAcceptInvite.vue'
+import FinishAccountCreation from './views/FinishAccountCreation.vue'
 
 Vue.use(VueRouter);
 
@@ -468,8 +469,16 @@ const router = new VueRouter({
       component: CourseOrgAcceptInvite,
       meta: {
         title: 'Venue - Accept Invite'
-      }
+      },
     },
+    {
+      name: 'finish_account_creation',
+      path: '/auth/setup/:user_id',
+      component: FinishAccountCreation,
+      meta: {
+        title: 'Venue - Account Setup'
+      }
+    }
   ]
 })
 
