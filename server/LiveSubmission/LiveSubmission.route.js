@@ -4,9 +4,13 @@ const liveSubmissionRoutes = express.Router();
 let LiveSubmission = require('./LiveSubmission.model');
 let QRCheckin = require('../QRCheckin/QRCheckin.model');
 let Poll = require('../Poll/Poll.model');
+const { response } = require('express');
 
 liveSubmissionRoutes.route('/add').post(async function (req, res) {
+  let io = req.socketIO
+  let socketQueue = req.socketQueue
   let live_submission = new LiveSubmission(req.body.live_submission);
+
   try {
     let saved_live_submission = await live_submission.save()
     if(saved_live_submission.is_qr_checkin_submission) {
@@ -19,6 +23,18 @@ liveSubmissionRoutes.route('/add').post(async function (req, res) {
             res.json(error);
           } else {
             console.log("<SUCCESS> (live_submissions/add) Adding live submission for QR checkin")
+
+            // TODO Add to QR live update socket
+            let responseSockets = socketQueue.getSockets(qr_checkin._id)
+            Array.from(responseSockets).forEach(socket_id => {
+
+              io.to(socket_id).emit('attendance update', {
+                data: qr_checkin.qr_checkin_submissions.map(submission => {
+                  return submission.submitter
+                })
+              })
+            })
+
             res.json(saved_live_submission);
           }
         })
