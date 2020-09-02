@@ -28,6 +28,11 @@ export default {
       updated_course: course
     })
   },
+  inviteStudentsCAS (course_id, users) {
+    return API().post(`courses/cas_invite_student/${course_id}`, {
+      users
+    })
+  },
   deleteCourse (id) {
     return API().delete('courses/delete/' + id)
   },

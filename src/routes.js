@@ -24,6 +24,7 @@ import AdminEvents from './components/admin/Event/AdminEvents.vue';
 import AdminEditEvent from './components/admin/Event/AdminEditEvent.vue';
 import NewSubmission from './components/admin/Submission/NewSubmission.vue';
 import Submissions from './components/admin/Submission/Submissions.vue';
+import AdminStudentInvite from './components/admin/Course/StudentInvite.vue';
 import LandingPage from './views/LandingPage.vue';
 import SetPermanentPassword from './views/SetPermanentPassword.vue';
 import Signup from './components/Signup.vue';
@@ -89,6 +90,15 @@ const router = new VueRouter({
       meta: {
         requiresAuth: true,
         requiresAdmin: true
+      }
+    },
+    {
+      name: 'admin_student_invite',
+      path: '/admin/course_invite',
+      component: AdminStudentInvite,
+      meta: {
+        requiresAdmin: true,
+        requiresAuth: true
       }
     },
     {
