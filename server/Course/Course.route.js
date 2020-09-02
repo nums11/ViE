@@ -2,7 +2,7 @@ const express = require('express');
 const courseRoutes = express.Router();
 const _ = require('lodash')
 const mongoose = require('mongoose')
-const randomstring = require('randomstring')
+// const randomstring = require('randomstring')
 
 let Course = require('./Course.model');
 let Section = require('../Section/Section.model');
