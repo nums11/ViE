@@ -7,7 +7,7 @@
   :task="task"
   :is_qr="is_live"
   :attendees="attendees"
-  v-on:show-task-qr="(task) => $emit('show-task-qr',task)"
+  v-on:show-fullscreen-code="(code) => $emit('show-fullscreen-code',code)"
   v-on:show-qr-scanning-window="$emit('show-qr-scanning-window')"
   v-on:show-task-attendance="(task) => $emit('show-task-attendance',task)" />
   </div>

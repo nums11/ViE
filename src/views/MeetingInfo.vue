@@ -146,9 +146,9 @@
                   :tasks="meeting.live_attendance.qr_checkins"
                   :is_live="true"
                   :attendees="attendees"
-                  v-on:show-task-qr="showTaskQR"
                   v-on:show-qr-scanning-window="showQRScanningWindow"
-                  v-on:show-task-attendance="showTaskAttendance" />
+                  v-on:show-task-attendance="showTaskAttendance"
+                  v-on:show-fullscreen-code="showFullScreenQRCodeModal" />
                 </div>
                 <div style="margin-top:3rem;" v-if="meeting.has_async_attendance">
                   <div class="title">
