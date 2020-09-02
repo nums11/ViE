@@ -48,21 +48,21 @@ const inviteStudentToCourseCAS = async (course_doc, first_name, last_name, user_
 
           // add to the course and add the course to the student's user document
           course_doc.students.push(user_doc._id)
-          // user_doc.student_courses.push(course_doc._id)
+          user_doc.student_courses.push(course_doc._id)
 
-          let invite_key_ = mongoose.Types.ObjectId()
-          if (_.has(user_doc, 'pending_course_invites')) {
-            user_doc.pending_course_invites.push({
-              course_id: course_doc._id,
-              // invite_key: invite_key_
-            })
-          }
-          else {
-            user_doc.pending_course_invites = [{
-              course_id: course_doc._id,
-              // invite_key: invite_key_
-            }]
-          }
+          // let invite_key_ = mongoose.Types.ObjectId()
+          // if (_.has(user_doc, 'pending_course_invites')) {
+          //   user_doc.pending_course_invites.push({
+          //     course_id: course_doc._id,
+          //     // invite_key: invite_key_
+          //   })
+          // }
+          // else {
+          //   user_doc.pending_course_invites = [{
+          //     course_id: course_doc._id,
+          //     // invite_key: invite_key_
+          //   }]
+          // }
 
           // await course_doc.save ()
           user_doc.save ()
@@ -88,21 +88,22 @@ const inviteStudentToCourseCAS = async (course_doc, first_name, last_name, user_
       else {
         // User does not exist
 
-        let invite_key_ = mongoose.Types.ObjectId()
-        let confirm_key = randomstring.generate(64)
+        // let invite_key_ = mongoose.Types.ObjectId()
+        // let confirm_key = randomstring.generate(64)
         let new_user = new User({
           first_name,
           last_name,
           user_id: user_id,
           email: `${user_id}@rpi.edu`,
-          pending_course_invites: [{
-            course_id: course_doc._id,
-            // invite_key: invite_key_
-          }]
+          student_courses: [course_doc._id],
+          // pending_course_invites: [{
+          //   course_id: course_doc._id,
+          //   // invite_key: invite_key_
+          // }]
         })
+        let saved_user = await new_user.save ()
 
         // add the course to the student's list and the student to the course
-        let saved_user = await new_user.save ()
         course_doc.students.push(saved_user._id)
         // await course_doc.save ()
 
