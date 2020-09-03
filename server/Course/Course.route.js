@@ -212,8 +212,10 @@ courseRoutes.route('/add_student/:course_id/:student_id').post(function (req, re
       } else {
         User.findByIdAndUpdate(student_id,
         {
-          $push: {student_courses: course},
-          $push: {meetings: {$each: course.meetings}}
+          $push: {
+            student_courses: course,
+            meetings: {$each: course.meetings}
+          },
         },
         (error, user) => {
           if (err || user == null) {
@@ -236,6 +238,7 @@ courseRoutes.route('/add_student/:course_id/:student_id').post(function (req, re
 courseRoutes.route('/remove_student/:course_id/:student_id').post(function (req, res) {
   let course_id = req.params.course_id;
   let student_id = req.params.student_id;
+  console.log()
   Course.findByIdAndUpdate(course_id,
     {$pull: {students: student_id}},
     function (err, course) {
@@ -246,8 +249,10 @@ courseRoutes.route('/remove_student/:course_id/:student_id').post(function (req,
       } else {
         User.findByIdAndUpdate(student_id,
         {
-          $pull: {student_courses: course_id},
-          $pull: {meetings: {$in: course.meetings}}
+          $pull: {
+            student_courses: course_id,
+            meetings: {$in: course.meetings}
+          },
         },
         (error, user) => {
           if (err || user == null) {
@@ -255,6 +260,7 @@ courseRoutes.route('/remove_student/:course_id/:student_id').post(function (req,
               student_id,err)
             res.status(400).json(err);
           } else {
+            console.log("Student courses",user.student_courses)
             console.log("<SUCCESS> (courses/remove_student) Removing student with id",student_id,
               "from course with ID:",course_id)
             res.status(200).json(course);
