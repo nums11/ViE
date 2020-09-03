@@ -211,13 +211,18 @@ courseRoutes.route('/add_student/:course_id/:student_id').post(function (req, re
         res.status(400).json(err);
       } else {
         User.findByIdAndUpdate(student_id,
-        {$push: {student_courses: course}},
+        {
+          $push: {student_courses: course},
+          $push: {meetings: {$each: course.meetings}}
+        },
         (error, user) => {
           if (err || user == null) {
             console.log("<ERROR> (courses/add_student) Updating user with id",student_id,
               err)
             res.status(400).json(err);
           } else {
+            console.log("Updated user",user)
+            console.log("Course Meetings", course.meetings)
             console.log("<SUCCESS> (courses/add_student) Adding student with id",student_id,
               "to course with ID:",course_id)
             res.status(200).json(course);
