@@ -457,10 +457,6 @@ meetingRoutes.route('/update/add_recording/:id').post(async (req, res) => {
 })
 
 meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
-  console.log("Meeting id", req.params.meeting_id)
-  console.log("Body", req.body)
-  console.log("Meeting", req.body.meeting)
-
   let meeting_id = req.params.meeting_id
   let meeting = req.body.meeting
 
