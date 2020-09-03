@@ -44,8 +44,10 @@ export default {
     })
   },
   deleteMeeting (meeting) {
-    return API().delete('meetings/delete/' + meeting.id, {
-      meeting: meeting
+    return API().delete('meetings/delete/' + meeting._id, {
+      data: {
+        meeting: meeting
+      }
     })
   },
 }

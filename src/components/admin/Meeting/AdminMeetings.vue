@@ -56,7 +56,7 @@
       },
       async deleteMeeting(meeting){
         const response = await MeetingAPI.deleteMeeting(meeting);
-        this.meetings.splice(this.meetings.findIndex(i => i._id == id), 1);
+        this.$router.go()
       },
     }
   }
