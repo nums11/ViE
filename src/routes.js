@@ -9,6 +9,7 @@ import AdminCourse from './components/admin/Course/AdminCourse.vue';
 import AdminEditCourse from './components/admin/Course/AdminEditCourse.vue';
 import AdminNewCourse from './components/admin/Course/AdminNewCourse.vue';
 import AdminCourses from './components/admin/Course/AdminCourses.vue';
+import AdminMeetings from './components/admin/Meeting/AdminMeetings.vue';
 import AdminSections from './components/admin/Section/AdminSections.vue';
 import AdminEditSection from './components/admin/Section/AdminEditSection.vue';
 import AdminNewSection from './components/admin/Section/AdminNewSection.vue';
@@ -240,6 +241,15 @@ const router = new VueRouter({
       name: 'submissions',
       path: '/admin/submissions',
       component: Submissions,
+      meta: {
+        requiresAuth: true,
+        requiresAdmin: true
+      }
+    },
+    {
+      name: 'meetings',
+      path: '/admin/meetings',
+      component: AdminMeetings,
       meta: {
         requiresAuth: true,
         requiresAdmin: true

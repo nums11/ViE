@@ -254,7 +254,14 @@ meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
 });
 
 meetingRoutes.route('/').get(function (req, res) {
-  Meeting.find(function (err, meetings) {
+  Meeting.find().
+  populate({
+    path: 'course'
+  }).
+  populate({
+    path: 'org'
+  }).
+  exec((err, meetings) => {
     if (err || meetings == null) {
       console.log("<ERROR> Getting all meetings")
       res.json(err);
@@ -444,15 +451,17 @@ meetingRoutes.route('/update/add_recording/:id').post(async (req, res) => {
 })
 
 meetingRoutes.route('/delete/:id').delete(function (req, res) {
-  Meeting.findByIdAndRemove({ _id: req.params.id }, function (err) {
-    if (err) {
-      console.log("<ERROR> Deleting meeting with ID:",req.params.id)
-      res.json(err);
-    } else {
-      console.log("<SUCCESS> Deleting meeting with ID:",req.params.id)
-      res.json('Successfully removed');
-    }
-  });
+  console.log("Meeting id", req.params.id)
+  console.log("Meeting", req.body.meeting)
+  // Meeting.findByIdAndRemove({ _id: req.params.id }, function (err) {
+  //   if (err) {
+  //     console.log("<ERROR> Deleting meeting with ID:",req.params.id)
+  //     res.json(err);
+  //   } else {
+  //     console.log("<SUCCESS> Deleting meeting with ID:",req.params.id)
+  //     res.json('Successfully removed');
+  //   }
+  // });
 });
 
 module.exports = meetingRoutes;
