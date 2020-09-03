@@ -3,7 +3,7 @@ import axios from 'axios'
 export default() => {
   return axios.create({
     baseURL: (APIServerBaseURL()),
-    withCredentials: true
+    'Access-Control-Allow-Credentials': true
   })
 }
 

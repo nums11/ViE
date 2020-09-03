@@ -132,7 +132,7 @@ console.log(whitelist)
 app.use(cors(
   { 
     origin: whitelist,
-    methods:['GET','POST'],
+    methods:['GET','POST', 'DELETE'],
     credentials: true
   }
 ));
