@@ -245,7 +245,10 @@ courseRoutes.route('/remove_student/:course_id/:student_id').post(function (req,
         res.status(400).json(err);
       } else {
         User.findByIdAndUpdate(student_id,
-        {$pull: {student_courses: course_id}},
+        {
+          $pull: {student_courses: course_id},
+          $pull: {meetings: {$in: course.meetings}}
+        },
         (error, user) => {
           if (err || user == null) {
             console.log("<ERROR> (courses/remove_student) Updating user with id",
