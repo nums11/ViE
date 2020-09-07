@@ -161,6 +161,8 @@
                   :tasks="meeting.async_attendance.recordings"
                   :is_live="false"
                   :attendees="attendees"
+                  :for_course="for_course"
+                  :is_board_member="is_board_member"
                   v-on:show-task-attendance="showTaskAttendance"  />
                 </div>
               </div>
