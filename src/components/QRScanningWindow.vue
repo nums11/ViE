@@ -33,10 +33,11 @@ export default {
 <style lang="scss" scoped>
 .qr-scanning-window {
   position: absolute;
-  width: 100%;
-  height: 90%;
   top: 0;
-  z-index: 10;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  z-index: 10000;
   background-color: white;
 }
 </style>
