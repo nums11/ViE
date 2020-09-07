@@ -1,7 +1,7 @@
 <template>
 
   <div class='success-animation'>
-    <div class="lottie-container" v-if="attendance_success">
+    <div class="lottie-container">
       <v-lottie-player 
         name="QR CODE"
         :animationData="require('@/assets/lottie/qr-code-scan.json')"
@@ -40,8 +40,7 @@ export default {
     height: 450px;
     margin: 0 auto;
     position: relative;
-    top: 30%;
-    border: 1px solid black;
+    top: 20%;
   }
 }
 

@@ -525,7 +525,7 @@ export default {
       setTimeout(() => {
         this.show_qr_success_animation = false
         // this.$router.go ()
-      }, 4000)
+      }, 1700)
 
       // alert("Live Submission Recorded")
       // this.$router.go()
