@@ -35,33 +35,32 @@
       </div>
     </div>
     <div v-else class="lower-area">
-      <div class="left-side">
-        <div v-if="is_qr">
-          <sui-label v-if="studentSubmittedToTask(task)" color="teal">
-            <span>Submission Recorded</span>
-            <sui-icon style="margin-left:1rem;" name="check circle" />
-          </sui-label>
-          <div v-else>
-            <sui-button v-if="task_window_status === 'open'"
-            @click="$emit('show-qr-scanning-window')"
-            content="Scan QR Code" icon="qrcode" label-position="right" color="teal" />
-            <sui-label v-else color="red">
-              <span>No Submission</span>
-              <sui-icon style="margin-left:1rem;" name="x" />
-            </sui-label>
-          </div>
-        </div>
+      <div v-if="is_qr" class="left-side">
+        <sui-label v-if="studentSubmittedToTask(task)" color="teal">
+          <span>Submission Recorded</span>
+          <sui-icon style="margin-left:1rem;" name="check circle" />
+        </sui-label>
         <div v-else>
-          <!-- Do something else for recordings -->
+          <sui-button v-if="task_window_status === 'open'"
+          @click="$emit('show-qr-scanning-window')"
+          content="Scan QR Code" icon="qrcode" label-position="right" color="teal" />
+          <sui-label v-else color="red">
+            <span>No Submission</span>
+            <sui-icon style="margin-left:1rem;" name="x" />
+          </sui-label>
         </div>
       </div>
-      <div class="right-side">
-        <span class="float-right" v-if="studentSubmittedToTask(task)">Submitted on {{ new Date(student_task_submission.live_submission_time) | moment("dddd, MMMM Do YYYY, h:mm a") }}</span> 
-        <router-link v-else
+      <div v-else class="left-side">
+        <router-link
         :to="{name: 'watch_recording', params: {recording_id: task._id}}">
           <sui-button content="Watch Recording" icon="play circle"
           label-position="right" color="violet" />
         </router-link>
+      </div>
+      <div class="right-side">
+        <!-- TODO: If student submitted to QR show QR submission time. If student began recording show
+        watch percentage -->
+        <span class="float-right" v-if="studentSubmittedToTask(task)">Submitted on {{ new Date(student_task_submission.live_submission_time) | moment("dddd, MMMM Do YYYY, h:mm a") }}</span> 
       </div>
     </div>
   </div>
