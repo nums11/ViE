@@ -15,6 +15,7 @@
           <div class="progress-bar-area">
             <div class="title-area">{{attended.size}}/{{students.length}} Attended</div>
             <ProgressBar :value="attended.size/students.length" />
+            <!-- <p>Refresh the page when done to see your attendance.</p> -->
           </div>
         </div>
         <div class="bottom-controls">

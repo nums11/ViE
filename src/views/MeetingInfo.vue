@@ -11,6 +11,9 @@
       :code="full_screen_code" 
       :students="findStudentsData()"
     />
+    <div id="meeting-saving-modal" v-if="meeting_saving">
+      <h1>Please wait while we save your recording...</h1>
+    </div>
 
     <!-- Header -->
     <SquareLoader v-if="!meeting_has_loaded" />
@@ -245,7 +248,8 @@ export default {
       show_add_recording: false,
       recording_to_upload: null,
       recording_upload_start: (new Date()).toISOString (),
-      recording_upload_end: null
+      recording_upload_end: null,
+      meeting_saving: false
     }
   },
   async created () {
@@ -275,6 +279,7 @@ export default {
     },
     addRecording () {
 
+      this.meeting_saving = true
       // TODO upload this.recording_to_upload to the current meeting
       if (this.recording_to_upload != null && this.recording_upload_start != null && this.recording_upload_end != null) {
         console.log(`ADDING RECORDING`)
@@ -548,6 +553,20 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+#meeting-saving-modal {
+  border: black solid;
+  background-color: white;
+  z-index: 10;
+  height: 90%;
+  width: 80%;
+  position: absolute;
+  margin-top: 0;
+  margin-left: 10%;
+  overflow-y: scroll;
+  margin-bottom: 5rem;
+  padding-top: 15rem;
+}
 
 .time-picker-area {
   display: flex;
