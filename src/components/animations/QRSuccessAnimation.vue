@@ -41,6 +41,7 @@ export default {
     margin: 0 auto;
     position: relative;
     top: 30%;
+    border: 1px solid black;
   }
 }
 
