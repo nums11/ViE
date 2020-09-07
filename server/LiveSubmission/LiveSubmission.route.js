@@ -44,6 +44,8 @@ liveSubmissionRoutes.route('/add').post(async function (req, res) {
                   return submission.submitter
                 })
               })
+
+              console.log(`<LIVE SUBMISSION/SOCKET> Sent data to ${socket_id}`)
             })
 
             res.json(saved_live_submission);
