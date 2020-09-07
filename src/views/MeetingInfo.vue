@@ -143,6 +143,8 @@
                   :tasks="meeting.live_attendance.qr_checkins"
                   :is_live="true"
                   :attendees="attendees"
+                  :for_course="for_course"
+                  :is_board_member="is_board_member"
                   v-on:show-qr-scanning-window="showQRScanningWindow"
                   v-on:show-task-attendance="showTaskAttendance"
                   v-on:show-fullscreen-code="showFullScreenQRCodeModal" />

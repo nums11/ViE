@@ -14,7 +14,7 @@
       </router-link>
       <!-- QR Button -->
       <div v-else>
-        <sui-button v-if="(for_course && is_instructor) || (!for_course && is_board_member)" 
+        <sui-button v-if="isPrivelegedUser()" 
         @click="$emit('show-fullscreen-code',task.code)"
         content="Show QR Code" icon="qrcode" label-position="right" color="teal" />
         <sui-button v-else 
@@ -33,8 +33,14 @@ export default {
       type: Array,
       required: true
     },
-    for_course: Boolean,
-    is_board_member: Boolean
+    for_course: {
+     type: Boolean,
+     required: true
+    },
+    is_board_member: {
+     type: Boolean,
+     required: true
+    }
   },
   data () {
     return {
@@ -48,6 +54,10 @@ export default {
     console.log("Active Tasks", this.active_tasks)
   },
   methods: {
+    isPrivelegedUser() {
+      return (this.for_course && this.is_instructor) ||
+      (!this.for_course && this.is_board_member)
+    }
   }
 }
 </script>

@@ -34,8 +34,7 @@
             <div class="actions">
               <router-link :to="for_course ? {name: 'course_new_meeting', params: { course_id: course._id }} : {name: 'org_new_meeting', params: { org_id: org._id }}">
                 <sui-button
-                  v-if="(for_course && current_user.is_instructor) ||
-                    (!for_course && is_board_member)"
+                  v-if="isPrivelegedUser()"
                   class="labeled
                   icon venue-green"
                     icon="plus"
@@ -192,6 +191,11 @@ export default {
         } else {
           return course_number_str.slice(0,4) + "/" + course_number_str.slice(4,num_digits)
         }
+      },
+      isPrivelegedUser() {
+        console.log("for course", this.for_course)
+        console.log("is_board_member", this.is_board_member)
+        return (this.for_course && this.is_instructor) || (!this.for_course && this.is_board_member)
       }
     }
 }

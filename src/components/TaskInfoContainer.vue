@@ -22,7 +22,7 @@
       </div>
     </div>
     <!-- Lower Area -->
-    <div v-if="is_instructor" class="lower-area">
+    <div v-if="isPrivelegedUser()" class="lower-area">
       <div class="left-side">
         <sui-progress class="attendance-progress" progress
         :percent="task_attendance_percentage" color="green"/>
@@ -84,6 +84,14 @@ export default {
       required: true
     },
     task_number: Number,
+    for_course: {
+     type: Boolean,
+     required: true
+    },
+    is_board_member: {
+     type: Boolean,
+     required: true
+    }
   },
   components: {
   },
@@ -155,6 +163,10 @@ export default {
         window_status = "open"
       return window_status
     },
+    isPrivelegedUser() {
+      return (this.for_course && this.is_instructor) ||
+      (!this.for_course && this.is_board_member)
+    }
   }
 }
 </script>
