@@ -140,7 +140,8 @@ export default {
       }
     },
     async created () {
-      this.getCurrentUser()
+      this.current_user = this.$store.state.user.current_user
+      this.is_instructor = this.current_user.is_instructor
       await this.getCourseOrOrg();
       if(!this.for_course)
         this.checkIfCurrentUserIsBoardMember()
@@ -148,9 +149,6 @@ export default {
       window.addEventListener('resize', this.disableMobileTabs)
     },
     methods: {
-      getCurrentUser() {
-        this.current_user = this.$store.state.user.current_user
-      },
       async getCourseOrOrg () {
         if(this.$route.name === "course_info"){
           this.course_id = this.$route.params.id;
@@ -194,6 +192,7 @@ export default {
       },
       isPrivelegedUser() {
         console.log("for course", this.for_course)
+        console.log("Is instructor", this.is_instructor)
         console.log("is_board_member", this.is_board_member)
         return (this.for_course && this.is_instructor) || (!this.for_course && this.is_board_member)
       }
