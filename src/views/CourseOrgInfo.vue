@@ -7,55 +7,28 @@
         <div class="page-info-area">
           <!-- Meeting Info Side -->
           <div class="left-side">
-            <h2 v-if="for_course">{{ course.name }}</h2>
-            <h2 v-else>{{ org.name }}</h2>
+            <h2>{{ for_course ? course.name : org.name }}</h2>
             <div class="details-area">
-<!--                <sui-label :style="{marginBottom: '5px'}">
-                  Section
-                  <sui-label-detail>1</sui-label-detail>
-              </sui-label> -->
-
               <sui-label v-if="for_course" class="venue-red" :style="{marginBottom: '5px'}">
                   Dept
                   <sui-label-detail v-if="course.course_number">{{ course.dept }} {{ getFormattedCourseNumber(course.course_number) }}</sui-label-detail>
               </sui-label>
-
-<!--               <sui-label :style="{marginBottom: '5px'}">
-                  Time Block
-                  <sui-label-detail>3:00pm - 4:00pm</sui-label-detail>
-              </sui-label> -->
             </div>
           </div>
           <div class="right-side">
             <div class="tabs">
-              <ul v-if="for_course">
+              <ul>
                 <li @click="activeTab = 'meeting_history'" :class="activeTab == 'meeting_history' ? 'active' : ''">
                   Meeting History</li>
                 <li @click="activeTab = 'statistics'" :class="activeTab == 'statistics' ? 'active' : ''">
                   <div class="icon-box"><i class="icon flask"></i></div>
                   <div>Statistics</div>
                 </li>
-                <li v-if="current_user.is_instructor && showManageStudents" 
+                <li v-if="for_course && current_user.is_instructor" 
                   @click="activeTab = 'manage_students'" 
-                  :class="activeTab == 'manage_students' ? 'active' : ''">Manage Students</li>
-                <li v-if="current_user.is_instructor" 
-                  @click="activeTab = 'settings'" 
-                  :class="activeTab == 'settings' ? 'active' : ''">
-                  <div class="icon-box"><i class="icon cog"></i></div>
-                  <div>Settings</div>
+                  :class="activeTab == 'manage_students' ? 'active' : ''">Manage Students
                 </li>
-              </ul>
-              <ul v-else>
-                <li @click="activeTab = 'meeting_history'" :class="activeTab == 'meeting_history' ? 'active' : ''">Meeting History</li>
-                <li @click="activeTab = 'statistics'" :class="activeTab == 'statistics' ? 'active' : ''">
-                  <div class="icon-box"><i class="icon flask"></i></div>
-                  <div>Statistics</div>
-                </li>
-                <li @click="activeTab == 'manage_students'" :class="activeTab == 'manage_students' ? 'active' : ''">Members</li>
-                <li v-if="current_user.is_instructor" @click="activeTab == 'settings'" :class="activeTab == 'settings' ? 'active' : ''">
-                 <div class="icon-box"><i class="icon cog"></i></div>
-                 <div>Settings</div>
-                </li>
+                <li v-else-if="!for_course && is_board_member" @click="activeTab = 'members'" :class="activeTab == 'members' ? 'active' : ''">Members</li>
               </ul>
             </div>
             <div class="actions">
@@ -126,7 +99,7 @@
             key="2"
             v-bind:colorSets="colorSets"
           />
-          <div v-if="activeTab == 'manage_students'">
+          <div v-if="activeTab === 'manage_students' || activeTab === 'members' ">
             <ManageStudents v-if="for_course" v-bind:course="course" />
             <ManageStudents v-else v-bind:org="org" />
           </div>
@@ -171,33 +144,6 @@ export default {
       await this.getCourseOrOrg();
       if(!this.for_course)
         this.setIsBoardMember()
-      this.statisticsSections = {
-        1: {
-          display: true
-        },
-        2: {
-          display: false
-        },
-        3: {
-          display: true
-        },
-        4: {
-          display: false
-        }
-      }
-      this.colorSets = [{
-          fill: 'rgba(255, 94, 94, 0.4)',
-          stroke: 'rgba(255, 94, 94, 1)',
-      },{
-          fill: 'rgba(71, 196, 252, 0.4)',
-          stroke: 'rgba(71, 196, 252, 1)'
-      },{
-          fill: 'rgba(94, 255, 180, 0.4)',
-          stroke: 'rgba(94, 255, 180, 1)'
-      },{
-          fill: 'rgba(252, 149, 71, 0.4)',
-          stroke: 'rgba(252, 149, 71, 1)'
-      }]
       // attach resize function to window
       window.addEventListener('resize', this.disableMobileTabs)
     },
