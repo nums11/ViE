@@ -26,7 +26,7 @@ liveSubmissionRoutes.route('/add').post(async function (req, res) {
 
             // populating
             await QRCheckin.populate(
-              saved_live_submission.qr_checkin,
+              qr_checkin,
               {
               path: 'qr_checkin_submissions',
               populate: {
@@ -34,15 +34,29 @@ liveSubmissionRoutes.route('/add').post(async function (req, res) {
               }
             })
 
+            await QRCheckin.populate(
+              saved_live_submission.qr_checkin,
+                {
+                path: 'qr_checkin_submissions',
+                populate: {
+                  path: 'submitter'
+                }
+              }
+            )
+
+            console.log("PART 1")
+            console.log(qr_checkin)
+            console.log("PART 2")
             console.log(saved_live_submission)
 
             // TODO Add to QR live update socket
             let responseSockets = socketQueue.getSockets(qr_checkin._id)
             Array.from(responseSockets).forEach(socket_id => {
 
-              let socket_data = saved_live_submission.qr_checkin.qr_checkin_submissions.map(submission => {
+              let socket_data = qr_checkin.qr_checkin_submissions.map(submission => {
                 return submission.submitter
               })
+
               io.to(socket_id).emit('attendance update', {
                 data: socket_data
               })
