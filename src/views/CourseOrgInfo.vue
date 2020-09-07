@@ -34,7 +34,8 @@
             <div class="actions">
               <router-link :to="for_course ? {name: 'course_new_meeting', params: { course_id: course._id }} : {name: 'org_new_meeting', params: { org_id: org._id }}">
                 <sui-button
-                  v-if="current_user.is_instructor"
+                  v-if="(for_course && current_user.is_instructor) ||
+                    (!for_course && is_board_member)"
                   class="labeled
                   icon venue-green"
                     icon="plus"
@@ -143,7 +144,7 @@ export default {
       this.getCurrentUser()
       await this.getCourseOrOrg();
       if(!this.for_course)
-        this.setIsBoardMember()
+        this.checkIfCurrentUserIsBoardMember()
       // attach resize function to window
       window.addEventListener('resize', this.disableMobileTabs)
     },
@@ -163,7 +164,7 @@ export default {
           this.org = response.data
         }
       },
-      setIsBoardMember() {
+      checkIfCurrentUserIsBoardMember() {
         let org_board_members = this.org.board_members
         for(let i = 0; i < org_board_members.length; i++) {
           if(org_board_members[i].user_id === this.current_user.user_id) {

@@ -291,9 +291,11 @@ meetingRoutes.route('/get/:id').get(function (req, res) {
   }).
   populate({
     path: 'org',
-    populate: {
+    populate: [{
       path: 'general_members'
-    }
+    }, {
+      path: 'board_members'
+    }]
   }).
   populate({
     path: 'live_attendance',

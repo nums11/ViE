@@ -14,7 +14,7 @@
       </router-link>
       <!-- QR Button -->
       <div v-else>
-        <sui-button v-if="is_instructor" 
+        <sui-button v-if="(for_course && is_instructor) || (!for_course && is_board_member)" 
         @click="$emit('show-fullscreen-code',task.code)"
         content="Show QR Code" icon="qrcode" label-position="right" color="teal" />
         <sui-button v-else 
@@ -29,13 +29,20 @@
 export default {
   name: 'ActiveTasksList',
   props: {
-    active_tasks: Array
+    active_tasks: {
+      type: Array,
+      required: true
+    },
+    for_course: Boolean,
+    is_board_member: Boolean
   },
   data () {
     return {
     }
   },
   created () {
+    console.log("For course",this.for_course)
+    console.log("Is board member",this.is_board_member)
     this.current_user = this.$store.state.user.current_user
     this.is_instructor = this.current_user.is_instructor
     console.log("Active Tasks", this.active_tasks)
