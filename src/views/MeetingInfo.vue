@@ -25,18 +25,13 @@
         <div class="left-side">
             <h2 class="inline-block">{{ meeting == null ? '' : meeting.title }}</h2>
             <div class="details-area">
-              <sui-label :style="{marginBottom: '5px'}" v-if="for_course">
-                  Course
-                  <sui-label-detail>{{ meeting == null ? '(untitled)' : meeting.course.name }}</sui-label-detail>
-              </sui-label>
-              <sui-label :style="{marginBottom: '5px'}" v-else>
+              <sui-label :style="{marginBottom: '5px'}">
                   Organization
-                <sui-label-detail>{{ meeting == null ? 'N/A' : meeting.org.name }}</sui-label-detail>
+                <sui-label-detail>{{ for_course ? meeting.course.name : meeting.org.name }}</sui-label-detail>
               </sui-label>
-
-              <sui-label class="venue-red" id="dept-text" :style="{marginBottom: '5px'}">
+              <sui-label v-if="for_course" class="venue-red" id="dept-text" :style="{marginBottom: '5px'}">
                   Dept
-                <sui-label-detail>{{meeting == null ? '' : meeting.course.dept }} {{ meeting == null ? '' : getFormattedCourseNumber(meeting.course.course_number) }}</sui-label-detail>
+                <sui-label-detail>{{ meeting.course.dept }} {{ getFormattedCourseNumber(meeting.course.course_number) }}</sui-label-detail>
               </sui-label>
             </div>
         </div>
