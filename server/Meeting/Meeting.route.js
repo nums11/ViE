@@ -254,7 +254,20 @@ meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
 });
 
 meetingRoutes.route('/').get(function (req, res) {
-  Meeting.find(function (err, meetings) {
+  Meeting.find().
+  populate({
+    path: 'course'
+  }).
+  populate({
+    path: 'org'
+  }).
+  populate({
+    path: 'live_attendance'
+  }).
+  populate({
+    path: 'async_attendance'
+  }).
+  exec((err, meetings) => {
     if (err || meetings == null) {
       console.log("<ERROR> Getting all meetings")
       res.json(err);
@@ -443,13 +456,136 @@ meetingRoutes.route('/update/add_recording/:id').post(async (req, res) => {
   })
 })
 
-meetingRoutes.route('/delete/:id').delete(function (req, res) {
-  Meeting.findByIdAndRemove({ _id: req.params.id }, function (err) {
+meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
+  let meeting_id = req.params.meeting_id
+  let meeting = req.body.meeting
+
+  // Delete live attendance
+  if(meeting.has_live_attendance) {
+    let meeting_live_attendance = meeting.live_attendance
+    let qr_promises = []
+    meeting_live_attendance.qr_checkins.forEach(qr_checkin_id => {
+      qr_promises.push(new Promise((resolve,reject) => {
+        QRCheckin.findByIdAndRemove(qr_checkin_id, (err) => {
+          if (err) {
+            console.log("<ERROR (meetings/delete)> deleting QR checkin with ID:", qr_checkin_id)
+            reject(false)
+            res.json(err);
+          } else {
+            resolve(true)
+          }
+        });
+      }))
+    })
+
+    try {
+      await Promise.all(qr_promises)
+      LiveAttendance.findByIdAndRemove(meeting_live_attendance._id, (err) => {
+        if (err) {
+          console.log("<ERROR (meetings/delete)> deleting live attendance with ID:", meeting_live_attendance._id)
+          res.json(err);
+        }
+      });
+    } catch (error) {
+      console.log("<ERROR> (meetings/delete) deleting live attendance:",error)
+      res.json(error)
+    }
+  }
+
+  // Delete async attendance
+  if(meeting.has_async_attendance) {
+    let meeting_async_attendance = meeting.async_attendance
+    let recording_promises = []
+    meeting_async_attendance.recordings.forEach(recording_id => {
+      recording_promises.push(new Promise((resolve,reject) => {
+        Recording.findByIdAndRemove(recording_id, (err) => {
+          if (err) {
+            console.log("<ERROR (meetings/delete)> Deleting QR checkin with ID:", recording_id)
+            reject(false)
+            res.json(err);
+          } else {
+            resolve(true)
+          }
+        });
+      }))
+    })
+
+    try {
+      await Promise.all(recording_promises)
+      AsyncAttendance.findByIdAndRemove(meeting_async_attendance._id, (err) => {
+        if (err) {
+          console.log("<ERROR (meetings/delete)> deleting aysnc attendance with ID:", meeting_async_attendance._id)
+          res.json(err);
+        }
+      });
+    } catch (error) {
+      console.log("<ERROR> (meetings/delete) deleting async attendance:",error)
+      res.json(error)
+    }
+  }
+
+  if(meeting.for_course) {
+
+    // Remove this meeting from the courses meetings array
+    // as well as the instructor's and students'
+    Course.findByIdAndUpdate(meeting.course._id,
+      {$pull: {meetings: meeting_id}},
+      (error,course) => {
+        if(error || course == null) {
+          console.log("<ERROR> (meetings/delete) Updating course with id",
+            meeting.course_id, err)
+          res.json(error);
+        } else {
+          User.findByIdAndUpdate(course.instructor,
+            {$pull: {meetings: meeting_id}},
+            async (error, instructor) => {
+              if(error || course == null) {
+                console.log("<ERROR> (meetings/delete) Updating instructor with id",
+                  course.instructor, error)
+                res.json(error);
+              } else {
+                let student_promises = []
+                course.students.forEach(student => {
+                  student_promises.push(new Promise(async (resolve, reject) => {
+                    User.findByIdAndUpdate(student,
+                      {$pull: {meetings: meeting_id}},
+                      (error, user) => {
+                        if(error || user == null) {
+                          console.log("<ERROR> (meetings/delete) Updating student with id",
+                            student, error)
+                          res.json(error);
+                        } else {
+                          resolve(user)
+                        }
+                      })
+                  }))
+                })
+                try {
+                  await Promise.all(student_promises)
+                } catch (error) {
+                  console.log("<ERROR> (meetings/add) Updating students", error)
+                  res.json(error)
+                }
+              }
+            }
+          )
+        }
+      }
+    )
+
+  } else {
+
+    // Fill in for orgs later
+
+  }
+
+  // Delete Meeting
+  Meeting.findByIdAndRemove(meeting_id, (err) => {
     if (err) {
-      console.log("<ERROR> Deleting meeting with ID:",req.params.id)
+      console.log("<ERROR> (meetings/delete) Deleting meeting with ID:",meeting_id)
       res.json(err);
     } else {
-      console.log("<SUCCESS> Deleting meeting with ID:",req.params.id)
+      console.log("<SUCCESS> (meetings/delete) Deleting meeting with ID:",meeting_id)
       res.json('Successfully removed');
     }
   });
