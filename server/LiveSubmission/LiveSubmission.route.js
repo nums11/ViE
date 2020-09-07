@@ -34,6 +34,8 @@ liveSubmissionRoutes.route('/add').post(async function (req, res) {
               }
             })
 
+            console.log(saved_live_submission)
+
             // TODO Add to QR live update socket
             let responseSockets = socketQueue.getSockets(qr_checkin._id)
             Array.from(responseSockets).forEach(socket_id => {
