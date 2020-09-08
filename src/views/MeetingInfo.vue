@@ -537,6 +537,7 @@ export default {
     hideFullScreenQRCodeModal() {
       this.full_screen_code = ""
       this.show_qr_code_modal = false
+      this.$router.go()
     },
     showQRScanningWindow() {
       this.show_qr_scanning_window = true
