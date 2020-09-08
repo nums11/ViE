@@ -15,9 +15,11 @@
       <!-- QR Button -->
       <div v-else>
         <sui-button v-if="isPrivelegedUser()" 
+        size="big"
         @click="$emit('show-fullscreen-code',task.code)"
         content="Show QR Code" icon="qrcode" label-position="right" color="teal" />
-        <sui-button v-else 
+        <sui-button class="scan-qr-button" v-else
+        size="big" 
         @click="$emit('show-qr-scanning-window')"
         content="Scan QR Code" icon="qrcode" label-position="right" color="teal" />
       </div>
@@ -64,6 +66,7 @@ export default {
 
 <style lang="scss" scoped>
 .active-tasks-list {
+  margin-bottom: 2rem;
 
   .active-tasks-header {
     margin-left: 2rem;
