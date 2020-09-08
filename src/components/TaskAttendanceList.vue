@@ -17,17 +17,19 @@
     <!-- Body Area -->
     <div class="body-area">
       <div class="inline-block student-attendance-list-container">
-        <h3>Present ({{present_attendees.size}}/{{attendees.length}})</h3>
-        <p v-for="(attendee_id,i) in Array.from(present_attendees)" :key="i">
-          {{ students[attendee_id].first_name }} {{ students[attendee_id].last_name }} ({{ students[attendee_id].user_id }})
+        <h3>Present ({{present_attendees.length}}/{{attendees.length}})</h3>
+        <p v-for="(attendee,i) in present_attendees">
+          {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
           <span v-if="!is_qr">- {{ video_percentages[i].toFixed(0) }}%</span>
         </p>
       </div>
       <div class="inline-block student-attendance-list-container">
-        <h3>Absent ({{absent_attendees.size}}/{{attendees.length}})</h3>
-        <p v-for="(attendee_id, i) in Array.from(absent_attendees)" :key="i">
-          {{ students[attendee_id].first_name }} {{ students[attendee_id].last_name }} ({{ students[attendee_id].user_id }})
-        </p>
+        <h3>Absent ({{absent_attendees.length}}/{{attendees.length}})</h3>
+        <sui-button @click="markPresent(attendee)" class="thing-btn" animated v-for="attendee in absent_attendees">
+          <sui-button-content style="font-weight:bold; color: black;" visible>{{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})</sui-button-content>
+          <sui-button-content style="font-weight:bold; color: black;" hidden>Mark as present</sui-button-content>
+        </sui-button>
+        </sui-label>
       </div>
     </div>
 
@@ -41,7 +43,7 @@
           content="Back" />
       </div>
       <div class="center-area">
-        <!-- <ProgressBar :value="present_attendees.size/attendees.length" /> -->
+        <!-- <ProgressBar :value="0.8" /> -->
       </div>
       <div class="right-side">
           <!-- RIGHT FOOTER PLACEHOLDER -->
@@ -53,8 +55,7 @@
 <script>
 
 import ProgressBar from "@/components/ProgressBar.vue";
-import io from 'socket.io-client';
-import { APIServerBaseURL, FrontEndServerBaseURL } from '@/services/API';
+import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 
 export default {
     name: 'TaskAttendanceList',
@@ -78,50 +79,24 @@ export default {
     data() {
       return {
         is_qr: false,
-        present_attendees: new Set(),
-        absent_attendees: new Set(),
-        students: {},
+        present_attendees: [],
+        absent_attendees: [],
         video_percentages: []
       }
     },
     created() {
       this.is_qr = this.task.code != null
       this.separateAttendees()
-      this.initializeAttendanceRealTimeUpdate ()
       console.log("video_percentages", this.video_percentages)
     },
     methods: {
-      initializeAttendanceRealTimeUpdate () {
-            
-          console.log(`initializing socket`)
-          // console.log(APIServerBaseURL)
-          console.log(`base url: ${APIServerBaseURL()}`)
-          let client_io = io (APIServerBaseURL(), {forceNew: true})
-          client_io.emit('start attendance update', {
-              task_id: this.task._id,
-              type: this.is_qr ? 'qr-code': 'unhandled type',
-          })
-          client_io.on('attendance update', (data) => {
-              console.log(`SOCKET UPDATED`)
-              console.log(data)
-              // the data should be an array of User objects
-              data.data.forEach(user => {
-                  this.present_attendees.add(user._id)
-                  this.absent_attendees.delete(user._id)
-              })
-              this.$forceUpdate ()
-          })
-      },
       separateAttendees() {
         let submission_ids = this.getSubmissionIds()
         this.attendees.forEach(attendee => {
-
-          this.students[attendee._id] = attendee
-
           if(submission_ids.has(attendee.user_id))
-            this.present_attendees.add(attendee._id)
+            this.present_attendees.push(attendee)
           else
-            this.absent_attendees.add(attendee._id)
+            this.absent_attendees.push(attendee)
         })
         console.log("Present", this.present_attendees)
         console.log("Absent", this.absent_attendees)
@@ -137,7 +112,29 @@ export default {
             this.video_percentages.push(submission.video_percent_watched)
         })
         return submission_ids
-      }
+      },
+      async markPresent(user) {
+        let present_user = {}
+        for(let i = 0; i < this.absent_attendees.length; i++) {
+          if(this.absent_attendees[i].user_id === user.user_id){
+            present_user = this.absent_attendees[i]
+            this.absent_attendees.splice(i,1)
+            break
+          }
+        }
+        this.present_attendees.push(present_user)
+        await this.createLiveSubmission(present_user)
+        this.$router.go()
+      },
+      async createLiveSubmission(user) {
+        let live_submission = {
+          submitter: user,
+          is_qr_checkin_submission: true,
+          qr_checkin: this.task,
+          live_submission_time: new Date()
+        }
+        const response = await LiveSubmissionAPI.addLiveSubmission(live_submission)
+      },
     }
 }
 </script>
@@ -149,6 +146,11 @@ export default {
     width: 50%;
     vertical-align: top;
     text-align: center;
+
+    .thing-btn {
+      width: 50%;
+      margin-top: 1rem;
+    }
   }
 
 }
