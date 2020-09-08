@@ -9,6 +9,7 @@ import AdminCourse from './components/admin/Course/AdminCourse.vue';
 import AdminEditCourse from './components/admin/Course/AdminEditCourse.vue';
 import AdminNewCourse from './components/admin/Course/AdminNewCourse.vue';
 import AdminCourses from './components/admin/Course/AdminCourses.vue';
+import AdminMeetings from './components/admin/Meeting/AdminMeetings.vue';
 import AdminSections from './components/admin/Section/AdminSections.vue';
 import AdminEditSection from './components/admin/Section/AdminEditSection.vue';
 import AdminNewSection from './components/admin/Section/AdminNewSection.vue';
@@ -24,6 +25,7 @@ import AdminEvents from './components/admin/Event/AdminEvents.vue';
 import AdminEditEvent from './components/admin/Event/AdminEditEvent.vue';
 import NewSubmission from './components/admin/Submission/NewSubmission.vue';
 import Submissions from './components/admin/Submission/Submissions.vue';
+import AdminStudentInvite from './components/admin/Course/StudentInvite.vue';
 import LandingPage from './views/LandingPage.vue';
 import SetPermanentPassword from './views/SetPermanentPassword.vue';
 import Signup from './components/Signup.vue';
@@ -89,6 +91,15 @@ const router = new VueRouter({
       meta: {
         requiresAuth: true,
         requiresAdmin: true
+      }
+    },
+    {
+      name: 'admin_student_invite',
+      path: '/admin/course_invite',
+      component: AdminStudentInvite,
+      meta: {
+        requiresAdmin: true,
+        requiresAuth: true
       }
     },
     {
@@ -230,6 +241,15 @@ const router = new VueRouter({
       name: 'submissions',
       path: '/admin/submissions',
       component: Submissions,
+      meta: {
+        requiresAuth: true,
+        requiresAdmin: true
+      }
+    },
+    {
+      name: 'meetings',
+      path: '/admin/meetings',
+      component: AdminMeetings,
       meta: {
         requiresAuth: true,
         requiresAdmin: true
