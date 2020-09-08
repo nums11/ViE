@@ -25,11 +25,17 @@
       </div>
       <div class="inline-block student-attendance-list-container">
         <h3>Absent ({{absent_attendees.length}}/{{attendees.length}})</h3>
-        <sui-button @click="markPresent(attendee)" class="thing-btn" animated v-for="attendee in absent_attendees">
-          <sui-button-content style="font-weight:bold; color: black;" visible>{{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})</sui-button-content>
-          <sui-button-content style="font-weight:bold; color: black;" hidden>Mark as present</sui-button-content>
-        </sui-button>
-        </sui-label>
+        <div v-if="is_qr">
+          <sui-button @click="markPresent(attendee)" class="thing-btn" animated v-for="attendee in absent_attendees">
+            <sui-button-content style="font-weight:bold; color: black;" visible>{{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})</sui-button-content>
+            <sui-button-content style="font-weight:bold; color: black;" hidden>Mark as present</sui-button-content>
+          </sui-button>
+        </div>
+        <div v-else>
+          <p v-for="(attendee,i) in absent_attendees">
+            {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
+          </p>
+        </div>
       </div>
     </div>
 
@@ -127,6 +133,8 @@ export default {
         this.$router.go()
       },
       async createLiveSubmission(user) {
+        console.log("Creating. user",user)
+        console.log("Task",this.task)
         let live_submission = {
           submitter: user,
           is_qr_checkin_submission: true,
