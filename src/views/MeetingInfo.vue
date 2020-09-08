@@ -54,6 +54,9 @@
         <sui-label class="venue-blue" icon="graduation cap" label-position="right" :style="{marginBottom: '5px'}" v-if="for_course">
             <sui-label-detail>{{ meeting.course.instructor.first_name }} {{ meeting.course.instructor.last_name }}</sui-label-detail>
         </sui-label>
+        <sui-label class="venue-blue" icon="graduation cap" label-position="right" :style="{marginBottom: '5px'}" v-if="for_course && meeting.course.secondary_instructor">
+            <sui-label-detail>{{ meeting.course.secondary_instructor.first_name }} {{ meeting.course.secondary_instructor.last_name }}</sui-label-detail>
+        </sui-label>
       </div>
 
       <div v-if="current_user.is_instructor">

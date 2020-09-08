@@ -286,6 +286,8 @@ meetingRoutes.route('/get/:id').get(function (req, res) {
     populate: [{
       path: 'instructor'
     }, {
+      path: 'secondary_instructor'
+    }, {
       path: 'students'
     }]
   }).
