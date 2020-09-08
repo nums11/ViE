@@ -41,23 +41,23 @@
       </div>
     </div>
     <div v-else class="lower-area">
-      <div v-if="is_qr" class="left-side">
-        <sui-label v-if="studentSubmittedToTask(task)" color="teal">
-          <span>Submission Recorded</span>
-          <sui-icon style="margin-left:1rem;" name="check circle" />
-        </sui-label>
-        <div v-else>
-          <sui-button v-if="task_window_status === 'open'"
-          @click="$emit('show-qr-scanning-window')"
-          content="Scan QR Code" icon="qrcode" label-position="right" color="teal" />
-          <sui-label v-else color="red">
-            <span>No Submission</span>
-            <sui-icon style="margin-left:1rem;" name="x" />
+      <div class="left-side">
+        <div v-if="is_qr">
+          <sui-label v-if="studentSubmittedToTask(task)" color="teal">
+            <span>Submission Recorded</span>
+            <sui-icon style="margin-left:1rem;" name="check circle" />
           </sui-label>
+          <div v-else>
+            <sui-button v-if="task_window_status === 'open'"
+            @click="$emit('show-qr-scanning-window')"
+            content="Scan QR Code" icon="qrcode" label-position="right" color="teal" />
+            <sui-label v-else color="red">
+              <span>No Submission</span>
+              <sui-icon style="margin-left:1rem;" name="x" />
+            </sui-label>
+          </div>
         </div>
-      </div>
-      <div v-else class="left-side">
-        <router-link
+        <router-link v-else-if="task_window_status !== 'upcoming'"
         :to="{name: 'watch_recording', params: {recording_id: task._id}}">
           <sui-button content="Watch Recording" icon="play circle"
           label-position="right" color="violet" />
