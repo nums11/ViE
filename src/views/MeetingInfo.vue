@@ -517,9 +517,9 @@ export default {
     },
     async createLiveSubmission(open_checkin) {
       let live_submission = {
-        submitter: this.$store.state.user.current_user,
+        submitter: this.$store.state.user.current_user._id,
         is_qr_checkin_submission: true,
-        qr_checkin: open_checkin,
+        qr_checkin: open_checkin._id,
         live_submission_time: new Date()
       }
       const response = await LiveSubmissionAPI.addLiveSubmission(live_submission)

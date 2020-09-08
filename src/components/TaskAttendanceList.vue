@@ -133,12 +133,10 @@ export default {
         this.$router.go()
       },
       async createLiveSubmission(user) {
-        console.log("Creating. user",user)
-        console.log("Task",this.task)
         let live_submission = {
-          submitter: user,
+          submitter: user._id,
           is_qr_checkin_submission: true,
-          qr_checkin: this.task,
+          qr_checkin: this.task._id,
           live_submission_time: new Date()
         }
         const response = await LiveSubmissionAPI.addLiveSubmission(live_submission)
