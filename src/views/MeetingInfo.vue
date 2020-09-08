@@ -26,24 +26,21 @@
         <div class="left-side">
             <h2 class="inline-block">{{ meeting == null ? '' : meeting.title }}</h2>
             <div class="details-area">
-              <sui-label :style="{marginBottom: '5px'}" v-if="for_course">
-                  Course
-                  <sui-label-detail>{{ meeting == null ? '(untitled)' : meeting.course.name }}</sui-label-detail>
-              </sui-label>
-              <sui-label :style="{marginBottom: '5px'}" v-else>
+              <sui-label :style="{marginBottom: '5px'}">
                   Organization
-                <sui-label-detail>{{ meeting == null ? 'N/A' : meeting.org.name }}</sui-label-detail>
+                <sui-label-detail>{{ for_course ? meeting.course.name : meeting.org.name }}</sui-label-detail>
               </sui-label>
-
-              <sui-label class="venue-red" id="dept-text" :style="{marginBottom: '5px'}">
+              <sui-label v-if="for_course" class="venue-red" id="dept-text" :style="{marginBottom: '5px'}">
                   Dept
-                <sui-label-detail>{{meeting == null ? '' : meeting.course.dept }} {{ meeting == null ? '' : getFormattedCourseNumber(meeting.course.course_number) }}</sui-label-detail>
+                <sui-label-detail>{{ meeting.course.dept }} {{ getFormattedCourseNumber(meeting.course.course_number) }}</sui-label-detail>
               </sui-label>
             </div>
         </div>
         <!-- Active Tasks -->
         <div class="right-side">
           <ActiveTasksList :active_tasks="active_tasks"
+          :for_course="for_course"
+          :is_board_member="is_board_member"
           v-on:show-fullscreen-code="showFullScreenQRCodeModal"
           v-on:show-qr-scanning-window="showQRScanningWindow"/>
         </div>
@@ -147,6 +144,8 @@
                   :tasks="meeting.live_attendance.qr_checkins"
                   :is_live="true"
                   :attendees="attendees"
+                  :for_course="for_course"
+                  :is_board_member="is_board_member"
                   v-on:show-qr-scanning-window="showQRScanningWindow"
                   v-on:show-task-attendance="showTaskAttendance"
                   v-on:show-fullscreen-code="showFullScreenQRCodeModal" />
@@ -163,6 +162,8 @@
                   :tasks="meeting.async_attendance.recordings"
                   :is_live="false"
                   :attendees="attendees"
+                  :for_course="for_course"
+                  :is_board_member="is_board_member"
                   v-on:show-task-attendance="showTaskAttendance"  />
                 </div>
               </div>
@@ -254,6 +255,7 @@ export default {
       recording_upload_start: (new Date()).toISOString (),
       recording_upload_end: null,
       meeting_saving: false,
+      is_board_member: false,
       show_qr_success_animation: false,
     }
   },
@@ -261,8 +263,10 @@ export default {
     this.current_user = this.$store.state.user.current_user
     this.is_instructor = this.current_user.is_instructor
     await this.getMeeting ()
+    if(!this.for_course)
+      this.checkIfCurrentUserIsBoardMember()
     console.log("Meeting",this.meeting)
-    this.getMeetingStatus()
+    this.checkIfMeetingIsLive()
     this.getActiveTasksForMeeting()
     this.getMeetingAttendees()
     this.meeting_has_loaded = true
@@ -356,9 +360,6 @@ export default {
     },
     attemptQRCheckinSubmission(scanned_code) {
       let open_checkin = this.getOpenQRCheckin()
-      console.log("Open checkin", open_checkin)
-      console.log("Open Checkin code", open_checkin.code)
-      console.log("Scanned code", scanned_code)
       if(this.isEmptyObj(open_checkin))
         alert("No Open QR Checkins")
       else if(`${FrontEndServerBaseURL()}/#/attend/${this.$route.params.meeting_id}/${open_checkin.code}` === scanned_code)
@@ -419,7 +420,7 @@ export default {
     cancelTask () {
         this.task_focus = null
     },
-    getMeetingStatus () {
+    checkIfMeetingIsLive () {
       let current_time = new Date()
       this.meeting_is_live = this.isBetweenTimes(current_time,
         new Date(this.meeting.start_time), new Date(this.meeting.end_time))
@@ -428,7 +429,6 @@ export default {
       this.meeting_id = this.$route.params.meeting_id
       const response = await MeetingAPI.getMeeting(this.meeting_id)
       this.meeting = response.data
-      console.log("meeting", this.meeting)
       this.for_course = this.meeting.for_course
     },
     getActiveTasksForMeeting () {
@@ -555,6 +555,17 @@ export default {
       } else {
         return course_number_str.slice(0,4) + "/" + course_number_str.slice(4,num_digits)
       }
+    },
+    checkIfCurrentUserIsBoardMember() {
+      let org_board_members = this.meeting.org.board_members
+      console.log("Board members", org_board_members)
+      for(let i = 0; i < org_board_members.length; i++) {
+        if(org_board_members[i].user_id === this.current_user.user_id) {
+          this.is_board_member = true
+          break
+        }
+      }
+      console.log("Is board member", this.is_board_member)
     }
   }
 }

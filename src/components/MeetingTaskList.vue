@@ -7,6 +7,8 @@
   :task="task"
   :is_qr="is_live"
   :attendees="attendees"
+  :for_course="for_course"
+  :is_board_member="is_board_member"
   v-on:show-fullscreen-code="(code) => $emit('show-fullscreen-code',code)"
   v-on:show-qr-scanning-window="$emit('show-qr-scanning-window')"
   v-on:show-task-attendance="(task) => $emit('show-task-attendance',task)" />
@@ -30,6 +32,14 @@ export default {
     attendees: {
       type: Array,
       required: true
+    },
+    for_course: {
+     type: Boolean,
+     required: true
+    },
+    is_board_member: {
+     type: Boolean,
+     required: true
     }
   },
   components: {
