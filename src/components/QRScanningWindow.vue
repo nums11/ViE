@@ -1,13 +1,15 @@
+ 
 <template>
   <div class="qr-scanning-window">
-    <button @click="$emit('hide-window')" tabindex="0" aria-label="Hide QR Window">X</button>
+    <sui-button 
+      class="cancel-button"
+      @click="$emit('hide-window')" tabindex="0" aria-label="Hide QR Window">Close</sui-button>
     <qrcode-stream id="video_preview" @decode="attemptSubmission"></qrcode-stream>
   </div>
 </template>
 
 <script>
 import { QrcodeStream } from 'vue-qrcode-reader'
-
 export default {
   name: 'QRScanningWindow',
   components: {
@@ -20,7 +22,6 @@ export default {
     }
   },
   created () {
-
   },
   methods: {
     attemptSubmission(code){
@@ -32,11 +33,18 @@ export default {
 
 <style lang="scss" scoped>
 .qr-scanning-window {
-  position: absolute;
-  width: 100%;
-  height: 90%;
+  position: fixed;
   top: 0;
-  z-index: 10;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  z-index: 10000;
   background-color: white;
+}
+.cancel-button {
+  position: fixed;
+  z-index: 10003;
+  left: 10px;
+  bottom: 10px;
 }
 </style>

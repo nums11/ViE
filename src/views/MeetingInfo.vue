@@ -11,6 +11,7 @@
       :code="full_screen_code" 
       :students="findStudentsData()"
     />
+    <QRSuccessAnimation v-if="show_qr_success_animation" />
     <div id="meeting-saving-modal" v-if="meeting_saving">
       <h1>Please wait while we save your recording...</h1>
     </div>
@@ -211,6 +212,7 @@ import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 import MeetingAPI from '@/services/MeetingAPI.js';
 import qrcode from '@chenfengyuan/vue-qrcode';
 import { FrontEndServerBaseURL } from '@/services/API.js';
+import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
 
 export default {
   name: 'MeetingInfo',
@@ -225,7 +227,8 @@ export default {
     TaskAttendanceList,
     SquareLoader,
     MeetingTaskList,
-    MeetingAttendanceList
+    MeetingAttendanceList,
+    QRSuccessAnimation
   },
   data () {
     return {
@@ -250,7 +253,8 @@ export default {
       recording_to_upload: null,
       recording_upload_start: (new Date()).toISOString (),
       recording_upload_end: null,
-      meeting_saving: false
+      meeting_saving: false,
+      show_qr_success_animation: false,
     }
   },
   async created () {
@@ -516,8 +520,11 @@ export default {
         live_submission_time: new Date()
       }
       const response = await LiveSubmissionAPI.addLiveSubmission(live_submission)
-      alert("Live Submission Recorded")
-      this.$router.go()
+      this.show_qr_success_animation = true
+      setTimeout(() => {
+        this.show_qr_success_animation = false
+        this.$router.go()
+      }, 2000)
     },
     showFullScreenQRCodeModal (code) {
       this.full_screen_code = code
