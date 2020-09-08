@@ -9,9 +9,9 @@
           <div class="left-side">
             <h2>{{ for_course ? course.name : org.name }}</h2>
             <div class="details-area">
-              <sui-label v-if="for_course" class="venue-red" :style="{marginBottom: '5px'}">
+              <sui-label v-if="for_course && course.course_number" class="venue-red" :style="{marginBottom: '5px'}">
                   Dept
-                  <sui-label-detail v-if="course.course_number">{{ course.dept }} {{ getFormattedCourseNumber(course.course_number) }}</sui-label-detail>
+                  <sui-label-detail>{{ course.dept }} {{ getFormattedCourseNumber(course.course_number) }}</sui-label-detail>
               </sui-label>
             </div>
           </div>
