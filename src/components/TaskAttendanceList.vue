@@ -98,8 +98,8 @@ export default {
           else
             this.absent_attendees.push(attendee)
         })
-        console.log("Present", this.present_attendees)
-        console.log("Absent", this.absent_attendees)
+        this.present_attendees.sort((a,b) => (a.user_id > b.user_id) ? 1 : -1)
+        this.absent_attendees.sort((a,b) => (a.user_id > b.user_id) ? 1 : -1)
       },
       getSubmissionIds() {
         let task_submissions = this.is_qr ? 
