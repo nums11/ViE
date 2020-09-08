@@ -22,7 +22,7 @@
       </div>
     </div>
     <!-- Lower Area -->
-    <div v-if="is_instructor" class="lower-area">
+    <div v-if="is_priveleged_user" class="lower-area">
       <div class="left-side">
         <sui-progress class="attendance-progress" progress
         :percent="task_attendance_percentage" color="green"/>
@@ -32,6 +32,12 @@
         content="View Attendance" icon="users" label-position="right" />
         <sui-button class="float-right" v-if="is_qr && task_window_status === 'open'" @click="$emit('show-fullscreen-code',task.code)"
         content="Show QR Code" icon="qrcode" label-position="right" color="teal" />
+        <router-link
+        v-else-if="!is_qr"
+        :to="{name: 'watch_recording', params: {recording_id: task._id}}">
+          <sui-button content="Watch Recording" icon="play circle"
+          label-position="right" color="violet" />
+        </router-link>
       </div>
     </div>
     <div v-else class="lower-area">
@@ -51,17 +57,26 @@
             </sui-label>
           </div>
         </div>
-        <div v-else>
-          <!-- Do something else for recordings -->
-        </div>
-      </div>
-      <div class="right-side">
-        <span class="float-right" v-if="studentSubmittedToTask(task)">Submitted on {{ new Date(student_task_submission.live_submission_time) | moment("dddd, MMMM Do YYYY, h:mm a") }}</span> 
-        <router-link v-else
+        <router-link v-else-if="task_window_status !== 'upcoming'"
         :to="{name: 'watch_recording', params: {recording_id: task._id}}">
           <sui-button content="Watch Recording" icon="play circle"
           label-position="right" color="violet" />
         </router-link>
+      </div>
+      <div class="right-side">
+        <!-- TODO: If student submitted to QR show QR submission time. If student began recording show
+        watch percentage -->
+        <span class="float-right" v-if="is_qr && studentSubmittedToTask(task)">
+          Submitted on {{ new Date(student_task_submission.live_submission_time) | moment("dddd, MMMM Do YYYY, h:mm a") }}
+        </span>
+        <div  v-else-if="!is_qr">
+          <sui-progress class="attendance-progress" progress
+          style="margin-top:1rem;"
+          :percent="studentSubmittedToTask(task) ? 
+          student_task_submission.video_percent_watched.toFixed(2)
+          : 0"
+          color="green"/>
+        </div>
       </div>
     </div>
   </div>
@@ -84,6 +99,14 @@ export default {
       required: true
     },
     task_number: Number,
+    for_course: {
+     type: Boolean,
+     required: true
+    },
+    is_board_member: {
+     type: Boolean,
+     required: true
+    }
   },
   components: {
   },
@@ -91,13 +114,15 @@ export default {
     return {
       student_task_submission: {},
       task_attendance_percentage: 0,
-      task_window_status: false
+      task_window_status: false,
+      is_priveleged_user: false
     }
   },
   created () {
     this.current_user = this.$store.state.user.current_user
     this.is_instructor = this.current_user.is_instructor
-    if(this.is_instructor)
+    this.checkIfPrivelegedUser()
+    if(this.is_priveleged_user)
       this.getTaskAttendancePercentage()
     this.task_window_status = this.getWindowStatus(this.task,this.is_qr)
   },
@@ -155,6 +180,10 @@ export default {
         window_status = "open"
       return window_status
     },
+    checkIfPrivelegedUser() {
+      this.is_priveleged_user = (this.for_course && this.is_instructor) ||
+      (!this.for_course && this.is_board_member)
+    }
   }
 }
 </script>

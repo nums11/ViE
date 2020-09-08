@@ -271,6 +271,40 @@ courseRoutes.route('/remove_student/:course_id/:student_id').post(function (req,
   );
 });
 
+courseRoutes.route('/add_secondary_instructor/:course_id/:instructor_id').post(function (req, res) {
+  let course_id = req.params.course_id;
+  let instructor_id = req.params.instructor_id;
+  Course.findByIdAndUpdate(course_id,
+    {secondary_instructor: instructor_id},
+    function (err, course) {
+      if (err || course == null) {
+        console.log("<ERROR> (courses/add_secondary_instructor) Updating course with id",
+          course_id, err)
+        res.status(400).json(err);
+      } else {
+        User.findByIdAndUpdate(instructor_id,
+        {
+          $push: {
+            instructor_courses: course,
+            meetings: {$each: course.meetings}
+          },
+        },
+        (error, user) => {
+          if (err || user == null) {
+            console.log("<ERROR> (courses/add_secondary_instructor) Updating instructor with id",instructor_id,
+              err)
+            res.status(400).json(err);
+          } else {
+            console.log("<SUCCESS> (courses/add_secondary_instructor) Adding instructor with id",instructor_id,
+              "to course with ID:",course_id)
+            res.status(200).json(course);
+          }
+        })
+      }
+    }
+  );
+});
+
 
 courseRoutes.route('/add_section/:course_id').post(function (req, res) {
 	let course_id = req.params.course_id
@@ -314,6 +348,7 @@ courseRoutes.route('/get/:id').get(function (req, res) {
   let id = req.params.id;
   Course.findById(id).
   populate('instructor').
+  populate('secondary_instructor').
   populate('students').
   populate({
     path: 'meetings',
