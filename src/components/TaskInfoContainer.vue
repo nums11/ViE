@@ -22,7 +22,7 @@
       </div>
     </div>
     <!-- Lower Area -->
-    <div v-if="isPrivelegedUser()" class="lower-area">
+    <div v-if="is_priveleged_user" class="lower-area">
       <div class="left-side">
         <sui-progress class="attendance-progress" progress
         :percent="task_attendance_percentage" color="green"/>
@@ -114,13 +114,15 @@ export default {
     return {
       student_task_submission: {},
       task_attendance_percentage: 0,
-      task_window_status: false
+      task_window_status: false,
+      is_priveleged_user: false
     }
   },
   created () {
     this.current_user = this.$store.state.user.current_user
     this.is_instructor = this.current_user.is_instructor
-    if(this.is_instructor)
+    this.checkIfPrivelegedUser()
+    if(this.is_priveleged_user)
       this.getTaskAttendancePercentage()
     this.task_window_status = this.getWindowStatus(this.task,this.is_qr)
   },
@@ -178,8 +180,8 @@ export default {
         window_status = "open"
       return window_status
     },
-    isPrivelegedUser() {
-      return (this.for_course && this.is_instructor) ||
+    checkIfPrivelegedUser() {
+      this.is_priveleged_user = (this.for_course && this.is_instructor) ||
       (!this.for_course && this.is_board_member)
     }
   }
