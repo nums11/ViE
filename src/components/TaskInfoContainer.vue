@@ -66,7 +66,17 @@
       <div class="right-side">
         <!-- TODO: If student submitted to QR show QR submission time. If student began recording show
         watch percentage -->
-        <span class="float-right" v-if="studentSubmittedToTask(task)">Submitted on {{ new Date(student_task_submission.live_submission_time) | moment("dddd, MMMM Do YYYY, h:mm a") }}</span> 
+        <span class="float-right" v-if="is_qr && studentSubmittedToTask(task)">
+          Submitted on {{ new Date(student_task_submission.live_submission_time) | moment("dddd, MMMM Do YYYY, h:mm a") }}
+        </span>
+        <div  v-else-if="!is_qr">
+          <sui-progress class="attendance-progress" progress
+          style="margin-top:1rem;"
+          :percent="studentSubmittedToTask(task) ? 
+          student_task_submission.video_percent_watched.toFixed(2)
+          : 0"
+          color="green"/>
+        </div>
       </div>
     </div>
   </div>
