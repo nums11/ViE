@@ -9,6 +9,11 @@ export default {
       course: course
     })
   },
+  addSecondaryInstructor(course_id, instructor_id) {
+    return API().post('courses/add_secondary_instructor/' + course_id
+      + '/' + instructor_id, 
+    {})
+  },
   addSectionToCourse(course_id, section) {
     return API().post('courses/add_section/' + course_id, {
       section: section
