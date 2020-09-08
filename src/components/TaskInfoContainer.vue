@@ -32,6 +32,12 @@
         content="View Attendance" icon="users" label-position="right" />
         <sui-button class="float-right" v-if="is_qr && task_window_status === 'open'" @click="$emit('show-fullscreen-code',task.code)"
         content="Show QR Code" icon="qrcode" label-position="right" color="teal" />
+        <router-link
+        v-else-if="!is_qr"
+        :to="{name: 'watch_recording', params: {recording_id: task._id}}">
+          <sui-button content="Watch Recording" icon="play circle"
+          label-position="right" color="violet" />
+        </router-link>
       </div>
     </div>
     <div v-else class="lower-area">
