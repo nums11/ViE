@@ -92,12 +92,23 @@
             </div>
 
             <div class="submit-line" :style="{display: 'flex'}">
-              <div :style="{flexGrow: 1}">
+              <div>
                 <sui-button @click="cancelAddRecording" content="Cancel" icon="left arrow" label-position="left" />
               </div>
 
-              <div>
-                <sui-button @click="addRecording" class="venue-blue">Upload Recording</sui-button>
+              <div :style="{flexGrow: 1, textAlign: 'right'}">
+                <!-- <sui-button @click="addRecording" class="venue-blue">Upload Recording</sui-button> -->
+                <Button2 
+                  text="Upload Recording"
+                  :config="{
+                    width: '80%',
+                    height: '36px',
+                    lineHeight: '20px'
+                  }"
+                  :disabled="!recordingFormValid()"
+                  :valid="recordingFormValid()"
+                  :onClick="addRecording"
+                />
               </div>
 
             </div>
@@ -216,6 +227,7 @@ import qrcode from '@chenfengyuan/vue-qrcode';
 import { FrontEndServerBaseURL } from '@/services/API.js';
 import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
 import UploadSuccessAnimation from '@/components/animations/UploadSuccessAnimation.vue'
+import Button2 from '@/components/Button2.vue'
 
 export default {
   name: 'MeetingInfo',
@@ -232,7 +244,8 @@ export default {
     MeetingTaskList,
     MeetingAttendanceList,
     QRSuccessAnimation,
-    UploadSuccessAnimation
+    UploadSuccessAnimation,
+    Button2
   },
   data () {
     return {
@@ -352,6 +365,11 @@ export default {
           console.log(err)
         })
       }
+    },
+    recordingFormValid () {
+      return this.recording_upload_start != null 
+      && this.recording_upload_end != null
+      && this.recording_to_upload != null
     },
     cancelAddRecording () {
       this.show_add_recording = false
