@@ -12,9 +12,6 @@
       :students="findStudentsData()"
     />
     <QRSuccessAnimation v-if="show_qr_success_animation" />
-    <div id="meeting-saving-modal" v-if="meeting_saving">
-      <h1>Please wait while we save your recording...</h1>
-    </div>
 
     <!-- Header -->
     <SquareLoader v-if="!meeting_has_loaded" />
@@ -107,6 +104,7 @@
           </div>
 
         </div>
+        <UploadSuccessAnimation v-if="meeting_saving" />
       </div>
     </div>
 
@@ -217,6 +215,7 @@ import MeetingAPI from '@/services/MeetingAPI.js';
 import qrcode from '@chenfengyuan/vue-qrcode';
 import { FrontEndServerBaseURL } from '@/services/API.js';
 import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
+import UploadSuccessAnimation from '@/components/animations/UploadSuccessAnimation.vue'
 
 export default {
   name: 'MeetingInfo',
@@ -232,7 +231,8 @@ export default {
     SquareLoader,
     MeetingTaskList,
     MeetingAttendanceList,
-    QRSuccessAnimation
+    QRSuccessAnimation,
+    UploadSuccessAnimation
   },
   data () {
     return {
@@ -275,6 +275,18 @@ export default {
     this.meeting_has_loaded = true
   },
   methods: {
+    async getUpdatedMeetingData () {
+      await this.getMeeting ()
+
+      if(!this.for_course) this.checkIfCurrentUserIsBoardMember()
+      
+      console.log("Meeting",this.meeting)
+      this.checkIfMeetingIsLive()
+      this.getActiveTasksForMeeting()
+      this.getMeetingAttendees()
+      this.meeting_has_loaded = true
+
+    },
     findStudentsData () {
       if (this.meeting.course) {
         return this.meeting.course.students
@@ -318,8 +330,16 @@ export default {
 
             console.log(`Meeting updated`)
             console.log(res)
+            this.getUpdatedMeetingData ();
 
-            this.$router.go()
+            // show the success animation upload
+            // this.show_upload_success_animation = true
+            setTimeout(() => {
+              this.meeting_saving = false;
+              this.show_add_recording = false;
+            }, 2000)
+
+            // this.$router.go()
           })
           .catch(err => {
             console.log(`Error updating meeting`)
