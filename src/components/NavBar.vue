@@ -1,187 +1,182 @@
 <template>
-
   <div>
     <div class="venue-navbar">
-        <div class="left-area">
+      <div class="left-area">
 
-          <hide-at breakpoint="small">
-            <div class="logo-area">
-                <router-link to="/dashboard"><img src="@/assets/venue-logo.svg" class="image-logo" /></router-link>
+        <hide-at breakpoint="small">
+          <div class="logo-area">
+            <router-link to="/dashboard"><img src="@/assets/venue-logo.svg" class="image-logo" /></router-link>
+          </div>
+        </hide-at>
+
+        <hide-at breakpoint="small">
+          <div class="menu-items-area">
+            <div @click="update ()">
+              <router-link to="/dashboard"><div :class="`nav-link ${isPage('dashboard') ? 'active' : ''}`">Dashboard</div></router-link>
             </div>
-          </hide-at>
-          <hide-at breakpoint="small">
-            <div class="menu-items-area">
-                <div @click="update ()">
-                  <router-link to="/dashboard"><div :class="`nav-link ${isPage('dashboard') ? 'active' : ''}`">Dashboard</div></router-link>
-                </div>
-                <div class="dropdown-collection">
+            <div class="dropdown-collection">
+                <div 
+                  :class="`course-nav-link nav-link ${isPage('course_info') ? 'active' : ''}`"  
+                  v-on:mouseover="focusMenuDropdown('course')"
+                  v-on:mouseleave="unfocusMenuDropdown()"
+                  @click="update ()">Courses</div>
+                <div 
+                  :class="`course-nav-link nav-link ${isPage('org_info') ? 'active' : ''}`"
+                  v-on:mouseover="focusMenuDropdown('organization')"
+                  v-on:mouseleave="unfocusMenuDropdown()"
+                  @click="update ()">Organizations</div>
 
-
-                  <div 
-                    :class="`course-nav-link nav-link ${isPage('course_info') ? 'active' : ''}`"  
-                    v-on:mouseover="focusMenuDropdown('course')"
-                    v-on:mouseleave="unfocusMenuDropdown()"
-                    @click="update ()">Courses</div>
-                  <div 
-                    :class="`course-nav-link nav-link ${isPage('org_info') ? 'active' : ''}`"
-                    v-on:mouseover="focusMenuDropdown('organization')"
-                    v-on:mouseleave="unfocusMenuDropdown()"
-                    @click="update ()">Organizations</div>
-
-                  <div class="dropdown-collection-dropdown">
-                    
-                    <div
-                    v-on:mouseover="focusMenuDropdown('course')"
-                    v-on:mouseleave="unfocusMenuDropdown()" 
-                    :class="`dropdown-column ${dropdown_focus == 'course' ? 'focus' : 'unfocus'}`">
-                      <div class="title">COURSES</div>
-                      <ul v-if="user_courses && user_courses.length > 0">
-                        <router-link v-for="(course, i) in user_courses" :key="i" :to="`/course_info/${course._id}`" @click="update"><li>{{ course.name }}</li></router-link>
-                      </ul>
-                      <ul v-else>
-                        <li>No courses</li>
-                      </ul>
-                    </div>
-
-                    <div 
-                    v-on:mouseover="focusMenuDropdown('organization')"
-                    v-on:mouseleave="unfocusMenuDropdown()"
-                    :class="`dropdown-column ${dropdown_focus == 'organization' ? 'focus' : 'unfocus'}`">
-                      <div class="title">ORGANIZATIONS</div>
-                      <ul v-if="user_orgs && user_orgs.length > 0">
-                        <router-link v-for="(org, i) in user_orgs" :key="i" :to="{name: 'org_info', params: { id: org._id }}" @click="update"><li>{{ org.name }}</li></router-link>
-                      </ul>
-                      <ul v-else>
-                        <li>No organizations.</li>
-                      </ul>
-                    </div>
-
+                <div class="dropdown-collection-dropdown">
+                  <div
+                  v-on:mouseover="focusMenuDropdown('course')"
+                  v-on:mouseleave="unfocusMenuDropdown()" 
+                  :class="`dropdown-column ${dropdown_focus == 'course' ? 'focus' : 'unfocus'}`">
+                    <div class="title">COURSES</div>
+                    <ul v-if="user_courses && user_courses.length > 0">
+                      <router-link v-for="(course, i) in user_courses" :key="i" :to="`/course_info/${course._id}`" @click="update"><li>{{ course.name }}</li></router-link>
+                    </ul>
+                    <ul v-else>
+                      <li>No courses</li>
+                    </ul>
                   </div>
-                  
-
+                  <div 
+                  v-on:mouseover="focusMenuDropdown('organization')"
+                  v-on:mouseleave="unfocusMenuDropdown()"
+                  :class="`dropdown-column ${dropdown_focus == 'organization' ? 'focus' : 'unfocus'}`">
+                    <div class="title">ORGANIZATIONS</div>
+                    <ul v-if="user_orgs && user_orgs.length > 0">
+                      <router-link v-for="(org, i) in user_orgs" :key="i" :to="{name: 'org_info', params: { id: org._id }}" @click="update"><li>{{ org.name }}</li></router-link>
+                    </ul>
+                    <ul v-else>
+                      <li>No organizations.</li>
+                    </ul>
+                  </div>
                 </div>
+                
+              </div>
+          </div>
+        </hide-at>
+
+        <show-at breakpoint="small">
+          <div class="mobile-navbar">
+            <div class="hamburger-icon" @click="showMobileMenu = true">
+              <sui-icon name="bars" />
             </div>
-          </hide-at>
+            <div class="logo-area-mobile">
+              <router-link to="/dashboard"><img src="@/assets/venue-logo.svg" width="100%" height="100%" class="image-logo" /></router-link>
+            </div>
+          </div>
+        </show-at>
+
+      </div>
+
+      <div class="right-area">
           <show-at breakpoint="small">
-            <div class="mobile-navbar">
-              <div class="hamburger-icon" @click="showMobileMenu = true">
-                <sui-icon name="bars" />
-              </div>
-              <div class="logo-area-mobile">
-                <router-link to="/dashboard"><img src="@/assets/venue-logo.svg" width="100%" height="100%" class="image-logo" /></router-link>
-              </div>
+            <div>
+              <sui-button icon="cog" @click="showMobileUserAction = true" />
             </div>
           </show-at>
-
-        </div>
-        <div class="right-area">
-            <show-at breakpoint="small">
-              <div>
-                <sui-button icon="cog" @click="showMobileUserAction = true" />
-              </div>
-            </show-at>
-            <hide-at breakpoint="small">
-                <div class="user-action">
-                  <div :style="{display: 'inline-block'}">
-                    <show-at breakpoint="large">
-                      <sui-button compact icon="cog" 
-                        id="user-action-toggle-button"
-                        label-position="left" 
-                        :content="`${current_user.first_name} ${current_user.last_name}`"
-                        @click="toggleUserView"
-                      />
-                    </show-at>
-                    <hide-at breakpoint="large">
-                      <sui-button
-                        id="user-action-toggle-button-min"
-                        icon="cog"
-                        @click="toggleUserView"
-                      />
-                    </hide-at>
-                  </div>
-                    <!-- <span v-on:click="toggleUserView" :style="{cursor: 'pointer'}">
-                      {{ current_user.first_name }} {{ current_user.last_name }}
-                      </span> -->
-                    <transition 
-                        name="fade"
-                        mode="out-in">
-                        <div class="user-action-view" id="user-action-modal" v-if="showUserView">
-                            <div class="user-action-header">
-                                <h3 is="sui-header">{{ current_user.first_name }} {{ current_user.last_name }}</h3>
-                                <sui-label :style="{backgroundColor: '#ABE5FF'}">
-                                    Type
-                                    <sui-label-detail>{{ is_instructor ? "Instructor" : "Student" }}</sui-label-detail>
-                                </sui-label>
-                            </div>
-                            <ul class="user-action-menu">
-                                <li>Settings</li>
-                            </ul>
-                            <div class="dropdown-footer">
-                                <div class="toggle-theme-area" >
-                                    <sui-checkbox label="Dark Mode" toggle v-model="dark_mode" />
-                                </div>
-                                <div>
-                                    <sui-button class="venue-red" @click="logoutUser ()">Logout</sui-button>
-                                </div>
-                            </div>
-                        </div>
-                    </transition>
+          <hide-at breakpoint="small">
+              <div class="user-action">
+                <div :style="{display: 'inline-block'}">
+                  <show-at breakpoint="large">
+                    <sui-button compact icon="cog" 
+                      id="user-action-toggle-button"
+                      label-position="left" 
+                      :content="`${current_user.first_name} ${current_user.last_name}`"
+                      @click="toggleUserView"
+                    />
+                  </show-at>
+                  <hide-at breakpoint="large">
+                    <sui-button
+                      id="user-action-toggle-button-min"
+                      icon="cog"
+                      @click="toggleUserView"
+                    />
+                  </hide-at>
                 </div>
-            </hide-at>
+                  <!-- <span v-on:click="toggleUserView" :style="{cursor: 'pointer'}">
+                    {{ current_user.first_name }} {{ current_user.last_name }}
+                    </span> -->
+                  <transition 
+                      name="fade"
+                      mode="out-in">
+                      <div class="user-action-view" id="user-action-modal" v-if="showUserView">
+                          <div class="user-action-header">
+                              <h3 is="sui-header">{{ current_user.first_name }} {{ current_user.last_name }}</h3>
+                              <sui-label :style="{backgroundColor: '#ABE5FF'}">
+                                  Type
+                                  <sui-label-detail>{{ is_instructor ? "Instructor" : "Student" }}</sui-label-detail>
+                              </sui-label>
+                          </div>
+                          <ul class="user-action-menu">
+                              <li>Settings</li>
+                          </ul>
+                          <div class="dropdown-footer">
+                              <div class="toggle-theme-area" >
+                                  <sui-checkbox label="Dark Mode" toggle v-model="dark_mode" />
+                              </div>
+                              <div>
+                                  <sui-button class="venue-red" @click="logoutUser ()">Logout</sui-button>
+                              </div>
+                          </div>
+                      </div>
+                  </transition>
+              </div>
+          </hide-at>
+
+      </div>
+  </div>
+  <div class="navbar-spacer"></div>
+
+  <!-- SLIDE MENU -->
+  <show-at breakpoint="small" v-if="showMobileMenu">
+    <transition name="fade" mode="out-in">
+      <div class="off-canvas-menu-back" @click="showMobileMenu = false">
+        <div class="off-canvas-menu left">
+
+          <ul>
+            <router-link to="/dashboard"><li>Dashboard</li></router-link>
+            <li v-if="user_courses && user_courses.length > 0">Courses
+              <ul>
+                <router-link v-for="(course, i) in user_courses" :key="i" :to="`/course_info/${course._id}`" @click="update"><li>{{ course.name }}</li></router-link>
+              </ul>
+            </li>
+            <li v-if="user_orgs && user_orgs.length > 0">Organizations
+              <ul>
+                <router-link v-for="(org, i) in user_orgs" :key="i" :to="{name: 'org_info', params: { id: org._id }}" @click="update"><li>{{ org.name }}</li></router-link>
+              </ul>
+            </li>
+          </ul>
 
         </div>
-    </div>
-    <div class="navbar-spacer"></div>
+      </div>
+    </transition>
+  </show-at>
+  <!-- MOBILE SETTINGS SLIDE MENU -->
+  <show-at breakpoint="small" v-if="showMobileUserAction">
+    <transition name="fade" mode="out-in">
+      <div class="off-canvas-menu-back" @click="showMobileUserAction = false">
+        <div class="off-canvas-menu right">
 
-    <!-- SLIDE MENU -->
-    <show-at breakpoint="small" v-if="showMobileMenu">
-      <transition name="fade" mode="out-in">
-        <div class="off-canvas-menu-back" @click="showMobileMenu = false">
-          <div class="off-canvas-menu left">
+          <div class="user-fullname-area">
+            {{ current_user.first_name }} {{ current_user.last_name }}
+          </div>
 
-            <ul>
-              <router-link to="/dashboard"><li>Dashboard</li></router-link>
-              <li v-if="user_courses && user_courses.length > 0">Courses
-                <ul>
-                  <router-link v-for="(course, i) in user_courses" :key="i" :to="`/course_info/${course._id}`" @click="update"><li>{{ course.name }}</li></router-link>
-                </ul>
-              </li>
-              <li v-if="user_orgs && user_orgs.length > 0">Organizations
-                <ul>
-                  <router-link v-for="(org, i) in user_orgs" :key="i" :to="{name: 'org_info', params: { id: org._id }}" @click="update"><li>{{ org.name }}</li></router-link>
-                </ul>
-              </li>
-            </ul>
+          <div class="actions-area">
 
           </div>
-        </div>
-      </transition>
-    </show-at>
-    <!-- MOBILE SETTINGS SLIDE MENU -->
-    <show-at breakpoint="small" v-if="showMobileUserAction">
-      <transition name="fade" mode="out-in">
-        <div class="off-canvas-menu-back" @click="showMobileUserAction = false">
-          <div class="off-canvas-menu right">
 
-            <div class="user-fullname-area">
-              {{ current_user.first_name }} {{ current_user.last_name }}
-            </div>
-
-            <div class="actions-area">
-
-            </div>
-
-            <div class="logout-area">
-              <sui-button class="venue-red" @click="logoutUser ()">Logout</sui-button>
-            </div>
-
+          <div class="logout-area">
+            <sui-button class="venue-red" @click="logoutUser ()">Logout</sui-button>
           </div>
+
         </div>
-      </transition>
-    </show-at>
+      </div>
+    </transition>
+  </show-at>
 
   </div>
-
 </template>
 
 <script>

@@ -55,17 +55,16 @@
                 <VueCtkDateTimePicker 
                   @input="$forceUpdate ()"
                   v-model="meeting_data.meta.start_time"
-                  id="input1"
-                  :min-date="(new Date()).toISOString()"
-                  :max-date="meeting_data.meta.end_time"  
+                  id="input1"  
                 />
+                <!-- :min-date="(new Date()).toISOString()"
+                  :max-date="meeting_data.meta.end_time" -->
 
                   <div class="date-label" :style="{marginTop: '20px'}">END TIME</div>
                   <VueCtkDateTimePicker 
                     @input="$forceUpdate ()"
                     v-model="meeting_data.meta.end_time"
                     id="input2"
-                    :min-date="meeting_data.meta.start_time"
                   />
 
                   <div class="info-area" :style="{transform: `translateY(18px)`}">
@@ -80,15 +79,14 @@
                   @input="$forceUpdate ()"
                   v-model="meeting_data.live.qr_checkin.start_time"
                   id="input3"
-                  :min-date="(new Date()).toISOString()"
-                  :max-date="meeting_data.live.qr_checkin.end_time" />
+                  />
 
                   <div class="date-label" :style="{marginTop: '20px'}">END TIME</div>
                   <VueCtkDateTimePicker 
                     @input="$forceUpdate ()"
                     v-model="meeting_data.live.qr_checkin.end_time"
                     id="input4"
-                    :min-date="meeting_data.live.qr_checkin.start_time" />
+                  />
 
                   <div class="info-area" :style="{transform: `translateY(18px)`}">
                     Pick the start time and end time that your students will be able to submit
@@ -177,6 +175,19 @@
 
     </div>
 
+  <div v-if="meeting_submission_in_progress" class="submission-fullscreen">
+    <div class="centerer">
+      <v-lottie-player 
+        name="QR CODE"
+        :animationData="require('@/assets/lottie/uploading.json')"
+        loop
+        width="300px"
+        height="300px"
+        autoplay
+      />
+    </div>
+  </div>
+
   </div>
 
 </template>
@@ -188,11 +199,14 @@ import MeetingAPI from '@/services/MeetingAPI'
 import CourseAPI from '@/services/CourseAPI'
 import OrgAPI from '@/services/OrgAPI'
 import {NewMeetingTransform} from '@/modules/MeetingTransform.module'
+import VueLottiePlayer from 'vue-lottie-player'
+
 export default {
   name: 'NewMeeting',
   components: {
     InputField2,
-    Button2
+    Button2,
+    vLottiePlayer: VueLottiePlayer
   },
   data () {
     return {
@@ -201,7 +215,8 @@ export default {
       meeting_data: {},
       has_live: false,
       has_async: false,
-      course_org_info: null
+      course_org_info: null,
+      meeting_submission_in_progress: false
     }
   },
   created () {
@@ -228,24 +243,30 @@ export default {
         }
       }
     }
+
     // load course or org info
     this.getCourseOrgInfo ()
   },
   methods: {
     updateTime () {
+
     },
     async createMeeting () {
+      this.meeting_submission_in_progress = true
       let result = await NewMeetingTransform(this.meeting_data, this.has_live, this.has_async)
       // console.log(result)
-      // create the meeting
-      MeetingAPI.addMeeting(result, 
-        this.meeting_data.meta.forCourse,
-        this.meeting_data.meta.forCourse ? this.meeting_data.meta.course : this.meeting_data.meta.org
-      )
-      .then(res => {
-        console.log(res)
-        this.$router.push({name: 'meeting_info', params: { meeting_id: res.data._id }})
-      })
+
+      setTimeout(() => {
+        // create the meeting
+        MeetingAPI.addMeeting(result, 
+          this.meeting_data.meta.forCourse,
+          this.meeting_data.meta.forCourse ? this.meeting_data.meta.course : this.meeting_data.meta.org
+        )
+        .then(res => {
+          console.log(res)
+          this.$router.push({name: 'meeting_info', params: { meeting_id: res.data._id }})
+        })
+      }, 500)
     },
     getCourseOrgInfo () {
       console.log(this.$route)
@@ -266,7 +287,10 @@ export default {
       }
     },
     cancelForm () {
-      this.$router.push({name: 'dashboard'})
+      if(this.$route.name === 'course_new_meeting')
+        this.$router.push({name: 'course_info', params: {id: this.$route.params.course_id}})
+      else
+        this.$router.push({name: 'org_info', params: {id: this.$route.params.org_id}})
     },
      initiateFileUpload () {
        let fileUpload = this.$refs.fileUpload1
@@ -303,6 +327,36 @@ export default {
 }
 </script>
 <style lang="scss">
+
+.light-mode {
+  .submission-fullscreen {
+    background-color: white;
+  }
+}
+
+.dark-mode {
+  .submission-fullscreen {
+    background-color: #121419;
+  }
+}
+
+.submission-fullscreen {
+  position:fixed;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+
+  .centerer {
+    width: 300px;
+    height: 300px;
+    margin: 0 auto;
+    position: relative;
+    top: 25%;
+  }
+}
+
 .new-meeting-form {
   position: fixed;
   left: 0;
@@ -310,12 +364,14 @@ export default {
   top: 0;
   bottom: 0;
   overflow-y: scroll;
+
   .form-center {
     width: 1000px;
     margin: 0 auto;
     margin-top: 50px;
     display: flex;
     position: relative;
+
     .left-side-area {
       width: 250px;
       min-width: 250px;
@@ -325,6 +381,7 @@ export default {
       position: fixed;
       top: 50px;
       bottom: 50px;
+
       .logo-area {
         width: 50px;
         height: 50px;
@@ -333,41 +390,51 @@ export default {
         background-size: 100%;
         margin-bottom: 15px;
       }
+
       .tasks-list {
         margin-top: 10px;
         margin-bottom: 25px;
+
         .section-header {
           font-size: 0.85rem;
           margin-bottom: 8px;
           opacity: 0.9;
         }
+
         .empty-area {
           font-size: 1rem;
           font-style: italic;
         }
       }
     }
+
     .right-side-area {
       width: 750px;
       transform: translateX(250px);
+
       .info-area {
         font-size: 0.8rem;
         position: relative;
         top: -8px;
       }
+
       .new-meeting-title {
         height: 50px;
         margin-bottom: 30px;
+
         h3 {
           margin: 0;
         }
+
         .label {
           font-size: 0.8rem;
         }
       }
+
       .live-meeting-portion {
         margin-top: 30px;
         margin-bottom: 30px;
+
         .video-upload-holder {
           height: 100px;
           border: 2px dashed #eee;
@@ -376,31 +443,39 @@ export default {
           text-align: center;
           padding-top: 30px;
           cursor: pointer;
+
           .clear {
             text-decoration: underline;
           }
+
           &.active {
             border: 2px dashed #268ebd;
           }
+
           input[type=file] {
             display: none;
           }
+
           .small {
             font-size: 0.7rem;
             opacity: 0.9;
           }
         }
+
         .checkbox {
           margin-bottom: 5px;
           margin-top: 5px;
+
           input {
             
           }
+
           label {
             margin-left: 8px;
             font-size: 0.9rem;
           }
         }
+
         .meeting-time-picker-area {
           
           .date-label {
@@ -410,17 +485,21 @@ export default {
       }
     }
   }
+
   input.field-input {
     border: 2px solid #47C4FC !important;
     transition: border 0.25s;
+
     &:focus {
       border: 2px solid #268ebd !important; 
     }
   }
+
   .time-picker-column-item-effect,
   .datepicker-day.selected .datepicker-day-effect,
   .header-picker {
     background-color: #47C4FC !important;
   }
 }
+
 </style>
