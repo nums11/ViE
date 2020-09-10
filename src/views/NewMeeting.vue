@@ -151,7 +151,7 @@
         </div>
 
         <div class="live-meeting-portion">
-          <Button2 
+<!--           <Button2 
             :style="{marginBottom: '20px', marginRight: '2%'}"
             :onClick="cancelForm"
             :config="{
@@ -159,7 +159,7 @@
               iconOnly: true,
               icon: 'arrow left',
               color: 'venue-grey'
-            }" />
+            }" /> -->
           <Button2 
             :style="{marginBottom: '20px'}"
             text="Create New Meeting"
@@ -266,7 +266,10 @@ export default {
       }
     },
     cancelForm () {
-      this.$router.push({name: 'dashboard'})
+      if(this.$route.name === 'course_new_meeting')
+        this.$router.push({name: 'course_info', params: {id: this.$route.params.course_id}})
+      else
+        this.$router.push({name: 'org_info', params: {id: this.$route.params.org_id}})
     },
      initiateFileUpload () {
        let fileUpload = this.$refs.fileUpload1

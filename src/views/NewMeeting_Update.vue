@@ -287,7 +287,10 @@ export default {
       }
     },
     cancelForm () {
-      this.$router.push({name: 'dashboard'})
+      if(this.$route.name === 'course_new_meeting')
+        this.$router.push({name: 'course_info', params: {id: this.$route.params.course_id}})
+      else
+        this.$router.push({name: 'org_info', params: {id: this.$route.params.org_id}})
     },
      initiateFileUpload () {
        let fileUpload = this.$refs.fileUpload1
