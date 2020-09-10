@@ -57,65 +57,9 @@
       </div>
 
       <div v-if="current_user.is_instructor">
-        <sui-button class="venue-blue" @click="show_add_recording = true">Add Recording</sui-button>
-
-        <div class="add-recording-modal" v-if="show_add_recording">
-
-          <div class="center-modal">
-            <div><h3>Add Recording</h3></div>
-            <div :class="`add-recording ${recording_to_upload == null ? '' : 'active'}`" @click="addFileRecording">
-              <div v-if="recording_to_upload == null">Click to add a recording</div>
-              <div v-else>{{ recording_to_upload.name }}</div>
-              <input type="file" ref="recordingUploadFileBrowser" @change="setFileRecording" />
-            </div>
-
-            <div class="time-picker-area">
-              <div class="picker">
-                <div class="label">START</div>
-                <VueCtkDateTimePicker 
-                  @input="$forceUpdate ()"
-                  v-model="recording_upload_start"
-                  id="date-input1"
-                  :min-date="(new Date()).toISOString()"
-                />
-              </div>
-              <div class="spacer"></div>
-              <div class="picker end">
-                <div class="label">END</div>
-                <VueCtkDateTimePicker 
-                  @input="$forceUpdate ()"
-                  v-model="recording_upload_end"
-                  id="date-input2"
-                  :min-date="(new Date()).toISOString()"
-                />
-              </div>
-            </div>
-
-            <div class="submit-line" :style="{display: 'flex'}">
-              <div>
-                <sui-button @click="cancelAddRecording" content="Cancel" icon="left arrow" label-position="left" />
-              </div>
-
-              <div :style="{flexGrow: 1, textAlign: 'right'}">
-                <!-- <sui-button @click="addRecording" class="venue-blue">Upload Recording</sui-button> -->
-                <Button2 
-                  text="Upload Recording"
-                  :config="{
-                    width: '80%',
-                    height: '36px',
-                    lineHeight: '20px'
-                  }"
-                  :disabled="!recordingFormValid()"
-                  :valid="recordingFormValid()"
-                  :onClick="addRecording"
-                />
-              </div>
-
-            </div>
-          </div>
-
-        </div>
-        <UploadSuccessAnimation v-if="meeting_saving" />
+        <sui-button class="venue-blue" @click="showAddRecordingForm">Add Recording</sui-button>
+        <AddRecordingForm v-if="show_add_recording"
+        v-on:cancel-add-recording="cancelAddRecording"/>
       </div>
     </div>
 
@@ -228,6 +172,7 @@ import { FrontEndServerBaseURL } from '@/services/API.js';
 import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
 import UploadSuccessAnimation from '@/components/animations/UploadSuccessAnimation.vue'
 import Button2 from '@/components/Button2.vue'
+import AddRecordingForm from '@/components/AddRecordingForm.vue'
 
 export default {
   name: 'MeetingInfo',
@@ -245,7 +190,8 @@ export default {
     MeetingAttendanceList,
     QRSuccessAnimation,
     UploadSuccessAnimation,
-    Button2
+    Button2,
+    AddRecordingForm
   },
   data () {
     return {
@@ -267,10 +213,6 @@ export default {
       attendees: [],
       show_meeting_tasks: true,
       show_add_recording: false,
-      recording_to_upload: null,
-      recording_upload_start: (new Date()).toISOString (),
-      recording_upload_end: null,
-      meeting_saving: false,
       is_board_member: false,
       show_qr_success_animation: false,
     }
@@ -302,67 +244,11 @@ export default {
       }
       return null
     },
-    addRecording () {
-
-      this.meeting_saving = true
-      // TODO upload this.recording_to_upload to the current meeting
-      if (this.recording_to_upload != null && this.recording_upload_start != null && this.recording_upload_end != null) {
-        console.log(`ADDING RECORDING`)
-
-        // (1) Upload to Google Cloud
-        MeetingAPI.saveRecordingVideosToGCS([{
-          video: this.recording_to_upload
-        }])
-        .then(res => {
-          console.log(res)
-          let video_url = res.data[0]
-
-          let recording = {
-            video_url: video_url,
-            allow_recording_submissions: true,
-            recording_submission_start_time: new Date(this.recording_upload_start),
-            recording_submission_end_time: new Date(this.recording_upload_end)
-          }
-
-          MeetingAPI.addRecordingToMeeting (
-            this.$route.params.meeting_id,
-            recording
-          ).then(res => {
-            // show the uploading animation
-            setTimeout(() => {
-              this.meeting_saving = false;
-              this.show_add_recording = false;
-            }, 2000)
-            this.$router.go()
-          })
-          .catch(err => {
-            console.log(`Error updating meeting`)
-            console.log(err)
-          })
-
-        })
-        .catch(err => {
-          console.log(`Error uploading to google cloud.`)
-          console.log(err)
-        })
-      }
-    },
-    recordingFormValid () {
-      return this.recording_upload_start != null 
-      && this.recording_upload_end != null
-      && this.recording_to_upload != null
+    showAddRecordingForm() {
+      this.show_add_recording = true
     },
     cancelAddRecording () {
       this.show_add_recording = false
-      this.recording_to_upload = null
-    },
-    setFileRecording (e) {
-      let file_ = e.target.files[0]
-      // todo check if valid file extension
-      this.recording_to_upload = file_
-    },
-    addFileRecording () {
-      this.$refs.recordingUploadFileBrowser.click ()
     },
     isQrTask (taskInfo) {
       return taskInfo && taskInfo.qrCode
@@ -620,59 +506,6 @@ export default {
 
   .spacer {
     flex-grow: 1;
-  }
-}
-
-.dark-mode .add-recording-modal {
-  background-color: #121419;
-
-  
-  .add-recording {
-    border: 3px dashed rgba(255, 255, 255, 0.5);
-  }
-}
-
-.light-mode .add-recording-modal {
-  background-color: white;
-
-  .add-recording {
-    border: 3px dashed rgba(0, 0, 0, 0.5);
-  }
-}
-
-.add-recording-modal {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  z-index: 100000;
-
-  .center-modal {
-    width: 500px;
-    margin: 0 auto;
-    position: relative;
-    top: 40%;
-    transform: translateY(-50%);
-
-    .add-recording {
-      margin: 10px 0;
-      height: 100px;
-      border-radius: 5px;
-      box-sizing: border-box;
-      padding: 30px 0 0 0;
-      font-size: 1.2rem;
-      text-align: center;
-      cursor: pointer;
-
-      input[type=file] {
-        visibility: hidden;
-      }
-
-      &.active {
-        border: 3px dashed #47C4FC;
-      }
-    }
   }
 }
 
