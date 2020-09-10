@@ -95,51 +95,26 @@ export default {
       // todo check if valid file extension
       this.recording_to_upload = file_
     },
-    addRecording () {
-
+    async addRecording () {
       this.meeting_saving = true
-      // TODO upload this.recording_to_upload to the current meeting
-      if (this.recording_to_upload != null && this.recording_upload_start != null && this.recording_upload_end != null) {
-        console.log(`ADDING RECORDING`)
-
-        // (1) Upload to Google Cloud
-        MeetingAPI.saveRecordingVideosToGCS([{
-          video: this.recording_to_upload
-        }])
-        .then(res => {
-          console.log(res)
-          let video_url = res.data[0]
-
-          let recording = {
-            video_url: video_url,
-            allow_recording_submissions: true,
-            recording_submission_start_time: new Date(this.recording_upload_start),
-            recording_submission_end_time: new Date(this.recording_upload_end)
-          }
-
-          MeetingAPI.addRecordingToMeeting (
-            this.$route.params.meeting_id,
-            recording
-          ).then(res => {
-            // show the uploading animation
-            setTimeout(() => {
-              this.meeting_saving = false;
-              this.show_add_recording = false;
-            }, 2000)
-            this.$router.go()
-          })
-          .catch(err => {
-            console.log(`Error updating meeting`)
-            console.log(err)
-          })
-
-        })
-        .catch(err => {
-          console.log(`Error uploading to google cloud.`)
-          console.log(err)
-        })
+      const response = await MeetingAPI.saveRecordingVideosToGCS([{
+        video: this.recording_to_upload }])
+      let video_url = response.data[0]
+      let recording = {
+        video_url: video_url,
+        allow_recording_submissions: true,
+        recording_submission_start_time: new Date(this.recording_upload_start),
+        recording_submission_end_time: new Date(this.recording_upload_end)
       }
-    },
+      await MeetingAPI.addRecordingToMeeting (this.$route.params.meeting_id,
+        recording)
+      // show the uploading animation
+      setTimeout(() => {
+        this.meeting_saving = false;
+        this.show_add_recording = false;
+      }, 2000)
+      this.$router.push({name: 'meeting_info', params: {meeting_id: this.$route.params.meeting_id}})
+    }
   }
 }
 </script>
