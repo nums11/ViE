@@ -28,6 +28,7 @@ import '@/assets/css/venue.css';
 import axios from 'axios';
 import io from 'socket.io';
 import Cookie from 'cookie';
+import { Doughnut } from 'vue-chartjs'
 
 export default {
   watch: {

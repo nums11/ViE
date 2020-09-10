@@ -40,6 +40,7 @@ import Settings from './views/Settings.vue';
 import RedirectCASLogin from './views/RedirectCASLogin.vue';
 import Statistics from './views/Statistics.vue';
 import WatchRecording from './views/WatchRecording.vue';
+import stats from './views/stats.vue';
 
 Vue.use(VueRouter);
 
@@ -408,6 +409,15 @@ const router = new VueRouter({
       name: 'org_new_meeting',
       path: '/org_new_meeting/:org_id',
       component: NewMeeting,
+      meta: {
+        requiresAuth: true,
+        requiresadmIn: true
+      }
+    },
+    {
+      name: 'attendance_stats',
+      path: '/stats',
+      component: stats,
       meta: {
         requiresAuth: true,
         requiresadmIn: true
