@@ -288,18 +288,6 @@ export default {
     this.meeting_has_loaded = true
   },
   methods: {
-    async getUpdatedMeetingData () {
-      await this.getMeeting ()
-
-      if(!this.for_course) this.checkIfCurrentUserIsBoardMember()
-      
-      console.log("Meeting",this.meeting)
-      this.checkIfMeetingIsLive()
-      this.getActiveTasksForMeeting()
-      this.getMeetingAttendees()
-      this.meeting_has_loaded = true
-
-    },
     findStudentsData () {
       if (this.meeting.course) {
         return this.meeting.course.students
@@ -340,19 +328,12 @@ export default {
             this.$route.params.meeting_id,
             recording
           ).then(res => {
-
-            console.log(`Meeting updated`)
-            console.log(res)
-            this.getUpdatedMeetingData ();
-
-            // show the success animation upload
-            // this.show_upload_success_animation = true
+            // show the uploading animation
             setTimeout(() => {
               this.meeting_saving = false;
               this.show_add_recording = false;
             }, 2000)
-
-            // this.$router.go()
+            this.$router.go()
           })
           .catch(err => {
             console.log(`Error updating meeting`)
