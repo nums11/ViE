@@ -32,7 +32,9 @@
 
       <div class="submit-line" :style="{display: 'flex'}">
         <div>
-          <sui-button @click="$emit('cancel-add-recording')" content="Cancel" icon="left arrow" label-position="left" />
+          <router-link :to="{name: 'meeting_info', params: {meeting_id: $route.meeting_id}}">
+            <sui-button content="Cancel" icon="left arrow" label-position="left" />
+          </router-link>
         </div>
 
         <div :style="{flexGrow: 1, textAlign: 'right'}">
@@ -62,7 +64,7 @@ import UploadSuccessAnimation from '@/components/animations/UploadSuccessAnimati
 import Button2 from '@/components/Button2.vue';
 
 export default {
-  name: 'AddRecordingForm',
+  name: 'AddRecording',
   components: {
     Button2,
     UploadSuccessAnimation
@@ -179,7 +181,6 @@ export default {
   right: 0;
   top: 0;
   bottom: 0;
-  z-index: 100000;
 
   .center-modal {
     width: 500px;

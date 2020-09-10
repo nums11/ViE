@@ -57,9 +57,9 @@
       </div>
 
       <div v-if="current_user.is_instructor">
-        <sui-button class="venue-blue" @click="showAddRecordingForm">Add Recording</sui-button>
-        <AddRecordingForm v-if="show_add_recording"
-        v-on:cancel-add-recording="cancelAddRecording"/>
+        <router-link :to="{name: 'add_recording', params: {meeting_id: meeting._id}}">
+          <sui-button class="venue-blue">Add Recording</sui-button>
+        </router-link>
       </div>
     </div>
 
@@ -170,9 +170,6 @@ import MeetingAPI from '@/services/MeetingAPI.js';
 import qrcode from '@chenfengyuan/vue-qrcode';
 import { FrontEndServerBaseURL } from '@/services/API.js';
 import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
-import UploadSuccessAnimation from '@/components/animations/UploadSuccessAnimation.vue'
-import Button2 from '@/components/Button2.vue'
-import AddRecordingForm from '@/components/AddRecordingForm.vue'
 
 export default {
   name: 'MeetingInfo',
@@ -189,9 +186,6 @@ export default {
     MeetingTaskList,
     MeetingAttendanceList,
     QRSuccessAnimation,
-    UploadSuccessAnimation,
-    Button2,
-    AddRecordingForm
   },
   data () {
     return {
@@ -212,7 +206,6 @@ export default {
       show_qr_scanning_window: false,
       attendees: [],
       show_meeting_tasks: true,
-      show_add_recording: false,
       is_board_member: false,
       show_qr_success_animation: false,
     }
@@ -244,17 +237,10 @@ export default {
       }
       return null
     },
-    showAddRecordingForm() {
-      this.show_add_recording = true
-    },
-    cancelAddRecording () {
-      this.show_add_recording = false
-    },
     isQrTask (taskInfo) {
       return taskInfo && taskInfo.qrCode
     },
     manageScheduleTabClick (props) {
-
       if (this.isQrTask (props)) {
         this.task_focus = props.id
         this.task_focus_mode = 'show-info'
@@ -494,19 +480,6 @@ export default {
   overflow-y: scroll;
   margin-bottom: 5rem;
   padding-top: 15rem;
-}
-
-.time-picker-area {
-  display: flex;
-  margin: 20px 0;
-
-  .end {
-    text-align: right;
-  }
-
-  .spacer {
-    flex-grow: 1;
-  }
 }
 
 #qr-scanning-container {

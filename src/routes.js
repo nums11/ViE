@@ -45,6 +45,7 @@ import Statistics from './views/Statistics.vue';
 import WatchRecording from './views/WatchRecording.vue';
 import AttendChecker from './views/AttendChecker.vue';
 import LoginView from './views/LoginView.vue';
+import AddRecording from './views/AddRecording.vue';
 
 Vue.use(VueRouter);
 
@@ -406,7 +407,7 @@ const router = new VueRouter({
       component: AdminNewOrg,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requireAdmin: true
       }
     },
     {
@@ -415,7 +416,7 @@ const router = new VueRouter({
       component: AdminOrgs,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requireAdmin: true
       }
     },
     {
@@ -424,7 +425,7 @@ const router = new VueRouter({
       component: AdminEditOrg,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requireAdmin: true
       }
     },
     {
@@ -433,7 +434,7 @@ const router = new VueRouter({
       component: NewMeeting_Update,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requireAdmin: false
       }
     },
     {
@@ -442,7 +443,16 @@ const router = new VueRouter({
       component: NewMeeting_Update,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requiresAdmin: false
+      }
+    },
+    {
+      name: 'add_recording',
+      path: '/add_recording/:meeting_id',
+      component: AddRecording,
+      meta: {
+        requiresAuth: true,
+        requireAdmin: false
       }
     },
     {
