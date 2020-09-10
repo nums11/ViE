@@ -32,7 +32,7 @@
 
       <div class="submit-line" :style="{display: 'flex'}">
         <div>
-          <router-link :to="{name: 'meeting_info', params: {meeting_id: $route.meeting_id}}">
+          <router-link :to="{name: 'meeting_info', params: {meeting_id: $route.params.meeting_id}}">
             <sui-button content="Cancel" icon="left arrow" label-position="left" />
           </router-link>
         </div>
