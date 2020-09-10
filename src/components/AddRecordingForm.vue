@@ -143,6 +143,19 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.time-picker-area {
+  display: flex;
+  margin: 20px 0;
+
+  .end {
+    text-align: right;
+  }
+
+  .spacer {
+    flex-grow: 1;
+  }
+}
+
 .dark-mode .add-recording-modal {
   background-color: #121419;
 
