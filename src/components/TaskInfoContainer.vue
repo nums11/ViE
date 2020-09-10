@@ -28,26 +28,44 @@
         :percent="task_attendance_percentage" color="green"/>
       </div>
       <div class="right-side">
-
-        <!-- View Attendance Button -->
         <sui-button class="float-right venue-blue" @click="$emit('show-task-attendance',task)"
         content="View Attendance" icon="users" label-position="right" />
-
-        <!-- Show QR Code Button -->
         <sui-button class="float-right" v-if="is_qr && task_window_status === 'open'" @click="$emit('show-fullscreen-code',task.code)"
         content="Show QR Code" icon="qrcode" label-position="right" color="teal" />
-
-        <!-- Watch Recording Button -->
-        <sui-button 
-        v-else-if="!is_qr" 
-        class="float-right"
-        @click="routeTo('watch_recording', {recording_id: task._id})" content="Watch Recording" icon="play circle"
-        label-position="right" color="violet" />
+        <router-link
+        v-else-if="!is_qr"
+        :to="{name: 'watch_recording', params: {recording_id: task._id}}">
+          <sui-button content="Watch Recording" icon="play circle"
+          label-position="right" color="violet" />
+        </router-link>
       </div>
     </div>
     <div v-else class="lower-area">
       <div class="left-side">
-        
+        <div v-if="is_qr">
+          <sui-label v-if="studentSubmittedToTask(task)" color="teal">
+            <span>Submission Recorded</span>
+            <sui-icon style="margin-left:1rem;" name="check circle" />
+          </sui-label>
+          <div v-else>
+            <sui-button v-if="task_window_status === 'open'"
+            @click="$emit('show-qr-scanning-window')"
+            content="Scan QR Code" icon="qrcode" label-position="right" color="teal" />
+            <sui-label v-else color="red">
+              <span>No Submission</span>
+              <sui-icon style="margin-left:1rem;" name="x" />
+            </sui-label>
+          </div>
+        </div>
+        <router-link v-else-if="task_window_status !== 'upcoming'"
+        :to="{name: 'watch_recording', params: {recording_id: task._id}}">
+          <sui-button content="Watch Recording" icon="play circle"
+          label-position="right" color="violet" />
+        </router-link>
+      </div>
+      <div class="right-side">
+        <!-- TODO: If student submitted to QR show QR submission time. If student began recording show
+        watch percentage -->
         <span class="float-right" v-if="is_qr && studentSubmittedToTask(task)">
           Submitted on {{ new Date(student_task_submission.live_submission_time) | moment("dddd, MMMM Do YYYY, h:mm a") }}
         </span>
@@ -59,35 +77,6 @@
           : 0"
           color="green"/>
         </div>
-
-
-      </div>
-      <div class="right-side">
-        <!-- TODO: If student submitted to QR show QR submission time. If student began recording show
-        watch percentage -->
-
-        <div v-if="is_qr">
-          <sui-label v-if="studentSubmittedToTask(task)" color="teal">
-            <span>Submission Recorded</span>
-            <sui-icon style="margin-left:1rem;" name="check circle" />
-          </sui-label>
-          <div v-else>
-            <sui-button v-if="task_window_status === 'open'"
-            @click="$emit('show-qr-scanning-window')"
-            class="exempt float-right"
-            content="Scan QR Code" icon="qrcode" label-position="right" color="teal" />
-            <sui-label v-else color="red">
-              <span>No Submission</span>
-              <sui-icon style="margin-left:1rem;" name="x" />
-            </sui-label>
-          </div>
-        </div>
-        <sui-button v-else-if="task_window_status !== 'upcoming'" 
-        @click="routeTo('watch_recording', {recording_id: task._id})" 
-        content="Watch Recording" icon="play circle"
-        class="float-right"
-        label-position="right" color="violet" />
-
       </div>
     </div>
   </div>
@@ -138,9 +127,6 @@ export default {
     this.task_window_status = this.getWindowStatus(this.task,this.is_qr)
   },
   methods: {
-    routeTo (destination, params = {}) {
-      this.$router.push({ name: destination, params })
-    },
     studentSubmittedToTask(task) {
       let submissions = this.is_qr ? task.qr_checkin_submissions
       : task.recording_submissions
@@ -205,10 +191,6 @@ export default {
 .task-info-container {
     margin-top:1rem;
     border-radius: 5px;
-
-    &:last-child {
-      margin-bottom: 30px;
-    }
 
     .upper-area {
         display: flex;
@@ -278,46 +260,5 @@ export default {
             background-color: #313440;
         }
     }
-}
-
-@media only screen and (max-width: 1130px) {
-  
-  .task-info-container {
-    .lower-area {
-      height: 100px;
-      display: block;
-
-      .left-side {
-        width: 100%;
-        margin: 0;
-        padding: 0;
-        position: relative;
-        top: -10px;
-
-        div.attendance-progress {
-          width: 100%;
-        }
-      }
-
-      .right-side {
-        width: 100%;
-        text-align: center;
-        margin: 0;
-        padding: 0;
-        position: relative;
-        top: -25px;
-
-        button {
-          float: none;
-        }
-
-        button.exempt {
-          position: relative;
-          top: 40px;
-        }
-      }
-    }
-  }
-
 }
 </style>

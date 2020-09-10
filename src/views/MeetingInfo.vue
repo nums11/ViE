@@ -9,7 +9,7 @@
       v-on:hide-modal="hideFullScreenQRCodeModal"
       :task="findMainQRTask()" 
       :code="full_screen_code" 
-      :students="findStudentsData()"
+      :students="attendees"
     />
     <QRSuccessAnimation v-if="show_qr_success_animation" />
 
@@ -223,14 +223,6 @@ export default {
     this.meeting_has_loaded = true
   },
   methods: {
-    findStudentsData () {
-      if (this.meeting.course) {
-        return this.meeting.course.students
-      }
-      else if (this.meeting.org) {
-        return this.meeting.org.general_members
-      }
-    },
     findMainQRTask () {
       if (this.meeting.live_attendance && this.meeting.live_attendance.qr_checkins) {
         return this.meeting.live_attendance.qr_checkins[0]
