@@ -21,7 +21,7 @@
       <div class="dashboard-row-one dashboard-row">
         <div class="dashboard-section">
           <div class="section-title">
-            <div class="title-value">Live</div>
+            <div class="title-value">Live Meetings</div>
             <div class="title-subvalue" >({{live_meetings.length}}) meeting<span v-if="live_meetings.length != 1">s</span> with live attendance</div>
           </div>
             <div v-if="!user_has_loaded">
@@ -40,7 +40,7 @@
         </div>
         <div class="dashboard-section">
         <div class="section-title">
-          <div class="title-value">Asynchronous</div>
+          <div class="title-value">Asynchronous Meetings</div>
           <div class="title-subvalue">({{async_meetings.length}}) meeting<span v-if="async_meetings.length != 1">s</span> with asynchronous attendance</div>
         </div>
             <div v-if="!user_has_loaded">
@@ -105,16 +105,10 @@
       },
       categorizeMeetings() {
         this.user_meetings.forEach(meeting => {
-          let meeting_start_time = new Date(meeting.start_time)
-          let meeting_end_time = new Date(meeting.end_time)
           if(this.hasLive(meeting))
             this.live_meetings.push(meeting)
-          else if(this.hasUpcomingLive(meeting))
-            this.upcoming_live_meetings.push(meeting)
           if(this.hasAsync(meeting))
             this.async_meetings.push(meeting)
-          if(this.hasUpcomingAsync(meeting))
-            this.upcoming_async_meetings.push(meeting)
         })
       },
       hasLive(meeting) {
@@ -168,8 +162,7 @@
         return time1 < time2
       },
       isBetweenTimes(time, start_time, end_time) {
-        return time >= start_time &&
-          time <= end_time
+        return (time >= start_time && time <= end_time)
       },
       getColor (course_info) {
         if (course_info == null || course_info._id == null) return 'grey'
@@ -197,7 +190,7 @@
   }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
 #dashboard-container {
   width: 89%;
@@ -212,6 +205,7 @@
     display: flex;
     align-items: flex-end;
     margin-bottom: 30px;
+    display: none;
   }
 }
 
@@ -253,6 +247,16 @@
   .dashboard-page .dashboard-row .dashboard-section {
     width: 100%;
     margin-bottom: 30px;
+  }
+}
+
+@media only screen and (max-width: 750px) {
+  #dashboard-container {
+    width: 100%;
+
+    .dashboard-section {
+      padding-right: 0;
+    }
   }
 }
 </style>

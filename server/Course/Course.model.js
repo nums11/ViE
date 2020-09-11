@@ -13,6 +13,10 @@ let Course = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
 	},
+	secondary_instructor: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User'
+	},
 	students: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'

@@ -7,61 +7,34 @@
         <div class="page-info-area">
           <!-- Meeting Info Side -->
           <div class="left-side">
-            <h2 v-if="for_course">{{ course.name }}</h2>
-            <h2 v-else>{{ org.name }}</h2>
+            <h2>{{ for_course ? course.name : org.name }}</h2>
             <div class="details-area">
-<!--                <sui-label :style="{marginBottom: '5px'}">
-                  Section
-                  <sui-label-detail>1</sui-label-detail>
-              </sui-label> -->
-
-              <sui-label v-if="for_course" class="venue-red" :style="{marginBottom: '5px'}">
+              <sui-label v-if="for_course && course.course_number" class="venue-red" :style="{marginBottom: '5px'}">
                   Dept
-                  <sui-label-detail>{{ course.dept }} {{ course.course_number }}</sui-label-detail>
+                  <sui-label-detail>{{ course.dept }} {{ getFormattedCourseNumber(course.course_number) }}</sui-label-detail>
               </sui-label>
-
-<!--               <sui-label :style="{marginBottom: '5px'}">
-                  Time Block
-                  <sui-label-detail>3:00pm - 4:00pm</sui-label-detail>
-              </sui-label> -->
             </div>
           </div>
           <div class="right-side">
             <div class="tabs">
-              <ul v-if="for_course">
+              <ul>
                 <li @click="activeTab = 'meeting_history'" :class="activeTab == 'meeting_history' ? 'active' : ''">
                   Meeting History</li>
                 <li @click="activeTab = 'statistics'" :class="activeTab == 'statistics' ? 'active' : ''">
                   <div class="icon-box"><i class="icon flask"></i></div>
                   <div>Statistics</div>
                 </li>
-                <li v-if="current_user.is_instructor && showManageStudents" 
+                <li v-if="for_course && current_user.is_instructor" 
                   @click="activeTab = 'manage_students'" 
-                  :class="activeTab == 'manage_students' ? 'active' : ''">Manage Students</li>
-                <li v-if="current_user.is_instructor" 
-                  @click="activeTab = 'settings'" 
-                  :class="activeTab == 'settings' ? 'active' : ''">
-                  <div class="icon-box"><i class="icon cog"></i></div>
-                  <div>Settings</div>
+                  :class="activeTab == 'manage_students' ? 'active' : ''">Manage Students
                 </li>
-              </ul>
-              <ul v-else>
-                <li @click="activeTab = 'meeting_history'" :class="activeTab == 'meeting_history' ? 'active' : ''">Meeting History</li>
-                <li @click="activeTab = 'statistics'" :class="activeTab == 'statistics' ? 'active' : ''">
-                  <div class="icon-box"><i class="icon flask"></i></div>
-                  <div>Statistics</div>
-                </li>
-                <li @click="activeTab == 'manage_students'" :class="activeTab == 'manage_students' ? 'active' : ''">Members</li>
-                <li v-if="current_user.is_instructor" @click="activeTab == 'settings'" :class="activeTab == 'settings' ? 'active' : ''">
-                 <div class="icon-box"><i class="icon cog"></i></div>
-                 <div>Settings</div>
-                </li>
+                <li v-else-if="!for_course && is_board_member" @click="activeTab = 'members'" :class="activeTab == 'members' ? 'active' : ''">Members</li>
               </ul>
             </div>
             <div class="actions">
               <router-link :to="for_course ? {name: 'course_new_meeting', params: { course_id: course._id }} : {name: 'org_new_meeting', params: { org_id: org._id }}">
                 <sui-button
-                  v-if="current_user.is_instructor"
+                  v-if="isPrivelegedUser()"
                   class="labeled
                   icon venue-green"
                     icon="plus"
@@ -126,7 +99,7 @@
             key="2"
             v-bind:colorSets="colorSets"
           />
-          <div v-if="activeTab == 'manage_students'">
+          <div v-if="activeTab === 'manage_students' || activeTab === 'members' ">
             <ManageStudents v-if="for_course" v-bind:course="course" />
             <ManageStudents v-else v-bind:org="org" />
           </div>
@@ -167,44 +140,15 @@ export default {
       }
     },
     async created () {
-      this.getCurrentUser()
+      this.current_user = this.$store.state.user.current_user
+      this.is_instructor = this.current_user.is_instructor
       await this.getCourseOrOrg();
       if(!this.for_course)
-        this.setIsBoardMember()
-      this.statisticsSections = {
-        1: {
-          display: true
-        },
-        2: {
-          display: false
-        },
-        3: {
-          display: true
-        },
-        4: {
-          display: false
-        }
-      }
-      this.colorSets = [{
-          fill: 'rgba(255, 94, 94, 0.4)',
-          stroke: 'rgba(255, 94, 94, 1)',
-      },{
-          fill: 'rgba(71, 196, 252, 0.4)',
-          stroke: 'rgba(71, 196, 252, 1)'
-      },{
-          fill: 'rgba(94, 255, 180, 0.4)',
-          stroke: 'rgba(94, 255, 180, 1)'
-      },{
-          fill: 'rgba(252, 149, 71, 0.4)',
-          stroke: 'rgba(252, 149, 71, 1)'
-      }]
+        this.checkIfCurrentUserIsBoardMember()
       // attach resize function to window
       window.addEventListener('resize', this.disableMobileTabs)
     },
     methods: {
-      getCurrentUser() {
-        this.current_user = this.$store.state.user.current_user
-      },
       async getCourseOrOrg () {
         if(this.$route.name === "course_info"){
           this.course_id = this.$route.params.id;
@@ -217,7 +161,7 @@ export default {
           this.org = response.data
         }
       },
-      setIsBoardMember() {
+      checkIfCurrentUserIsBoardMember() {
         let org_board_members = this.org.board_members
         for(let i = 0; i < org_board_members.length; i++) {
           if(org_board_members[i].user_id === this.current_user.user_id) {
@@ -236,6 +180,21 @@ export default {
       },
       toggleSectionStatistics(section) {
         this.statisticsSections[section].display = !this.statisticsSections[section].display
+      },
+      getFormattedCourseNumber(course_number) {
+        let course_number_str = course_number.toString()
+        let num_digits = course_number_str.length
+        if(num_digits <= 4) {
+          return course_number
+        } else {
+          return course_number_str.slice(0,4) + "/" + course_number_str.slice(4,num_digits)
+        }
+      },
+      isPrivelegedUser() {
+        console.log("for course", this.for_course)
+        console.log("Is instructor", this.is_instructor)
+        console.log("is_board_member", this.is_board_member)
+        return (this.for_course && this.is_instructor) || (!this.for_course && this.is_board_member)
       }
     }
 }

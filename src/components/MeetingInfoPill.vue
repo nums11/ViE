@@ -130,6 +130,7 @@ export default {
 }
 .light-mode .meeting-info-pill {
     background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.2);
 }
 .dark-mode .meeting-info-pill {
     background-color: #22252e;

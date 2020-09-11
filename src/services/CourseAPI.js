@@ -9,6 +9,11 @@ export default {
       course: course
     })
   },
+  addSecondaryInstructor(course_id, instructor_id) {
+    return API().post('courses/add_secondary_instructor/' + course_id
+      + '/' + instructor_id, 
+    {})
+  },
   addSectionToCourse(course_id, section) {
     return API().post('courses/add_section/' + course_id, {
       section: section
@@ -26,6 +31,11 @@ export default {
   updateCourse(id, course){
     return API().post('courses/update/' + id, {
       updated_course: course
+    })
+  },
+  inviteStudentsCAS (course_id, users) {
+    return API().post(`courses/cas_invite_student/${course_id}`, {
+      users
     })
   },
   deleteCourse (id) {

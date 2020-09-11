@@ -24,6 +24,17 @@ export default {
         meeting: meeting
     })
   },
+  addRecordingToMeeting(
+    meeting_id,
+    recording
+  ) {
+
+    return API().post(`meetings/update/add_recording/${meeting_id}`, 
+    {
+      recording
+    })
+
+  },
   getMeeting(id) {
     return API().get('meetings/get/' + id)
   },
@@ -32,7 +43,11 @@ export default {
       updated_meeting: meeting
     })
   },
-  deleteMeeting (id) {
-    return API().delete('meetings/delete/' + id)
+  deleteMeeting (meeting) {
+    return API().delete('meetings/delete/' + meeting._id, {
+      data: {
+        meeting: meeting
+      }
+    })
   },
 }

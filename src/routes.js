@@ -9,6 +9,7 @@ import AdminCourse from './components/admin/Course/AdminCourse.vue';
 import AdminEditCourse from './components/admin/Course/AdminEditCourse.vue';
 import AdminNewCourse from './components/admin/Course/AdminNewCourse.vue';
 import AdminCourses from './components/admin/Course/AdminCourses.vue';
+import AdminMeetings from './components/admin/Meeting/AdminMeetings.vue';
 import AdminSections from './components/admin/Section/AdminSections.vue';
 import AdminEditSection from './components/admin/Section/AdminEditSection.vue';
 import AdminNewSection from './components/admin/Section/AdminNewSection.vue';
@@ -23,6 +24,7 @@ import AdminEvents from './components/admin/Event/AdminEvents.vue';
 import AdminEditEvent from './components/admin/Event/AdminEditEvent.vue';
 import NewSubmission from './components/admin/Submission/NewSubmission.vue';
 import Submissions from './components/admin/Submission/Submissions.vue';
+import AdminStudentInvite from './components/admin/Course/StudentInvite.vue';
 import LandingPage from './views/LandingPage.vue';
 import SetPermanentPassword from './views/SetPermanentPassword.vue';
 import Signup from './components/Signup.vue';
@@ -40,13 +42,27 @@ import Settings from './views/Settings.vue';
 import RedirectCASLogin from './views/RedirectCASLogin.vue';
 import Statistics from './views/Statistics.vue';
 import WatchRecording from './views/WatchRecording.vue';
+
 import stats from './views/stats.vue';
+import AttendChecker from './views/AttendChecker.vue';
+import LoginView from './views/LoginView.vue';
+import AddRecording from './views/AddRecording.vue';
+
 
 Vue.use(VueRouter);
 
 const router = new VueRouter({
   // mode: 'history',
   routes: [
+    {
+      name: 'login',
+      path: '/login',
+      component: LoginView,
+      meta: {
+        title: 'Venue - Login',
+        requiresNoLogin: true
+      }
+    },
     {
       name: 'landing_page',
       path: '/',
@@ -78,6 +94,15 @@ const router = new VueRouter({
       meta: {
         requiresAuth: true,
         requiresAdmin: true
+      }
+    },
+    {
+      name: 'admin_student_invite',
+      path: '/admin/course_invite',
+      component: AdminStudentInvite,
+      meta: {
+        requiresAdmin: true,
+        requiresAuth: true
       }
     },
     {
@@ -225,6 +250,15 @@ const router = new VueRouter({
       }
     },
     {
+      name: 'meetings',
+      path: '/admin/meetings',
+      component: AdminMeetings,
+      meta: {
+        requiresAuth: true,
+        requiresAdmin: true
+      }
+    },
+    {
       name: 'signup',
       path: '/signup',
       component: Signup,
@@ -256,8 +290,8 @@ const router = new VueRouter({
       path: '/course_info/:id',
       component: CourseOrgInfo,
       meta: {
-        title: "Venue - Course Info"
-        // requiresAuth: true
+        title: "Venue - Course Info",
+        requiresAuth: true
       }
     },
     {
@@ -265,8 +299,8 @@ const router = new VueRouter({
       path: '/org_info/:id',
       component: CourseOrgInfo,
       meta: {
-        title: "Venue - Org Info"
-        // requiresAuth: true
+        title: "Venue - Org Info",
+        requiresAuth: true
       }
     },
     {
@@ -375,7 +409,7 @@ const router = new VueRouter({
       component: AdminNewOrg,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requireAdmin: true
       }
     },
     {
@@ -384,7 +418,7 @@ const router = new VueRouter({
       component: AdminOrgs,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requireAdmin: true
       }
     },
     {
@@ -393,7 +427,7 @@ const router = new VueRouter({
       component: AdminEditOrg,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requireAdmin: true
       }
     },
     {
@@ -402,7 +436,7 @@ const router = new VueRouter({
       component: NewMeeting,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requireAdmin: false
       }
     },
     {
@@ -411,7 +445,7 @@ const router = new VueRouter({
       component: NewMeeting,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requiresAdmin: false
       }
     },
     {
@@ -423,6 +457,24 @@ const router = new VueRouter({
         requiresadmIn: true
       }
     },
+    {
+      name: 'add_recording',
+      path: '/add_recording/:meeting_id',
+      component: AddRecording,
+      meta: {
+        requiresAuth: true,
+        requireAdmin: false
+      }
+    },
+    {
+      name: 'attend_checker',
+      path: '/attend/:meeting_id/:qr_key',
+      component: AttendChecker,
+      meta: {
+        requiresAuth: true,
+        requiresAdmin: true
+      }
+    }
   ]
 })
 

@@ -7,6 +7,7 @@
             <th>First Name</th>
             <th>Last Name</th>
             <th>is_instructor</th>
+            <th>user_id</th>
           </tr>
           </thead>
           <tbody>
@@ -14,8 +15,7 @@
                 <td>{{ user.first_name }}</td>
                 <td>{{ user.last_name }}</td>
                 <td>{{ user.is_instructor }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.password }}</td>
+                <td>{{ user.user_id }}</td>
                 <div v-if="is_users_view">
                   <td><router-link :to="{name: 'admin_edit_user', params: { id: user._id }}" class="btn btn-primary">Edit</router-link></td>
                   <td><button class="btn btn-danger" @click.prevent="deleteUser(user._id)">Delete</button></td>

@@ -11,7 +11,7 @@
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
-            <label>name</label>
+            <label>name: </label>
             <input type="text" class="form-control" v-model="course.name">
           </div>
         </div>
@@ -19,13 +19,13 @@
         <div class="row">
           <div class="col-md-6">
             <div class="form-group">
-              <label>dept</label>
+              <label>dept: </label>
               <input class="form-control" v-model="course.dept" rows="5">
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-group">
-              <label>Number</label>
+              <label>Number: </label>
               <input type="number" class="form-control" v-model="course.course_number" rows="5">
             </div>
           </div>
@@ -33,10 +33,18 @@
         <div class="row">
           <div class="col-md-6">
             <div class="form-group">
-              <label>instructor</label>
+              <label>instructor: </label>
                 <input class="form-control" v-model="course.instructor.first_name" rows="5" readonly>
                 <input class="form-control" v-model="course.instructor.last_name" rows="5" readonly>
             </div>
+            <div v-if="has_secondary_instructor" class="form-group">
+              <label>secondary instructor</label>
+<!--               <p>first name: {{ course.secondary_instructor.first_name }}</p>
+              <p>first name: {{ course.secondary_instructor.last_name }}</p> -->
+              <input class="form-control" v-model="course.secondary_instructor.first_name" rows="5" readonly>
+              <input class="form-control" v-model="course.secondary_instructor.last_name" rows="5" readonly>
+            </div>
+            <p v-else>No secondary instructor</p>
           </div>
         </div>
         <div class="form-group">
@@ -44,7 +52,10 @@
         </div>
     </form>
 
+    <h2>Select Primary Instructor</h2>
     <Instructors v-on:select-instructor="selectInstructor" />
+    <h2>Select Secondary Instructor</h2>
+    <Instructors v-on:select-instructor="addSecondaryInstructor" />
 
     <!-- Course Students -->
     <h4 style="margin-top: 2rem;">Course Students</h4>
@@ -87,12 +98,14 @@
       return {
         course: {},
         new_section: {},
-        course_has_loaded: false
+        course_has_loaded: false,
+        has_secondary_instructor: false
       }
     },
-    created() {
+    async created() {
       this.course_id = this.$route.params.id
-      this.getCourse()
+      await this.getCourse()
+      this.has_secondary_instructor = this.course.secondary_instructor != null
     },
     methods: {
       async getCourse() {
@@ -111,6 +124,14 @@
       selectInstructor(instructor){
         this.instructor = instructor
         this.course.instructor = instructor
+      },
+      async addSecondaryInstructor(instructor) {
+        if(this.course.instructor.user_id === instructor.user_id)
+          alert("User is already primary instructor")
+        else {
+          await CourseAPI.addSecondaryInstructor(this.course_id, instructor._id)
+          this.$router.go()
+        }
       },
       async addStudent(student) {
         let student_in_course = false

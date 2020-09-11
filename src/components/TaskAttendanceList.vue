@@ -16,21 +16,26 @@
 
     <!-- Body Area -->
     <div class="body-area">
-      <div class="inline-block student-attendance-list">
+      <div class="inline-block student-attendance-list-container">
         <h3>Present ({{present_attendees.length}}/{{attendees.length}})</h3>
-        <sui-label v-for="attendee in present_attendees"
-        :key="attendee._id"
-        class="venue-green">
-          <p>{{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})</p>
-        </sui-label>
+        <p v-for="(attendee,i) in present_attendees">
+          {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
+          <span v-if="!is_qr">- {{ video_percentages[i].toFixed(0) }}%</span>
+        </p>
       </div>
-      <div class="inline-block student-attendance-list">
+      <div class="inline-block student-attendance-list-container">
         <h3>Absent ({{absent_attendees.length}}/{{attendees.length}})</h3>
-        <sui-label v-for="attendee in absent_attendees"
-        :key="attendee._id"
-        class="venue-red">
-          <p>{{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})</p>
-        </sui-label>
+        <div v-if="is_qr">
+          <sui-button @click="markPresent(attendee)" class="thing-btn" animated v-for="attendee in absent_attendees">
+            <sui-button-content style="font-weight:bold; color: black;" visible>{{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})</sui-button-content>
+            <sui-button-content style="font-weight:bold; color: black;" hidden>Mark as present</sui-button-content>
+          </sui-button>
+        </div>
+        <div v-else>
+          <p v-for="(attendee,i) in absent_attendees">
+            {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
+          </p>
+        </div>
       </div>
     </div>
 
@@ -44,7 +49,7 @@
           content="Back" />
       </div>
       <div class="center-area">
-        <ProgressBar :value="0.8" />
+        <!-- <ProgressBar :value="0.8" /> -->
       </div>
       <div class="right-side">
           <!-- RIGHT FOOTER PLACEHOLDER -->
@@ -56,6 +61,7 @@
 <script>
 
 import ProgressBar from "@/components/ProgressBar.vue";
+import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 
 export default {
     name: 'TaskAttendanceList',
@@ -80,13 +86,14 @@ export default {
       return {
         is_qr: false,
         present_attendees: [],
-        absent_attendees: []
+        absent_attendees: [],
+        video_percentages: []
       }
     },
     created() {
       this.is_qr = this.task.code != null
       this.separateAttendees()
-      console.log("Attendees", this.attendees)
+      console.log("video_percentages", this.video_percentages)
     },
     methods: {
       separateAttendees() {
@@ -97,8 +104,8 @@ export default {
           else
             this.absent_attendees.push(attendee)
         })
-        console.log("Present", this.present_attendees)
-        console.log("Absent", this.absent_attendees)
+        this.present_attendees.sort((a,b) => (a.user_id > b.user_id) ? 1 : -1)
+        this.absent_attendees.sort((a,b) => (a.user_id > b.user_id) ? 1 : -1)
       },
       getSubmissionIds() {
         let task_submissions = this.is_qr ? 
@@ -107,9 +114,33 @@ export default {
         let submission_ids = new Set()
         task_submissions.forEach(submission => {
           submission_ids.add(submission.submitter.user_id)
+          if(!this.is_qr)
+            this.video_percentages.push(submission.video_percent_watched)
         })
         return submission_ids
-      }
+      },
+      async markPresent(user) {
+        let present_user = {}
+        for(let i = 0; i < this.absent_attendees.length; i++) {
+          if(this.absent_attendees[i].user_id === user.user_id){
+            present_user = this.absent_attendees[i]
+            this.absent_attendees.splice(i,1)
+            break
+          }
+        }
+        this.present_attendees.push(present_user)
+        await this.createLiveSubmission(present_user)
+        this.$router.go()
+      },
+      async createLiveSubmission(user) {
+        let live_submission = {
+          submitter: user._id,
+          is_qr_checkin_submission: true,
+          qr_checkin: this.task._id,
+          live_submission_time: new Date()
+        }
+        const response = await LiveSubmissionAPI.addLiveSubmission(live_submission)
+      },
     }
 }
 </script>
@@ -117,21 +148,17 @@ export default {
 
 .task-attendance-info-mode {
     
-    .student-attendance-list {
-      width: 50%;
-      vertical-align: top;
-      text-align: center;
-        
-        ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
+  .student-attendance-list-container {
+    width: 50%;
+    vertical-align: top;
+    text-align: center;
 
-            li {
-                height: 35px;
-            }
-        }
+    .thing-btn {
+      width: 50%;
+      margin-top: 1rem;
     }
+  }
+
 }
 
 .task-info-modal-instructor-expanded {
@@ -154,13 +181,14 @@ export default {
     }
 
     .body-area {
-        min-height: 450px;
-        box-sizing: border-box;
-        padding: 10px 15px;
+      margin-top: 1rem;
+      min-height: 450px;
+      box-sizing: border-box;
+      padding: 10px 15px;
 
-        .body-contents {
-            text-align: center;
-        }
+      .body-contents {
+          text-align: center;
+      }
     }
 
     .footer-area {

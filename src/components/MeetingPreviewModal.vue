@@ -7,15 +7,15 @@
         <sui-modal-description>
           <sui-header>{{ meeting.title }}</sui-header>
           <!-- Meeting Details -->
-          <sui-label>
+<!--           <sui-label>
               Time Block
               <sui-label-detail>3:00pm - 4:50pm</sui-label-detail>
-          </sui-label>
+          </sui-label> -->
 
-          <sui-label class="venue-red">
+<!--           <sui-label class="venue-red">
               Time Remaining
               <sui-label-detail>35mins</sui-label-detail>
-          </sui-label>
+          </sui-label> -->
           <!-- Meeting Contents -->
           <sui-item-group divided>
             <sui-item v-if="meeting.has_live_attendance && meeting.live_attendance.qr_checkins.length > 0">
