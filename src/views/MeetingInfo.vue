@@ -23,9 +23,13 @@
         <div class="left-side">
             <h2 class="inline-block">{{ meeting == null ? '' : meeting.title }}</h2>
             <div class="details-area">
-              <sui-label :style="{marginBottom: '5px'}">
-                  Organization
-                <sui-label-detail>{{ for_course ? meeting.course.name : meeting.org.name }}</sui-label-detail>
+              <sui-label v-if="for_course" :style="{marginBottom: '5px'}">
+                Course
+                <sui-label-detail>{{ meeting.course.name }}</sui-label-detail>
+              </sui-label>
+              <sui-label v-else :style="{marginBottom: '5px'}">
+                Organization
+                <sui-label-detail>{{ meeting.org.name }}</sui-label-detail>
               </sui-label>
               <sui-label v-if="for_course" class="venue-red" id="dept-text" :style="{marginBottom: '5px'}">
                   Dept
