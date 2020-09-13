@@ -19,7 +19,6 @@ import AdminNewOrg from './components/admin/Organization/AdminNewOrg.vue';
 import AdminOrgs from './components/admin/Organization/AdminOrgs.vue';
 import AdminEditOrg from './components/admin/Organization/AdminEditOrg.vue';
 import NewMeeting from './views/NewMeeting.vue';
-import NewMeeting_Update from './views/NewMeeting_Update.vue';
 import AdminNewEvent from './components/admin/Event/AdminNewEvent.vue';
 import AdminEvents from './components/admin/Event/AdminEvents.vue';
 import AdminEditEvent from './components/admin/Event/AdminEditEvent.vue';
@@ -45,6 +44,7 @@ import Statistics from './views/Statistics.vue';
 import WatchRecording from './views/WatchRecording.vue';
 import AttendChecker from './views/AttendChecker.vue';
 import LoginView from './views/LoginView.vue';
+import AddRecording from './views/AddRecording.vue';
 
 Vue.use(VueRouter);
 
@@ -406,7 +406,7 @@ const router = new VueRouter({
       component: AdminNewOrg,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requireAdmin: true
       }
     },
     {
@@ -415,7 +415,7 @@ const router = new VueRouter({
       component: AdminOrgs,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requireAdmin: true
       }
     },
     {
@@ -424,25 +424,34 @@ const router = new VueRouter({
       component: AdminEditOrg,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requireAdmin: true
       }
     },
     {
       name: 'course_new_meeting',
       path: '/course_new_meeting/:course_id',
-      component: NewMeeting_Update,
+      component: NewMeeting,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requireAdmin: false
       }
     },
     {
       name: 'org_new_meeting',
       path: '/org_new_meeting/:org_id',
-      component: NewMeeting_Update,
+      component: NewMeeting,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requiresAdmin: false
+      }
+    },
+    {
+      name: 'add_recording',
+      path: '/add_recording/:meeting_id',
+      component: AddRecording,
+      meta: {
+        requiresAuth: true,
+        requireAdmin: false
       }
     },
     {

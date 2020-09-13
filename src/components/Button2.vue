@@ -4,12 +4,23 @@
     :class="`venue-button-2 ${valid ? getColor() : 'venue-red'} ${disabled ? 'disabled' : ''}`" 
     @click="handleClick"
     :style="{
-      width: getWidth()
+      width: getWidth(),
+      height: getHeight(),
+      lineHeight: getLineHeight()
     }">
-    <div v-if="iconOnly()" class="icon-button-container">
+    <div 
+    
+    :style="{
+      lineHeight: getLineHeight ()
+    }"
+    v-if="iconOnly()" class="icon-button-container">
       <i :class="`icon ${hasIcon () ? config.icon : ''}`"></i>
     </div>
-    <div v-else class="button-container">
+    <div v-else 
+    :style="{
+      lineHeight: getLineHeight ()
+    }"
+    class="button-container">
       <div class="icon-area left" v-if="hasIcon() && iconLeft()">
         <i :class="`icon ${config.icon}`"></i>
       </div>
@@ -46,6 +57,14 @@ export default {
     getWidth () {
       if (this.hasKey(this.config, 'width')) return this.config.width
       return 'inherit'
+    },
+    getHeight () {
+      if (this.hasKey(this.config, 'height')) return this.config.height
+      return '40px'
+    },
+    getLineHeight () {
+      if (this.hasKey(this.config, 'lineHeight')) return this.config.lineHeight
+      return 'none'
     },
     getColor () {
       if (this.hasColor()) return this.config.color
