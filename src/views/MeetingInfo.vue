@@ -35,7 +35,7 @@
                   Dept
                 <sui-label-detail>{{ meeting.course.dept }} {{ getFormattedCourseNumber(meeting.course.course_number) }}</sui-label-detail>
               </sui-label>
-              <sui-label v-if="meeting.has_live_attendance">
+              <sui-label v-if="meeting.has_live_attendance" id="meeting-time-text">
                 Times
                 <sui-label-detail>{{ new Date(meeting.start_time) | moment("M/D, h:mma") }} - {{ new Date(meeting.end_time) | moment("M/D, h:mma") }}</sui-label-detail>
               </sui-label>
@@ -491,6 +491,10 @@ export default {
   background-color: white;
 }
 
+#meeting-time-text {
+  margin-top: 0.5rem;
+}
+
 .meeting-info {
   margin: auto;
   width: 89%;
@@ -537,7 +541,7 @@ export default {
       // background-color: green;
       position: fixed;
       bottom: 0;
-      top: 230px;
+      top: 250px;
       left: 90px;
       right: 50px;
       z-index: 3;
