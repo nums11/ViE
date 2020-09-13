@@ -254,7 +254,21 @@ export default {
     async createMeeting () {
       this.meeting_submission_in_progress = true
       let result = await NewMeetingTransform(this.meeting_data, this.has_live, this.has_async)
-      // console.log(result)
+      console.log("Result before, ", result)
+
+      // Create New dates for meeting times so meeting times save correctly on the server
+      result.start_time = new Date(result.start_time)
+      result.end_time = new Date(result.end_time)
+      result.qr_checkins.forEach(qr_checkin => {
+        qr_checkin.qr_checkin_start_time = new Date(qr_checkin.qr_checkin_start_time)
+        qr_checkin.qr_checkin_end_time = new Date(qr_checkin.qr_checkin_end_time)
+      })
+      result.recordings.forEach(recording => {
+        recording.recording_submission_start_time = new Date(recording.recording_submission_start_time)
+        recording.recording_submission_end_time = new Date(recording.recording_submission_end_time)
+      })
+
+      console.log("Result after, ", result)
 
       setTimeout(() => {
         // create the meeting
