@@ -23,17 +23,20 @@
         <div class="left-side">
             <h2 class="inline-block">{{ meeting == null ? '' : meeting.title }}</h2>
             <div class="details-area">
-              <sui-label :style="{marginBottom: '5px'}">
-                  Organization
-                <sui-label-detail>{{ for_course ? meeting.course.name : meeting.org.name }}</sui-label-detail>
+              <sui-label v-if="for_course" :style="{marginBottom: '5px'}">
+                Course
+                <sui-label-detail>{{ meeting.course.name }}</sui-label-detail>
+              </sui-label>
+              <sui-label v-else :style="{marginBottom: '5px'}">
+                Organization
+                <sui-label-detail>{{ meeting.org.name }}</sui-label-detail>
               </sui-label>
               <sui-label v-if="for_course" class="venue-red" id="dept-text" :style="{marginBottom: '5px'}">
                   Dept
                 <sui-label-detail>{{ meeting.course.dept }} {{ getFormattedCourseNumber(meeting.course.course_number) }}</sui-label-detail>
               </sui-label>
-              <sui-label v-if="meeting.has_live_attendance">
-                Times
-                <sui-label-detail>{{ new Date(meeting.start_time) | moment("M/D, h:mma") }} - {{ new Date(meeting.end_time) | moment("M/D, h:mma") }}</sui-label-detail>
+              <sui-label v-if="meeting.has_live_attendance" id="meeting-time-text">
+                {{ new Date(meeting.start_time) | moment("M/D, h:mma") }} - {{ new Date(meeting.end_time) | moment("M/D, h:mma") }}
               </sui-label>
             </div>
         </div>
@@ -486,6 +489,9 @@ export default {
   background-color: white;
 }
 
+#meeting-time-text {
+}
+
 .meeting-info {
   margin: auto;
   width: 89%;
@@ -532,7 +538,7 @@ export default {
       // background-color: green;
       position: fixed;
       bottom: 0;
-      top: 230px;
+      top: 250px;
       left: 90px;
       right: 50px;
       z-index: 3;
@@ -542,6 +548,7 @@ export default {
           height: 40px;
           width: 300px;
           margin-bottom: 30px;
+          margin-top: 2rem;
           .name {
               flex-grow: 1;
           }
