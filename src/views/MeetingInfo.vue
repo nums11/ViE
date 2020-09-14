@@ -491,7 +491,6 @@ export default {
 }
 
 #meeting-time-text {
-  margin-top: 0.5rem;
 }
 
 .meeting-info {
@@ -550,6 +549,7 @@ export default {
           height: 40px;
           width: 300px;
           margin-bottom: 30px;
+          margin-top: 2rem;
           .name {
               flex-grow: 1;
           }
