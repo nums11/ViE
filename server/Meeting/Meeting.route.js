@@ -12,8 +12,9 @@ let Poll = require('../Poll/Poll.model');
 let User = require('../User/User.model');
 const {Storage} = require("@google-cloud/storage")
 const path = require('path');
-var multer = require("multer")
-var upload = multer({ storage: multer.memoryStorage() })
+// var multer = require("multer")
+// var upload = multer({ storage: multer.memoryStorage() })
+var multiparty = require('multiparty')
 
 // GCS Specific
 
@@ -40,31 +41,62 @@ const uploadVideoToGCS = (file) => new Promise((resolve, reject) => {
   .end(buffer)
 })
 
-meetingRoutes.post('/save_to_gcs',
-  upload.array('recording_videos'), async (req, res) => {
-    let videos = req.files
-    let video_promises = []
-    videos.forEach(video => {
-      video_promises.push(new Promise(async (resolve,reject) => {
-        try {
-          let video_gcs_url = await uploadVideoToGCS(video)
-          resolve(video_gcs_url)
-        } catch (error) {
-          console.log("<ERROR> (meetings/save_to_gcs) saving video to GCS:",video,error)
-          res.json(error)
-        }
-      }))
-    })
-    try{
-      let saved_video_urls = await Promise.all(video_promises)
-      res.json(saved_video_urls)
-    } catch(error) {
-      console.log("<ERROR> (meetings/save_to_gcs) saving videos to GCS:",error)
-      res.json(error)
-    }
-  }
-)
+meetingRoutes.post('/save_new_recording/:recording_name', (req, res) => {
+  let recording_name = req.params.recording_name
+  const blob = bucket.file(recording_name.replace(/ /g, "_"))
+  console.log("Instantiated blob with name", blob.name)
+  var form = new multiparty.Form()
 
+  form.on('error', (err) => {
+    console.log("<ERROR> (meetings/save_new_recording) form error", err)
+  })
+
+  form.on('close', () => {
+    console.log("<SUCCESS> (meetings/save_new_recording) saving video")
+    const publicUrl = 'https://storage.googleapis.com/' + bucket.name + '/' + blob.name
+    res.json(publicUrl)
+  })
+
+  form.on('part', function(part) {
+    console.log("(meetings/save_new_recording) received part of size", part.byteCount)
+    part.pipe(
+      blob.createWriteStream({
+          resumable: false
+      })
+    )
+    // part.resume()
+    part.on('error', (err)=> {
+      console.log("<ERROR> (meetings/save_new_recording) part error", err)
+    })
+  })
+
+  form.parse(req)
+})
+
+// meetingRoutes.post('/save_to_gcs',
+//   upload.array('recording_videos'), async (req, res) => {
+//     let videos = req.files
+//     let video_promises = []
+//     videos.forEach(video => {
+//       video_promises.push(new Promise(async (resolve,reject) => {
+//         try {
+//           let video_gcs_url = await uploadVideoToGCS(video)
+//           resolve(video_gcs_url)
+//         } catch (error) {
+//           console.log("<ERROR> (meetings/save_to_gcs) saving video to GCS:",video,error)
+//           res.json(error)
+//         }
+//       }))
+//     })
+//     try{
+//       let saved_video_urls = await Promise.all(video_promises)
+//       res.json(saved_video_urls)
+//     } catch(error) {
+//       console.log("<ERROR> (meetings/save_to_gcs) saving videos to GCS:",error)
+//       res.json(error)
+//     }
+//   }
+// )
 
 meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
   let meeting = req.body.meeting;
