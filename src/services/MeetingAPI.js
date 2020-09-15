@@ -5,7 +5,7 @@ export default {
   getMeetings() {
     return API().get('meetings')
   },
-  saveRecordingToGCS(recording) {
+  saveRecordingVideoToGCS(recording) {
     let form_data = new FormData()
     form_data.append('recording', recording)
     return API().post('meetings/save_new_recording/' + recording.name, form_data,
@@ -16,20 +16,20 @@ export default {
       }
     )
   },
-  saveRecordingVideosToGCS(recordings) {
-    // Attach the meeting and videos to the form data
-    let form_data = new FormData()
-    for(let i = 0; i < recordings.length; i++) {
-      form_data.append('recording_videos', recordings[i].video)
-    }
-    return API().post('meetings/save_to_gcs', form_data,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      }
-    )
-  },
+  // saveRecordingVideosToGCS(recordings) {
+  //   // Attach the meeting and videos to the form data
+  //   let form_data = new FormData()
+  //   for(let i = 0; i < recordings.length; i++) {
+  //     form_data.append('recording_videos', recordings[i].video)
+  //   }
+  //   return API().post('meetings/save_to_gcs', form_data,
+  //     {
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data'
+  //       }
+  //     }
+  //   )
+  // },
   addMeeting(meeting, for_course, course_or_org_id) {
     return API().post('meetings/add' + '/' + for_course
       + '/' + course_or_org_id, {

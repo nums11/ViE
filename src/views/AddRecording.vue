@@ -98,7 +98,7 @@ export default {
     async addRecording () {
       console.log("In addRecording about to make API call")
       this.meeting_saving = true
-      const response = await MeetingAPI.saveRecordingToGCS(this.recording_to_upload)
+      const response = await MeetingAPI.saveRecordingVideoToGCS(this.recording_to_upload)
       // const response = await MeetingAPI.saveRecordingVideosToGCS([{
       //   video: this.recording_to_upload }])
       let video_url = response.data
