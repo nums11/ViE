@@ -101,16 +101,20 @@ const NewMeetingTransform = async (new_meeting, has_live, has_async) => {
             start_time: new_meeting.async.recording.start_time,
             end_time: new_meeting.async.recording.end_time
         }]
-        let upload_response = await MeetingAPI.saveRecordingVideosToGCS(queue_)
-
-        upload_response.data.forEach((upload_url, q) => {
-
-            meeting_.recordings.push({
-                video_url: upload_url,
-                recording_submission_start_time: queue_[q].start_time,
-                recording_submission_end_time: queue_[q].end_time
-            })
+        let upload_response = await MeetingAPI.saveRecordingVideoToGCS(new_meeting.async.recording.file)
+        meeting_.recordings.push({
+            video_url: upload_response.data,
+            recording_submission_start_time: queue_[0].start_time,
+            recording_submission_end_time: queue_[0].end_time
         })
+        // upload_response.data.forEach((upload_url, q) => {
+
+        //     meeting_.recordings.push({
+        //         video_url: upload_url,
+        //         recording_submission_start_time: queue_[q].start_time,
+        //         recording_submission_end_time: queue_[q].end_time
+        //     })
+        // })
     }
 
     return meeting_

@@ -58,7 +58,7 @@ meetingRoutes.post('/save_new_recording/:recording_name', (req, res) => {
   })
 
   form.on('part', function(part) {
-    console.log("meetings/save_new_recording) received part of size", part.byteCount)
+    console.log("(meetings/save_new_recording) received part of size", part.byteCount)
     part.pipe(
       blob.createWriteStream({
           resumable: false
