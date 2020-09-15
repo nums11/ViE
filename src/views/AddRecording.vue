@@ -96,30 +96,26 @@ export default {
       this.recording_to_upload = file_
     },
     async addRecording () {
+      console.log("In addRecording about to make API call")
       this.meeting_saving = true
-      try{
-        const response = await MeetingAPI.saveRecordingVideosToGCS([{
-          video: this.recording_to_upload }])
-        let video_url = response.data[0]
-        let recording = {
-          video_url: video_url,
-          allow_recording_submissions: true,
-          recording_submission_start_time: new Date(this.recording_upload_start),
-          recording_submission_end_time: new Date(this.recording_upload_end)
-        }
-        await MeetingAPI.addRecordingToMeeting (this.$route.params.meeting_id,
-          recording)
-        // show the uploading animation
-        setTimeout(() => {
-          this.meeting_saving = false;
-          this.show_add_recording = false;
-        }, 2000)
-        this.$router.push({name: 'meeting_info', params: {meeting_id: this.$route.params.meeting_id}})
-      } catch(error) {
-        console.log("ERROR", error)
-        alert(error)
-        this.$router.push({name: "dashboard"})
+      const response = await MeetingAPI.saveRecordingToGCS(this.recording_to_upload)
+      // const response = await MeetingAPI.saveRecordingVideosToGCS([{
+      //   video: this.recording_to_upload }])
+      let video_url = response.data
+      let recording = {
+        video_url: video_url,
+        allow_recording_submissions: true,
+        recording_submission_start_time: new Date(this.recording_upload_start),
+        recording_submission_end_time: new Date(this.recording_upload_end)
       }
+      await MeetingAPI.addRecordingToMeeting (this.$route.params.meeting_id,
+        recording)
+      // show the uploading animation
+      setTimeout(() => {
+        this.meeting_saving = false;
+        this.show_add_recording = false;
+      }, 2000)
+      this.$router.push({name: 'meeting_info', params: {meeting_id: this.$route.params.meeting_id}})
     }
   }
 }
