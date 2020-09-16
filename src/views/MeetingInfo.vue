@@ -221,6 +221,7 @@ export default {
     this.current_user = this.$store.state.user.current_user
     this.is_instructor = this.current_user.is_instructor
     await this.getMeeting ()
+    console.log("Meeting Info got meeting", this.meeting)
     if(!this.for_course)
       this.checkIfCurrentUserIsBoardMember()
     console.log("Meeting",this.meeting)

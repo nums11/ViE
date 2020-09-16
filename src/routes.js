@@ -18,6 +18,7 @@ import OnboardUser from './views/OnboardUser.vue';
 import AdminNewOrg from './components/admin/Organization/AdminNewOrg.vue';
 import AdminOrgs from './components/admin/Organization/AdminOrgs.vue';
 import AdminEditOrg from './components/admin/Organization/AdminEditOrg.vue';
+import AdminEditMeeting from './components/admin/Meeting/AdminEditMeeting.vue';
 import NewMeeting from './views/NewMeeting.vue';
 import AdminNewEvent from './components/admin/Event/AdminNewEvent.vue';
 import AdminEvents from './components/admin/Event/AdminEvents.vue';
@@ -422,6 +423,15 @@ const router = new VueRouter({
       name: 'admin_edit_org',
       path: '/admin/edit_org/:id',
       component: AdminEditOrg,
+      meta: {
+        requiresAuth: true,
+        requireAdmin: true
+      }
+    },
+    {
+      name: 'admin_edit_meeting',
+      path: '/admin/edit_meeting/:meeting_id',
+      component: AdminEditMeeting,
       meta: {
         requiresAuth: true,
         requireAdmin: true
