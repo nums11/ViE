@@ -492,7 +492,9 @@ meetingRoutes.route('/update/add_recording/:id').post(async (req, res) => {
   })
 })
 
-// Todo: Delete recording submissions
+// Todo: Delete recording submissions and remove video from GCS (optional)
+// For removing video from GCS would have to first ensure that all videos saved have unique names
+// (e.g. adding the timestamp)
 meetingRoutes.route('/remove_recording/:async_attendance_id/:recording_id').delete(async function (req, res) {
   let async_attendance_id = req.params.async_attendance_id
   let recording_id = req.params.recording_id
