@@ -11,12 +11,14 @@
       <div class="time-picker-area">
         <div class="picker">
           <div class="label">START</div>
-          <input id="recording-submission-start" aria-labelledby="start_time_label" type="datetime-local"/>
+          <input class="datetime-picker" placeholder="Select date & time"
+          id="recording-submission-start" aria-labelledby="start_time_label" type="datetime-local"/>
         </div>
         <div class="spacer"></div>
         <div class="picker end">
           <div class="label">END</div>
-          <input id="recording-submission-end" aria-labelledby="end_time_label" type="datetime-local"/>
+          <input class="datetime-picker" placeholder="Select date & time"
+          id="recording-submission-end" aria-labelledby="end_time_label" type="datetime-local"/>
         </div>
       </div>
 
@@ -152,6 +154,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.datetime-picker {
+  border: 1px solid rgba(0,0,0,.2);
+  border-radius: 4px;
+  height: 3rem;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
 .time-picker-area {
   display: flex;
   margin: 20px 0;
