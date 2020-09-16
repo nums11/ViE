@@ -492,6 +492,31 @@ meetingRoutes.route('/update/add_recording/:id').post(async (req, res) => {
   })
 })
 
+// Todo: Delete recording submissions
+meetingRoutes.route('/remove_recording/:async_attendance_id/:recording_id').delete(async function (req, res) {
+  let async_attendance_id = req.params.async_attendance_id
+  let recording_id = req.params.recording_id
+  AsyncAttendance.findByIdAndUpdate(async_attendance_id,
+    {$pull: {recordings: recording_id}},
+    (error,async_attendance) => {
+      if(error || async_attendance == null) {
+        console.log("<ERROR (meetings/remove_recording)> removing recording with id",
+          recording_id, "from async_attendance with id", async_attendance_id, error)
+        res.json(error)
+      }
+      Recording.findByIdAndRemove(recording_id, (err) => {
+        if (err) {
+          console.log("<ERROR (meetings/remove_recording)> Deleting Recording with ID:", recording_id)
+          res.json(err);
+        } else {
+          console.log("<SUCCESS> (meetings/remove) Deleting recording with ID:",recording_id)
+          res.json('Successfully removed recording from meeting');
+        }
+      });
+    }
+  )
+})
+
 meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
   let meeting_id = req.params.meeting_id
   let meeting = req.body.meeting
