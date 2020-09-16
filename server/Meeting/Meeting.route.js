@@ -597,4 +597,42 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
   });
 });
 
+meetingRoutes.post('/add_async_attendance', async (req, res) => {
+  Meeting.find(async (error, meetings) => {
+    if(error || meetings == null) {
+      console.log("<ERROR> (meetings/add_async_attendance) Getting all meetings", errror)
+      res.json(error)
+    } else {
+      let meeting_promises = []
+      meetings.forEach(meeting => {
+        if(meeting.async_attendance == null) {
+          meeting_promises.push(new Promise(async (resolve,reject) => {
+            let new_async_attendance = new AsyncAttendance()
+            try {
+              let saved_async_attendance = await new_async_attendance.save()
+              meeting.async_attendance = saved_async_attendance
+              let saved_meeting = await meeting.save()
+              resolve(saved_meeting)
+            } catch (error) {
+              console.log("<ERROR> (meetings/add_async_attendance) saving async_attendance and meeting:",
+                error)
+              res.json(error)
+              reject(error)
+            }
+          }))
+        }
+      })
+      // Attach live attendance to the meeting
+      try{
+        let saved_meetings = await Promise.all(meeting_promises)
+        console.log("<SUCCESS> (meetings/add_async_attendance) updating all meetings")
+        res.json(saved_meetings)
+      } catch(error) {
+        console.log("<ERROR> (meetings/add_async_attendance) updating all meetings:",error)
+        res.json(error)
+      }
+    }
+  })
+})
+
 module.exports = meetingRoutes;
