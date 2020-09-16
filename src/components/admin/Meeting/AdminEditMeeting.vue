@@ -66,6 +66,7 @@
           <div v-for="recording in meeting.async_attendance.recordings">
             <h4>Start Time: {{ new Date(recording.recording_submission_start_time) }}</h4>
             <h4>End Time: {{ new Date(recording.recording_submission_end_time) }}</h4>
+            <button class="btn btn-danger" @click.prevent="removeRecordingFromMeeting(recording._id)">Delete</button>
           </div>
         </div>
       </div>
@@ -100,7 +101,11 @@
       async updateMeeting() {
         // const response = await MeetingAPI.updateMeeting(this.meeting_id, this.meeting)
         // this.$router.go()
-      }, 
+      },
+      async removeRecordingFromMeeting(recording_id) {
+        await MeetingAPI.removeRecordingFromMeeting(this.meeting.async_attendance._id, recording_id)
+        this.$router.go()
+      }
     }
   }
 </script>
