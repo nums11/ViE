@@ -12,10 +12,9 @@
         <div class="picker">
           <div class="label">START</div>
           <VueCtkDateTimePicker 
-            @input="$forceUpdate ()"
             v-model="recording_upload_start"
             id="date-input1"
-            :min-date="(new Date()).toISOString()"
+            :min-date="(new Date(Date.now())).toISOString()"
           />
         </div>
         <div class="spacer"></div>
@@ -71,7 +70,7 @@ export default {
   },
   data () {
     return {
-      recording_upload_start: (new Date()).toISOString (),
+      recording_upload_start: null,
       recording_upload_end: null,
       recording_to_upload: null,
       meeting_saving: false,
