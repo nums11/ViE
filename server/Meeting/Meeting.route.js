@@ -403,7 +403,9 @@ meetingRoutes.route('/add_recording/:meeting_id').post(async (req, res) => {
   let meeting_id = req.params.meeting_id
   let recording = req.body.recording
 
-  Meeting.findById(meeting_id, async (error,meeting) => {
+  Meeting.findByIdAndUpdate(meeting_id,
+    {has_async_attendance: true},
+    async (error,meeting) => {
     if(error || meeting == null){
       console.log("<ERROR> (meetings/add_recording) Getting meeting with ID:",id,error)
       res.json(error);
