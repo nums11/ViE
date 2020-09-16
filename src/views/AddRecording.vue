@@ -11,29 +11,12 @@
       <div class="time-picker-area">
         <div class="picker">
           <div class="label">START</div>
-          <flatpickr 
-            v-model="recording.recording_submission_start_time"
-            :config="flatpickr_config">
-          </flatpickr>
-<!--           <VueCtkDateTimePicker 
-            v-model="recording_upload_start"
-            id="date-input1"
-            :min-date="(new Date(Date.now())).toISOString()"
-          /> -->
+          <input id="recording-submission-start" aria-labelledby="start_time_label" type="datetime-local"/>
         </div>
         <div class="spacer"></div>
         <div class="picker end">
           <div class="label">END</div>
-          <flatpickr v-model="recording.recording_submission_end_time"
-          :config="flatpickr_config">
-          </flatpickr>
-
-<!--           <VueCtkDateTimePicker 
-            @input="$forceUpdate ()"
-            v-model="recording_upload_end"
-            id="date-input2"
-            :min-date="(new Date()).toISOString()"
-          /> -->
+          <input id="recording-submission-end" aria-labelledby="end_time_label" type="datetime-local"/>
         </div>
       </div>
 
@@ -69,46 +52,73 @@
 import MeetingAPI from '@/services/MeetingAPI.js';
 import UploadSuccessAnimation from '@/components/animations/UploadSuccessAnimation.vue';
 import Button2 from '@/components/Button2.vue';
-import flatpickr from "vue-flatpickr-component";
-// import 'flatpickr/dist/flatpickr.css';
+import flatpickr from "flatpickr";
 import 'flatpickr/dist/themes/material_blue.css';
-// import '../../node_modules/flatpickr/dist/flatpickr.min.css';
-// require("flatpickr/dist/themes/material_blue.css");
 
 export default {
   name: 'AddRecording',
   components: {
     Button2,
     UploadSuccessAnimation,
-    flatpickr
   },
   data () {
     return {
-      recording: {
-        recording_submission_start_time: null,
-        recording_submission_end_time: null
-      },
+      recording_submission_start_time: null,
+      recording_submission_end_time: null,
       recording_video: null,
       meeting_saving: false,
-      flatpickr_config: {
-        enableTime: true,
-        // minuteIncrement: 1,
-        // altInput: true,
-        // altFormat: "F j, Y H:i",
-        dateFormat: "Y-m-d H:i"
-      }
     }
   },
   computed: {
     recordingFormValid () {
-      return this.recording.recording_submission_start_time != null 
-      && this.recording.recording_submission_end_time != null
+      return this.recording_submission_start_time != null 
+      && this.recording_submission_end_time != null
       && this.recording_video != null
     }
   },
   created () {
+    this.setDateInputs()
   },
   methods: {
+    setDateInputs() {
+      this.$nextTick(() => {
+        let self = this
+        let start_time_picker = flatpickr(document.getElementById("recording-submission-start"),{
+          enableTime: true,
+          dateFormat: "h:i K, M d, Y",
+          minDate: Date.now(),
+          minuteIncrement: 1,
+          onChange: function(selectedDates, dateStr, instance) {
+            self.recording_submission_start_time = Date.parse(dateStr)
+            // Set the new min end time to 15 minutes after the new start time
+            let new_min_end_time = new Date(self.recording_submission_start_time)
+            new_min_end_time.setMinutes(new_min_end_time.getMinutes() + 15)
+            end_time_picker.set("minDate",new_min_end_time)
+            // Update end time if invalid
+            let fifteen_mins = 60 * 15 * 1000
+            if(self.recording_submission_start_time > self.recording_submission_end_time
+              || !self.recording_submission_end_time ) {
+              self.recording_submission_end_time = self.recording_submission_start_time + fifteen_mins
+              end_time_picker.setDate(self.recording_submission_end_time)
+            }
+            // Keep the dates 15 minutes apart
+            if((self.recording_submission_start_time + fifteen_mins) > self.recording_submission_end_time) {
+              self.recording_submission_end_time = self.recording_submission_start_time + fifteen_mins
+              end_time_picker.setDate(self.recording_submission_end_time)
+            }
+          }
+        })
+        let end_time_picker = flatpickr(document.getElementById("recording-submission-end"),{
+          enableTime: true,
+          dateFormat: "h:i K, M d, Y",
+          minDate: Date.now(),
+          minuteIncrement: 1,
+          onChange: function(selectedDates, dateStr, instance) {
+            self.recording_submission_end_time = Date.parse(dateStr)
+          }
+        })
+      })
+    },
     showFileSelector() {
       document.getElementById("recording-upload-input").click()
     },
@@ -125,8 +135,8 @@ export default {
       let video_url = response.data
       let recording = {
         video_url: video_url,
-        recording_submission_start_time: new Date(this.recording.recording_submission_start_time),
-        recording_submission_end_time: new Date(this.recording.recording_submission_end_time)
+        recording_submission_start_time: this.recording_submission_start_time,
+        recording_submission_end_time: this.recording_submission_end_time
       }
       await MeetingAPI.addRecordingToMeeting (this.$route.params.meeting_id,
         recording)
