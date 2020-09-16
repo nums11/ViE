@@ -492,6 +492,7 @@ meetingRoutes.route('/update/add_recording/:id').post(async (req, res) => {
   })
 })
 
+// Todo: Delete recording submissions
 meetingRoutes.route('/remove_recording/:async_attendance_id/:recording_id').delete(async function (req, res) {
   let async_attendance_id = req.params.async_attendance_id
   let recording_id = req.params.recording_id
