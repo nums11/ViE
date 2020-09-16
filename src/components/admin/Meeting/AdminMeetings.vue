@@ -19,9 +19,9 @@
           <td v-else>{{ meeting.org.name }}</td>
           <td>{{ meeting.has_live_attendance }}</td>
           <td>{{ meeting.has_async_attendance }}</td>
-<!--           <td>
-            <router-link :to="{name: 'admin_edit_meeting', params: { id: meeting._id }}" class="btn btn-primary">Edit</router-link>
-          </td> -->
+          <td>
+            <router-link :to="{name: 'admin_edit_meeting', params: { meeting_id: meeting._id }}" class="btn btn-primary">Edit</router-link>
+          </td>
           <td>
             <button class="btn btn-danger" @click.prevent="deleteMeeting(meeting)">Delete</button>
           </td>

@@ -4,6 +4,9 @@
     <router-link :to="{name: 'org_new_meeting', params: { org_id: org._id }}" tabindex="-1">
       <button class="inline-block"tabindex="0">Create New Meeting for {{ org.name }}</button>
     </router-link>
+    <router-link :to="{name: 'org_info', params: { id: org._id }}" tabindex="-1">
+      <button class="inline-block"tabindex="0">Go to Org Info for {{ org.name }}</button>
+    </router-link>
     <form @submit.prevent="updateOrg">
       <div class="row">
         <div class="col-md-6">

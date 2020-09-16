@@ -4,6 +4,9 @@
     <router-link :to="{name: 'course_new_meeting', params: { course_id: course._id }}" tabindex="-1">
       <button class="inline-block"tabindex="0">Create New Meeting for {{ course.dept }} {{ course.course_number }}</button>
     </router-link>
+    <router-link :to="{name: 'course_info', params: { id: course._id }}" tabindex="-1">
+      <button class="inline-block"tabindex="0">Go to Course Info for  {{ course.dept }} {{ course.course_number }}</button>
+    </router-link>
     <div class="spinner-border" role="status" v-if="!course_has_loaded">
       <span class="sr-only">Loading...</span>
     </div>

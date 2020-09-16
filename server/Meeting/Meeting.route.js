@@ -12,28 +12,8 @@ let Poll = require('../Poll/Poll.model');
 let User = require('../User/User.model');
 const {Storage} = require("@google-cloud/storage")
 const path = require('path');
-var multer = require("multer")
-// const multerGoogleStorage = require("multer-google-storage");
-// const multerGoogleStorage = require("multer-cloud-storage");
-
-// import MulterGoogleCloudStorage from "multer-google-storage";
-// multerGoogleStorage.bucket = 'venue_videos'
-// multerGoogleStorage.projectId = 'venue-279902'
-// multerGoogleStorage.keyFilename = path.join(__dirname, 'venue-279902-649f22aa6e34.json')
-// console.log("multer storage", multerGoogleStorage)
-// console.log("Internal object", multerGoogleStorage.default)
-// console.log("storageEngine", multerGoogleStorage.storageEngine)
-
+// var multer = require("multer")
 // var upload = multer({ storage: multer.memoryStorage() })
-// var uploadHandler = multer({
-//     storage: multerGoogleStorage.storageEngine({
-//       bucket: 'venue_videos',
-//       projectId: 'venue-279902',
-//       keyFilename: path.join(__dirname, 'venue-279902-649f22aa6e34.json'),
-//       acl: null
-//     })
-// });
-const fs = require('fs');
 var multiparty = require('multiparty')
 
 // GCS Specific
@@ -78,7 +58,7 @@ meetingRoutes.post('/save_new_recording/:recording_name', (req, res) => {
   })
 
   form.on('part', function(part) {
-    console.log("meetings/save_new_recording) received part of size", part.byteCount)
+    console.log("(meetings/save_new_recording) received part of size", part.byteCount)
     part.pipe(
       blob.createWriteStream({
           resumable: false
@@ -92,27 +72,6 @@ meetingRoutes.post('/save_new_recording/:recording_name', (req, res) => {
 
   form.parse(req)
 })
-
-// meetingRoutes.post('/save_new_recording/:recording_name',
-//  uploadHandler.single('recording'), (req, res) => {
-//   console.log("In this function")
-//   let recording_name = req.params.recording_name
-//   console.log("Recording name", recording_name)
-//   console.log("Files",req.files)
-//   res.json({})
-
-//   // console.log("request body", req.body)
-//   // console.log("request recording", req.recording)
-//   // console.log("Recording name", recording_name)
-//   // const blob = bucket.file(recording_name.replace(/ /g, "_"))
-//   // req.pipe(blob.createWriteStream({
-//   //   resumable: false
-//   // }));
-//   // req.on('end', () => {
-//   //   let publicUrl = 'https://storage.googleapis.com/' + bucket.name + '/' + blob.name
-//   //   res.json(publicUrl)
-//   // })
-// })
 
 // meetingRoutes.post('/save_to_gcs',
 //   upload.array('recording_videos'), async (req, res) => {
@@ -138,7 +97,6 @@ meetingRoutes.post('/save_new_recording/:recording_name', (req, res) => {
 //     }
 //   }
 // )
-
 
 meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
   let meeting = req.body.meeting;
@@ -532,6 +490,33 @@ meetingRoutes.route('/update/add_recording/:id').post(async (req, res) => {
       }
     }
   })
+})
+
+// Todo: Delete recording submissions and remove video from GCS (optional)
+// For removing video from GCS would have to first ensure that all videos saved have unique names
+// (e.g. adding the timestamp)
+meetingRoutes.route('/remove_recording/:async_attendance_id/:recording_id').delete(async function (req, res) {
+  let async_attendance_id = req.params.async_attendance_id
+  let recording_id = req.params.recording_id
+  AsyncAttendance.findByIdAndUpdate(async_attendance_id,
+    {$pull: {recordings: recording_id}},
+    (error,async_attendance) => {
+      if(error || async_attendance == null) {
+        console.log("<ERROR (meetings/remove_recording)> removing recording with id",
+          recording_id, "from async_attendance with id", async_attendance_id, error)
+        res.json(error)
+      }
+      Recording.findByIdAndRemove(recording_id, (err) => {
+        if (err) {
+          console.log("<ERROR (meetings/remove_recording)> Deleting Recording with ID:", recording_id)
+          res.json(err);
+        } else {
+          console.log("<SUCCESS> (meetings/remove) Deleting recording with ID:",recording_id)
+          res.json('Successfully removed recording from meeting');
+        }
+      });
+    }
+  )
 })
 
 meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
