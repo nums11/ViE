@@ -2,30 +2,38 @@
   <div class="add-recording-modal">
     <div class="center-modal">
       <div><h3>Add Recording</h3></div>
-      <div :class="`add-recording ${recording_to_upload == null ? '' : 'active'}`" @click="showFileSelector">
-        <div v-if="recording_to_upload == null">Click to add a recording</div>
-        <div v-else>{{ recording_to_upload.name }}</div>
+      <div :class="`add-recording ${recording_video == null ? '' : 'active'}`" @click="showFileSelector">
+        <div v-if="recording_video == null">Click to add a recording</div>
+        <div v-else>{{ recording_video.name }}</div>
         <input type="file" id="recording-upload-input" @change="setRecordingFile" />
       </div>
 
       <div class="time-picker-area">
         <div class="picker">
           <div class="label">START</div>
-          <VueCtkDateTimePicker 
+          <flatpickr 
+            v-model="recording.recording_submission_start_time"
+            :config="flatpickr_config">
+          </flatpickr>
+<!--           <VueCtkDateTimePicker 
             v-model="recording_upload_start"
             id="date-input1"
             :min-date="(new Date(Date.now())).toISOString()"
-          />
+          /> -->
         </div>
         <div class="spacer"></div>
         <div class="picker end">
           <div class="label">END</div>
-          <VueCtkDateTimePicker 
+          <flatpickr v-model="recording.recording_submission_end_time"
+          :config="flatpickr_config">
+          </flatpickr>
+
+<!--           <VueCtkDateTimePicker 
             @input="$forceUpdate ()"
             v-model="recording_upload_end"
             id="date-input2"
             :min-date="(new Date()).toISOString()"
-          />
+          /> -->
         </div>
       </div>
 
@@ -61,26 +69,41 @@
 import MeetingAPI from '@/services/MeetingAPI.js';
 import UploadSuccessAnimation from '@/components/animations/UploadSuccessAnimation.vue';
 import Button2 from '@/components/Button2.vue';
+import flatpickr from "vue-flatpickr-component";
+// import 'flatpickr/dist/flatpickr.css';
+import 'flatpickr/dist/themes/material_blue.css';
+// import '../../node_modules/flatpickr/dist/flatpickr.min.css';
+// require("flatpickr/dist/themes/material_blue.css");
 
 export default {
   name: 'AddRecording',
   components: {
     Button2,
-    UploadSuccessAnimation
+    UploadSuccessAnimation,
+    flatpickr
   },
   data () {
     return {
-      recording_upload_start: null,
-      recording_upload_end: null,
-      recording_to_upload: null,
+      recording: {
+        recording_submission_start_time: null,
+        recording_submission_end_time: null
+      },
+      recording_video: null,
       meeting_saving: false,
+      flatpickr_config: {
+        enableTime: true,
+        // minuteIncrement: 1,
+        // altInput: true,
+        // altFormat: "F j, Y H:i",
+        dateFormat: "Y-m-d H:i"
+      }
     }
   },
   computed: {
     recordingFormValid () {
-      return this.recording_upload_start != null 
-      && this.recording_upload_end != null
-      && this.recording_to_upload != null
+      return this.recording.recording_submission_start_time != null 
+      && this.recording.recording_submission_end_time != null
+      && this.recording_video != null
     }
   },
   created () {
@@ -90,22 +113,20 @@ export default {
       document.getElementById("recording-upload-input").click()
     },
     setRecordingFile (e) {
-      let file_ = e.target.files[0]
       // todo check if valid file extension
-      this.recording_to_upload = file_
+      this.recording_video = e.target.files[0]
     },
     async addRecording () {
       console.log("In addRecording about to make API call")
       this.meeting_saving = true
-      const response = await MeetingAPI.saveRecordingVideoToGCS(this.recording_to_upload)
+      const response = await MeetingAPI.saveRecordingVideoToGCS(this.recording_video)
       // const response = await MeetingAPI.saveRecordingVideosToGCS([{
       //   video: this.recording_to_upload }])
       let video_url = response.data
       let recording = {
         video_url: video_url,
-        allow_recording_submissions: true,
-        recording_submission_start_time: new Date(this.recording_upload_start),
-        recording_submission_end_time: new Date(this.recording_upload_end)
+        recording_submission_start_time: new Date(this.recording.recording_submission_start_time),
+        recording_submission_end_time: new Date(this.recording.recording_submission_end_time)
       }
       await MeetingAPI.addRecordingToMeeting (this.$route.params.meeting_id,
         recording)
