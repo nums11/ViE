@@ -141,10 +141,7 @@ export default {
       await MeetingAPI.addRecordingToMeeting (this.$route.params.meeting_id,
         recording)
       // show the uploading animation
-      setTimeout(() => {
-        this.meeting_saving = false;
-        this.show_add_recording = false;
-      }, 2000)
+      this.meeting_saving = false;
       this.$router.push({name: 'meeting_info', params: {meeting_id: this.$route.params.meeting_id}})
     }
   }

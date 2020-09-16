@@ -23,6 +23,7 @@ import NewMeeting from './views/NewMeeting.vue';
 import AdminNewEvent from './components/admin/Event/AdminNewEvent.vue';
 import AdminEvents from './components/admin/Event/AdminEvents.vue';
 import AdminEditEvent from './components/admin/Event/AdminEditEvent.vue';
+import AdminGlobalCommands from './views/AdminGlobalCommands.vue';
 import NewSubmission from './components/admin/Submission/NewSubmission.vue';
 import Submissions from './components/admin/Submission/Submissions.vue';
 import AdminStudentInvite from './components/admin/Course/StudentInvite.vue';
@@ -432,6 +433,15 @@ const router = new VueRouter({
       name: 'admin_edit_meeting',
       path: '/admin/edit_meeting/:meeting_id',
       component: AdminEditMeeting,
+      meta: {
+        requiresAuth: true,
+        requireAdmin: true
+      }
+    },
+    {
+      name: 'admin_global_commands',
+      path: '/admin/global_commands',
+      component: AdminGlobalCommands,
       meta: {
         requiresAuth: true,
         requireAdmin: true
