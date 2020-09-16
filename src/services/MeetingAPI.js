@@ -36,16 +36,10 @@ export default {
         meeting: meeting
     })
   },
-  addRecordingToMeeting(
-    meeting_id,
-    recording
-  ) {
-
-    return API().post(`meetings/update/add_recording/${meeting_id}`, 
-    {
+  addRecordingToMeeting(async_attendance_id, recording) {
+    return API().post(`meetings/add_recording/${async_attendance_id}`, {
       recording
     })
-
   },
   removeRecordingFromMeeting(async_attendance_id,recording_id) {
     return API().delete('meetings/remove_recording/' +

@@ -2,31 +2,23 @@
   <div class="add-recording-modal">
     <div class="center-modal">
       <div><h3>Add Recording</h3></div>
-      <div :class="`add-recording ${recording_to_upload == null ? '' : 'active'}`" @click="showFileSelector">
-        <div v-if="recording_to_upload == null">Click to add a recording</div>
-        <div v-else>{{ recording_to_upload.name }}</div>
+      <div :class="`add-recording ${recording_video == null ? '' : 'active'}`" @click="showFileSelector">
+        <div v-if="recording_video == null">Click to add a recording</div>
+        <div v-else>{{ recording_video.name }}</div>
         <input type="file" id="recording-upload-input" @change="setRecordingFile" />
       </div>
 
       <div class="time-picker-area">
         <div class="picker">
           <div class="label">START</div>
-          <VueCtkDateTimePicker 
-            @input="$forceUpdate ()"
-            v-model="recording_upload_start"
-            id="date-input1"
-            :min-date="(new Date()).toISOString()"
-          />
+          <input class="datetime-picker" placeholder="Select date & time"
+          id="recording-submission-start" aria-labelledby="start_time_label" type="datetime-local"/>
         </div>
         <div class="spacer"></div>
         <div class="picker end">
           <div class="label">END</div>
-          <VueCtkDateTimePicker 
-            @input="$forceUpdate ()"
-            v-model="recording_upload_end"
-            id="date-input2"
-            :min-date="(new Date()).toISOString()"
-          />
+          <input class="datetime-picker" placeholder="Select date & time"
+          id="recording-submission-end" aria-labelledby="end_time_label" type="datetime-local"/>
         </div>
       </div>
 
@@ -62,51 +54,89 @@
 import MeetingAPI from '@/services/MeetingAPI.js';
 import UploadSuccessAnimation from '@/components/animations/UploadSuccessAnimation.vue';
 import Button2 from '@/components/Button2.vue';
+import flatpickr from "flatpickr";
+import 'flatpickr/dist/themes/material_blue.css';
 
 export default {
   name: 'AddRecording',
   components: {
     Button2,
-    UploadSuccessAnimation
+    UploadSuccessAnimation,
   },
   data () {
     return {
-      recording_upload_start: (new Date()).toISOString (),
-      recording_upload_end: null,
-      recording_to_upload: null,
+      recording_submission_start_time: null,
+      recording_submission_end_time: null,
+      recording_video: null,
       meeting_saving: false,
     }
   },
   computed: {
     recordingFormValid () {
-      return this.recording_upload_start != null 
-      && this.recording_upload_end != null
-      && this.recording_to_upload != null
+      return this.recording_submission_start_time != null 
+      && this.recording_submission_end_time != null
+      && this.recording_video != null
     }
   },
   created () {
+    this.setDateInputs()
   },
   methods: {
+    setDateInputs() {
+      this.$nextTick(() => {
+        let self = this
+        let start_time_picker = flatpickr(document.getElementById("recording-submission-start"),{
+          enableTime: true,
+          dateFormat: "h:i K, M d, Y",
+          minDate: Date.now(),
+          minuteIncrement: 1,
+          onChange: function(selectedDates, dateStr, instance) {
+            self.recording_submission_start_time = Date.parse(dateStr)
+            // Set the new min end time to 15 minutes after the new start time
+            let new_min_end_time = new Date(self.recording_submission_start_time)
+            new_min_end_time.setMinutes(new_min_end_time.getMinutes() + 15)
+            end_time_picker.set("minDate",new_min_end_time)
+            // Update end time if invalid
+            let fifteen_mins = 60 * 15 * 1000
+            if(self.recording_submission_start_time > self.recording_submission_end_time
+              || !self.recording_submission_end_time ) {
+              self.recording_submission_end_time = self.recording_submission_start_time + fifteen_mins
+              end_time_picker.setDate(self.recording_submission_end_time)
+            }
+            // Keep the dates 15 minutes apart
+            if((self.recording_submission_start_time + fifteen_mins) > self.recording_submission_end_time) {
+              self.recording_submission_end_time = self.recording_submission_start_time + fifteen_mins
+              end_time_picker.setDate(self.recording_submission_end_time)
+            }
+          }
+        })
+        let end_time_picker = flatpickr(document.getElementById("recording-submission-end"),{
+          enableTime: true,
+          dateFormat: "h:i K, M d, Y",
+          minDate: Date.now(),
+          minuteIncrement: 1,
+          onChange: function(selectedDates, dateStr, instance) {
+            self.recording_submission_end_time = Date.parse(dateStr)
+          }
+        })
+      })
+    },
     showFileSelector() {
       document.getElementById("recording-upload-input").click()
     },
     setRecordingFile (e) {
-      let file_ = e.target.files[0]
       // todo check if valid file extension
-      this.recording_to_upload = file_
+      this.recording_video = e.target.files[0]
     },
     async addRecording () {
       console.log("In addRecording about to make API call")
       this.meeting_saving = true
-      const response = await MeetingAPI.saveRecordingVideoToGCS(this.recording_to_upload)
-      // const response = await MeetingAPI.saveRecordingVideosToGCS([{
-      //   video: this.recording_to_upload }])
+      const response = await MeetingAPI.saveRecordingVideoToGCS(this.recording_video)
       let video_url = response.data
       let recording = {
         video_url: video_url,
-        allow_recording_submissions: true,
-        recording_submission_start_time: new Date(this.recording_upload_start),
-        recording_submission_end_time: new Date(this.recording_upload_end)
+        recording_submission_start_time: this.recording_submission_start_time,
+        recording_submission_end_time: this.recording_submission_end_time
       }
       await MeetingAPI.addRecordingToMeeting (this.$route.params.meeting_id,
         recording)
@@ -122,6 +152,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.datetime-picker {
+  border: 1px solid rgba(0,0,0,.2);
+  border-radius: 4px;
+  height: 3rem;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
 .time-picker-area {
   display: flex;
   margin: 20px 0;
