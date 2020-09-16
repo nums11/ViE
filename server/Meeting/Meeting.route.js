@@ -399,94 +399,37 @@ meetingRoutes.route('/update/:id').post(function (req, res) {
       recording_submission_start_time: Date
       recording_submission_end_time: Date
 */
-meetingRoutes.route('/update/add_recording/:id').post(async (req, res) => {
-
+meetingRoutes.route('/add_recording/:meeting_id').post(async (req, res) => {
+  let meeting_id = req.params.meeting_id
   let recording = req.body.recording
-  let meeting_id = req.params.id
-  if (!recording) {
-    console.error(`<UPDATE/ADD_RECORDING: ERROR> No recording found`)
-    res.json({
-      success: false,
-      error: 'No recording attached'
-    })
-    return;
-  }
 
-  if (!recording.video_url) {
-    console.error(`<UPDATE/ADD_RECORDING: ERROR> No video url`)
-    res.json({
-      success: false,
-      error: 'No video url provided'
-    })
-    return;
-  }
-
-  if (!recording.recording_submission_start_time) {
-    console.error(`<UPDATE/ADD_RECORDING: ERROR> No recording_submission_start_time url`)
-    res.json({
-      success: false,
-      error: 'No recording_submission_start_time provided'
-    })
-    return;
-  }
-
-  if (!recording.recording_submission_end_time) {
-    console.error(`<UPDATE/ADD_RECORDING: ERROR> No recording_submission_end_time`)
-    res.json({
-      success: false,
-      error: 'No recording_submission_end_time provided'
-    })
-    return;
-  }
-  
-  Meeting.findById(meeting_id, async (err, meeting_doc) => {
-    if (err || !meeting_doc) {
-      console.log(`<UPDATE/ADD_RECORDING: ERROR> No meeting with id ${course_id} found.`)
-      res.json({
-        success: false,
-        error: 'Meeting does not exist'
-      })
-    }
-    else {
-
-      let new_recording = new Recording({ ...recording, allow_recording_submissions: true })
-      let uploaded_recording = await new_recording.save ()
-
-      if (meeting_doc.async_attendance != null) {
-
-        // get the async attendance and attach the recording to it
-        AsyncAttendance.findById(meeting_doc.async_attendance, async (err, async_attendance_doc) => {
-          if (err || !async_attendance_doc) {
-            console.log(`<UPDATE/ADD_RECORDING: ERROR> The async attendance for meeting ${meeting_id} could not be found`)
-            res.json({
-              success: false,
-              error: `No AsyncAttendance with id ${meeting_doc.async_attendance} exists`
-            })
-          }
-          else {
-            async_attendance_doc.recordings.push( uploaded_recording._id )
-            await async_attendance_doc.save ()
-
-            // TODO populate meeting_doc
-            res.json(meeting_doc)
-          }
-        })
-
-      }
-      else {
-        // create the async attendance
-        let new_async = new AsyncAttendance({
-          recordings: [ uploaded_recording._id ]
-        })
-        let uploaded_async = await new_async.save ()
-
-        meeting_doc.async_attendance = uploaded_async._id
-        meeting_doc.has_async_attendance = true
-        let updated_meeting = await meeting_doc.save ()
-
-        // TODO populate
-        res.json(updated_meeting)
-
+  Meeting.findById(meeting_id, async (error,meeting) => {
+    if(error || meeting == null){
+      console.log("<ERROR> (meetings/add_recording) Getting meeting with ID:",id,error)
+      res.json(error);
+    } else {
+      try {
+        let new_recording = new Recording(recording)
+        let saved_recording = await new_recording.save()
+        AsyncAttendance.findByIdAndUpdate(meeting.async_attendance,
+          {$push: {recordings: saved_recording._id}},
+          (error,async_attendance) => {
+            if(error || async_attendance == null){
+              console.log("<ERROR> (meetings/add_recording) Adding recording with ID:",
+                saved_recording._id, "to async_attendance with id",
+                meeting.async_attendance, error)
+              res.json(error);
+            } else {
+              console.log("<SUCCESS> (meetings/add_recording) Adding recording with ID:",
+                saved_recording._id, "to async_attendance with id",
+                meeting.async_attendance)
+              res.json(saved_recording);
+            }
+          })
+      } catch(error) {
+        console.log("<ERROR> (meetings/add_recording) saving recording",
+          new_recording,error)
+        res.json(error);
       }
     }
   })
