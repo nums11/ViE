@@ -150,8 +150,11 @@
         }
       },
       async removeStudent(student){
-        const response = await CourseAPI.removeStudentFromCourse(this.course_id, student._id)
-        this.$router.go()
+        let confirmation = confirm("Are you sure you want to remove this student from the course?")
+        if(confirmation){
+          const response = await CourseAPI.removeStudentFromCourse(this.course_id, student._id)
+          this.$router.go()
+        }
       },
       instructorIsNull(){
         return this.instructor == null
