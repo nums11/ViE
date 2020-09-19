@@ -104,8 +104,11 @@
         this.general_members = this.org.general_members
       },
       async updateOrg() {
-        const response = await OrgAPI.updateOrg(this.org_id, this.org)
-        this.$router.go()
+        let confirmation = confirm("Are you sure you want to update this org?")
+        if(confirmation){
+          const response = await OrgAPI.updateOrg(this.org_id, this.org)
+          this.$router.go()
+        }
       }, 
       async addBoardMember(user){
         if(this.isBoardMember(user)) {
