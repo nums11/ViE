@@ -121,8 +121,11 @@
         this.$router.go()
       },
       async updateCourse() {
-        const response = await CourseAPI.updateCourse(this.course_id, this.course)
-        this.$router.go()
+        let confirmation = confirm("Are you sure you want to update this course?")
+        if(confirmation){
+          const response = await CourseAPI.updateCourse(this.course_id, this.course)
+          this.$router.go()
+        }
       }, 
       selectInstructor(instructor){
         this.instructor = instructor
