@@ -55,8 +55,11 @@
         this.meetings = response.data;
       },
       async deleteMeeting(meeting){
-        const response = await MeetingAPI.deleteMeeting(meeting);
-        this.$router.go()
+        let confirmation = confirm("Are you sure you want to delete this meeting?")
+        if(confirmation){
+          const response = await MeetingAPI.deleteMeeting(meeting);
+          this.$router.go()
+        }
       },
     }
   }
