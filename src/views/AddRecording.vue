@@ -81,7 +81,6 @@ export default {
   },
   created () {
     this.setDateInputs()
-    console.log("date 2", (moment(new Date(Date.now())).format("h:mm A, MMM Do YYYY")))
   },
   methods: {
     setDateInputs() {
@@ -150,8 +149,8 @@ export default {
       }
     },
     getConfirmationString() {
-      let confirmation_string = `Are you sure you want to add this recording to your meeting?\n`
-       + `video: ${this.recording_video.name}\n`
+      let confirmation_string = `Are you sure you want to add this recording to your meeting?\n\n`
+       + `video: ${this.recording_video.name}\n\n`
        + `recording submission window:\n`
       + `${moment(this.recording_submission_start_time).format("MMM Do YYYY, h:mm A")}`
       + ` - ${moment(this.recording_submission_end_time).format("MMM Do YYYY, h:mm A")}`
