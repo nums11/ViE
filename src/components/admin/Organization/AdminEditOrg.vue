@@ -147,12 +147,18 @@
         }
       },
       async removeBoardMember(user) {
-        await OrgAPI.removeMemberFromOrg(this.org_id, user._id, true)
-        this.$router.go()
+        let confirmation = confirm("Are you sure you want to remove this board member?")
+        if(confirmation){
+          await OrgAPI.removeMemberFromOrg(this.org_id, user._id, true)
+          this.$router.go()
+        }
       },
       async removeGeneralMember(user) {
-        await OrgAPI.removeMemberFromOrg(this.org_id, user._id, false)
-        this.$router.go()
+        let confirmation = confirm("Are you sure you want to remove this general member?")
+        if(confirmation){
+          await OrgAPI.removeMemberFromOrg(this.org_id, user._id, false)
+          this.$router.go()
+        }
       },
       isBoardMember(user) {
         let user_in_board = false
