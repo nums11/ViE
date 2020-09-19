@@ -143,8 +143,11 @@
             student_in_course = true
         })
         if(!student_in_course){
-          const response = await CourseAPI.addStudentToCourse(this.course_id, student._id)
-          this.$router.go()
+          let confirmation = confirm("Are you sure you want to add this student to the course?")
+          if(confirmation){
+            const response = await CourseAPI.addStudentToCourse(this.course_id, student._id)
+            this.$router.go()
+          }
         } else {
           alert("Student already in course")
         }
