@@ -48,8 +48,11 @@
         this.orgs = response.data;
       },
       async deleteOrg(id){
-        const response = await OrgAPI.deleteOrg(id);
-        this.orgs.splice(this.orgs.findIndex(i => i._id == id), 1);
+        let confirmation = confirm("Are you sure you want to delete this course?")
+        if(confirmation){
+          const response = await OrgAPI.deleteOrg(id);
+          this.orgs.splice(this.orgs.findIndex(i => i._id == id), 1);
+        }
       },
       logout () {
         this.$store.dispatch('logout')
