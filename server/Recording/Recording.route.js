@@ -35,4 +35,24 @@ recordingRoutes.route('/get/:id').get(function (req, res) {
   })
 });
 
+recordingRoutes.route('/update/:id').post(function (req, res) {
+  let id = req.params.id;
+  let updated_recording = req.body.updated_recording;
+  Recording.findByIdAndUpdate(id,
+    {
+      recording_submission_start_time: updated_recording.recording_submission_start_time,
+      recording_submission_end_time: updated_recording.recording_submission_end_time,
+    },
+    function (err, recording) {
+      if (err || recording == null) {
+        console.log("<ERROR> (recordings/update) Updating recording by ID:",id,"with:",updated_recording)
+        res.status(404).send("recording not found");
+      } else {
+        console.log("<SUCCESS> (recordings/update) Updating recording by ID:",id,"with:")
+        res.json(recording);
+      }
+    }
+  );
+});
+
 module.exports = recordingRoutes;
