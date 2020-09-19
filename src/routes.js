@@ -14,6 +14,7 @@ import AdminSections from './components/admin/Section/AdminSections.vue';
 import AdminEditSection from './components/admin/Section/AdminEditSection.vue';
 import AdminNewSection from './components/admin/Section/AdminNewSection.vue';
 import AdminNewUser from './components/admin/User/AdminNewUser.vue';
+import AdminEditRecording from './components/admin/Recording/AdminEditRecording.vue';
 import OnboardUser from './views/OnboardUser.vue';
 import AdminNewOrg from './components/admin/Organization/AdminNewOrg.vue';
 import AdminOrgs from './components/admin/Organization/AdminOrgs.vue';
@@ -162,6 +163,15 @@ const router = new VueRouter({
       name: 'admin_edit_course',
       path: '/admin/edit_course/:id',
       component: AdminEditCourse,
+      meta: {
+        requiresAuth: true,
+        requiresadmIn: true
+      }
+    },
+    {
+      name: 'admin_edit_recording',
+      path: '/admin/edit_recording/:recording_id',
+      component: AdminEditRecording,
       meta: {
         requiresAuth: true,
         requiresadmIn: true

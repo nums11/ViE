@@ -29,7 +29,7 @@
                 <label>Course</label>
                 <input type="text" class="form-control" v-model="meeting.course.name" rows="5" disabled>
               </div>
-              <div v-else class="form-group" v-else>
+              <div v-else class="form-group">
                 <label>Org</label>
                 <input type="text" class="form-control" v-model="meeting.org.name" rows="5" disabled>
               </div>
@@ -66,6 +66,7 @@
           <div v-for="recording in meeting.async_attendance.recordings">
             <h4>Start Time: {{ new Date(recording.recording_submission_start_time) }}</h4>
             <h4>End Time: {{ new Date(recording.recording_submission_end_time) }}</h4>
+            <router-link :to="{name: 'admin_edit_recording', params: { recording_id: recording._id }}" class="btn btn-primary">Edit</router-link>
             <button class="btn btn-danger" @click.prevent="removeRecordingFromMeeting(recording._id)">Delete</button>
           </div>
         </div>
