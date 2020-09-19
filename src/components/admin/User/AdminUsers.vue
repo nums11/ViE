@@ -51,8 +51,11 @@
         this.users = response.data;
       },
       async deleteUser(id){
-        const response = await UserAPI.deleteUser(id);
-        this.users.splice(this.users.findIndex(i => i._id == id), 1);
+        let confirmation = confirm("Are you sure you want to delete this user?")
+        if(confirmation){
+          const response = await UserAPI.deleteUser(id);
+          this.users.splice(this.users.findIndex(i => i._id == id), 1);
+        }
       },
       logout () {
         this.$store.dispatch('logout')

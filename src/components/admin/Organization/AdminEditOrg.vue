@@ -104,19 +104,28 @@
         this.general_members = this.org.general_members
       },
       async updateOrg() {
-        const response = await OrgAPI.updateOrg(this.org_id, this.org)
-        this.$router.go()
+        let confirmation = confirm("Are you sure you want to update this org?")
+        if(confirmation){
+          const response = await OrgAPI.updateOrg(this.org_id, this.org)
+          this.$router.go()
+        }
       }, 
       async addBoardMember(user){
         if(this.isBoardMember(user)) {
           alert("User is already a board member")
           return
         } else if(this.isGeneralMember(user)) {
-          await OrgAPI.addBoardMemberToOrg(this.org_id, user._id, true)
-          this.$router.go()
+          let confirmation = confirm("Are you sure you want to add this board member?")
+          if(confirmation){
+            await OrgAPI.addBoardMemberToOrg(this.org_id, user._id, true)
+            this.$router.go()
+          }
         } else {
-          await OrgAPI.addBoardMemberToOrg(this.org_id, user._id, false)
-          this.$router.go()
+          let confirmation = confirm("Are you sure you want to add this board member?")
+          if(confirmation){
+            await OrgAPI.addBoardMemberToOrg(this.org_id, user._id, false)
+            this.$router.go()
+          }
         }
       },
       async addGeneralMember(user){
@@ -124,20 +133,32 @@
           alert("User is already a general member")
           return
         } else if(this.isBoardMember(user)) {
-          await OrgAPI.addGeneralMemberToOrg(this.org_id, user._id, true)
-          this.$router.go()
+          let confirmation = confirm("Are you sure you want to add this general member?")
+          if(confirmation){
+            await OrgAPI.addGeneralMemberToOrg(this.org_id, user._id, true)
+            this.$router.go()
+          }
         } else {
-          await OrgAPI.addGeneralMemberToOrg(this.org_id, user._id, false)
-          this.$router.go()
+          let confirmation = confirm("Are you sure you want to add this general member?")
+          if(confirmation){
+            await OrgAPI.addGeneralMemberToOrg(this.org_id, user._id, false)
+            this.$router.go()
+          }
         }
       },
       async removeBoardMember(user) {
-        await OrgAPI.removeMemberFromOrg(this.org_id, user._id, true)
-        this.$router.go()
+        let confirmation = confirm("Are you sure you want to remove this board member?")
+        if(confirmation){
+          await OrgAPI.removeMemberFromOrg(this.org_id, user._id, true)
+          this.$router.go()
+        }
       },
       async removeGeneralMember(user) {
-        await OrgAPI.removeMemberFromOrg(this.org_id, user._id, false)
-        this.$router.go()
+        let confirmation = confirm("Are you sure you want to remove this general member?")
+        if(confirmation){
+          await OrgAPI.removeMemberFromOrg(this.org_id, user._id, false)
+          this.$router.go()
+        }
       },
       isBoardMember(user) {
         let user_in_board = false

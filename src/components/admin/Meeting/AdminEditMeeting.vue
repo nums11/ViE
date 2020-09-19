@@ -103,8 +103,11 @@
         // this.$router.go()
       },
       async removeRecordingFromMeeting(recording_id) {
-        await MeetingAPI.removeRecordingFromMeeting(this.meeting.async_attendance._id, recording_id)
-        this.$router.go()
+        let confirmation = confirm("Are you sure you want to remove this recording?")
+        if(confirmation){
+          await MeetingAPI.removeRecordingFromMeeting(this.meeting.async_attendance._id, recording_id)
+          this.$router.go()
+        }
       }
     }
   }

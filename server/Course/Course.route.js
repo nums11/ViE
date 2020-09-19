@@ -391,6 +391,7 @@ courseRoutes.route('/update/:id').post(function (req, res) {
   );
 });
 
+// Todo update the instructor courses and student courses
 courseRoutes.route('/delete/:id').delete(function (req, res) {
   Course.findByIdAndRemove({ _id: req.params.id }, function (err) {
     if (err) {

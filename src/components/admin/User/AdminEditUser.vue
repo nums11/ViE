@@ -111,9 +111,12 @@ export default {
       });
     },
     async updateUser() {
-      let user_id = this.$route.params.id;
-      const response = await UserAPI.updateUser(user_id, this.user);
-      this.$router.push({ name: "admin_users" });
+      let confirmation = confirm("Are you sure you want to update this user?")
+      if(confirmation){
+        let user_id = this.$route.params.id;
+        const response = await UserAPI.updateUser(user_id, this.user);
+        this.$router.push({ name: "admin_users" });
+      }
     },
     async getInstructorCourses() {
       let user_id = this.$route.params.id;
