@@ -132,8 +132,11 @@
         if(this.course.instructor.user_id === instructor.user_id)
           alert("User is already primary instructor")
         else {
-          await CourseAPI.addSecondaryInstructor(this.course_id, instructor._id)
-          this.$router.go()
+          let confirmation = confirm("Are you sure you want to add this user as a secondary instructor?")
+          if(confirmation){
+            await CourseAPI.addSecondaryInstructor(this.course_id, instructor._id)
+            this.$router.go()
+          }
         }
       },
       async addStudent(student) {
