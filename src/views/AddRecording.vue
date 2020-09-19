@@ -55,6 +55,7 @@ import MeetingAPI from '@/services/MeetingAPI.js';
 import UploadSuccessAnimation from '@/components/animations/UploadSuccessAnimation.vue';
 import Button2 from '@/components/Button2.vue';
 import flatpickr from "flatpickr";
+import moment from 'moment'
 import 'flatpickr/dist/themes/material_blue.css';
 
 export default {
@@ -80,6 +81,7 @@ export default {
   },
   created () {
     this.setDateInputs()
+    console.log("date 2", (moment(new Date(Date.now())).format("h:mm A, MMM Do YYYY")))
   },
   methods: {
     setDateInputs() {
@@ -87,7 +89,7 @@ export default {
         let self = this
         let start_time_picker = flatpickr(document.getElementById("recording-submission-start"),{
           enableTime: true,
-          dateFormat: "h:i K, M d, Y",
+          dateFormat: "M d Y, h:i K",
           minDate: Date.now(),
           minuteIncrement: 1,
           onChange: function(selectedDates, dateStr, instance) {
@@ -112,7 +114,7 @@ export default {
         })
         let end_time_picker = flatpickr(document.getElementById("recording-submission-end"),{
           enableTime: true,
-          dateFormat: "h:i K, M d, Y",
+          dateFormat: "M d Y, h:i K",
           minDate: Date.now(),
           minuteIncrement: 1,
           onChange: function(selectedDates, dateStr, instance) {
@@ -129,20 +131,31 @@ export default {
       this.recording_video = e.target.files[0]
     },
     async addRecording () {
-      console.log("In addRecording about to make API call")
-      this.meeting_saving = true
-      const response = await MeetingAPI.saveRecordingVideoToGCS(this.recording_video)
-      let video_url = response.data
-      let recording = {
-        video_url: video_url,
-        recording_submission_start_time: this.recording_submission_start_time,
-        recording_submission_end_time: this.recording_submission_end_time
+      let confirmation = confirm(this.getConfirmationString())
+      if(confirmation){
+        console.log("In addRecording about to make API call")
+        this.meeting_saving = true
+        const response = await MeetingAPI.saveRecordingVideoToGCS(this.recording_video)
+        let video_url = response.data
+        let recording = {
+          video_url: video_url,
+          recording_submission_start_time: this.recording_submission_start_time,
+          recording_submission_end_time: this.recording_submission_end_time
+        }
+        await MeetingAPI.addRecordingToMeeting (this.$route.params.meeting_id,
+          recording)
+        // show the uploading animation
+        this.meeting_saving = false;
+        this.$router.push({name: 'meeting_info', params: {meeting_id: this.$route.params.meeting_id}})
       }
-      await MeetingAPI.addRecordingToMeeting (this.$route.params.meeting_id,
-        recording)
-      // show the uploading animation
-      this.meeting_saving = false;
-      this.$router.push({name: 'meeting_info', params: {meeting_id: this.$route.params.meeting_id}})
+    },
+    getConfirmationString() {
+      let confirmation_string = `Are you sure you want to add this recording to your meeting?\n`
+       + `video: ${this.recording_video.name}\n`
+       + `recording submission window:\n`
+      + `${moment(this.recording_submission_start_time).format("MMM Do YYYY, h:mm A")}`
+      + ` - ${moment(this.recording_submission_end_time).format("MMM Do YYYY, h:mm A")}`
+      return confirmation_string
     }
   }
 }
