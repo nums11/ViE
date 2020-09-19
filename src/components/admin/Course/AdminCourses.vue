@@ -55,8 +55,11 @@
         })
       },
       async deleteCourse(id){
-        const response = await CourseAPI.deleteCourse(id);
-        this.courses.splice(this.courses.findIndex(i => i._id == id), 1)
+        let confirmation = confirm("Are you sure you want to delete this course?")
+        if(confirmation){
+          const response = await CourseAPI.deleteCourse(id);
+          this.courses.splice(this.courses.findIndex(i => i._id == id), 1)
+        }
       },
       setIsCourseView() {
         this.is_course_view = this.$router.currentRoute.name === "admin_courses"
