@@ -115,11 +115,17 @@
           alert("User is already a board member")
           return
         } else if(this.isGeneralMember(user)) {
-          await OrgAPI.addBoardMemberToOrg(this.org_id, user._id, true)
-          this.$router.go()
+          let confirmation = confirm("Are you sure you want to add this board member?")
+          if(confirmation){
+            await OrgAPI.addBoardMemberToOrg(this.org_id, user._id, true)
+            this.$router.go()
+          }
         } else {
-          await OrgAPI.addBoardMemberToOrg(this.org_id, user._id, false)
-          this.$router.go()
+          let confirmation = confirm("Are you sure you want to add this board member?")
+          if(confirmation){
+            await OrgAPI.addBoardMemberToOrg(this.org_id, user._id, false)
+            this.$router.go()
+          }
         }
       },
       async addGeneralMember(user){
