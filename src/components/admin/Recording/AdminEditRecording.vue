@@ -78,7 +78,11 @@
       async updateRecording() {
         let confirmation = confirm("Are you sure you want to update this recording?")
         if(confirmation){
-          const response = await RecordingAPI.updateRecording(this.recording_id, this.recording)
+          let updated_recording = {
+            recording_submission_start_time: new Date(this.recording.recording_submission_start_time),
+            recording_submission_end_time: new Date(this.recording.recording_submission_end_time),
+          }
+          const response = await RecordingAPI.updateRecording(this.recording_id, updated_recording)
           this.$router.go()
         }
       },
