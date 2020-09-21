@@ -373,16 +373,16 @@ meetingRoutes.route('/update/:id').post(function (req, res) {
   let updated_meeting = req.body.updated_meeting;
   Meeting.findByIdAndUpdate(id,
     {
-      name: updated_meeting.name,
-      board_members: updated_meeting.board_members,
-      general_members: updated_meeting.general_members,
+      title: updated_meeting.title,
+      start_time: updated_meeting.start_time,
+      end_time: updated_meeting.end_time,
     },
     function (err, meeting) {
       if (err || meeting == null) {
-        console.log("<ERROR> Updating meeting by ID:",id,"with:",updated_meeting)
+        console.log("<ERROR> (meetings/update) Updating meeting by ID:",id,"with:",updated_meeting)
         res.status(404).send("meeting not found");
       } else {
-        console.log("<SUCCESS> Updating meeting by ID:",id,"with:",updated_meeting)
+        console.log("<SUCCESS> (meetings/update) Updating meeting by ID:",id)
         res.json(meeting);
       }
     }

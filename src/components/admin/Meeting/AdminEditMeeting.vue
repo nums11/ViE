@@ -47,6 +47,24 @@
               </div>
             </div>
           </div>
+          <div v-if="meeting.has_live_attendance" class="row">
+            <p>Start: {{ new Date(meeting.start_time) }}</p>
+            <p>End: {{ new Date(meeting.end_time) }}</p>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Start</label>
+                <input class="datetime-picker" placeholder="Select date & time"
+                id="qr_checkin-submission-start"
+                v-model="meeting.start_time"
+                type="datetime-local"/>
+                <label>End</label>
+                <input class="datetime-picker" placeholder="Select date & time"
+                id="qr_checkin-submission-start"
+                v-model="meeting.end_time"
+                type="datetime-local"/>
+              </div>
+            </div>
+          </div><br />
           <div class="form-group">
             <button class="btn btn-primary">Update</button>
           </div>
@@ -101,8 +119,8 @@
         this.meeting_has_loaded = true
       },
       async updateMeeting() {
-        // const response = await MeetingAPI.updateMeeting(this.meeting_id, this.meeting)
-        // this.$router.go()
+        const response = await MeetingAPI.updateMeeting(this.meeting_id, this.meeting)
+        this.$router.go()
       },
       async removeRecordingFromMeeting(recording_id) {
         let confirmation = confirm("Are you sure you want to remove this recording?")
