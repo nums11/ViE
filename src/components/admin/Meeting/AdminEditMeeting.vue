@@ -121,8 +121,8 @@
       async updateMeeting() {
         let updated_meeting = {
           title: this.meeting.title,
-          start_time: this.meeting.start_time,
-          end_time: this.meeting.end_time,
+          start_time: new Date(this.meeting.start_time),
+          end_time: new Date(this.meeting.end_time),
         }
         const response = await MeetingAPI.updateMeeting(this.meeting_id, updated_meeting)
         this.$router.go()
