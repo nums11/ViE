@@ -59,6 +59,7 @@
             <h4>Start Time: {{ new Date(qr_checkin.qr_checkin_start_time) }}</h4>
             <h4>End Time: {{ new Date(qr_checkin.qr_checkin_end_time) }}</h4>
             <h4>Code: {{ qr_checkin.code }}</h4>
+            <router-link :to="{name: 'admin_edit_qr_checkin', params: { qr_checkin_id: qr_checkin._id }}" class="btn btn-primary">Edit</router-link>
           </div>
         </div>
         <div class="attendance-container" v-if="meeting.async_attendance != null">

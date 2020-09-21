@@ -172,7 +172,7 @@ app.use(cors(
   app.use('/auth', authRouter);
   app.use('/recordings', recordingRouter);
   app.use('/asyncsubmissions', asyncSubmissionRouter);
-  app.use('/qrcheckin', qrCheckinRouter);
+  app.use('/qrcheckins', qrCheckinRouter);
 
 
 }
