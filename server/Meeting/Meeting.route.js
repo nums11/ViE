@@ -98,6 +98,7 @@ meetingRoutes.post('/save_new_recording/:recording_name', (req, res) => {
 //   }
 // )
 
+// TODO: Update the secondary instructor's meetings as well
 meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
   let meeting = req.body.meeting;
   let for_course = false
