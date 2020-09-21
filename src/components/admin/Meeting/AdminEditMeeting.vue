@@ -119,13 +119,16 @@
         this.meeting_has_loaded = true
       },
       async updateMeeting() {
-        let updated_meeting = {
-          title: this.meeting.title,
-          start_time: new Date(this.meeting.start_time),
-          end_time: new Date(this.meeting.end_time),
+        let confirmation = confirm("Are you sure you want to update this meeting?")
+        if(confirmation){
+          let updated_meeting = {
+            title: this.meeting.title,
+            start_time: new Date(this.meeting.start_time),
+            end_time: new Date(this.meeting.end_time),
+          }
+          const response = await MeetingAPI.updateMeeting(this.meeting_id, updated_meeting)
+          this.$router.go()
         }
-        const response = await MeetingAPI.updateMeeting(this.meeting_id, updated_meeting)
-        this.$router.go()
       },
       async removeRecordingFromMeeting(recording_id) {
         let confirmation = confirm("Are you sure you want to remove this recording?")
