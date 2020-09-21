@@ -1,9 +1,6 @@
 <template>
-  
   <div class="new-meeting-form">
-    
     <div class="form-center">
-
       <div class="left-side-area">
         <div class="logo-area"></div>
         <div class="tasks-list">
@@ -15,14 +12,15 @@
           <div class="empty-area">No asynchronous tasks</div>
         </div>
       </div>
+
       <div class="right-side-area"> 
         <div class="new-meeting-title">
           <div class="label">NEW MEETING</div>
-          <h3>{{ course_org_info == null ? '(undefined)' : course_org_info.name}}</h3>
+          <h3>{{ for_course ? course.name : org.name}}</h3>
         </div>
         <div class="meeting-name">
           <InputField2
-            v-model="meeting_data.meta.title"
+            v-model="meeting.title"
             :validate="{
               mustBeFilled: (x) => [x.length > 0, 'Field cannot be left empty.']
             }"
@@ -37,64 +35,44 @@
           </div>
         </div>
 
-
         <div class="live-meeting-portion">
           <div>
             <div class="checkbox">
-              <input type="checkbox" v-model="has_live" />
-              <label>Include live meeting checkin</label>
+              <input type="checkbox" @click="toggleLiveInputs" />
+              <label>Include QR Code Checkin</label>
             </div>
           </div>
-          
-
           <transition name="fade" mode="out-in">
             <div v-if="has_live">
+
               <div class="meeting-time-picker-area" :style="{width: '60%'}">
                 <h4>Meeting Time</h4>
+                <div class="info-area">
+                  Choose the start and end times for the live portion of your meeting.
+                </div>
                 <div class="date-label">START TIME</div>
-                <VueCtkDateTimePicker 
-                  @input="$forceUpdate ()"
-                  v-model="meeting_data.meta.start_time"
-                  id="input1"  
-                />
-                <!-- :min-date="(new Date()).toISOString()"
-                  :max-date="meeting_data.meta.end_time" -->
-
-                  <div class="date-label" :style="{marginTop: '20px'}">END TIME</div>
-                  <VueCtkDateTimePicker 
-                    @input="$forceUpdate ()"
-                    v-model="meeting_data.meta.end_time"
-                    id="input2"
-                  />
-
-                  <div class="info-area" :style="{transform: `translateY(18px)`}">
-                    Pick the start time and end time for the live portion of your meeting.
-                  </div>
-
+                <input class="new-meeting-datetime-picker" placeholder="Select date & time"
+                id="meeting_start" aria-labelledby="start_time_label" type="datetime-local"/>
+                <div class="date-label" :style="{marginTop: '20px'}">END TIME</div>
+                <input class="new-meeting-datetime-picker" placeholder="Select date & time"
+                id="meeting_end" aria-labelledby="qr_start_time_label" type="datetime-local"/>
               </div>
+
               <div class="meeting-time-picker-area" :style="{width: '60%', marginTop: '30px'}">
                 <h4>QR Checkin Time</h4>
+                <div class="info-area" >
+                  Choose the time window for which students will be able to scan a QR code for
+                  attendance during the live portion of your meeting. You will receive a notification to
+                  show the QR Code to your students at the start time.
+                </div>
                 <div class="date-label">START TIME</div>
-                <VueCtkDateTimePicker 
-                  @input="$forceUpdate ()"
-                  v-model="meeting_data.live.qr_checkin.start_time"
-                  id="input3"
-                  />
-
-                  <div class="date-label" :style="{marginTop: '20px'}">END TIME</div>
-                  <VueCtkDateTimePicker 
-                    @input="$forceUpdate ()"
-                    v-model="meeting_data.live.qr_checkin.end_time"
-                    id="input4"
-                  />
-
-                  <div class="info-area" :style="{transform: `translateY(18px)`}">
-                    Pick the start time and end time that your students will be able to submit
-                    for the QR code checkin. This should occur at some point within your live
-                    meeting.
-                  </div>
-
+                <input class="new-meeting-datetime-picker" placeholder="Select date & time"
+                id="qr_checkin_start" aria-labelledby="start_time_label" type="datetime-local"/>
+                <div class="date-label" :style="{marginTop: '20px'}">END TIME</div>
+                <input class="new-meeting-datetime-picker" placeholder="Select date & time"
+                id="qr_checkin_end" aria-labelledby="qr_end_time_label" type="datetime-local"/>
               </div>
+
             </div>
           </transition>
         </div>
@@ -106,8 +84,6 @@
               <label>Include recording</label>
             </div>
           </div>
-          
-
           <transition name="fade" mode="out-in">
             <div v-if="has_async">
               <div class="meeting-time-picker-area" :style="{width: '60%'}">
@@ -170,24 +146,21 @@
               iconSide: 'right'
             }" />
         </div>
-
       </div>
-
     </div>
 
-  <div v-if="meeting_submission_in_progress" class="submission-fullscreen">
-    <div class="centerer">
-      <v-lottie-player 
-        name="QR CODE"
-        :animationData="require('@/assets/lottie/uploading.json')"
-        loop
-        width="300px"
-        height="300px"
-        autoplay
-      />
+    <div v-if="meeting_submission_in_progress" class="submission-fullscreen">
+      <div class="centerer">
+        <v-lottie-player 
+          name="QR CODE"
+          :animationData="require('@/assets/lottie/uploading.json')"
+          loop
+          width="300px"
+          height="300px"
+          autoplay
+        />
+      </div>
     </div>
-  </div>
-
   </div>
 
 </template>
@@ -200,6 +173,8 @@ import CourseAPI from '@/services/CourseAPI'
 import OrgAPI from '@/services/OrgAPI'
 import {NewMeetingTransform} from '@/modules/MeetingTransform.module'
 import VueLottiePlayer from 'vue-lottie-player'
+import flatpickr from "flatpickr";
+import 'flatpickr/dist/themes/material_blue.css';
 
 export default {
   name: 'NewMeeting',
@@ -210,6 +185,26 @@ export default {
   },
   data () {
     return {
+      meeting: {
+        has_live_attendance: false,
+        has_async_attendance: false
+      },
+      // TODO: Remove these and use the arrays to
+      // allow for multiple qr checkins and recordings
+      qr_checkin: {},
+      recording: {},
+      qr_checkins: [],
+      recordings: [],
+      for_course: false,
+      meeting_saving: false,
+      course: {},
+      org: {},
+      start_time_picker: null,
+      end_time_picker: null,
+      qr_start_time_picker: null,
+      qr_end_time_picker: null,
+
+
       live_tasks: [],
       async_tasks: [],
       meeting_data: {},
@@ -220,32 +215,32 @@ export default {
     }
   },
   created () {
-    this.meeting_data = {
-      meta: {
-        title: "",
-        start_time: null,
-        end_time: null,
-        forCourse: false,
-        course: null,
-        org: null
-      },
-      live: {
-        qr_checkin: {
-          start_time: null,
-          end_time: null
-        }
-      },
-      async: {
-        recording: {
-          start_time: null,
-          end_time: null,
-          file: null
-        }
-      }
-    }
+    // this.meeting_data = {
+    //   meta: {
+    //     title: "",
+    //     start_time: null,
+    //     end_time: null,
+    //     forCourse: false,
+    //     course: null,
+    //     org: null
+    //   },
+    //   live: {
+    //     qr_checkin: {
+    //       start_time: null,
+    //       end_time: null
+    //     }
+    //   },
+    //   async: {
+    //     recording: {
+    //       start_time: null,
+    //       end_time: null,
+    //       file: null
+    //     }
+    //   }
+    // }
 
-    // load course or org info
-    this.getCourseOrgInfo ()
+    this.getCourseOrOrg()
+    // this.setDateInputs()
   },
   methods: {
     updateTime () {
@@ -277,8 +272,8 @@ export default {
       setTimeout(() => {
         // create the meeting
         MeetingAPI.addMeeting(result, 
-          this.meeting_data.meta.forCourse,
-          this.meeting_data.meta.forCourse ? this.meeting_data.meta.course : this.meeting_data.meta.org
+          this.meeting.forCourse,
+          this.meeting.forCourse ? this.meeting.course : this.meeting.org
         )
         .then(res => {
           console.log(res)
@@ -286,23 +281,71 @@ export default {
         })
       }, 500)
     },
-    getCourseOrgInfo () {
-      console.log(this.$route)
-      if (this.$route.name == 'course_new_meeting') {
-        CourseAPI.getCourse(this.$route.params.course_id)
-        .then(res => {
-          this.course_org_info = res.data
-          this.meeting_data.meta.forCourse = true
-          this.meeting_data.meta.course = res.data._id
-        })
+    async getCourseOrOrg() {
+      if(this.$route.name === "course_new_meeting"){
+        this.course_id = this.$route.params.course_id;
+        this.for_course = true
+        const response = await CourseAPI.getCourse(this.course_id)
+        this.course = response.data
+        this.meeting.for_course = true
+        this.meeting.course = this.course
+      } else {
+        this.org_id = this.$route.params.org_id;
+        const response = await OrgAPI.getOrg(this.org_id)
+        this.org = response.data
+        this.meeting.for_course = false
+        this.meeting.org = this.org
       }
-      else {
-        OrgAPI.getOrg(this.$route.params.org_id)
-        .then(res => {
-          this.course_org_info = res.data
-          this.meeting_data.meta.org = res.data._id
-        })
-      }
+    },
+    toggleLiveInputs() {
+      this.has_live = !this.has_live
+      if(this.has_live)
+        this.initDateInputs()
+    },
+    initDateInputs() {
+      this.$nextTick(() => {
+        let self = this
+        this.initMeetingStartInput(self)
+        this.initMeetingEndInput(self)
+      })
+    },
+    initMeetingStartInput(self) {
+      self.start_time_picker = flatpickr(document.getElementById("meeting_start"),{
+        enableTime: true,
+        dateFormat: "M d Y, h:i K",
+        minDate: Date.now(),
+        minuteIncrement: 1,
+        onChange: function(selectedDates, dateStr, instance) {
+          self.meeting.start_time = Date.parse(dateStr)
+          // Set the new min end time to 15 minutes after the new start time
+          let new_min_end_time = new Date(self.meeting.start_time)
+          new_min_end_time.setMinutes(new_min_end_time.getMinutes() + 15)
+          self.end_time_picker.set("minDate",new_min_end_time)
+          // Update end time if invalid
+          let fifteen_mins = 60 * 15 * 1000
+          if(self.meeting.start_time > self.meeting.end_time || !self.meeting.end_time ) {
+            self.meeting.end_time = self.meeting.start_time + fifteen_mins
+            self.end_time_picker.setDate(self.meeting.start_time + fifteen_mins)
+          }
+          // Keep the dates 15 minutes apart
+          if((self.meeting.start_time + fifteen_mins) > self.meeting.end_time) {
+            self.meeting.end_time = self.meeting.start_time + fifteen_mins
+            self.end_time_picker.setDate(self.meeting.start_time + fifteen_mins)
+          }
+          self.meeting_times_are_valid = true
+        }
+      })
+    },
+    initMeetingEndInput(self) {
+      self.end_time_picker = flatpickr(document.getElementById("meeting_end"),{
+        enableTime: true,
+        dateFormat: "M d Y, h:i K",
+        minDate: Date.now(),
+        minuteIncrement: 1,
+        onChange: function(selectedDates, dateStr, instance) {
+          self.meeting.end_time = Date.parse(dateStr)
+        }
+      })
     },
     cancelForm () {
       if(this.$route.name === 'course_new_meeting')
@@ -327,12 +370,12 @@ export default {
        this.meeting_data.async.recording.file = null
      },
      formComplete () {
-       if (this.meeting_data.meta.title == "") return false;
+       if (this.meeting.title == "") return false;
        if (this.has_live) {
-        if (this.meeting_data.live.qr_checkin.start_time == null) return false;
-        if (this.meeting_data.live.qr_checkin.end_time == null) return false;
-        if (this.meeting_data.meta.start_time == null) return false;
-        if (this.meeting_data.meta.end_time == null) return false;
+        if (this.qr_checkin.start_time == null) return false;
+        if (this.qr_checkin.end_time == null) return false;
+        if (this.meeting.start_time == null) return false;
+        if (this.meeting.end_time == null) return false;
        }
        if (this.has_async) {
          if (this.meeting_data.async.recording.start_time == null) return false;
@@ -356,6 +399,14 @@ export default {
   .submission-fullscreen {
     background-color: #121419;
   }
+}
+
+.new-meeting-datetime-picker {
+  width: 32rem;
+  height: 3rem;
+  border: 2px solid #47C4FC;
+  border-radius: 5px;
+  padding-left: 0.75rem;
 }
 
 .submission-fullscreen {
