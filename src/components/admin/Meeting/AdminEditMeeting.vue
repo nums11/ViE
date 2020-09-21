@@ -119,7 +119,12 @@
         this.meeting_has_loaded = true
       },
       async updateMeeting() {
-        const response = await MeetingAPI.updateMeeting(this.meeting_id, this.meeting)
+        let updated_meeting = {
+          title: this.meeting.title,
+          start_time: this.meeting.start_time,
+          end_time: this.meeting.end_time,
+        }
+        const response = await MeetingAPI.updateMeeting(this.meeting_id, updated_meeting)
         this.$router.go()
       },
       async removeRecordingFromMeeting(recording_id) {
