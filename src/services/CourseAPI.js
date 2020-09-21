@@ -14,6 +14,10 @@ export default {
       + '/' + instructor_id, 
     {})
   },
+  removeSecondaryInstructor(course_id, instructor_id) {
+    return API().post('courses/remove_secondary_instructor/' + course_id
+      + '/' + instructor_id)
+  },
   addSectionToCourse(course_id, section) {
     return API().post('courses/add_section/' + course_id, {
       section: section

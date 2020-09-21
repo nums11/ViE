@@ -46,6 +46,7 @@
               <p>first name: {{ course.secondary_instructor.last_name }}</p> -->
               <input class="form-control" v-model="course.secondary_instructor.first_name" rows="5" readonly>
               <input class="form-control" v-model="course.secondary_instructor.last_name" rows="5" readonly>
+              <button @click="removeSecondaryInstructor">Remove Secondary Instructor</button>
             </div>
             <p v-else>No secondary instructor</p>
           </div>
@@ -140,6 +141,13 @@
             await CourseAPI.addSecondaryInstructor(this.course_id, instructor._id)
             this.$router.go()
           }
+        }
+      },
+      async removeSecondaryInstructor() {
+        let confirmation = confirm("Are you sure you want to remove the secondary instructor?")
+        if(confirmation){
+          await CourseAPI.removeSecondaryInstructor(this.course_id, this.course.secondary_instructor._id)
+          this.$router.go()
         }
       },
       async addStudent(student) {
