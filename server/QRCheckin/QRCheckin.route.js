@@ -23,6 +23,47 @@ qrcheckin/attend
 - 
 */
 
+qrCheckinRoutes.route('/get/:id').get(function (req, res) {
+  let id = req.params.id;
+  QRCheckin.findById(id).
+  populate({
+    path: 'qr_checkin_submissions',
+    populate: {
+      path: 'submitter'
+    }
+  }).
+  exec((error,qr_checkin) => {
+    if(error || qr_checkin == null){
+      console.log("<ERROR> (qr_checkins/get) Getting qr_checkin with ID:",id,error)
+      res.json(error);
+    } else {
+      console.log("<SUCCESS> (qr_checkins/get) Getting qr_checkin by ID:",id)
+      res.json(qr_checkin);
+    }
+  })
+});
+
+qrCheckinRoutes.route('/update/:id').post(function (req, res) {
+  let id = req.params.id;
+  let updated_qr_checkin = req.body.updated_qr_checkin;
+  QRCheckin.findByIdAndUpdate(id,
+    {
+      qr_checkin_start_time: updated_qr_checkin.qr_checkin_start_time,
+      qr_checkin_end_time: updated_qr_checkin.qr_checkin_end_time,
+    },
+    function (err, qr_checkin) {
+      if (err || qr_checkin == null) {
+        console.log("<ERROR> (qr_checkins/update) Updating qr_checkin by ID:",id,"with:",updated_qr_checkin)
+        res.status(404).send("qr_checkin not found");
+      } else {
+        console.log("<SUCCESS> (qr_checkins/update) Updating qr_checkin by ID:",id)
+        res.json(qr_checkin);
+      }
+    }
+  );
+});
+
+
 qrCheckinRoutes.post('/testSocketQueue', (req, res) => {
 
   let socketQueue = req.socketQueue
