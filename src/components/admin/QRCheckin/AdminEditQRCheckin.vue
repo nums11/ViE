@@ -76,10 +76,12 @@
       async updateQRCheckin() {
         let confirmation = confirm("Are you sure you want to update this qr_checkin?")
         if(confirmation){
-          console.log("Start", this.qr_checkin.qr_checkin_start_time)
-          console.log("End", this.qr_checkin.qr_checkin_end_time)
-          const response = await QRCheckinAPI.updateQRCheckin(this.qr_checkin_id, this.qr_checkin)
-          // this.$router.go()
+          let updated_qr_checkin = {
+            qr_checkin_start_time: new Date(this.qr_checkin.qr_checkin_start_time),
+            qr_checkin_end_time: new Date(this.qr_checkin.qr_checkin_end_time),
+          }
+          const response = await QRCheckinAPI.updateQRCheckin(this.qr_checkin_id, updated_qr_checkin)
+          this.$router.go()
         }
       },
     }
