@@ -212,9 +212,26 @@ meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
                   })
                   try {
                     let updated_students = await Promise.all(student_promises)
-                    console.log("<SUCCESS> (meetings/add) Creating meeting and updating"
-                      + " course instructor and students")
-                    res.json(saved_meeting)
+                    if(course.secondary_instructor !== null) {
+                      User.findByIdAndUpdate(course.secondary_instructor,
+                        {$push: {meetings: saved_meeting._id}},
+                        (error, secondary_instructor) => {
+                          if(error || secondary_instructor == null) {
+                            console.log("<ERROR> (meetings/add) Updating secondary instructor with id",
+                              course.secondary_instructor._id, error)
+                            res.json(error);
+                          } else {
+                            console.log("<SUCCESS> (meetings/add) Creating meeting and updating"
+                              + " course instructor, secondary instructor, and students")
+                            res.json(saved_meeting)
+                          }
+                        }
+                      )
+                    } else {
+                      console.log("<SUCCESS> (meetings/add) Creating meeting and updating"
+                        + " course instructor and students")
+                      res.json(saved_meeting)
+                    }
                   } catch (error) {
                     console.log("<ERROR> (meetings/add) Updating students", error)
                     res.json(error)
