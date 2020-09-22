@@ -131,7 +131,7 @@
           <Button2 
             :style="{marginBottom: '20px'}"
             text="Create New Meeting"
-            :disabled="meetingCanBeCreated"
+            :disabled="!meetingCanBeCreated"
             :onClick="createMeeting"
             :config="{
               width: '50%',
@@ -179,6 +179,7 @@ export default {
   data () {
     return {
       meeting: {
+        title: "",
         has_live_attendance: false,
         has_async_attendance: false,
         start_time: null,
@@ -229,7 +230,21 @@ export default {
       return this.recording.recording_submission_start_time != null
     },
     meetingCanBeCreated() {
-      // if(!this.meeting.has)
+      if(this.meeting.title === "") return false;
+      if(!(this.meeting.has_live_attendance || this.meeting.has_async_attendance))
+        return false
+      if(this.meeting.has_live_attendance){
+        if(this.meeting.start_time == null ||
+          this.meeting.end_time == null ||
+          this.qr_checkin.qr_checkin_start_time == null ||
+          this.qr_checkin.qr_checkin_end_time == null)
+          return false
+      }
+      if(this.meeting.has_async_attendance){
+        if(this.recording.recording_submission_start_time == null ||
+          this.recording.recording_submission_end_time == null)
+          return false
+      }
       return true
     }
   },
@@ -478,6 +493,9 @@ export default {
    },
    clearVideoUpload () {
      this.recording_video = null
+   },
+   qrCheckinHasStartAndEndTime() {
+     return this.qr_checkin.qr_checkin_start_time != null
    },
   }
 }
