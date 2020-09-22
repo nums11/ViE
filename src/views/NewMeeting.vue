@@ -97,15 +97,15 @@
                   at the beginning of the time window and will remain available after the end of the
                   time window, however, afterward students will not be able to watch for attendance.
                 </div>
-                <div :class="`video-upload-holder ${recording_video != null ? 'active' : ''}`" @click="showFileSelector">
-                  <div v-if="recording_video == null">
+                <div :class="`video-upload-holder ${recording.video != null ? 'active' : ''}`" @click="showFileSelector">
+                  <div v-if="recording.video == null">
                     <p>Click to add a recording</p>
                     <p class="small">File format (.mp4, .wav, etc?)</p>
                   </div>
-                  <div v-else>{{ recording_video.name }}</div>
+                  <div v-else>{{ recording.video.name }}</div>
                   <input type="file" id="recording-upload-input" @change="setRecordingFile" />
                 </div>
-                <div v-if="recording_video != null" class="clear" @click="clearVideoUpload">clear</div>
+                <div v-if="recording.video != null" class="clear" @click="clearVideoUpload">clear</div>
                 <div class="date-label" style="margin-top:2rem;">START TIME</div>
                 <input class="new-meeting-datetime-picker" placeholder="Select date & time"
                 id="recording_submission_start" aria-labelledby="recording_submission_start_time" type="datetime-local" />
@@ -142,7 +142,7 @@
       </div>
     </div>
 
-    <div v-if="meeting_submission_in_progress" class="submission-fullscreen">
+    <div v-if="meeting_saving" class="submission-fullscreen">
       <div class="centerer">
         <v-lottie-player 
           name="QR CODE"
@@ -192,10 +192,10 @@ export default {
         qr_checkin_end_time: null
       },
       recording: {
+        video: null,
         recording_submission_start_time: null,
         recording_submission_end_time: null
       },
-      recording_video: null,
       qr_checkins: [],
       recordings: [],
       for_course: false,
@@ -213,7 +213,6 @@ export default {
       async_tasks: [],
       meeting_data: {},
       course_org_info: null,
-      meeting_submission_in_progress: false
     }
   },
   computed: {
@@ -255,41 +254,41 @@ export default {
     updateTime () {
 
     },
-    async createMeeting () {
-      this.meeting_submission_in_progress = true
-      let result = await NewMeetingTransform(this.meeting_data, this.has_live, this.has_async)
-      console.log("Result before, ", result)
+    // async createMeeting () {
+    //   this.meeting_submission_in_progress = true
+    //   let result = await NewMeetingTransform(this.meeting_data, this.has_live, this.has_async)
+    //   console.log("Result before, ", result)
 
-      // Create New dates for meeting times so meeting times save correctly on the server
-      result.start_time = new Date(result.start_time)
-      result.end_time = new Date(result.end_time)
-      if(result.qr_checkins){
-        result.qr_checkins.forEach(qr_checkin => {
-          qr_checkin.qr_checkin_start_time = new Date(qr_checkin.qr_checkin_start_time)
-          qr_checkin.qr_checkin_end_time = new Date(qr_checkin.qr_checkin_end_time)
-        })
-      }
-      if(result.recordings) {
-        result.recordings.forEach(recording => {
-          recording.recording_submission_start_time = new Date(recording.recording_submission_start_time)
-          recording.recording_submission_end_time = new Date(recording.recording_submission_end_time)
-        })
-      }
+    //   // Create New dates for meeting times so meeting times save correctly on the server
+    //   result.start_time = new Date(result.start_time)
+    //   result.end_time = new Date(result.end_time)
+    //   if(result.qr_checkins){
+    //     result.qr_checkins.forEach(qr_checkin => {
+    //       qr_checkin.qr_checkin_start_time = new Date(qr_checkin.qr_checkin_start_time)
+    //       qr_checkin.qr_checkin_end_time = new Date(qr_checkin.qr_checkin_end_time)
+    //     })
+    //   }
+    //   if(result.recordings) {
+    //     result.recordings.forEach(recording => {
+    //       recording.recording_submission_start_time = new Date(recording.recording_submission_start_time)
+    //       recording.recording_submission_end_time = new Date(recording.recording_submission_end_time)
+    //     })
+    //   }
 
-      console.log("Result after, ", result)
+    //   console.log("Result after, ", result)
 
-      setTimeout(() => {
-        // create the meeting
-        MeetingAPI.addMeeting(result, 
-          this.meeting.forCourse,
-          this.meeting.forCourse ? this.meeting.course : this.meeting.org
-        )
-        .then(res => {
-          console.log(res)
-          this.$router.push({name: 'meeting_info', params: { meeting_id: res.data._id }})
-        })
-      }, 500)
-    },
+    //   setTimeout(() => {
+    //     // create the meeting
+    //     MeetingAPI.addMeeting(result, 
+    //       this.meeting.forCourse,
+    //       this.meeting.forCourse ? this.meeting.course : this.meeting.org
+    //     )
+    //     .then(res => {
+    //       console.log(res)
+    //       this.$router.push({name: 'meeting_info', params: { meeting_id: res.data._id }})
+    //     })
+    //   }, 500)
+    // },
     async getCourseOrOrg() {
       if(this.$route.name === "course_new_meeting"){
         this.course_id = this.$route.params.course_id;
@@ -489,13 +488,52 @@ export default {
    },
    setRecordingFile (e) {
     // todo check if valid file extension
-    this.recording_video = e.target.files[0]
+    this.recording.video = e.target.files[0]
    },
    clearVideoUpload () {
-     this.recording_video = null
+     this.recording.video = null
    },
    qrCheckinHasStartAndEndTime() {
      return this.qr_checkin.qr_checkin_start_time != null
+   },
+    // Todo: Revert this allowing for multiple qr_checkins and recordings
+   async createMeeting() {
+    this.meeting_saving = true
+    if(this.meeting.has_live_attendance)
+     this.meeting.qr_checkins = [this.qr_checkin]
+    if(this.meeting.has_async_attendance) 
+     await this.saveRecordingVideoToGCS()
+    let meeting = await this.saveMeetingToCourseOrOrg()
+    this.meeting_saving = false
+    if(meeting != null)
+      this.$router.push({name: 'meeting_info', params: {meeting_id: meeting._id}})
+    // Route to meeting info instead
+    // this.routeToCourseOrOrgInfo()
+   },
+   async saveRecordingVideoToGCS() {
+    const response = await MeetingAPI.saveRecordingVideoToGCS(this.recording.video)
+    let video_gcs_url = response.data
+    this.recording.video_url = video_gcs_url
+    this.meeting.recordings = [this.recording]
+   },
+   async saveRecordingVideosToGCS() {
+     const response = await MeetingAPI.saveRecordingVideosToGCS(this.recordings)
+     let video_gcs_urls = response.data
+     for(let i = 0; i < this.recordings.length; i++) {
+       this.recordings[i].video_url = video_gcs_urls[i]
+       console.log("Set url",this.recordings[i].video_url)
+     }
+     this.meeting.recordings = this.recordings
+   },
+   async saveMeetingToCourseOrOrg() {
+     console.log("saving meeting",this.meeting);
+     let response = null
+     if(this.for_course){
+       response = await MeetingAPI.addMeeting(this.meeting,true,this.course_id)
+     }else{
+       response = await MeetingAPI.addMeeting(this.meeting,false,this.org_id)
+     }
+     return response.data
    },
   }
 }
