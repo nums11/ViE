@@ -36,8 +36,8 @@ export default {
         meeting: meeting
     })
   },
-  addRecordingToMeeting(async_attendance_id, recording) {
-    return API().post(`meetings/add_recording/${async_attendance_id}`, {
+  addRecordingToMeeting(meeting_id, recording) {
+    return API().post(`meetings/add_recording/${meeting_id}`, {
       recording
     })
   },
