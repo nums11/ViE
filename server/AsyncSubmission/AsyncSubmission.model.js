@@ -7,14 +7,16 @@ let PollAnswers = require('../PollAnswers/PollAnswers.model');
 let AsyncSubmission = new Schema({
 	submitter: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'User'
+		ref: 'User',
+		required: true
 	},
 	is_recording: { type: Boolean, default: false },
 	is_file: { type: Boolean, default: false },
 	is_link: { type: Boolean, default: false },
 	recording: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Recording'
+		ref: 'Recording',
+		required: true
 	},
 	furthest_video_time: { type: Number, default: 0 },
 	video_percent_watched: { type: Number, default: 0 },

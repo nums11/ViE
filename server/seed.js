@@ -1,12 +1,13 @@
 const seeder = require("mongoose-seed");
 const Course = require("./Course/Course.model")
 const Organization = require("./Organization/Organization.model")
-const Event = require("./Event/Event.model")
-const Section = require("./Section/Section.model")
-const Submission = require("./Submission/Submission.model")
+const LiveAttendance = require("./LiveAttendance/LiveAttendance.model")
+const AsyncAttendance = require("./AsyncAttendance/AsyncAttendance.model")
+const LiveSubmission = require("./LiveSubmission/LiveSubmission.model")
+const AsyncSubmission = require("./AsyncSubmission/AsyncSubmission.model")
+const QRCheckin = require("./QRCheckin/QRCheckin.model")
+const Recording = require("./Recording/Recording.model")
 const User = require("./User/User.model")
-const Lecture = require("./Lecture/Lecture.model")
-const LectureSubmission = require("./LectureSubmission/LectureSubmission.model")
 const Poll = require("./Poll/Poll.model")
 const Meeting = require("./Meeting/Meeting.model")
 
@@ -19,17 +20,19 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 	seeder.loadModels([
 		"./Course/Course.model",
 		"./User/User.model",
-		"./Section/Section.model",
-		"./Event/Event.model",
-		"./Submission/Submission.model",
-		"./Lecture/Lecture.model",
-		"./LectureSubmission/LectureSubmission.model",
 		"./Poll/Poll.model",
 		"./Organization/Organization.model",
-		"./Meeting/Meeting.model"
+		"./Meeting/Meeting.model",
+		"./LiveAttendance/LiveAttendance.model",
+		"./AsyncAttendance/AsyncAttendance.model",
+		"./LiveSubmission/LiveSubmission.model",
+		"./AsyncSubmission/AsyncSubmission.model",
+		"./QRCheckin/QRCheckin.model",
+		"./Recording/Recording.model"
 	]);
 	seeder.clearModels(['Course', 'User', 'Organization', 'Meeting',
-		'Section', 'Event', 'Submission', 'Lecture', 'LectureSubmission', 'Poll'], function () {
+		'LiveAttendance', 'AsyncAttendance', 'LiveSubmission', 'AsyncSubmission',
+		'QRCheckin', 'Recording', 'Poll'], function () {
 
 		let users = []
 		let courses = []

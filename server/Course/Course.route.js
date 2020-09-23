@@ -188,7 +188,7 @@ courseRoutes.route('/add').post(function (req, res) {
         if(error || user == null) {
           console.log("<ERROR> Updating user while trying to add course:",course)
         } else {
-          console.log("<SUCCESS> Adding course:",course)
+          console.log("<SUCCESS> Adding course with id",course._id)
           res.status(200).json(course);
         }
       });

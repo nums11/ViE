@@ -9,9 +9,18 @@ let AsyncSubmission = require('../AsyncSubmission/AsyncSubmission.model');
 
 //Define collection and schema for User
 let User = new Schema({
-	first_name: String,
-	last_name: String,
-	user_id: String,
+	first_name: {
+		type: String,
+		required: true
+	},
+	last_name: {
+		type: String,
+		required: true
+	},
+	user_id: {
+		type: String,
+		required: true
+	},
 	email: String,
 	temp_password: String,
 	password: String,
@@ -45,11 +54,13 @@ let User = new Schema({
 	},
 	is_admin: {
 		type: Boolean,
-		default: false
+		default: false,
+		required: true
 	},
 	is_instructor: {
 		type: Boolean,
-		default: false
+		default: false,
+		required: true
 	}
 });
 

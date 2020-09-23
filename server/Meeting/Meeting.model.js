@@ -8,9 +8,18 @@ let Organization = require('../Organization/Organization.model');
 
 //Define collection and schema for User
 let Meeting = new Schema({
-	title: String,
-  start_time: Date,
-  end_time: Date,
+	title: {
+    type: String,
+    required: true
+  },
+  start_time: {
+    type: Date,
+    required: true
+  },
+  end_time: {
+    type: Date,
+    required: true
+  },
   for_course: {type: Boolean, default: false},
   course: {
     type: mongoose.Schema.Types.ObjectId,
@@ -24,11 +33,13 @@ let Meeting = new Schema({
   has_async_attendance: {type: Boolean, default: false},
   live_attendance: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'LiveAttendance'
+    ref: 'LiveAttendance',
+    required: true
   },
   async_attendance: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'AsyncAttendance'
+    ref: 'AsyncAttendance',
+    required: true
   }, 
 });
 
