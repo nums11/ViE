@@ -318,10 +318,24 @@ meetingRoutes.route('/all').get(function (req, res) {
     path: 'org'
   }).
   populate({
-    path: 'live_attendance'
+    path: 'live_attendance',
+    populate: [{
+      path: 'qr_checkins',
+      populate: {
+        path: 'qr_checkin_submissions'
+      }
+    }, {
+      path: 'live_polls'
+    }]
   }).
   populate({
-    path: 'async_attendance'
+    path: 'async_attendance',
+    populate: [{
+      path: 'recordings',
+      populate: {
+        path: 'recording_submissions'
+      }
+    }]
   }).
   exec((err, meetings) => {
     if (err || meetings == null) {
