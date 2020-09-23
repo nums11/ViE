@@ -4,6 +4,8 @@ const meetingRoutes = express.Router();
 let Meeting = require('./Meeting.model');
 let LiveAttendance = require('../LiveAttendance/LiveAttendance.model');
 let AsyncAttendance = require('../AsyncAttendance/AsyncAttendance.model');
+let LiveSubmission = require('../LiveSubmission/LiveSubmission.model');
+let AsyncSubmission = require('../AsyncSubmission/AsyncSubmission.model');
 let QRCheckin = require('../QRCheckin/QRCheckin.model');
 let Recording = require('../Recording/Recording.model');
 let Course = require('../Course/Course.model');
@@ -219,7 +221,7 @@ meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
                   })
                   try {
                     let updated_students = await Promise.all(student_promises)
-                    if(course.secondary_instructor !== null) {
+                    if(course.secondary_instructor != null) {
                       User.findByIdAndUpdate(course.secondary_instructor,
                         {$push: {meetings: saved_meeting._id}},
                         (error, secondary_instructor) => {
@@ -503,14 +505,32 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
   let qr_promises = []
   // Delete live attendance
   if(meeting.has_live_attendance) {
-    meeting_live_attendance.qr_checkins.forEach(qr_checkin_id => {
+    meeting_live_attendance.qr_checkins.forEach(qr_checkin => {
+      // Delete qr checkin submissions
+      qr_checkin.qr_checkin_submissions.forEach(submission => {
+        let submission_id = submission._id
+        qr_submission_promises.push(new Promise((resolve,reject) => {
+          LiveSubmission.findByIdAndRemove(submission_id, (error) => {
+            if (error) {
+              console.log("<ERROR (meetings/delete)> deleting QR checkin submission with ID:",
+                submission_id, error)
+              reject(false)
+              res.json(error);
+            } else {
+              resolve(true)
+            }
+          })
+        }))
+      })
+      // Delete qr checkin
+      let qr_checkin_id = qr_checkin._id
       qr_promises.push(new Promise((resolve,reject) => {
-        // QRCheckin.findById(qr_checkin_id, (error, ))
-        QRCheckin.findByIdAndRemove(qr_checkin_id, (err) => {
-          if (err) {
-            console.log("<ERROR (meetings/delete)> deleting QR checkin with ID:", qr_checkin_id)
+        QRCheckin.findByIdAndRemove(qr_checkin_id, (error) => {
+          if (error) {
+            console.log("<ERROR (meetings/delete)> deleting QR checkin with ID:", qr_checkin_id,
+              error)
             reject(false)
-            res.json(err);
+            res.json(error);
           } else {
             resolve(true)
           }
@@ -518,7 +538,9 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
       }))
     })
   }
+  // Delete live attendance
   try {
+    await Promise.all(qr_submission_promises)
     await Promise.all(qr_promises)
     LiveAttendance.findByIdAndRemove(meeting_live_attendance._id, (err) => {
       if (err) {
@@ -536,7 +558,25 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
   let recording_promises = []
   // Delete async attendance
   if(meeting.has_async_attendance) {
-    meeting_async_attendance.recordings.forEach(recording_id => {
+    meeting_async_attendance.recordings.forEach(recording => {
+      // Delete recording submissions
+      recording.recording_submissions.forEach(submission => {
+        let submission_id = submission._id
+        recording_submission_promises.push(new Promise((resolve,reject) => {
+          AsyncSubmission.findByIdAndRemove(submission_id, (error) => {
+            if (error) {
+              console.log("<ERROR (meetings/delete)> deleting recording submission with ID:",
+                submission_id, error)
+              reject(false)
+              res.json(error);
+            } else {
+              resolve(true)
+            }
+          })
+        }))
+      })
+      // Delete recording
+      let recording_id = recording._id
       recording_promises.push(new Promise((resolve,reject) => {
         Recording.findByIdAndRemove(recording_id, (err) => {
           if (err) {
@@ -550,7 +590,9 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
       }))
     })
   }
+  // Delete async attendance
   try {
+    await Promise.all(recording_submission_promises)
     await Promise.all(recording_promises)
     AsyncAttendance.findByIdAndRemove(meeting_async_attendance._id, (err) => {
       if (err) {
