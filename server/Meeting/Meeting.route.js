@@ -113,6 +113,8 @@ meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
   }
 
   let new_meeting = new Meeting(meeting)
+  let live_attendance = new LiveAttendance()
+  let async_attendance = new AsyncAttendance()
 
   if(new_meeting.has_live_attendance) {
     // Create the QR Checkins
@@ -132,11 +134,12 @@ meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
     // Attach live attendance to the meeting
     try{
       let saved_qr_checkins = await Promise.all(qr_promises)
-      let live_attendance = new LiveAttendance({
-        qr_checkins: saved_qr_checkins
-      })
-      let saved_live_attendance = await live_attendance.save()
-      new_meeting.live_attendance = saved_live_attendance
+      live_attendance.qr_checkins = saved_qr_checkins
+      // let live_attendance = new LiveAttendance({
+      //   qr_checkins: saved_qr_checkins
+      // })
+      // let saved_live_attendance = await live_attendance.save()
+      // new_meeting.live_attendance = saved_live_attendance
     } catch(error) {
       console.log("<ERROR> (meetings/add) saving live attendance:",error)
       res.json(error)
@@ -162,11 +165,12 @@ meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
     // Attach async attendance to the meeting
     try{
       let saved_recordings = await Promise.all(recording_promises)
-      let async_attendance = new AsyncAttendance({
-        recordings: saved_recordings
-      })
-      let saved_async_attendance = await async_attendance.save()
-      new_meeting.async_attendance = saved_async_attendance
+      async_attendance.recordings = saved_recordings
+      // let async_attendance = new AsyncAttendance({
+      //   recordings: saved_recordings
+      // })
+      // let saved_async_attendance = await async_attendance.save()
+      // new_meeting.async_attendance = saved_async_attendance
     } catch(error) {
       console.log("<ERROR> (meetings/add) saving async attendance:",error)
       res.json(error)
@@ -174,6 +178,8 @@ meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
   }
 
   try {
+    new_meeting.live_attendance = await live_attendance.save()
+    new_meeting.async_attendance = await async_attendance.save()
     let saved_meeting = await new_meeting.save()
     if(for_course) {
 
@@ -406,20 +412,12 @@ meetingRoutes.route('/update/:id').post(function (req, res) {
   );
 });
 
-/*
-/update/add_recording/:id
-- Add a recording to a meeting where _id == id.
-@body
-  - recording: Object
-      video_url: String
-      allow_recording_submissions: Boolean
-      recording_submission_start_time: Date
-      recording_submission_end_time: Date
-*/
+// TODO: Remove reliance on the has_live_attendance and has_async_attendance
+// booleans
 meetingRoutes.route('/add_recording/:meeting_id').post(async (req, res) => {
   let meeting_id = req.params.meeting_id
   let recording = req.body.recording
-
+  
   Meeting.findByIdAndUpdate(meeting_id,
     {has_async_attendance: true},
     async (error,meeting) => {
