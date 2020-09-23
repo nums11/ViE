@@ -6,7 +6,10 @@ let AsyncSubmission = require('../AsyncSubmission/AsyncSubmission.model');
 
 //Define collection and schema for User
 let Recording = new Schema({
-	video_url: String,
+	video_url: {
+		type: String,
+		required: true
+	},
 	recording_polls: {
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Poll'
@@ -14,8 +17,14 @@ let Recording = new Schema({
 	// TODO: default this to false and allow instructors to upload
 	// recordings that don't count for submissions
 	allow_recording_submissions: { type: Boolean, default: true },
-	recording_submission_start_time: Date,
-	recording_submission_end_time: Date,
+	recording_submission_start_time: {
+		type: Date,
+		required: true
+	},
+	recording_submission_end_time: {
+		type: Date,
+		required: true
+	},
 	recording_submissions: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'AsyncSubmission'

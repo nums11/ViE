@@ -501,8 +501,10 @@ export default {
     let confirmation = confirm(this.getConfirmationString())
     if(confirmation){
       this.meeting_saving = true
-      if(this.meeting.has_live_attendance)
-       this.meeting.qr_checkins = [this.qr_checkin]
+      if(this.meeting.has_live_attendance) {
+        this.qr_checkin.code = this.generateRandomCode()
+        this.meeting.qr_checkins = [this.qr_checkin]
+      }
       if(this.meeting.has_async_attendance) 
        await this.saveRecordingVideoToGCS()
       let meeting = await this.saveMeetingToCourseOrOrg()
@@ -557,7 +559,15 @@ export default {
         + ` - ${moment(this.recording.recording_submission_start_time).format("MMM Do YYYY, h:mm A")}\n\n`
      }
      return confirmation_string
-   }
+   },
+   generateRandomCode() {
+     const alnums = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+     let result = "";
+     for (let i = 100; i > 0; --i) {
+       result += alnums[Math.floor(Math.random() * alnums.length)];
+     }
+     return result;
+   },
   }
 }
 </script>
