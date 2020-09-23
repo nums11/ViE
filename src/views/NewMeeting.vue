@@ -498,17 +498,20 @@ export default {
    },
     // Todo: Revert this allowing for multiple qr_checkins and recordings
    async createMeeting() {
-    this.meeting_saving = true
-    if(this.meeting.has_live_attendance)
-     this.meeting.qr_checkins = [this.qr_checkin]
-    if(this.meeting.has_async_attendance) 
-     await this.saveRecordingVideoToGCS()
-    let meeting = await this.saveMeetingToCourseOrOrg()
-    this.meeting_saving = false
-    if(meeting != null)
-      this.$router.push({name: 'meeting_info', params: {meeting_id: meeting._id}})
-    // Route to meeting info instead
-    // this.routeToCourseOrOrgInfo()
+    let confirmation = confirm(this.getConfirmationString())
+    if(confirmation){
+      this.meeting_saving = true
+      if(this.meeting.has_live_attendance)
+       this.meeting.qr_checkins = [this.qr_checkin]
+      if(this.meeting.has_async_attendance) 
+       await this.saveRecordingVideoToGCS()
+      let meeting = await this.saveMeetingToCourseOrOrg()
+      this.meeting_saving = false
+      if(meeting != null)
+        this.$router.push({name: 'meeting_info', params: {meeting_id: meeting._id}})
+      else
+        alert("Error saving meeting")
+    }
    },
    async saveRecordingVideoToGCS() {
     const response = await MeetingAPI.saveRecordingVideoToGCS(this.recording.video)
@@ -535,6 +538,26 @@ export default {
      }
      return response.data
    },
+   getConfirmationString() {
+     let confirmation_string = `Are you sure you want to create this meeting?\n\n`
+     if(this.meeting.has_live_attendance) {
+      confirmation_string += `Time Window:\n`
+       + `${moment(this.meeting.start_time).format("MMM Do YYYY, h:mm A")}`
+       + ` - ${moment(this.meeting.end_time).format("MMM Do YYYY, h:mm A")}\n\n`
+      confirmation_string += `QRCheckin\n`
+        + `Submission Window:\n`
+        + `${moment(this.qr_checkin.qr_checkin_start_time).format("MMM Do YYYY, h:mm A")}`
+        + ` - ${moment(this.qr_checkin.qr_checkin_end_time).format("MMM Do YYYY, h:mm A")}\n\n`
+     }
+     if(this.meeting.has_async_attendance) {
+      confirmation_string += `Recording\n`
+        + `video: ${this.recording.video.name}\n`
+        + `Submission Window:\n`
+        + `${moment(this.recording.recording_submission_start_time).format("MMM Do YYYY, h:mm A")}`
+        + ` - ${moment(this.recording.recording_submission_start_time).format("MMM Do YYYY, h:mm A")}\n\n`
+     }
+     return confirmation_string
+   }
   }
 }
 </script>
