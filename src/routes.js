@@ -14,6 +14,8 @@ import AdminSections from './components/admin/Section/AdminSections.vue';
 import AdminEditSection from './components/admin/Section/AdminEditSection.vue';
 import AdminNewSection from './components/admin/Section/AdminNewSection.vue';
 import AdminNewUser from './components/admin/User/AdminNewUser.vue';
+import AdminEditRecording from './components/admin/Recording/AdminEditRecording.vue';
+import AdminEditQRCheckin from './components/admin/QRCheckin/AdminEditQRCheckin.vue';
 import OnboardUser from './views/OnboardUser.vue';
 import AdminNewOrg from './components/admin/Organization/AdminNewOrg.vue';
 import AdminOrgs from './components/admin/Organization/AdminOrgs.vue';
@@ -23,6 +25,7 @@ import NewMeeting from './views/NewMeeting.vue';
 import AdminNewEvent from './components/admin/Event/AdminNewEvent.vue';
 import AdminEvents from './components/admin/Event/AdminEvents.vue';
 import AdminEditEvent from './components/admin/Event/AdminEditEvent.vue';
+import AdminGlobalCommands from './views/AdminGlobalCommands.vue';
 import NewSubmission from './components/admin/Submission/NewSubmission.vue';
 import Submissions from './components/admin/Submission/Submissions.vue';
 import AdminStudentInvite from './components/admin/Course/StudentInvite.vue';
@@ -161,6 +164,24 @@ const router = new VueRouter({
       name: 'admin_edit_course',
       path: '/admin/edit_course/:id',
       component: AdminEditCourse,
+      meta: {
+        requiresAuth: true,
+        requiresadmIn: true
+      }
+    },
+    {
+      name: 'admin_edit_recording',
+      path: '/admin/edit_recording/:recording_id',
+      component: AdminEditRecording,
+      meta: {
+        requiresAuth: true,
+        requiresadmIn: true
+      }
+    },
+    {
+      name: 'admin_edit_qr_checkin',
+      path: '/admin/edit_qr_checkin/:qr_checkin_id',
+      component: AdminEditQRCheckin,
       meta: {
         requiresAuth: true,
         requiresadmIn: true
@@ -432,6 +453,15 @@ const router = new VueRouter({
       name: 'admin_edit_meeting',
       path: '/admin/edit_meeting/:meeting_id',
       component: AdminEditMeeting,
+      meta: {
+        requiresAuth: true,
+        requireAdmin: true
+      }
+    },
+    {
+      name: 'admin_global_commands',
+      path: '/admin/global_commands',
+      component: AdminGlobalCommands,
       meta: {
         requiresAuth: true,
         requireAdmin: true

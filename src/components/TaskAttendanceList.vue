@@ -92,6 +92,7 @@ export default {
       }
     },
     created() {
+      console.log("Attendees", this.attendees)
       this.is_qr = this.task.code != null
       this.separateAttendees()
       console.log("video_percentages", this.video_percentages)
@@ -112,6 +113,9 @@ export default {
         let task_submissions = this.is_qr ? 
         this.task.qr_checkin_submissions :
         this.task.recording_submissions
+        console.log("is_qr", this.is_qr)
+        console.log("Task", this.task)
+        console.log("Task Submissions", task_submissions)
         let submission_ids = new Set()
         task_submissions.forEach(submission => {
           submission_ids.add(submission.submitter.user_id)

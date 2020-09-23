@@ -2,8 +2,8 @@ import API from '@/services/API'
 const fs = require('fs');
 
 export default {
-  getMeetings() {
-    return API().get('meetings')
+  getAllMeetings() {
+    return API().get('meetings/all')
   },
   saveRecordingVideoToGCS(recording) {
     let form_data = new FormData()
@@ -36,16 +36,10 @@ export default {
         meeting: meeting
     })
   },
-  addRecordingToMeeting(
-    meeting_id,
-    recording
-  ) {
-
-    return API().post(`meetings/update/add_recording/${meeting_id}`, 
-    {
+  addRecordingToMeeting(meeting_id, recording) {
+    return API().post(`meetings/add_recording/${meeting_id}`, {
       recording
     })
-
   },
   removeRecordingFromMeeting(async_attendance_id,recording_id) {
     return API().delete('meetings/remove_recording/' +
@@ -65,5 +59,8 @@ export default {
         meeting: meeting
       }
     })
+  },
+  addAsyncAttendanceToMeetings() {
+    return API().post('meetings/add_async_attendance')
   },
 }

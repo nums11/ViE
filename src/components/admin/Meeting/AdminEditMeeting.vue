@@ -29,7 +29,7 @@
                 <label>Course</label>
                 <input type="text" class="form-control" v-model="meeting.course.name" rows="5" disabled>
               </div>
-              <div v-else class="form-group" v-else>
+              <div v-else class="form-group">
                 <label>Org</label>
                 <input type="text" class="form-control" v-model="meeting.org.name" rows="5" disabled>
               </div>
@@ -47,6 +47,24 @@
               </div>
             </div>
           </div>
+          <div v-if="meeting.has_live_attendance" class="row">
+            <p>Start: {{ new Date(meeting.start_time) }}</p>
+            <p>End: {{ new Date(meeting.end_time) }}</p>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Start</label>
+                <input class="datetime-picker" placeholder="Select date & time"
+                id="qr_checkin-submission-start"
+                v-model="meeting.start_time"
+                type="datetime-local"/>
+                <label>End</label>
+                <input class="datetime-picker" placeholder="Select date & time"
+                id="qr_checkin-submission-start"
+                v-model="meeting.end_time"
+                type="datetime-local"/>
+              </div>
+            </div>
+          </div><br />
           <div class="form-group">
             <button class="btn btn-primary">Update</button>
           </div>
@@ -59,6 +77,7 @@
             <h4>Start Time: {{ new Date(qr_checkin.qr_checkin_start_time) }}</h4>
             <h4>End Time: {{ new Date(qr_checkin.qr_checkin_end_time) }}</h4>
             <h4>Code: {{ qr_checkin.code }}</h4>
+            <router-link :to="{name: 'admin_edit_qr_checkin', params: { qr_checkin_id: qr_checkin._id }}" class="btn btn-primary">Edit</router-link>
           </div>
         </div>
         <div class="attendance-container" v-if="meeting.async_attendance != null">
@@ -66,6 +85,7 @@
           <div v-for="recording in meeting.async_attendance.recordings">
             <h4>Start Time: {{ new Date(recording.recording_submission_start_time) }}</h4>
             <h4>End Time: {{ new Date(recording.recording_submission_end_time) }}</h4>
+            <router-link :to="{name: 'admin_edit_recording', params: { recording_id: recording._id }}" class="btn btn-primary">Edit</router-link>
             <button class="btn btn-danger" @click.prevent="removeRecordingFromMeeting(recording._id)">Delete</button>
           </div>
         </div>
@@ -99,12 +119,23 @@
         this.meeting_has_loaded = true
       },
       async updateMeeting() {
-        // const response = await MeetingAPI.updateMeeting(this.meeting_id, this.meeting)
-        // this.$router.go()
+        let confirmation = confirm("Are you sure you want to update this meeting?")
+        if(confirmation){
+          let updated_meeting = {
+            title: this.meeting.title,
+            start_time: new Date(this.meeting.start_time),
+            end_time: new Date(this.meeting.end_time),
+          }
+          const response = await MeetingAPI.updateMeeting(this.meeting_id, updated_meeting)
+          this.$router.go()
+        }
       },
       async removeRecordingFromMeeting(recording_id) {
-        await MeetingAPI.removeRecordingFromMeeting(this.meeting.async_attendance._id, recording_id)
-        this.$router.go()
+        let confirmation = confirm("Are you sure you want to remove this recording?")
+        if(confirmation){
+          await MeetingAPI.removeRecordingFromMeeting(this.meeting.async_attendance._id, recording_id)
+          this.$router.go()
+        }
       }
     }
   }

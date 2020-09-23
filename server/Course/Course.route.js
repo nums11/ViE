@@ -188,7 +188,7 @@ courseRoutes.route('/add').post(function (req, res) {
         if(error || user == null) {
           console.log("<ERROR> Updating user while trying to add course:",course)
         } else {
-          console.log("<SUCCESS> Adding course:",course)
+          console.log("<SUCCESS> Adding course with id",course._id)
           res.status(200).json(course);
         }
       });
@@ -305,6 +305,39 @@ courseRoutes.route('/add_secondary_instructor/:course_id/:instructor_id').post(f
   );
 });
 
+courseRoutes.route('/remove_secondary_instructor/:course_id/:instructor_id').post(function (req, res) {
+  let course_id = req.params.course_id;
+  let instructor_id = req.params.instructor_id;
+  Course.findByIdAndUpdate(course_id,
+    {secondary_instructor: null},
+    function (err, course) {
+      if (err || course == null) {
+        console.log("<ERROR> (courses/remove_secondary_instructor) Updating course with id",
+          course_id, err)
+        res.json(err);
+      } else {
+        User.findByIdAndUpdate(instructor_id,
+        {
+          $pull: {
+            instructor_courses: course_id,
+            meetings: {$in: course.meetings}
+          },
+        },
+        (error, user) => {
+          if (error || user == null) {
+            console.log("<ERROR> (courses/remove_secondary_instructor) Updating instructor with id",instructor_id,
+              error)
+            res.json(error);
+          } else {
+            console.log("<SUCCESS> (courses/remove_secondary_instructor) Removing instructor with id",instructor_id,
+              "from course with ID:",course_id)
+            res.status(200).json(course);
+          }
+        })
+      }
+    }
+  );
+});
 
 courseRoutes.route('/add_section/:course_id').post(function (req, res) {
 	let course_id = req.params.course_id
@@ -391,6 +424,7 @@ courseRoutes.route('/update/:id').post(function (req, res) {
   );
 });
 
+// Todo update the instructor courses and student courses
 courseRoutes.route('/delete/:id').delete(function (req, res) {
   Course.findByIdAndRemove({ _id: req.params.id }, function (err) {
     if (err) {

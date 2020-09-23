@@ -31,7 +31,6 @@ userRoutes.route('/add').post(function (req, res) {
 
 userRoutes.route('/onboard').post(function (req, res) {
   let new_user = new User(req.body.user);
-  console.log("Onboard", new_user)
   User.find({user_id: new_user.user_id}, (error, existing_users) => {
     if(error || existing_users == null){
       console.log("<ERROR> Onboarding new user with user_id:", new_user.user_id)
@@ -40,7 +39,7 @@ userRoutes.route('/onboard').post(function (req, res) {
       if(existing_users.length === 0) {
         new_user.save()
           .then(() => {
-            console.log("<SUCCESS> Onboarding user:",new_user)
+            console.log("<SUCCESS> Onboarding user with id",new_user._id)
             res.status(200).json(new_user);
           })
           .catch(() => {

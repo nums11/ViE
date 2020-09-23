@@ -63,10 +63,12 @@
         </sui-label>
       </div>
 
+      <!-- TODO: Make this work for org board members -->
       <div v-if="current_user.is_instructor">
         <router-link :to="{name: 'add_recording', params: {meeting_id: meeting._id}}">
           <sui-button class="venue-blue">Add Recording</sui-button>
         </router-link>
+        <sui-button id="delete-btn" color="red" @click="deleteMeeting">Delete Meeting</sui-button>
       </div>
     </div>
 
@@ -460,6 +462,17 @@ export default {
         }
       }
       console.log("Is board member", this.is_board_member)
+    },
+    async deleteMeeting() {
+      let confirmation = confirm("Are you sure you want to delete this meeting?\n\n" +
+        "This will delete all student submissions as well and cannot be undone.")
+      if(confirmation){
+        await MeetingAPI.deleteMeeting(this.meeting)
+        if(this.for_course)
+          this.$router.push({name: "course_info", params: {id: this.meeting.course._id}})
+        else
+          this.$router.push({name: "org_info", params: {id: this.meeting.org._id}})
+      }
     }
   }
 }
@@ -491,6 +504,11 @@ export default {
 }
 
 #meeting-time-text {
+}
+
+#delete-btn {
+  display: block;
+  margin-top: 3rem;
 }
 
 .meeting-info {

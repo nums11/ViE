@@ -46,6 +46,7 @@
               <p>first name: {{ course.secondary_instructor.last_name }}</p> -->
               <input class="form-control" v-model="course.secondary_instructor.first_name" rows="5" readonly>
               <input class="form-control" v-model="course.secondary_instructor.last_name" rows="5" readonly>
+              <button @click="removeSecondaryInstructor">Remove Secondary Instructor</button>
             </div>
             <p v-else>No secondary instructor</p>
           </div>
@@ -121,8 +122,11 @@
         this.$router.go()
       },
       async updateCourse() {
-        const response = await CourseAPI.updateCourse(this.course_id, this.course)
-        this.$router.go()
+        let confirmation = confirm("Are you sure you want to update this course?")
+        if(confirmation){
+          const response = await CourseAPI.updateCourse(this.course_id, this.course)
+          this.$router.go()
+        }
       }, 
       selectInstructor(instructor){
         this.instructor = instructor
@@ -132,7 +136,17 @@
         if(this.course.instructor.user_id === instructor.user_id)
           alert("User is already primary instructor")
         else {
-          await CourseAPI.addSecondaryInstructor(this.course_id, instructor._id)
+          let confirmation = confirm("Are you sure you want to add this user as a secondary instructor?")
+          if(confirmation){
+            await CourseAPI.addSecondaryInstructor(this.course_id, instructor._id)
+            this.$router.go()
+          }
+        }
+      },
+      async removeSecondaryInstructor() {
+        let confirmation = confirm("Are you sure you want to remove the secondary instructor?")
+        if(confirmation){
+          await CourseAPI.removeSecondaryInstructor(this.course_id, this.course.secondary_instructor._id)
           this.$router.go()
         }
       },
@@ -143,15 +157,21 @@
             student_in_course = true
         })
         if(!student_in_course){
-          const response = await CourseAPI.addStudentToCourse(this.course_id, student._id)
-          this.$router.go()
+          let confirmation = confirm("Are you sure you want to add this student to the course?")
+          if(confirmation){
+            const response = await CourseAPI.addStudentToCourse(this.course_id, student._id)
+            this.$router.go()
+          }
         } else {
           alert("Student already in course")
         }
       },
       async removeStudent(student){
-        const response = await CourseAPI.removeStudentFromCourse(this.course_id, student._id)
-        this.$router.go()
+        let confirmation = confirm("Are you sure you want to remove this student from the course?")
+        if(confirmation){
+          const response = await CourseAPI.removeStudentFromCourse(this.course_id, student._id)
+          this.$router.go()
+        }
       },
       instructorIsNull(){
         return this.instructor == null

@@ -6,7 +6,10 @@ let Meeting = require('../Meeting/Meeting.model');
 
 //Define collection and schema for User
 let Organization = new Schema({
-	name: String,
+	name: {
+		type: String,
+		required: true
+	},
 	board_members: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'

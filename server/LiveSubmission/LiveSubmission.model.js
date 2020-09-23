@@ -9,13 +9,18 @@ let PollAnswers = require('../PollAnswers/PollAnswers.model');
 let LiveSubmission = new Schema({
 	submitter: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'User'
+		ref: 'User',
+		required: true
 	},
-	live_submission_time: Date,
+	live_submission_time: {
+		type: Date,
+		required: true
+	},
 	is_qr_checkin_submission: { type: Boolean, default: false },
 	qr_checkin: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'QRCheckin'
+		ref: 'QRCheckin',
+		required: true
 	},
 	poll: {
 		type: mongoose.Schema.Types.ObjectId,
