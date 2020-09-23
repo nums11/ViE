@@ -643,6 +643,18 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
                 })
                 try {
                   await Promise.all(student_promises)
+                  if(course.secondary_instructor != null) {
+                    User.findByIdAndUpdate(course.secondary_instructor,
+                      {$pull: {meetings: meeting_id}},
+                      (error, secondary_instructor) => {
+                        if(error || secondary_instructor == null) {
+                          console.log("<ERROR> (meetings/delete) Updating secondary instructor with id",
+                            course.secondary_instructor._id, error)
+                          res.json(error);
+                        }
+                      }
+                    )
+                  }
                 } catch (error) {
                   console.log("<ERROR> (meetings/add) Updating students", error)
                   res.json(error)
