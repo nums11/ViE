@@ -47,11 +47,11 @@
     },
     created() {
       // this.is_meetings_view = this.$route.name === "admin_meetings"
-      this.getMeetings();
+      this.getAllMeetings();
     },
     methods: {
-      async getMeetings () {
-        const response = await MeetingAPI.getMeetings();
+      async getAllMeetings () {
+        const response = await MeetingAPI.getAllMeetings();
         this.meetings = response.data;
       },
       async deleteMeeting(meeting){

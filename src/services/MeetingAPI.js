@@ -2,8 +2,8 @@ import API from '@/services/API'
 const fs = require('fs');
 
 export default {
-  getMeetings() {
-    return API().get('meetings')
+  getAllMeetings() {
+    return API().get('meetings/all')
   },
   saveRecordingVideoToGCS(recording) {
     let form_data = new FormData()
