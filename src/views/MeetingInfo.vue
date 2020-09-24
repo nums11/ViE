@@ -113,7 +113,8 @@
                   :is_board_member="is_board_member"
                   v-on:show-qr-scanning-window="showQRScanningWindow"
                   v-on:show-task-attendance="showTaskAttendance"
-                  v-on:show-fullscreen-code="showFullScreenQRCodeModal" />
+                  v-on:show-fullscreen-code="showFullScreenQRCodeModal"
+                  v-on:remove-recording="removeRecording" />
                 </div>
                 <div style="margin-top:3rem;" v-if="meeting.has_async_attendance">
                   <div class="title">
@@ -129,7 +130,8 @@
                   :attendees="attendees"
                   :for_course="for_course"
                   :is_board_member="is_board_member"
-                  v-on:show-task-attendance="showTaskAttendance"  />
+                  v-on:show-task-attendance="showTaskAttendance"
+                  v-on:remove-recording="removeRecording" />
                 </div>
               </div>
               <div key="2" v-else>
@@ -474,6 +476,11 @@ export default {
         else
           this.$router.push({name: "org_info", params: {id: this.meeting.org._id}})
       }
+    },
+    async removeRecording(recording_id) {
+      await MeetingAPI.removeRecordingFromMeeting(this.meeting._id,
+        this.meeting.async_attendance._id, recording_id)
+      this.$router.go()
     }
   }
 }

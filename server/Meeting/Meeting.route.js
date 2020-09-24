@@ -469,14 +469,18 @@ meetingRoutes.route('/add_recording/:meeting_id').post(async (req, res) => {
   })
 })
 
-// Todo: Delete recording submissions and remove video from GCS (optional)
+// TODO: remove recording video from GCS
+// Need to update has async attendance
 // For removing video from GCS would have to first ensure that all videos saved have unique names
 // (e.g. adding the timestamp)
-meetingRoutes.route('/remove_recording/:async_attendance_id/:recording_id').delete(async function (req, res) {
+meetingRoutes.route('/remove_recording/:meeting_id/:async_attendance_id/:recording_id').
+delete(async function (req, res) {
+  let meeting_id = req.params.meeting_id
   let async_attendance_id = req.params.async_attendance_id
   let recording_id = req.params.recording_id
   AsyncAttendance.findByIdAndUpdate(async_attendance_id,
     {$pull: {recordings: recording_id}},
+    {new: true},
     (error,async_attendance) => {
       if(error || async_attendance == null) {
         console.log("<ERROR (meetings/remove_recording)> removing recording with id",
@@ -488,8 +492,25 @@ meetingRoutes.route('/remove_recording/:async_attendance_id/:recording_id').dele
           console.log("<ERROR (meetings/remove_recording)> Deleting Recording with ID:", recording_id)
           res.json(err);
         } else {
-          console.log("<SUCCESS> (meetings/remove) Deleting recording with ID:",recording_id)
-          res.json('Successfully removed recording from meeting');
+          if(async_attendance.recordings.length === 0) {
+            Meeting.findByIdAndUpdate(meeting_id,
+              {has_async_attendance: false},
+              (error, meeting) => {
+                if(error || meeting == null) {
+                  console.log("<ERROR (meetings/remove_recording)> updating meeting with id",
+                    meeting_id, error)
+                  res.json(error)
+                } else {
+                  console.log("<SUCCESS> (meetings/remove_recording) Deleting recording with ID:",
+                    recording_id, "and updating async_attendance and meeting")
+                  res.json('Successfully removed recording from meeting');
+                }
+              })
+          } else {
+            console.log("<SUCCESS> (meetings/remove_recording) Deleting recording with ID:",
+              recording_id, "and updating async_attendance")
+            res.json('Successfully removed recording from meeting');
+          }
         }
       });
     }

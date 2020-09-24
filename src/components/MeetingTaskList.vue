@@ -11,7 +11,8 @@
   :is_board_member="is_board_member"
   v-on:show-fullscreen-code="(code) => $emit('show-fullscreen-code',code)"
   v-on:show-qr-scanning-window="$emit('show-qr-scanning-window')"
-  v-on:show-task-attendance="(task) => $emit('show-task-attendance',task)" />
+  v-on:show-task-attendance="(task) => $emit('show-task-attendance',task)"
+  v-on:remove-recording="(task_id) => $emit('remove-recording',task_id)" />
   </div>
 </template>
 
