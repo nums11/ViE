@@ -2,6 +2,13 @@
   <div class="task-info-container">
     <!-- Upper Area -->
     <div class="upper-area">
+      <div v-if="is_priveleged_user" class="hover-content">
+        <div class="hover-background"></div>
+        <div class="task-buttons-container">
+          <sui-button class="venue-blue task-edit-btn" content="Edit" />
+          <sui-button color="red" content="Delete" />
+        </div>
+      </div>
       <div class="left-side">
           <div class="title-area">
             <h4 v-if="is_qr">QR Submission</h4>
@@ -197,6 +204,45 @@ export default {
         box-sizing: border-box;
         padding: 10px 15px;
 
+        .hover-content {
+          position: absolute;
+          margin-left: -15px;
+          margin-top: -10px;
+          height: 70px;
+          width: 100%;
+          border-radius: 5px;
+          visibility: hidden;
+          -webkit-transition: visibility 0.1s linear;
+          -ms-transition: visibility 0.1s linear;
+          transition: visibility 0.1s linear;
+          
+
+          .hover-background {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            border-radius: 5px;
+            background-color: #a8a8a8;
+            opacity: 0;
+            -webkit-transition: opacity 0.1s linear;
+            -ms-transition: 0.1s linear;
+            transition: 0.1s linear;
+          }
+
+          .task-buttons-container {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+
+            .task-edit-btn {
+              margin-left: 18rem;
+              margin-top: 1rem;
+              margin-right: 1rem;
+            }
+          }
+
+        }
+
         .left-side {
             flex-grow: 1;
             display: flex;
@@ -212,6 +258,15 @@ export default {
                 height: 50px;
             }
         }
+    }
+
+    .upper-area:hover {
+      .hover-content {
+        visibility: visible;
+        .hover-background {
+          opacity: 0.7;
+        }
+      }
     }
 
     .lower-area {
