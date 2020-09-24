@@ -11,6 +11,8 @@
       :code="full_screen_code" 
       :students="attendees"
     />
+    <!-- Edit Modal -->
+    <EditRecordingModal ref="EditRecordingModal" />
     <QRSuccessAnimation v-if="show_qr_success_animation" />
 
     <!-- Header -->
@@ -131,7 +133,8 @@
                   :for_course="for_course"
                   :is_board_member="is_board_member"
                   v-on:show-task-attendance="showTaskAttendance"
-                  v-on:remove-recording="removeRecording" />
+                  v-on:remove-recording="removeRecording"
+                  v-on:show-edit-recording-modal="showEditRecordingModal" />
                 </div>
               </div>
               <div key="2" v-else>
@@ -181,6 +184,7 @@ import MeetingAPI from '@/services/MeetingAPI.js';
 import qrcode from '@chenfengyuan/vue-qrcode';
 import { FrontEndServerBaseURL } from '@/services/API.js';
 import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
+import EditRecordingModal from '@/components/EditRecordingModal.vue'
 
 export default {
   name: 'MeetingInfo',
@@ -197,6 +201,7 @@ export default {
     MeetingTaskList,
     MeetingAttendanceList,
     QRSuccessAnimation,
+    EditRecordingModal
   },
   data () {
     return {
@@ -233,6 +238,7 @@ export default {
     this.getActiveTasksForMeeting()
     this.getMeetingAttendees()
     this.meeting_has_loaded = true
+    console.log("Components",this.$options.components)
   },
   methods: {
     findMainQRTask () {
@@ -481,6 +487,9 @@ export default {
       await MeetingAPI.removeRecordingFromMeeting(this.meeting._id,
         this.meeting.async_attendance._id, recording_id)
       this.$router.go()
+    },
+    showEditRecordingModal(recording) {
+      this.$refs.EditRecordingModal.showModal(recording)
     }
   }
 }

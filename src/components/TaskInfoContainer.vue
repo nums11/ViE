@@ -5,7 +5,8 @@
       <div v-if="is_priveleged_user" class="hover-content">
         <div class="hover-background"></div>
         <div class="task-buttons-container">
-          <sui-button class="venue-blue task-edit-btn" content="Edit" />
+          <sui-button @click="$emit('show-edit-recording-modal',task)"
+          class="venue-blue task-edit-btn" content="Edit" />
           <sui-button v-if="!is_qr" @click="removeRecording" color="red" content="Delete" />
         </div>
       </div>
@@ -192,7 +193,7 @@ export default {
       (!this.for_course && this.is_board_member)
     },
     removeRecording() {
-      let confirmation = confirm("Are you sure you want to remove this task?")
+      let confirmation = confirm("Are you sure you want to remove this recording?")
       if(confirmation)
         this.$emit('remove-recording',this.task._id)
     }
