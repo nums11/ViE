@@ -54,23 +54,22 @@ export default {
       recording_submission_start_time: null,
       recording_submission_end_time: null,
       show_modal: false,
-      original_recording: Object
+      original_recording: Object,
     }
   },
   computed: {
     recordingFormValid () {
       return this.recording_submission_start_time != null 
       && this.recording_submission_end_time != null
-      && ((new Date(this.original_recording.recording_submission_start_time)).getTime()
-        !== (new Date(this.recording_submission_start_time)).getTime()
-        && (new Date(this.original_recording.recording_submission_end_time)).getTime()
-        !== (new Date(this.recording_submission_end_time)).getTime())
     }
   },
   created() {
+    this.fifteen_mins = 60 * 15 * 1000
   },
   methods: {
     showModal(original_recording) {
+      this.$forceUpdate()
+      console.log("Just got called. Original Recording", original_recording)
       this.original_recording = original_recording
       this.show_modal = true
       this.setDateInputs()
@@ -79,6 +78,7 @@ export default {
       this.show_modal = false
     },
     setDateInputs() {
+      console.log("SetDateInputs called", this.original_recording)
       this.$nextTick(() => {
         let self = this
         let start_time_picker = flatpickr(document.getElementById("recording-submission-start"),{
@@ -93,6 +93,7 @@ export default {
             let new_min_end_time = new Date(self.recording_submission_start_time)
             new_min_end_time.setMinutes(new_min_end_time.getMinutes() + 15)
             end_time_picker.set("minDate",new_min_end_time)
+            console.log("Set min date to", new_min_end_time)
             // Update end time if invalid
             let fifteen_mins = 60 * 15 * 1000
             if(self.recording_submission_start_time > self.recording_submission_end_time
@@ -110,7 +111,7 @@ export default {
         let end_time_picker = flatpickr(document.getElementById("recording-submission-end"),{
           enableTime: true,
           dateFormat: "M d Y, h:i K",
-          minDate: Date.now(),
+          minDate: Date.now() + this.fifteen_mins,
           defaultDate: this.original_recording.recording_submission_end_time,
           minuteIncrement: 1,
           onChange: function(selectedDates, dateStr, instance) {
@@ -120,9 +121,16 @@ export default {
       })
     },
     updateRecording() {
-      console.log("Original", this.original_recording.recording_submission_start_time)
-      console.log("New",this.recording_submission_start_time)
+      console.log("Original", new Date(this.original_recording.recording_submission_start_time))
+      console.log("New",new Date(this.recording_submission_start_time))
       console.log("Yup")
+    },
+    // Broken
+    datesHaveChanged() {
+      return ((new Date(this.original_recording.recording_submission_start_time)).getTime()
+        !== (new Date(this.recording_submission_start_time)).getTime()
+        && (new Date(this.original_recording.recording_submission_end_time)).getTime()
+        !== (new Date(this.recording_submission_end_time)).getTime())
     }
   }
 }
