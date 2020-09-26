@@ -17,6 +17,7 @@
 <script>
 import QRCheckinAPI from '@/services/QRCheckinAPI.js'
 import VueLottiePlayer from 'vue-lottie-player'
+import MeetingAPI from '@/services/MeetingAPI.js';
 
 export default {
   name: 'AttendChecker',
