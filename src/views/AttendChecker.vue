@@ -90,6 +90,26 @@ export default {
       }
       return open_checkin
     },
+    getWindowStatus(task, is_qr) {
+      let current_time = new Date()
+      let window_start = null
+      let window_end = null
+      if(is_qr) {
+        window_start = new Date(task.qr_checkin_start_time)
+        window_end = new Date(task.qr_checkin_end_time)
+      } else {
+        window_start = new Date(task.recording_submission_start_time)
+        window_end = new Date(task.recording_submission_end_time)
+      }
+      let window_status = ""
+      if(current_time > window_end)
+        window_status = "closed"
+      else if(current_time < window_start)
+        window_status = "upcoming"
+      else
+        window_status = "open"
+      return window_status
+    },
     scannedCodeIsValid(open_checkin, scanned_code) {
       return `https://byakugan.herokuapp.com/#/attend/${this.$route.params.meeting_id}/${open_checkin.code}` === scanned_code
     },
