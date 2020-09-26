@@ -1,7 +1,6 @@
 <template>
-  
   <div class='attend-checker'>
-    <div class="lottie-container" v-if="attendance_success">
+    <div class="lottie-container" v-if="show_qr_success_anmiation">
       <v-lottie-player 
         name="QR CODE"
         :animationData="require('@/assets/lottie/qr-code-scan.json')"
@@ -13,89 +12,105 @@
       />
     </div>
   </div>
-
 </template>
+
 <script>
-
-/*
-
-AttendChecker:
-This component should check the url params meeting_id (this.$route.meeting_id) and qr_key (this.$route.qr_key)
-and run an API call to get the meeting and QR code with code == qr_key associated with the same meeting.
-
-Once this has been found, if the user is logged in, automatically mark tham as submitting for the QR Submission
-and redirect them to the meeting info page for the meeting in they just submitted for.
-
-If not, prompt them to log in, and once they do so, attend them and redirect them to the meeting info page.
-
-*/
-
 import QRCheckinAPI from '@/services/QRCheckinAPI.js'
 import VueLottiePlayer from 'vue-lottie-player'
+import { FrontEndServerBaseURL } from '@/services/API.js';
 
 export default {
   name: 'AttendChecker',
-  created () {
-
-    console.log(`STORE`)
-    console.log(this.$store)
-
-    let current_user = this.$store.state.user
-    if (!this.$store.state.user) {
-      // redirect to login that should redirect back to this page.
-      console.log(`User not logged in...`)
-
-      // redirect to the login page
-      this.$router.push({
-        name: 'login',
-        query: {
-          redirect: {
-            name: 'attend_checker',
-            params: {
-              meeting_id: this.$route.params.meeting_id,
-              qr_key: this.$route.params.qr_key
-            }
-          }
-        }
-      })
-    }
-    else {
-      current_user = current_user.current_user
-
-      // get the meeting_id, user_id and qr_code
-      let meeting_id = this.$route.params.meeting_id
-      let qr_code = this.$route.params.qr_key
-      let user_id = current_user._id
-
-      QRCheckinAPI.attendQR(user_id, meeting_id, qr_code)
-      .then(res => {
-        console.log(res)
-        if (res.data.success) {
-          console.log(`SUCCESS!!!`)
-          this.attendance_success = true
-
-          setTimeout(() => {
-            // redirect to the meeting page
-            this.$router.push({ name: 'meeting_info', params: { meeting_id: meeting_id } })
-
-          }, 1700)
-        }
-        else {
-          console.log(`PROBLEM OCCURRED...`)
-        }
-      })
-      
+  async created () {
+    this.checkIfUserIsLoggedIn()
+    if(this.current_user == null) {
+      console.log("Redirect user to login")
+      // this.$router.push({
+      //   name: 'login',
+      //   query: {
+      //     redirect: {
+      //       name: 'attend_checker',
+      //       params: {
+      //         meeting_id: this.$route.params.meeting_id,
+      //         qr_key: this.$route.params.qr_key
+      //       }
+      //     }
+      //   }
+      // })
+    } else {
+      await this.getMeeting()
+      this.attemptQRCheckinSubmission(this.$route.params.code)
     }
   },
   data () {
     return {
-      attendance_success: false
+      show_qr_success_anmiation: false
     }
   },
   components: {
     vLottiePlayer: VueLottiePlayer
   },
   methods: {
+    checkIfUserIsLoggedIn() {
+      if(this.$store.state.user){
+        this.current_user = this.$store.state.user.current_user
+        return true
+      } else {
+        return false
+      }
+    },
+    async getMeeting() {
+      this.meeting_id = this.$route.params.meeting_id
+      const response = await MeetingAPI.getMeeting(this.meeting_id)
+      this.meeting = response.data
+    },
+    attemptQRCheckinSubmission(scanned_code) {
+      let open_checkin = this.getOpenQRCheckin()
+      if(this.isEmptyObj(open_checkin)){
+        alert("No Open QR Checkins")
+        this.redirectToDashboard()
+      }else if(this.scannedCodeIsValid(open_checkin, scanned_code))
+        this.createLiveSubmission(open_checkin)
+      else {
+        alert("Scanned invalid code!")
+        this.redirectToDashboard()
+      }
+    },
+    getOpenQRCheckin() {
+      let open_checkin = {}
+      let meeting_checkins = this.meeting.live_attendance.qr_checkins
+      for(let i = 0; i < meeting_checkins.length; i++) {
+        if(this.getWindowStatus(meeting_checkins[i], true) === "open"){
+          open_checkin = meeting_checkins[i]
+          break
+        }
+      }
+      return open_checkin
+    },
+    scannedCodeIsValid(open_checkin, scanned_code) {
+      return `${FrontEndServerBaseURL()}/#/attend/${this.$route.params.meeting_id}/${open_checkin.code}` === scanned_code
+    },
+    redirectToDashboard() {
+      this.$router.push({name: 'dashboard'})
+    },
+    isEmptyObj(obj) {
+      return Object.keys(obj).length === 0 && obj.constructor === Object
+    },
+    async createLiveSubmission(open_checkin) {
+      let live_submission = {
+        submitter: this.$store.state.user.current_user._id,
+        is_qr_checkin_submission: true,
+        qr_checkin: open_checkin._id,
+        live_submission_time: new Date()
+      }
+      const response = await LiveSubmissionAPI.addLiveSubmission(live_submission)
+      this.show_qr_success_animation = true
+      setTimeout(() => {
+        this.show_qr_success_animation = false
+        alert("Live Submisssion Recorded.")
+        this.$router.push({name: 'meeting_info', params: {meeting_id: this.meeting_id}})
+      }, 2000)
+    },
     animController (g, a) {
       console.log(`CONTROLLER CALLED`)
       console.log(g)
@@ -103,8 +118,8 @@ export default {
   }
 }
 </script>
-<style lang="scss">
 
+<style lang="scss">
 .attend-checker {
   position: fixed;
   z-index: 2000000000;
@@ -122,7 +137,6 @@ export default {
     transform: translateY(-50%);
   }
 }
-
 
 .dark-mode {
   .attend-checker {
