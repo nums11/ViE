@@ -418,6 +418,7 @@ export default {
       this.show_qr_success_animation = true
       setTimeout(() => {
         this.show_qr_success_animation = false
+        alert("Live Submisssion Recorded.")
         this.$router.go()
       }, 2000)
     },
