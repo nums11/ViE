@@ -1,24 +1,14 @@
 <template>
   <div class='attend-checker'>
-    <div class="lottie-container" v-if="show_qr_success_anmiation">
-      <v-lottie-player 
-        name="QR CODE"
-        :animationData="require('@/assets/lottie/qr-code-scan.json')"
-        :loop="1"
-        @animControl="animController"
-        width="450px"
-        height="450px"
-        autoplay
-      />
-    </div>
+    <QRSuccessAnimation v-if="show_qr_success_animation" />
   </div>
 </template>
 
 <script>
 import QRCheckinAPI from '@/services/QRCheckinAPI.js'
-import VueLottiePlayer from 'vue-lottie-player'
 import MeetingAPI from '@/services/MeetingAPI.js';
 import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
+import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
 
 export default {
   name: 'AttendChecker',
@@ -50,7 +40,7 @@ export default {
     }
   },
   components: {
-    vLottiePlayer: VueLottiePlayer
+    QRSuccessAnimation
   },
   methods: {
     checkIfUserIsLoggedIn() {
@@ -151,15 +141,6 @@ export default {
   bottom: 0;
   left: 0;
   right: 0;
-
-  .lottie-container {
-    width: 450px;
-    height: 450px;
-    margin: 0 auto;
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%);
-  }
 }
 
 .dark-mode {
