@@ -37,6 +37,7 @@ export default {
       //   }
       // })
     } else {
+      console.log("User was logged in")
       await this.getMeeting()
       this.attemptQRCheckinSubmission(this.$route.params.code)
     }
@@ -59,11 +60,13 @@ export default {
       }
     },
     async getMeeting() {
+      console.log("Getting meeting")
       this.meeting_id = this.$route.params.meeting_id
       const response = await MeetingAPI.getMeeting(this.meeting_id)
       this.meeting = response.data
     },
     attemptQRCheckinSubmission(scanned_code) {
+      console.log("Trying to submit")
       let open_checkin = this.getOpenQRCheckin()
       if(this.isEmptyObj(open_checkin)){
         alert("No Open QR Checkins")
