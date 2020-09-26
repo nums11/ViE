@@ -111,7 +111,7 @@ export default {
       return window_status
     },
     scannedCodeIsValid(open_checkin, scanned_code) {
-      return `https://byakugan.herokuapp.com/#/attend/${this.$route.params.meeting_id}/${open_checkin.code}` === scanned_code
+      return open_checkin.code === scanned_code
     },
     redirectToDashboard() {
       this.$router.push({name: 'dashboard'})
