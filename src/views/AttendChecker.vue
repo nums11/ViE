@@ -18,7 +18,6 @@
 import QRCheckinAPI from '@/services/QRCheckinAPI.js'
 import VueLottiePlayer from 'vue-lottie-player'
 import MeetingAPI from '@/services/MeetingAPI.js';
-import { FrontEndServerBaseURL } from '@/services/API.js';
 
 export default {
   name: 'AttendChecker',
@@ -39,6 +38,7 @@ export default {
       //   }
       // })
     } else {
+      console.log("User was logged in")
       await this.getMeeting()
       this.attemptQRCheckinSubmission(this.$route.params.code)
     }
@@ -61,11 +61,13 @@ export default {
       }
     },
     async getMeeting() {
+      console.log("Getting meeting")
       this.meeting_id = this.$route.params.meeting_id
       const response = await MeetingAPI.getMeeting(this.meeting_id)
       this.meeting = response.data
     },
     attemptQRCheckinSubmission(scanned_code) {
+      console.log("Trying to submit")
       let open_checkin = this.getOpenQRCheckin()
       if(this.isEmptyObj(open_checkin)){
         alert("No Open QR Checkins")
@@ -88,8 +90,28 @@ export default {
       }
       return open_checkin
     },
+    getWindowStatus(task, is_qr) {
+      let current_time = new Date()
+      let window_start = null
+      let window_end = null
+      if(is_qr) {
+        window_start = new Date(task.qr_checkin_start_time)
+        window_end = new Date(task.qr_checkin_end_time)
+      } else {
+        window_start = new Date(task.recording_submission_start_time)
+        window_end = new Date(task.recording_submission_end_time)
+      }
+      let window_status = ""
+      if(current_time > window_end)
+        window_status = "closed"
+      else if(current_time < window_start)
+        window_status = "upcoming"
+      else
+        window_status = "open"
+      return window_status
+    },
     scannedCodeIsValid(open_checkin, scanned_code) {
-      return `${FrontEndServerBaseURL()}/#/attend/${this.$route.params.meeting_id}/${open_checkin.code}` === scanned_code
+      return `https://byakugan.herokuapp.com/#/attend/${this.$route.params.meeting_id}/${open_checkin.code}` === scanned_code
     },
     redirectToDashboard() {
       this.$router.push({name: 'dashboard'})
