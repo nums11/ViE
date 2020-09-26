@@ -496,7 +496,7 @@ const router = new VueRouter({
     },
     {
       name: 'attend_checker',
-      path: '/attend/:meeting_id/:qr_key',
+      path: '/attend/:meeting_id/:code',
       component: AttendChecker,
       meta: {
         requiresAuth: true,
