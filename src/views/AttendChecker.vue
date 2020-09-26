@@ -29,7 +29,6 @@ export default {
       //   }
       // })
     } else {
-      console.log("User was logged in")
       await this.getMeeting()
       this.attemptQRCheckinSubmission(this.$route.params.code)
     }
@@ -52,7 +51,6 @@ export default {
       }
     },
     async getMeeting() {
-      console.log("Getting meeting")
       this.meeting_id = this.$route.params.meeting_id
       const response = await MeetingAPI.getMeeting(this.meeting_id)
       this.meeting = response.data
@@ -134,15 +132,6 @@ export default {
 </script>
 
 <style lang="scss">
-.attend-checker {
-  position: fixed;
-  z-index: 2000000000;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
 .dark-mode {
   .attend-checker {
     background-color: #121419;
