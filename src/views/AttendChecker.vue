@@ -17,7 +17,6 @@
 <script>
 import QRCheckinAPI from '@/services/QRCheckinAPI.js'
 import VueLottiePlayer from 'vue-lottie-player'
-import { FrontEndServerBaseURL } from '@/services/API.js';
 
 export default {
   name: 'AttendChecker',
@@ -88,7 +87,7 @@ export default {
       return open_checkin
     },
     scannedCodeIsValid(open_checkin, scanned_code) {
-      return `${FrontEndServerBaseURL()}/#/attend/${this.$route.params.meeting_id}/${open_checkin.code}` === scanned_code
+      return `https://byakugan.herokuapp.com/#/attend/${this.$route.params.meeting_id}/${open_checkin.code}` === scanned_code
     },
     redirectToDashboard() {
       this.$router.push({name: 'dashboard'})
