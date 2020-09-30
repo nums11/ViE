@@ -85,6 +85,7 @@ export default {
     },
     
     getUrlEncoded () {
+      let url = ""
       if(process.env.NODE_ENV === "production") {
         url = "https://venue-attend.herokuapp.com/"
       } else {

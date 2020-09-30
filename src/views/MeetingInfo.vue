@@ -177,7 +177,6 @@ import SquareLoader from "@/components/Loaders/SquareLoader.vue"
 import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 import MeetingAPI from '@/services/MeetingAPI.js';
 import qrcode from '@chenfengyuan/vue-qrcode';
-import { FrontEndServerBaseURL } from '@/services/API.js';
 import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
 
 export default {
@@ -255,10 +254,16 @@ export default {
       this.qr_scanning_window_open = false
     },
     attemptQRCheckinSubmission(scanned_code) {
+      let url = ""
+      if(process.env.NODE_ENV === "production") {
+        url = "https://venue-attend.herokuapp.com/"
+      } else {
+        url = "http://localhost:8080/"
+      }
       let open_checkin = this.getOpenQRCheckin()
       if(this.isEmptyObj(open_checkin))
         alert("No Open QR Checkins")
-      else if(`${FrontEndServerBaseURL()}/#/attend/${this.$route.params.meeting_id}/${open_checkin.code}` === scanned_code)
+      else if(`${url}#/attend/${this.$route.params.meeting_id}/${open_checkin.code}` === scanned_code)
         this.createLiveSubmission(open_checkin)
       else 
         alert("Scanned invalid code!")
