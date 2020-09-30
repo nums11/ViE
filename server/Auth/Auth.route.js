@@ -174,11 +174,14 @@ authRoutes.get("/loginCAS", (req, res, next) => {
           let venueSID = generateSID()
           Promise.resolve(venueSID).then(resolvedSID => {
             if(resolvedSID != null) {
-              User.findOneAndUpdate({user_id: user.user_id},{connect_sid: resolvedSID},function(err,user) {
+              User.findOneAndUpdate({user_id: user.user_id},{connect_sid: resolvedSID}, {new:true},function(err,user) {
                 if(err || user == null) {
                   return next(err);
                 } else {
+                  console.log("Resolved sid", resolvedSID,
+                    "\nupdated users side", user.connect_sid)
                   res.header("Set-Cookie","connect_sid="+resolvedSID)
+                  console.log("\nHeaders\n", res.req.headers)
                   if(process.env.NODE_ENV === "production") {
                     return res.redirect('https://byakugan.herokuapp.com/#/redirectCASLogin');
                   } else {
@@ -197,6 +200,7 @@ authRoutes.get("/loginCAS", (req, res, next) => {
 });
 
 authRoutes.get("/loginStatus", function(req, res) {
+  console.log("login status cookies", req.cookies)
   User.findOne({connect_sid: req.cookies["connect_sid"]}, function (err, current_user) {
     if(err || current_user == null) {
       res.json(null)
