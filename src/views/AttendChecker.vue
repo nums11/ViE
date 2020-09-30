@@ -13,8 +13,7 @@ import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
 export default {
   name: 'AttendChecker',
   async created () {
-    this.checkIfUserIsLoggedIn()
-    if(this.current_user == null) {
+    if(!this.userIsLoggedIn()) {
       console.log("Redirect user to login")
       // this.$router.push({
       //   name: 'login',
@@ -42,7 +41,7 @@ export default {
     QRSuccessAnimation
   },
   methods: {
-    checkIfUserIsLoggedIn() {
+    userIsLoggedIn() {
       if(this.$store.state.user){
         this.current_user = this.$store.state.user.current_user
         return true

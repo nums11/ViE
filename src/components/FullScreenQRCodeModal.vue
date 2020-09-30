@@ -61,9 +61,14 @@ export default {
       })
     },
     initializeAttendanceRealTimeUpdate () {
-            
       console.log(`initializing socket`)
-      let client_io = io ('https://byakugan.herokuapp.com/', {forceNew: true})
+      let url = ""
+      if(process.env.NODE_ENV === "production") {
+        url = "https://byakugan.herokuapp.com/"
+      } else {
+        url = "http://localhost:4000/"
+      }
+      let client_io = io (url, {forceNew: true})
       client_io.emit('start attendance update', {
           task_id: this.task._id,
           type: this.is_qr ? 'qr-code': 'unhandled type',
@@ -80,8 +85,13 @@ export default {
     },
     
     getUrlEncoded () {
-
-      return `https://byakugan.herokuapp.com/#/attend/${this.$route.params.meeting_id}/${this.code}`
+      let url = ""
+      if(process.env.NODE_ENV === "production") {
+        url = "https://byakugan.herokuapp.com/"
+      } else {
+        url = "http://localhost:8080/"
+      }
+      return `${url}#/attend/${this.$route.params.meeting_id}/${this.code}`
     },
   }
 }

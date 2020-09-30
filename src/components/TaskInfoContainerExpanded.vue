@@ -77,8 +77,13 @@ export default {
   },
   methods: {
     getUrlEncoded () {
-
-      return `https://byakugan.herokuapp.com/#/attend/${this.$route.params.meeting_id}/${this.task.code}`
+      let url = ""
+      if(process.env.NODE_ENV === "production") {
+        url = "https://byakugan.herokuapp.com/"
+      } else {
+        url = "http://localhost:8080/"
+      }
+      return `${url}#/attend/${this.$route.params.meeting_id}/${this.task.code}`
     },
     getTaskTitle () {
         if (this.taskInfo.taskType == 'qr-code') return `QR Submission`
