@@ -29,7 +29,6 @@
 <script>
 import ProgressBar from '@/components/ProgressBar.vue'
 import QRCode from '@chenfengyuan/vue-qrcode';
-import { APIServerBaseURL, FrontEndServerBaseURL } from '@/services/API';
 import io from 'socket.io-client';
 
 export default {
@@ -62,11 +61,14 @@ export default {
       })
     },
     initializeAttendanceRealTimeUpdate () {
-            
       console.log(`initializing socket`)
-      // console.log(APIServerBaseURL())
-      console.log(`base url: ${APIServerBaseURL()}`)
-      let client_io = io (APIServerBaseURL(), {forceNew: true})
+      let url = ""
+      if(process.env.NODE_ENV === "production") {
+        url = "https://venue-attend.herokuapp.com/"
+      } else {
+        url = "http://localhost:4000/"
+      }
+      let client_io = io (url, {forceNew: true})
       client_io.emit('start attendance update', {
           task_id: this.task._id,
           type: this.is_qr ? 'qr-code': 'unhandled type',
@@ -83,8 +85,12 @@ export default {
     },
     
     getUrlEncoded () {
-
-      return `${FrontEndServerBaseURL()}/#/attend/${this.$route.params.meeting_id}/${this.code}`
+      if(process.env.NODE_ENV === "production") {
+        url = "https://venue-attend.herokuapp.com/"
+      } else {
+        url = "http://localhost:8080/"
+      }
+      return `${url}#/attend/${this.$route.params.meeting_id}/${this.code}`
     },
   }
 }
