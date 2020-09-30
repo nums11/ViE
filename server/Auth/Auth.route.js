@@ -191,7 +191,7 @@ authRoutes.get("/loginCAS/:optional_meeting_id/:optional_code", (req, res, next)
                   console.log("Just updated user with user_id", user.user_id, "with connect_sid", resolvedSID,
                     "now the user looks like", user)
                   res.header("Set-Cookie","connect_sid="+resolvedSID)
-                  console.log("Response headers",res.headers)
+                  console.log("headers", res.req.headers)
                   if(process.env.NODE_ENV === "production") {
                     return res.redirect(`https://venue-attend.herokuapp.com/#/redirectCASLogin/`
                       + `${optional_meeting_id}/${optional_code}`);
@@ -212,6 +212,7 @@ authRoutes.get("/loginCAS/:optional_meeting_id/:optional_code", (req, res, next)
 });
 
 authRoutes.get("/loginStatus", function(req, res) {
+  console.log("Cookies", req.cookies)
   User.findOne({connect_sid: req.cookies["connect_sid"]}, function (err, current_user) {
     if(err || current_user == null) {
       console.log("<ERROR> (auth/loginStatus) Finding user with connect_sid",
