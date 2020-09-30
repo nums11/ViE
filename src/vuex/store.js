@@ -14,6 +14,7 @@ export default new Vuex.Store({
     // local storage, and add their token to the axios header
     // for any asynchronous requests that will be made
     SET_USER_DATA(state, userData){
+      console.log("Setting user, userData",userData)
       if(userData != null) {
         state.user = userData
         localStorage.setItem('user', JSON.stringify(userData))
@@ -35,8 +36,10 @@ export default new Vuex.Store({
         })
     },
     loginCAS({ commit }) {
+      console.log("loginCas called")
       return AuthAPI.loginStatus()
         .then(({data}) => {
+          console.log("loginCas finished. Calling set user data with data", data)
           commit('SET_USER_DATA', data)
         })
     },
