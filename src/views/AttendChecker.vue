@@ -10,6 +10,17 @@ import MeetingAPI from '@/services/MeetingAPI.js';
 import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
 
+// Still need to check
+// Is this user actually in the course or org
+// Has this user already submitted
+
+// Here's all the checks that should be done ordered
+// Is this user in the course or org (Todo)
+// Is there an open checkin - done
+// Has this user already submitted (Todo)
+
+// Ordered
+
 export default {
   name: 'AttendChecker',
   async created () {
@@ -52,16 +63,34 @@ export default {
     },
     attemptQRCheckinSubmission(scanned_code) {
       console.log("Trying to submit")
+      if(!this.currentUserIsStudentForCourse()) {
+        alert("Submission Failed: You are not a student for this course")
+        this.redirectToDashboard()
+        return
+      }
       let open_checkin = this.getOpenQRCheckin()
       if(this.isEmptyObj(open_checkin)){
-        alert("No Open QR Checkins")
+        alert("Submission Failed: No Open QR Checkins")
         this.redirectToDashboard()
-      }else if(this.scannedCodeIsValid(open_checkin, scanned_code))
-        this.createLiveSubmission(open_checkin)
-      else {
-        alert("Scanned invalid code!")
-        this.redirectToDashboard()
+        return
       }
+      if(!this.scannedCodeIsValid(open_checkin, scanned_code)){
+        alert("Submission Failed: Scanned invalid code!")
+        this.redirectToDashboard()
+        return
+      }
+      this.createLiveSubmission(open_checkin)
+    },
+    currentUserIsStudentForCourse() {
+      let meeting_students = this.meeting.course.students
+      let user_is_student = false
+      for(let i = 0; i < meeting_students.length; i++) {
+        if(meeting_students[i].user_id === this.current_user.user_id) {
+          user_is_student = true
+          break
+        }
+      }
+      return user_is_student
     },
     getOpenQRCheckin() {
       let open_checkin = {}
