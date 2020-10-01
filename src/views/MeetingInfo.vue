@@ -313,7 +313,7 @@ export default {
     scannedCodeIsValid(open_checkin, scanned_code) {
       let url = ""
       if(process.env.NODE_ENV === "production") {
-        url = "https://venue-attend.herokuapp.com/"
+        url = "https://byakugan.herokuapp.com/"
       } else {
         url = "http://localhost:8080/"
       }
