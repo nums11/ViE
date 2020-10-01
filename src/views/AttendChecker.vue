@@ -13,20 +13,16 @@ import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
 export default {
   name: 'AttendChecker',
   async created () {
+    console.log("In created")
     if(!this.userIsLoggedIn()) {
       console.log("Redirect user to login")
-      // this.$router.push({
-      //   name: 'login',
-      //   query: {
-      //     redirect: {
-      //       name: 'attend_checker',
-      //       params: {
-      //         meeting_id: this.$route.params.meeting_id,
-      //         qr_key: this.$route.params.qr_key
-      //       }
-      //     }
-      //   }
-      // })
+      if(process.env.NODE_ENV === "production") {
+        this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fbyakugan.herokuapp.com%2Fauth%2FloginCAS-"
+          + `${this.$route.params.meeting_id}-${this.$route.params.code}`
+      } else {
+        this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS-" + `${this.$route.params.meeting_id}-${this.$route.params.code}`
+      }
+      window.location.href = this.cas_url;
     } else {
       await this.getMeeting()
       this.attemptQRCheckinSubmission(this.$route.params.code)
@@ -34,7 +30,7 @@ export default {
   },
   data () {
     return {
-      show_qr_success_anmiation: false
+      show_qr_success_animation: false
     }
   },
   components: {

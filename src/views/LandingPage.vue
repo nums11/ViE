@@ -59,7 +59,6 @@
       }
     },
     created() {
-
       this.setIsProduction()
       if(process.env.NODE_ENV === "production") {
         this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fbyakugan.herokuapp.com%2Fauth%2FloginCAS-null-null"

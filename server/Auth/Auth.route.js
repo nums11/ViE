@@ -155,13 +155,17 @@ authRoutes.route('/set_permanent_pasword').post(function (req, res) {
 });
 
 authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next) => {
+  console.log("Reached login cas. Optinal Meeting ID:",req.params.optional_meeting_id)
   let optional_meeting_id = req.params.optional_meeting_id
   let optional_code = req.params.optional_code
-  console.log("optional_meeting_id:", optional_meeting_id)
-  console.log("optional_code:", optional_code)
-
+  if(optional_meeting_id === "null"){
+    console.log("User did not send meeting id. Code should be null:", optional_code)
+  } else {
+    console.log("User sent meeting id. Code should not be null:", optional_code)
+  }
   passport.authenticate('cas', function (err, user, info) {
     if (err) {
+      console.log("<ERROR> (auth/loginCAS) authenticating", err)
       return next(err);
     } else if (!user) {
       req.session.messages = info.message;
@@ -173,6 +177,7 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next)
     } else {
       req.logIn(user, function (err) {
         if (err) {
+          console.log("<ERROR> (auth/loginCAS) logging in", err)
           return next(err);
         } else {
           req.session.messages = '';
@@ -190,7 +195,8 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next)
                   if(process.env.NODE_ENV === "production") {
                     return res.redirect('https://byakugan.herokuapp.com/#/redirectCASLogin');
                   } else {
-                    return res.redirect('http://localhost:8080/#/redirectCASLogin');
+                    return res.redirect(`http://localhost:8080/#/redirectCASLogin/`
+                      + `${optional_meeting_id}/${optional_code}`);
                   }
                 }
               })
@@ -205,9 +211,11 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next)
 });
 
 authRoutes.get("/loginStatus", function(req, res) {
-  console.log("login status cookies", req.cookies)
+  console.log("\n\nlogin status cookies", req.cookies)
   User.findOne({connect_sid: req.cookies["connect_sid"]}, function (err, current_user) {
     if(err || current_user == null) {
+      console.log("<ERROR> (auth/loginStatus) Finding user with connect_sid",
+        req.cookies["connect_sid"], err)
       res.json(null)
     } else {
       const token = jwt.sign({current_user}, process.env.AUTH_KEY)
