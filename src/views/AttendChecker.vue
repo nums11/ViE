@@ -74,6 +74,11 @@ export default {
         this.redirectToDashboard()
         return
       }
+      if(this.studentSubmittedToQRCheckin(open_checkin)) {
+        alert("Submission Failed: You have already submitted to this QR Checkin.")
+        this.redirectToDashboard()
+        return
+      }
       if(!this.scannedCodeIsValid(open_checkin, scanned_code)){
         alert("Submission Failed: Scanned invalid code!")
         this.redirectToDashboard()
@@ -91,6 +96,17 @@ export default {
         }
       }
       return user_is_student
+    },
+    studentSubmittedToQRCheckin(qr_checkin) {
+      let submissions = qr_checkin.qr_checkin_submissions
+      let student_has_submitted = false
+      for(let i = 0; i < submissions.length; i++) {
+        if(submissions[i].submitter.user_id === this.current_user.user_id){
+          student_has_submitted = true
+          break
+        }
+      }
+      return student_has_submitted
     },
     getOpenQRCheckin() {
       let open_checkin = {}
