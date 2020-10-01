@@ -121,7 +121,7 @@ const router = new VueRouter({
       component: OnboardUser,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requiresAdmin: true
       }
     },
     {
@@ -148,7 +148,7 @@ const router = new VueRouter({
       component: AdminNewCourse,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requiresAdmin: true
       }
     },
     {
@@ -166,7 +166,7 @@ const router = new VueRouter({
       component: AdminEditCourse,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requiresAdmin: true
       }
     },
     {
@@ -175,7 +175,7 @@ const router = new VueRouter({
       component: AdminEditRecording,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requiresAdmin: true
       }
     },
     {
@@ -184,7 +184,7 @@ const router = new VueRouter({
       component: AdminEditQRCheckin,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requiresAdmin: true
       }
     },
     {
@@ -193,7 +193,7 @@ const router = new VueRouter({
       component: AdminCourses,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requiresAdmin: true
       }
     },
     {
@@ -211,7 +211,7 @@ const router = new VueRouter({
       component: AdminEditSection,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requiresAdmin: true
       }
     },
     {
