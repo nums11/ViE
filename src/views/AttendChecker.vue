@@ -10,17 +10,6 @@ import MeetingAPI from '@/services/MeetingAPI.js';
 import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
 
-// Still need to check
-// Is this user actually in the course or org
-// Has this user already submitted
-
-// Here's all the checks that should be done ordered
-// Is this user in the course or org (Todo)
-// Is there an open checkin - done
-// Has this user already submitted (Todo)
-
-// Ordered
-
 export default {
   name: 'AttendChecker',
   async created () {
