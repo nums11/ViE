@@ -232,6 +232,16 @@ export default {
     this.meeting_has_loaded = true
   },
   methods: {
+    usingiOS() {
+      let userAgent = window.navigator.userAgent,
+          platform = window.navigator.platform,
+          iosPlatforms = ['iPhone', 'iPad', 'iPod'],
+          os = null;
+      return (iosPlatforms.indexOf(platform) !== -1)
+    },
+    usingSafari() {
+      return /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
+    },
     findMainQRTask () {
       if (this.meeting.live_attendance && this.meeting.live_attendance.qr_checkins) {
         return this.meeting.live_attendance.qr_checkins[0]
@@ -248,6 +258,10 @@ export default {
       }
     },
     showQRScanningWindow() {
+      if(this.usingiOS() && !this.usingSafari())
+        alert("Scanning window cannot open for iOS users unless they are using Safari. "
+          + "Please either switch to Safari or scan using the phone camera app or "
+          + "other scanning app.")
       this.qr_scanning_window_open = true
     },
     closeQRScanningWindow() {
