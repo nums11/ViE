@@ -158,11 +158,6 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next)
   console.log("Reached login cas. Optinal Meeting ID:",req.params.optional_meeting_id)
   let optional_meeting_id = req.params.optional_meeting_id
   let optional_code = req.params.optional_code
-  if(optional_meeting_id === "null"){
-    console.log("User did not send meeting id. Code should be null:", optional_code)
-  } else {
-    console.log("User sent meeting id. Code should not be null:", optional_code)
-  }
   passport.authenticate('cas', function (err, user, info) {
     if (err) {
       console.log("<ERROR> (auth/loginCAS) authenticating", err)
@@ -186,12 +181,12 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next)
             if(resolvedSID != null) {
               User.findOneAndUpdate({user_id: user.user_id},{connect_sid: resolvedSID},{new:true},function(err,user) {
                 if(err || user == null) {
+                  console.log("<ERROR> (auth/loginCAS) updating user by id", user.user_id,
+                    err)
                   return next(err);
                 } else {
-                  console.log("Just updated user with user_id", user.user_id, "with connect_sid", resolvedSID,
-                    "now the user looks like", user)
                   res.header("Set-Cookie","connect_sid="+resolvedSID)
-                  console.log("headers", res.req.headers)
+                  console.log("<SUCCESS> (auth/loginCAS) updating user and setting cookie.")
                   if(process.env.NODE_ENV === "production") {
                     return res.redirect(`https://venue-attend.herokuapp.com/#/redirectCASLogin/`
                       + `${optional_meeting_id}/${optional_code}`);
@@ -202,6 +197,7 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next)
                 }
               })
             } else {
+              console.log("<ERROR> (auth/loginCAS) resolving SID", resolvedSID)
               return res.redirect('http://localhost:8080');
             }
           })
@@ -212,7 +208,6 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next)
 });
 
 authRoutes.get("/loginStatus", function(req, res) {
-  console.log("Cookies", req.cookies)
   User.findOne({connect_sid: req.cookies["connect_sid"]}, function (err, current_user) {
     if(err || current_user == null) {
       console.log("<ERROR> (auth/loginStatus) Finding user with connect_sid",
@@ -220,6 +215,7 @@ authRoutes.get("/loginStatus", function(req, res) {
       res.json(null)
     } else {
       const token = jwt.sign({current_user}, process.env.AUTH_KEY)
+      console.log("<SUCCESS> (auth/loginStatus) Finding user by connect_sid.")
       res.json({token, current_user})
     }
   });

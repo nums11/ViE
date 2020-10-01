@@ -24,9 +24,7 @@ import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
 export default {
   name: 'AttendChecker',
   async created () {
-    console.log("In created")
     if(!this.userIsLoggedIn()) {
-      console.log("Redirect user to login")
       if(process.env.NODE_ENV === "production") {
         this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fvenue-attend.herokuapp.com%2Fauth%2FloginCAS-"
           + `${this.$route.params.meeting_id}-${this.$route.params.code}`
@@ -62,7 +60,6 @@ export default {
       this.meeting = response.data
     },
     attemptQRCheckinSubmission(scanned_code) {
-      console.log("Trying to submit")
       if(!this.currentUserIsStudentForCourse()) {
         alert("Submission Failed: You are not a student for this course.")
         this.redirectToDashboard()
