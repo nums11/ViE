@@ -405,7 +405,7 @@ const router = new VueRouter({
     },
     {
       name: 'redirect_cas_login',
-      path: '/redirectCASLogin',
+      path: '/redirectCASLogin/:optional_meeting_id/:optional_code',
       component: RedirectCASLogin,
       meta: {
         title: "Venue - Redirecting",
@@ -496,12 +496,8 @@ const router = new VueRouter({
     },
     {
       name: 'attend_checker',
-      path: '/attend/:meeting_id/:qr_key',
+      path: '/attend/:meeting_id/:code',
       component: AttendChecker,
-      meta: {
-        requiresAuth: true,
-        requiresAdmin: true
-      }
     }
   ]
 })
