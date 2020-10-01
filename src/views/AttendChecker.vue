@@ -64,13 +64,13 @@ export default {
     attemptQRCheckinSubmission(scanned_code) {
       console.log("Trying to submit")
       if(!this.currentUserIsStudentForCourse()) {
-        alert("Submission Failed: You are not a student for this course")
+        alert("Submission Failed: You are not a student for this course.")
         this.redirectToDashboard()
         return
       }
       let open_checkin = this.getOpenQRCheckin()
       if(this.isEmptyObj(open_checkin)){
-        alert("Submission Failed: No Open QR Checkins")
+        alert("Submission Failed: No Open QR Checkins.")
         this.redirectToDashboard()
         return
       }
