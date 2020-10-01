@@ -193,7 +193,8 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next)
                   res.header("Set-Cookie","connect_sid="+resolvedSID)
                   console.log("\nHeaders\n", res.req.headers)
                   if(process.env.NODE_ENV === "production") {
-                    return res.redirect('https://byakugan.herokuapp.com/#/redirectCASLogin/null/null');
+                    return res.redirect('https://byakugan.herokuapp.com/#/redirectCASLogin'
+                      + `${optional_meeting_id}/${optional_code}`);
                   } else {
                     return res.redirect(`http://localhost:8080/#/redirectCASLogin/`
                       + `${optional_meeting_id}/${optional_code}`);
