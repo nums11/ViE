@@ -13,9 +13,7 @@ import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
 export default {
   name: 'AttendChecker',
   async created () {
-    console.log("In created")
     if(!this.userIsLoggedIn()) {
-      console.log("Redirect user to login")
       if(process.env.NODE_ENV === "production") {
         this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fbyakugan.herokuapp.com%2Fauth%2FloginCAS-"
           + `${this.$route.params.meeting_id}-${this.$route.params.code}`
@@ -51,17 +49,50 @@ export default {
       this.meeting = response.data
     },
     attemptQRCheckinSubmission(scanned_code) {
-      console.log("Trying to submit")
+      if(!this.currentUserIsStudentForCourse()) {
+        alert("Submission Failed: You are not a student for this course.")
+        this.redirectToDashboard()
+        return
+      }
       let open_checkin = this.getOpenQRCheckin()
       if(this.isEmptyObj(open_checkin)){
-        alert("No Open QR Checkins")
+        alert("Submission Failed: No Open QR Checkins.")
         this.redirectToDashboard()
-      }else if(this.scannedCodeIsValid(open_checkin, scanned_code))
-        this.createLiveSubmission(open_checkin)
-      else {
-        alert("Scanned invalid code!")
-        this.redirectToDashboard()
+        return
       }
+      if(this.studentSubmittedToQRCheckin(open_checkin)) {
+        alert("Submission Failed: You have already submitted to this QR Checkin.")
+        this.redirectToDashboard()
+        return
+      }
+      if(!this.scannedCodeIsValid(open_checkin, scanned_code)){
+        alert("Submission Failed: Scanned invalid code!")
+        this.redirectToDashboard()
+        return
+      }
+      this.createLiveSubmission(open_checkin)
+    },
+    currentUserIsStudentForCourse() {
+      let meeting_students = this.meeting.course.students
+      let user_is_student = false
+      for(let i = 0; i < meeting_students.length; i++) {
+        if(meeting_students[i].user_id === this.current_user.user_id) {
+          user_is_student = true
+          break
+        }
+      }
+      return user_is_student
+    },
+    studentSubmittedToQRCheckin(qr_checkin) {
+      let submissions = qr_checkin.qr_checkin_submissions
+      let student_has_submitted = false
+      for(let i = 0; i < submissions.length; i++) {
+        if(submissions[i].submitter.user_id === this.current_user.user_id){
+          student_has_submitted = true
+          break
+        }
+      }
+      return student_has_submitted
     },
     getOpenQRCheckin() {
       let open_checkin = {}

@@ -13,11 +13,8 @@
     	console.log("Optional code", optional_code)
       await this.$store.dispatch('loginCAS')
   	  if(optional_meeting_id === "null") {
-  	  	console.log("User logged in from regular cas")
-  	  	console.log("User", this.$store.state.user)
   	  	this.$router.push({name: 'dashboard'})
   	  } else {
-  	  	console.log("User logged in from QR Scan")
   	  	this.$router.push({name: 'attend_checker',
   	  		params: {
   	  			meeting_id: optional_meeting_id,

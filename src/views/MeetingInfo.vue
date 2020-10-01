@@ -232,6 +232,16 @@ export default {
     this.meeting_has_loaded = true
   },
   methods: {
+    usingiOS() {
+      let userAgent = window.navigator.userAgent,
+          platform = window.navigator.platform,
+          iosPlatforms = ['iPhone', 'iPad', 'iPod'],
+          os = null;
+      return (iosPlatforms.indexOf(platform) !== -1)
+    },
+    usingSafari() {
+      return /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
+    },
     findMainQRTask () {
       if (this.meeting.live_attendance && this.meeting.live_attendance.qr_checkins) {
         return this.meeting.live_attendance.qr_checkins[0]
@@ -248,26 +258,46 @@ export default {
       }
     },
     showQRScanningWindow() {
+      if(this.usingiOS() && !this.usingSafari())
+        alert("Scanning window cannot open for iOS users unless they are using Safari. "
+          + "Please either switch to Safari or scan using the phone camera app or "
+          + "other scanning app.")
       this.qr_scanning_window_open = true
     },
     closeQRScanningWindow() {
       this.qr_scanning_window_open = false
     },
     attemptQRCheckinSubmission(scanned_code) {
-      let url = ""
-      if(process.env.NODE_ENV === "production") {
-        url = "https://byakugan.herokuapp.com/"
-      } else {
-        url = "http://localhost:8080/"
+      // TODO: Make sure users can't even reach this MeetingInfo page
+      // if they are not a student or general member
+      if(!this.currentUserIsStudentForCourse()) {
+        alert("Submission Failed: You are not a student for this course.")
+        this.hideQRScanningWindow()
+        return
       }
       let open_checkin = this.getOpenQRCheckin()
-      if(this.isEmptyObj(open_checkin))
-        alert("No Open QR Checkins")
-      else if(`${url}#/attend/${this.$route.params.meeting_id}/${open_checkin.code}` === scanned_code)
-        this.createLiveSubmission(open_checkin)
-      else 
-        alert("Scanned invalid code!")
-      this.hideQRScanningWindow()
+      if(this.isEmptyObj(open_checkin)) {
+        alert("Submission Failed: No Open QR Checkins.")
+        this.hideQRScanningWindow()
+        return
+      }
+      if(!this.scannedCodeIsValid(open_checkin, scanned_code)){
+        this.hideQRScanningWindow()
+        alert("Submission Failed: Scanned invalid code!")
+        return
+      }
+      this.createLiveSubmission(open_checkin)
+    },
+    currentUserIsStudentForCourse() {
+      let meeting_students = this.meeting.course.students
+      let user_is_student = false
+      for(let i = 0; i < meeting_students.length; i++) {
+        if(meeting_students[i].user_id === this.current_user.user_id) {
+          user_is_student = true
+          break
+        }
+      }
+      return user_is_student
     },
     getOpenQRCheckin() {
       let open_checkin = {}
@@ -279,6 +309,15 @@ export default {
         }
       }
       return open_checkin
+    },
+    scannedCodeIsValid(open_checkin, scanned_code) {
+      let url = ""
+      if(process.env.NODE_ENV === "production") {
+        url = "https://venue-attend.herokuapp.com/"
+      } else {
+        url = "http://localhost:8080/"
+      }
+      return `${url}#/attend/${this.$route.params.meeting_id}/${open_checkin.code}` === scanned_code
     },
     isEmptyObj(obj) {
       return Object.keys(obj).length === 0 && obj.constructor === Object
