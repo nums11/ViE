@@ -17,10 +17,10 @@ export default {
     if(!this.userIsLoggedIn()) {
       console.log("Redirect user to login")
       if(process.env.NODE_ENV === "production") {
-        this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fvenue-attend.herokuapp.com%2Fauth%2FloginCAS%2F"
-          + `${this.$route.params.meeting_id}/${this.$route.params.code}`
+        this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fvenue-attend.herokuapp.com%2Fauth%2FloginCAS-"
+          + `${this.$route.params.meeting_id}-${this.$route.params.code}`
       } else {
-        this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS%2F" + `${this.$route.params.meeting_id}/${this.$route.params.code}`
+        this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS-" + `${this.$route.params.meeting_id}-${this.$route.params.code}`
       }
       window.location.href = this.cas_url;
     } else {

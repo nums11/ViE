@@ -154,7 +154,7 @@ authRoutes.route('/set_permanent_pasword').post(function (req, res) {
   }
 });
 
-authRoutes.get("/loginCAS/:optional_meeting_id/:optional_code", (req, res, next) => {
+authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next) => {
   console.log("Reached login cas. Optinal Meeting ID:",req.params.optional_meeting_id)
   let optional_meeting_id = req.params.optional_meeting_id
   let optional_code = req.params.optional_code
