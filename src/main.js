@@ -23,6 +23,7 @@ import '@/assets/css/venue-core.css';
 import 'semantic-ui-css/semantic.min.css';
 import '@/assets/css/icomoon2.css';
 import '@/assets/css/icomoon3.css';
+import './registerServiceWorker'
 
 Vue.config.productionTip = false;
 
