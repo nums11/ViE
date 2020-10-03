@@ -3,9 +3,9 @@
   "short_name": "venue",
   "icons": [
     {
-      "src": ".././src/assets/venue-logo.svg",
+      "src": "venue-logo-png.png",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/png"
     }
   ],
   "start_url": "./index.html",
