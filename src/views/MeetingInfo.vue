@@ -83,6 +83,13 @@
               <sui-icon name="users" class="meeting-tab-icon" />
               Attendance
             </sui-list-item> -->
+
+            <sui-list-item 
+            :class="'stats-tab ' + (show_stats ? 'solid-border-bottom' : '')"
+            @click="showStats">
+              <sui-icon name="chart line" class="stats-tab-icon" />
+              Stats
+            </sui-list-item>
           </sui-list>
           <!-- Meeting Tasks -->
           <div v-if="show_meeting_tasks">
@@ -140,6 +147,16 @@
               </div>
             </transition-group>
           </div>
+          <!-- Stats -->
+          <div v-else-if="show_stats">
+            <h3>Attendance Stats</h3>
+        <VenueChart 
+            :chartData="chartData"
+            :chartOptions="chartOptions"
+            :labels="chartData.labels"
+            :style="{height: '400px'}"
+        />
+          </div>
           <!-- Meeting Attendance -->
           <div v-else>
             <transition name="fade" mode="out-in">
@@ -170,6 +187,7 @@ import MeetingAPI from '@/services/MeetingAPI.js';
 import qrcode from '@chenfengyuan/vue-qrcode';
 import { FrontEndServerBaseURL } from '@/services/API.js';
 import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
+import  VenueChart  from "@/components/VenueChart.vue"
 
 export default {
   name: 'MeetingInfo',
@@ -186,6 +204,8 @@ export default {
     MeetingTaskList,
     MeetingAttendanceList,
     QRSuccessAnimation,
+    VenueChart,
+    
   },
   data () {
     return {
@@ -206,8 +226,14 @@ export default {
       show_qr_scanning_window: false,
       attendees: [],
       show_meeting_tasks: true,
+      show_stats: false,
       is_board_member: false,
       show_qr_success_animation: false,
+
+      chartData: {},
+      chartOptions: {},
+      present_attendees: [],
+      absent_attendees: []
     }
   },
   async created () {
@@ -220,7 +246,24 @@ export default {
     this.checkIfMeetingIsLive()
     this.getActiveTasksForMeeting()
     this.getMeetingAttendees()
+    this.separateAttendees()
     this.meeting_has_loaded = true
+    this.chartData = {
+            labels: ['Present', 'Absent'],
+            datasets:[ { 
+            backgroundColor: ['#5EFFB4','#fe7073'],
+            data: [((this.present_attendees.length/this.attendees.length)*100).toFixed(2),((this.absent_attendees.length/this.attendees.length)*100).toFixed(2)]
+            }]
+        },
+        this.chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: {
+                display: true
+            }
+        }
+
+    
   },
   methods: {
     findMainQRTask () {
@@ -268,6 +311,38 @@ export default {
     isEmptyObj(obj) {
       return Object.keys(obj).length === 0 && obj.constructor === Object
     },
+    separateAttendees() {
+      
+        let submission_ids = this.getSubmissionIds()
+        this.attendees.forEach(attendee => {
+          if(submission_ids.has(attendee.user_id))
+            this.present_attendees.push(attendee)
+          else
+            this.absent_attendees.push(attendee)
+        })
+      },
+      getSubmissionIds() {
+        let submission_ids = new Set()
+        if(this.meeting.live_attendance){
+          this.meeting.live_attendance.qr_checkins.forEach(qr_checkin => {
+            
+            let submissions = qr_checkin.qr_checkin_submissions
+
+            submissions.forEach(submission => {
+              submission_ids.add(submission.submitter.user_id)
+            })
+          })
+        }
+        if(this.meeting.async_attendance){
+          this.meeting.async_attendance.recordings.forEach(recording => {
+            let submissions = recording.recording_submissions
+            submissions.forEach(submission => {
+              submission_ids.add(submission.submitter.user_id)
+            })
+          })
+        }
+        return submission_ids
+      },
     getStartTime () {
       if (this.meeting == null) return ''
       let start_ = new Date (this.meeting.start_time)
@@ -341,6 +416,9 @@ export default {
         })
       }
     },
+    
+    
+    
     getMeetingAttendees() {
       if(this.for_course)
         this.attendees = this.meeting.course.students
@@ -430,6 +508,11 @@ export default {
     },
     showMeetingTasks() {
       this.show_meeting_tasks = true
+      this.show_stats = false
+    },
+    showStats(){
+      this.show_stats = true
+      this.show_meeting_tasks = false
     },
     showMeetingAttendance() {
       this.show_meeting_tasks = false
