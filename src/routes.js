@@ -42,8 +42,6 @@ import Settings from './views/Settings.vue';
 import RedirectCASLogin from './views/RedirectCASLogin.vue';
 import Statistics from './views/Statistics.vue';
 import WatchRecording from './views/WatchRecording.vue';
-
-import stats from './views/stats.vue';
 import AttendChecker from './views/AttendChecker.vue';
 import LoginView from './views/LoginView.vue';
 import AddRecording from './views/AddRecording.vue';
@@ -446,15 +444,6 @@ const router = new VueRouter({
       meta: {
         requiresAuth: true,
         requiresAdmin: false
-      }
-    },
-    {
-      name: 'attendance_stats',
-      path: '/stats',
-      component: stats,
-      meta: {
-        requiresAuth: true,
-        requiresadmIn: true
       }
     },
     {
