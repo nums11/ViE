@@ -149,12 +149,12 @@
           <!-- Stats -->
           <div v-else-if="show_meeting_stats">
             <h3>Attendance Stats</h3>
-        <VenueChart 
-            :chartData="chartData"
-            :chartOptions="chartOptions"
-            :labels="chartData.labels"
-            :style="{height: '400px'}"
-        />
+            <VenueChart 
+                :chartData="chartData"
+                :chartOptions="chartOptions"
+                :labels="chartData.labels"
+                :style="{height: '400px'}"
+            />
           </div>
           <!-- Meeting Attendance -->
           <div v-else>
@@ -247,22 +247,7 @@ export default {
     this.getMeetingAttendees()
     this.separateAttendees()
     this.meeting_has_loaded = true
-    this.chartData = {
-            labels: ['Present', 'Absent'],
-            datasets:[ { 
-            backgroundColor: ['#5EFFB4','#fe7073'],
-            data: [((this.present_attendees.length/this.attendees.length)*100).toFixed(2),((this.absent_attendees.length/this.attendees.length)*100).toFixed(2)]
-            }]
-        },
-        this.chartOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            legend: {
-                display: true
-            }
-        }
-
-    
+    this.initMeetingStats()
   },
   methods: {
     findMainQRTask () {
@@ -311,37 +296,54 @@ export default {
       return Object.keys(obj).length === 0 && obj.constructor === Object
     },
     separateAttendees() {
-      
-        let submission_ids = this.getSubmissionIds()
-        this.attendees.forEach(attendee => {
-          if(submission_ids.has(attendee.user_id))
-            this.present_attendees.push(attendee)
-          else
-            this.absent_attendees.push(attendee)
-        })
-      },
-      getSubmissionIds() {
-        let submission_ids = new Set()
-        if(this.meeting.live_attendance){
-          this.meeting.live_attendance.qr_checkins.forEach(qr_checkin => {
-            
-            let submissions = qr_checkin.qr_checkin_submissions
+      let submission_ids = this.getSubmissionIds()
+      this.attendees.forEach(attendee => {
+        if(submission_ids.has(attendee.user_id))
+          this.present_attendees.push(attendee)
+        else
+          this.absent_attendees.push(attendee)
+      })
+    },
+    getSubmissionIds() {
+      let submission_ids = new Set()
+      if(this.meeting.live_attendance){
+        this.meeting.live_attendance.qr_checkins.forEach(qr_checkin => {
+          
+          let submissions = qr_checkin.qr_checkin_submissions
 
-            submissions.forEach(submission => {
-              submission_ids.add(submission.submitter.user_id)
-            })
+          submissions.forEach(submission => {
+            submission_ids.add(submission.submitter.user_id)
           })
-        }
-        if(this.meeting.async_attendance){
-          this.meeting.async_attendance.recordings.forEach(recording => {
-            let submissions = recording.recording_submissions
-            submissions.forEach(submission => {
-              submission_ids.add(submission.submitter.user_id)
-            })
+        })
+      }
+      if(this.meeting.async_attendance){
+        this.meeting.async_attendance.recordings.forEach(recording => {
+          let submissions = recording.recording_submissions
+          submissions.forEach(submission => {
+            submission_ids.add(submission.submitter.user_id)
           })
+        })
+      }
+      return submission_ids
+    },
+    initMeetingStats() {
+      this.chartData = {
+        labels: ['Present %', 'Absent %'],
+        datasets:[{ 
+          backgroundColor: ['#5EFFB4','#fe7073'],
+          data: [
+            ((this.present_attendees.length/this.attendees.length)*100).toFixed(2),
+            ((this.absent_attendees.length/this.attendees.length)*100).toFixed(2)]
+        }]
+      }
+      this.chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+            display: true
         }
-        return submission_ids
-      },
+      }
+    },
     getStartTime () {
       if (this.meeting == null) return ''
       let start_ = new Date (this.meeting.start_time)
@@ -363,14 +365,14 @@ export default {
         this.task_focus_mode = "show-info"
     },
     showTaskQR (task) {
-        this.task_focus = -1
-        console.log("In func")
-        this.focused_task = task
-        this.task_focus_mode = "show-info"
+      this.task_focus = -1
+      console.log("In func")
+      this.focused_task = task
+      this.task_focus_mode = "show-info"
     },
     focusTaskAttendance (task_id) {
-        this.task_focus = task_id
-        this.task_focus_mode = "show-attendance"
+      this.task_focus = task_id
+      this.task_focus_mode = "show-attendance"
     },
     showTaskAttendance(task) {
       this.task_focus = -1
@@ -378,7 +380,7 @@ export default {
       this.task_focus_mode = "show-attendance"
     },
     cancelTask () {
-        this.task_focus = null
+      this.task_focus = null
     },
     checkIfMeetingIsLive () {
       let current_time = new Date()
@@ -651,6 +653,10 @@ export default {
           font-size: 1.5rem;
           cursor:pointer;
           margin-bottom: 2rem;
+
+          &:nth-child(2) {
+            margin-left: 5rem;
+          }
 
           .meeting-tab-icon {
             margin-right: 0.5rem;
