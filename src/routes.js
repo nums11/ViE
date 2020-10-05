@@ -50,6 +50,7 @@ import AttendChecker from './views/AttendChecker.vue';
 import LoginView from './views/LoginView.vue';
 import AddRecording from './views/AddRecording.vue';
 
+
 Vue.use(VueRouter);
 
 const router = new VueRouter({
@@ -121,7 +122,7 @@ const router = new VueRouter({
       component: OnboardUser,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requiresAdmin: true
       }
     },
     {
@@ -148,7 +149,7 @@ const router = new VueRouter({
       component: AdminNewCourse,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requiresAdmin: true
       }
     },
     {
@@ -166,7 +167,7 @@ const router = new VueRouter({
       component: AdminEditCourse,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requiresAdmin: true
       }
     },
     {
@@ -175,7 +176,7 @@ const router = new VueRouter({
       component: AdminEditRecording,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requiresAdmin: true
       }
     },
     {
@@ -184,7 +185,7 @@ const router = new VueRouter({
       component: AdminEditQRCheckin,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requiresAdmin: true
       }
     },
     {
@@ -193,7 +194,7 @@ const router = new VueRouter({
       component: AdminCourses,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requiresAdmin: true
       }
     },
     {
@@ -211,7 +212,7 @@ const router = new VueRouter({
       component: AdminEditSection,
       meta: {
         requiresAuth: true,
-        requiresadmIn: true
+        requiresAdmin: true
       }
     },
     {
@@ -405,7 +406,7 @@ const router = new VueRouter({
     },
     {
       name: 'redirect_cas_login',
-      path: '/redirectCASLogin',
+      path: '/redirectCASLogin/:optional_meeting_id/:optional_code',
       component: RedirectCASLogin,
       meta: {
         title: "Venue - Redirecting",
@@ -496,12 +497,8 @@ const router = new VueRouter({
     },
     {
       name: 'attend_checker',
-      path: '/attend/:meeting_id/:qr_key',
+      path: '/attend/:meeting_id/:code',
       component: AttendChecker,
-      meta: {
-        requiresAuth: true,
-        requiresAdmin: true
-      }
     }
   ]
 })

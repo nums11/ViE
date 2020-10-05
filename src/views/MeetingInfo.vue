@@ -94,6 +94,12 @@
               <sui-icon name="users" class="meeting-tab-icon" />
               Attendance
             </sui-list-item> -->
+            <sui-list-item v-if="is_instructor" 
+            :class="'meeting-tab ' + (show_meeting_stats ? 'solid-border-bottom' : '')"
+            @click="showMeetingStats">
+              <sui-icon name="chart line" class="stats-tab-icon" />
+              Stats
+            </sui-list-item>
           </sui-list>
           <!-- Meeting Tasks -->
           <div v-if="show_meeting_tasks">
@@ -154,6 +160,16 @@
               </div>
             </transition-group>
           </div>
+          <!-- Stats -->
+          <div v-else-if="show_meeting_stats">
+            <h3>Attendance Stats</h3>
+            <VenueChart 
+                :chartData="chartData"
+                :chartOptions="chartOptions"
+                :labels="chartData.labels"
+                :style="{height: '400px'}"
+            />
+          </div>
           <!-- Meeting Attendance -->
           <div v-else>
             <transition name="fade" mode="out-in">
@@ -182,9 +198,9 @@ import SquareLoader from "@/components/Loaders/SquareLoader.vue"
 import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 import MeetingAPI from '@/services/MeetingAPI.js';
 import qrcode from '@chenfengyuan/vue-qrcode';
-import { FrontEndServerBaseURL } from '@/services/API.js';
 import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
 import EditRecordingModal from '@/components/EditRecordingModal.vue'
+import  VenueChart  from "@/components/VenueChart.vue"
 
 export default {
   name: 'MeetingInfo',
@@ -201,7 +217,8 @@ export default {
     MeetingTaskList,
     MeetingAttendanceList,
     QRSuccessAnimation,
-    EditRecordingModal
+    EditRecordingModal,
+    VenueChart,
   },
   data () {
     return {
@@ -222,8 +239,14 @@ export default {
       show_qr_scanning_window: false,
       attendees: [],
       show_meeting_tasks: true,
+      show_meeting_stats: false,
       is_board_member: false,
       show_qr_success_animation: false,
+
+      chartData: {},
+      chartOptions: {},
+      present_attendees: [],
+      absent_attendees: []
     }
   },
   async created () {
@@ -237,10 +260,20 @@ export default {
     this.checkIfMeetingIsLive()
     this.getActiveTasksForMeeting()
     this.getMeetingAttendees()
+    this.separateAttendees()
     this.meeting_has_loaded = true
-    console.log("Components",this.$options.components)
   },
   methods: {
+    usingiOS() {
+      let userAgent = window.navigator.userAgent,
+          platform = window.navigator.platform,
+          iosPlatforms = ['iPhone', 'iPad', 'iPod'],
+          os = null;
+      return (iosPlatforms.indexOf(platform) !== -1)
+    },
+    usingSafari() {
+      return /constructor/i.test(window.HTMLElement) || (function (p) { return p.toString() === "[object SafariRemoteNotification]"; })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
+    },
     findMainQRTask () {
       if (this.meeting.live_attendance && this.meeting.live_attendance.qr_checkins) {
         return this.meeting.live_attendance.qr_checkins[0]
@@ -257,20 +290,46 @@ export default {
       }
     },
     showQRScanningWindow() {
+      if(this.usingiOS() && !this.usingSafari())
+        alert("Scanning window cannot open for iOS users unless they are using Safari. "
+          + "Please either switch to Safari or scan using the phone camera app or "
+          + "other scanning app.")
       this.qr_scanning_window_open = true
     },
     closeQRScanningWindow() {
       this.qr_scanning_window_open = false
     },
     attemptQRCheckinSubmission(scanned_code) {
+      // TODO: Make sure users can't even reach this MeetingInfo page
+      // if they are not a student or general member
+      if(!this.currentUserIsStudentForCourse()) {
+        alert("Submission Failed: You are not a student for this course.")
+        this.hideQRScanningWindow()
+        return
+      }
       let open_checkin = this.getOpenQRCheckin()
-      if(this.isEmptyObj(open_checkin))
-        alert("No Open QR Checkins")
-      else if(`${FrontEndServerBaseURL()}/#/attend/${this.$route.params.meeting_id}/${open_checkin.code}` === scanned_code)
-        this.createLiveSubmission(open_checkin)
-      else 
-        alert("Scanned invalid code!")
-      this.hideQRScanningWindow()
+      if(this.isEmptyObj(open_checkin)) {
+        alert("Submission Failed: No Open QR Checkins.")
+        this.hideQRScanningWindow()
+        return
+      }
+      if(!this.scannedCodeIsValid(open_checkin, scanned_code)){
+        this.hideQRScanningWindow()
+        alert("Submission Failed: Scanned invalid code!")
+        return
+      }
+      this.createLiveSubmission(open_checkin)
+    },
+    currentUserIsStudentForCourse() {
+      let meeting_students = this.meeting.course.students
+      let user_is_student = false
+      for(let i = 0; i < meeting_students.length; i++) {
+        if(meeting_students[i].user_id === this.current_user.user_id) {
+          user_is_student = true
+          break
+        }
+      }
+      return user_is_student
     },
     getOpenQRCheckin() {
       let open_checkin = {}
@@ -283,8 +342,66 @@ export default {
       }
       return open_checkin
     },
+    scannedCodeIsValid(open_checkin, scanned_code) {
+      let url = ""
+      if(process.env.NODE_ENV === "production") {
+        url = "https://venue-attend.herokuapp.com/"
+      } else {
+        url = "http://localhost:8080/"
+      }
+      return `${url}#/attend/${this.$route.params.meeting_id}/${open_checkin.code}` === scanned_code
+    },
     isEmptyObj(obj) {
       return Object.keys(obj).length === 0 && obj.constructor === Object
+    },
+    separateAttendees() {
+      let submission_ids = this.getSubmissionIds()
+      this.attendees.forEach(attendee => {
+        if(submission_ids.has(attendee.user_id))
+          this.present_attendees.push(attendee)
+        else
+          this.absent_attendees.push(attendee)
+      })
+    },
+    getSubmissionIds() {
+      let submission_ids = new Set()
+      if(this.meeting.live_attendance){
+        this.meeting.live_attendance.qr_checkins.forEach(qr_checkin => {
+          
+          let submissions = qr_checkin.qr_checkin_submissions
+
+          submissions.forEach(submission => {
+            submission_ids.add(submission.submitter.user_id)
+          })
+        })
+      }
+      if(this.meeting.async_attendance){
+        this.meeting.async_attendance.recordings.forEach(recording => {
+          let submissions = recording.recording_submissions
+          submissions.forEach(submission => {
+            submission_ids.add(submission.submitter.user_id)
+          })
+        })
+      }
+      return submission_ids
+    },
+    initMeetingStats() {
+      this.chartData = {
+        labels: ['Present %', 'Absent %'],
+        datasets:[{ 
+          backgroundColor: ['#5EFFB4','#fe7073'],
+          data: [
+            ((this.present_attendees.length/this.attendees.length)*100).toFixed(2),
+            ((this.absent_attendees.length/this.attendees.length)*100).toFixed(2)]
+        }]
+      }
+      this.chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+            display: true
+        }
+      }
     },
     getStartTime () {
       if (this.meeting == null) return ''
@@ -307,14 +424,14 @@ export default {
         this.task_focus_mode = "show-info"
     },
     showTaskQR (task) {
-        this.task_focus = -1
-        console.log("In func")
-        this.focused_task = task
-        this.task_focus_mode = "show-info"
+      this.task_focus = -1
+      console.log("In func")
+      this.focused_task = task
+      this.task_focus_mode = "show-info"
     },
     focusTaskAttendance (task_id) {
-        this.task_focus = task_id
-        this.task_focus_mode = "show-attendance"
+      this.task_focus = task_id
+      this.task_focus_mode = "show-attendance"
     },
     showTaskAttendance(task) {
       this.task_focus = -1
@@ -322,7 +439,7 @@ export default {
       this.task_focus_mode = "show-attendance"
     },
     cancelTask () {
-        this.task_focus = null
+      this.task_focus = null
     },
     checkIfMeetingIsLive () {
       let current_time = new Date()
@@ -359,6 +476,9 @@ export default {
         })
       }
     },
+    
+    
+    
     getMeetingAttendees() {
       if(this.for_course)
         this.attendees = this.meeting.course.students
@@ -427,6 +547,7 @@ export default {
       this.show_qr_success_animation = true
       setTimeout(() => {
         this.show_qr_success_animation = false
+        alert("Live Submisssion Recorded.")
         this.$router.go()
       }, 2000)
     },
@@ -448,6 +569,11 @@ export default {
     },
     showMeetingTasks() {
       this.show_meeting_tasks = true
+      this.show_meeting_stats = false
+    },
+    showMeetingStats(){
+      this.show_meeting_stats = true
+      this.show_meeting_tasks = false
     },
     showMeetingAttendance() {
       this.show_meeting_tasks = false
@@ -615,6 +741,10 @@ export default {
           font-size: 1.5rem;
           cursor:pointer;
           margin-bottom: 2rem;
+
+          &:nth-child(2) {
+            margin-left: 5rem;
+          }
 
           .meeting-tab-icon {
             margin-right: 0.5rem;

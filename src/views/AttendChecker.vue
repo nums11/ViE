@@ -1,101 +1,154 @@
 <template>
-  
   <div class='attend-checker'>
-    <div class="lottie-container" v-if="attendance_success">
-      <v-lottie-player 
-        name="QR CODE"
-        :animationData="require('@/assets/lottie/qr-code-scan.json')"
-        :loop="1"
-        @animControl="animController"
-        width="450px"
-        height="450px"
-        autoplay
-      />
-    </div>
+    <QRSuccessAnimation v-if="show_qr_success_animation" />
   </div>
-
 </template>
+
 <script>
-
-/*
-
-AttendChecker:
-This component should check the url params meeting_id (this.$route.meeting_id) and qr_key (this.$route.qr_key)
-and run an API call to get the meeting and QR code with code == qr_key associated with the same meeting.
-
-Once this has been found, if the user is logged in, automatically mark tham as submitting for the QR Submission
-and redirect them to the meeting info page for the meeting in they just submitted for.
-
-If not, prompt them to log in, and once they do so, attend them and redirect them to the meeting info page.
-
-*/
-
 import QRCheckinAPI from '@/services/QRCheckinAPI.js'
-import VueLottiePlayer from 'vue-lottie-player'
+import MeetingAPI from '@/services/MeetingAPI.js';
+import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
+import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
 
 export default {
   name: 'AttendChecker',
-  created () {
-
-    console.log(`STORE`)
-    console.log(this.$store)
-
-    let current_user = this.$store.state.user
-    if (!this.$store.state.user) {
-      // redirect to login that should redirect back to this page.
-      console.log(`User not logged in...`)
-
-      // redirect to the login page
-      this.$router.push({
-        name: 'login',
-        query: {
-          redirect: {
-            name: 'attend_checker',
-            params: {
-              meeting_id: this.$route.params.meeting_id,
-              qr_key: this.$route.params.qr_key
-            }
-          }
-        }
-      })
-    }
-    else {
-      current_user = current_user.current_user
-
-      // get the meeting_id, user_id and qr_code
-      let meeting_id = this.$route.params.meeting_id
-      let qr_code = this.$route.params.qr_key
-      let user_id = current_user._id
-
-      QRCheckinAPI.attendQR(user_id, meeting_id, qr_code)
-      .then(res => {
-        console.log(res)
-        if (res.data.success) {
-          console.log(`SUCCESS!!!`)
-          this.attendance_success = true
-
-          setTimeout(() => {
-            // redirect to the meeting page
-            this.$router.push({ name: 'meeting_info', params: { meeting_id: meeting_id } })
-
-          }, 1700)
-        }
-        else {
-          console.log(`PROBLEM OCCURRED...`)
-        }
-      })
-      
+  async created () {
+    if(!this.userIsLoggedIn()) {
+      if(process.env.NODE_ENV === "production") {
+        this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fvenue-attend.herokuapp.com%2Fauth%2FloginCAS-"
+          + `${this.$route.params.meeting_id}-${this.$route.params.code}`
+      } else {
+        this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS-" + `${this.$route.params.meeting_id}-${this.$route.params.code}`
+      }
+      window.location.href = this.cas_url;
+    } else {
+      await this.getMeeting()
+      this.attemptQRCheckinSubmission(this.$route.params.code)
     }
   },
   data () {
     return {
-      attendance_success: false
+      show_qr_success_animation: false
     }
   },
   components: {
-    vLottiePlayer: VueLottiePlayer
+    QRSuccessAnimation
   },
   methods: {
+    userIsLoggedIn() {
+      if(this.$store.state.user){
+        this.current_user = this.$store.state.user.current_user
+        return true
+      } else {
+        return false
+      }
+    },
+    async getMeeting() {
+      this.meeting_id = this.$route.params.meeting_id
+      const response = await MeetingAPI.getMeeting(this.meeting_id)
+      this.meeting = response.data
+    },
+    attemptQRCheckinSubmission(scanned_code) {
+      if(!this.currentUserIsStudentForCourse()) {
+        alert("Submission Failed: You are not a student for this course.")
+        this.redirectToDashboard()
+        return
+      }
+      let open_checkin = this.getOpenQRCheckin()
+      if(this.isEmptyObj(open_checkin)){
+        alert("Submission Failed: No Open QR Checkins.")
+        this.redirectToDashboard()
+        return
+      }
+      if(this.studentSubmittedToQRCheckin(open_checkin)) {
+        alert("Submission Failed: You have already submitted to this QR Checkin.")
+        this.redirectToDashboard()
+        return
+      }
+      if(!this.scannedCodeIsValid(open_checkin, scanned_code)){
+        alert("Submission Failed: Scanned invalid code!")
+        this.redirectToDashboard()
+        return
+      }
+      this.createLiveSubmission(open_checkin)
+    },
+    currentUserIsStudentForCourse() {
+      let meeting_students = this.meeting.course.students
+      let user_is_student = false
+      for(let i = 0; i < meeting_students.length; i++) {
+        if(meeting_students[i].user_id === this.current_user.user_id) {
+          user_is_student = true
+          break
+        }
+      }
+      return user_is_student
+    },
+    studentSubmittedToQRCheckin(qr_checkin) {
+      let submissions = qr_checkin.qr_checkin_submissions
+      let student_has_submitted = false
+      for(let i = 0; i < submissions.length; i++) {
+        if(submissions[i].submitter.user_id === this.current_user.user_id){
+          student_has_submitted = true
+          break
+        }
+      }
+      return student_has_submitted
+    },
+    getOpenQRCheckin() {
+      let open_checkin = {}
+      let meeting_checkins = this.meeting.live_attendance.qr_checkins
+      for(let i = 0; i < meeting_checkins.length; i++) {
+        if(this.getWindowStatus(meeting_checkins[i], true) === "open"){
+          open_checkin = meeting_checkins[i]
+          break
+        }
+      }
+      return open_checkin
+    },
+    getWindowStatus(task, is_qr) {
+      let current_time = new Date()
+      let window_start = null
+      let window_end = null
+      if(is_qr) {
+        window_start = new Date(task.qr_checkin_start_time)
+        window_end = new Date(task.qr_checkin_end_time)
+      } else {
+        window_start = new Date(task.recording_submission_start_time)
+        window_end = new Date(task.recording_submission_end_time)
+      }
+      let window_status = ""
+      if(current_time > window_end)
+        window_status = "closed"
+      else if(current_time < window_start)
+        window_status = "upcoming"
+      else
+        window_status = "open"
+      return window_status
+    },
+    scannedCodeIsValid(open_checkin, scanned_code) {
+      return open_checkin.code === scanned_code
+    },
+    redirectToDashboard() {
+      this.$router.push({name: 'dashboard'})
+    },
+    isEmptyObj(obj) {
+      return Object.keys(obj).length === 0 && obj.constructor === Object
+    },
+    async createLiveSubmission(open_checkin) {
+      let live_submission = {
+        submitter: this.$store.state.user.current_user._id,
+        is_qr_checkin_submission: true,
+        qr_checkin: open_checkin._id,
+        live_submission_time: new Date()
+      }
+      const response = await LiveSubmissionAPI.addLiveSubmission(live_submission)
+      this.show_qr_success_animation = true
+      setTimeout(() => {
+        this.show_qr_success_animation = false
+        alert("Live Submisssion Recorded.")
+        this.$router.push({name: 'meeting_info', params: {meeting_id: this.meeting_id}})
+      }, 2000)
+    },
     animController (g, a) {
       console.log(`CONTROLLER CALLED`)
       console.log(g)
@@ -103,27 +156,8 @@ export default {
   }
 }
 </script>
+
 <style lang="scss">
-
-.attend-checker {
-  position: fixed;
-  z-index: 2000000000;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-
-  .lottie-container {
-    width: 450px;
-    height: 450px;
-    margin: 0 auto;
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%);
-  }
-}
-
-
 .dark-mode {
   .attend-checker {
     background-color: #121419;

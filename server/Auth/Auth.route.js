@@ -4,21 +4,6 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-const APIServerBaseURL = () => {
-  if (process.env.NODE_ENV === 'production') return `https://venue-attend.herokuapp.com/`
-  // Try to connect desktop IP
-  if (process.env.SOURCE_IP) return `http://${process.env.SOURCE_IP}:4000/`
-  return `http://localhost:4000/`
-}
-
-
-const FrontEndServerBaseURL = () => {
-  if (process.env.NODE_ENV === 'production') return `https://venue-attend.herokuapp.com/`
-  // Try to connect desktop IP
-  if (process.env.SOURCE_IP) return `http://${process.env.SOURCE_IP}:8080/`
-  return `http://localhost:8080/`
-}
-
 let User = require('../User/User.model');
 
 const alnums = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -48,7 +33,7 @@ if(process.env.NODE_ENV === "production") {
   passport.use(new (require('passport-cas').Strategy)({
     version: 'CAS3.0',
     ssoBaseURL: 'https://cas-auth.rpi.edu/cas',
-    serverBaseURL: 'https://byakugan.herokuapp.com'
+    serverBaseURL: 'https://venue-attend.herokuapp.com'
   }, function(profile, done) {
     var login = profile.user.toLowerCase();
     User.findOne({user_id: login}, function (err, user) {
@@ -66,7 +51,7 @@ if(process.env.NODE_ENV === "production") {
   passport.use(new (require('passport-cas').Strategy)({
     version: 'CAS3.0',
     ssoBaseURL: 'https://cas-auth.rpi.edu/cas',
-    serverBaseURL: APIServerBaseURL()
+    serverBaseURL: 'http://localhost:4000'
   }, function(profile, done) {
     var login = profile.user.toLowerCase();
     User.findOne({user_id: login}, function (err, user) {
@@ -169,40 +154,51 @@ authRoutes.route('/set_permanent_pasword').post(function (req, res) {
   }
 });
 
-authRoutes.get("/loginCAS", (req, res, next) => {
+authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next) => {
+  console.log("Reached login cas. Optinal Meeting ID:",req.params.optional_meeting_id)
+  let optional_meeting_id = req.params.optional_meeting_id
+  let optional_code = req.params.optional_code
   passport.authenticate('cas', function (err, user, info) {
     if (err) {
+      console.log("<ERROR> (auth/loginCAS) authenticating", err)
       return next(err);
     } else if (!user) {
       req.session.messages = info.message;
       if(process.env.NODE_ENV === "production") {
-        return res.redirect('https://byakugan.herokuapp.com');
+        return res.redirect('https://venue-attend.herokuapp.com');
       } else {
-        return res.redirect(FrontEndServerBaseURL());
+        return res.redirect('http://localhost:8080');
       }
     } else {
       req.logIn(user, function (err) {
         if (err) {
+          console.log("<ERROR> (auth/loginCAS) logging in", err)
           return next(err);
         } else {
           req.session.messages = '';
           let venueSID = generateSID()
           Promise.resolve(venueSID).then(resolvedSID => {
             if(resolvedSID != null) {
-              User.findOneAndUpdate({user_id: user.user_id},{connect_sid: resolvedSID},function(err,user) {
+              User.findOneAndUpdate({user_id: user.user_id},{connect_sid: resolvedSID},{new:true},function(err,user) {
                 if(err || user == null) {
+                  console.log("<ERROR> (auth/loginCAS) updating user by id", user.user_id,
+                    err)
                   return next(err);
                 } else {
                   res.header("Set-Cookie","connect_sid="+resolvedSID)
+                  console.log("<SUCCESS> (auth/loginCAS) updating user and setting cookie.")
                   if(process.env.NODE_ENV === "production") {
-                    return res.redirect('https://byakugan.herokuapp.com/#/redirectCASLogin');
+                    return res.redirect(`https://venue-attend.herokuapp.com/#/redirectCASLogin/`
+                      + `${optional_meeting_id}/${optional_code}`);
                   } else {
-                    console.log("I entered here. using url", FrontEndServerBaseURL())
-                    return res.redirect(`${FrontEndServerBaseURL()}/#/redirectCASLogin`);
+                    return res.redirect(`http://localhost:8080/#/redirectCASLogin/`
+                      + `${optional_meeting_id}/${optional_code}`);
                   }
                 }
               })
-              return res.redirect(FrontEndServerBaseURL());
+            } else {
+              console.log("<ERROR> (auth/loginCAS) resolving SID", resolvedSID)
+              return res.redirect('http://localhost:8080');
             }
           })
         }
@@ -214,9 +210,12 @@ authRoutes.get("/loginCAS", (req, res, next) => {
 authRoutes.get("/loginStatus", function(req, res) {
   User.findOne({connect_sid: req.cookies["connect_sid"]}, function (err, current_user) {
     if(err || current_user == null) {
+      console.log("<ERROR> (auth/loginStatus) Finding user with connect_sid",
+        req.cookies["connect_sid"], err)
       res.json(null)
     } else {
       const token = jwt.sign({current_user}, process.env.AUTH_KEY)
+      console.log("<SUCCESS> (auth/loginStatus) Finding user by connect_sid.")
       res.json({token, current_user})
     }
   });
