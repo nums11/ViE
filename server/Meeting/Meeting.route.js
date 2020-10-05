@@ -487,32 +487,64 @@ delete(async function (req, res) {
           recording_id, "from async_attendance with id", async_attendance_id, error)
         res.json(error)
       }
-      Recording.findByIdAndRemove(recording_id, (err) => {
-        if (err) {
-          console.log("<ERROR (meetings/remove_recording)> Deleting Recording with ID:", recording_id)
-          res.json(err);
+      Recording.findById(recording_id, async (error, recording) => {
+        if(error || recording == null) {
+          console.log("<ERROR> (meetings/remove_recording)> Finding Recording with ID:", recording_id)
         } else {
-          if(async_attendance.recordings.length === 0) {
-            Meeting.findByIdAndUpdate(meeting_id,
-              {has_async_attendance: false},
-              (error, meeting) => {
-                if(error || meeting == null) {
-                  console.log("<ERROR (meetings/remove_recording)> updating meeting with id",
-                    meeting_id, error)
-                  res.json(error)
+          // Delete the recording submissions
+          let recording_submission_promises = []
+          recording.recording_submissions.forEach(submission => {
+            let submission_id = submission._id
+            recording_submission_promises.push(new Promise((resolve,reject) => {
+              AsyncSubmission.findByIdAndRemove(submission_id, (error) => {
+                if (error) {
+                  console.log("<ERROR (meetings/remove_recording)> deleting recording submission with ID:",
+                    submission_id, error)
+                  reject(false)
+                  res.json(error);
                 } else {
-                  console.log("<SUCCESS> (meetings/remove_recording) Deleting recording with ID:",
-                    recording_id, "and updating async_attendance and meeting")
-                  res.json('Successfully removed recording from meeting');
+                  resolve(true)
                 }
               })
-          } else {
-            console.log("<SUCCESS> (meetings/remove_recording) Deleting recording with ID:",
-              recording_id, "and updating async_attendance")
-            res.json('Successfully removed recording from meeting');
+            }))
+          })
+
+          try {
+            await Promise.all(recording_submission_promises)
+            Recording.findByIdAndRemove(recording_id, (err) => {
+              if (err) {
+                console.log("<ERROR (meetings/remove_recording)> Deleting Recording with ID:",
+                  recording_id, err)
+                res.json(err);
+              } else {
+                // Update the meeting's has_async attendance boolean if this was the last recording
+                if(async_attendance.recordings.length === 0) {
+                  Meeting.findByIdAndUpdate(meeting_id,
+                    {has_async_attendance: false},
+                    (error, meeting) => {
+                      if(error || meeting == null) {
+                        console.log("<ERROR (meetings/remove_recording)> updating meeting with id",
+                          meeting_id, error)
+                        res.json(error)
+                      } else {
+                        console.log("<SUCCESS> (meetings/remove_recording) Deleting recording with ID:",
+                          recording_id, "and updating async_attendance and meeting")
+                        res.json('Successfully removed recording from meeting');
+                      }
+                    })
+                } else {
+                  console.log("<SUCCESS> (meetings/remove_recording) Deleting recording with ID:",
+                    recording_id, "and updating async_attendance")
+                  res.json('Successfully removed recording from meeting');
+                }
+              }
+            });
+          } catch (error) {
+            console.log("<ERROR> (meetings/remove_recording) awaiting recording submission promise deletion:",error)
+            res.json(error)
           }
         }
-      });
+      })
     }
   )
 })
