@@ -2,12 +2,12 @@
   <div class="task-info-container">
     <!-- Upper Area -->
     <div class="upper-area">
-      <div v-if="is_priveleged_user" class="hover-content">
+      <div v-if="is_priveleged_user && !is_qr" class="hover-content">
         <div class="hover-background"></div>
         <div class="task-buttons-container">
-          <sui-button @click="$emit('show-edit-recording-modal',task)"
-          class="venue-blue task-edit-btn" content="Edit" />
-          <sui-button v-if="!is_qr" @click="removeRecording" color="red" content="Delete" />
+<!--           <sui-button @click="$emit('show-edit-recording-modal',task)"
+          class="venue-blue task-edit-btn" content="Edit" /> -->
+          <sui-button class="task-edit-btn" @click="removeRecording" color="red" content="Delete" />
         </div>
       </div>
       <div class="left-side">
@@ -241,9 +241,8 @@ export default {
             width: 100%;
 
             .task-edit-btn {
-              margin-left: 18rem;
+              margin-left: 22rem;
               margin-top: 1rem;
-              margin-right: 1rem;
             }
           }
 
