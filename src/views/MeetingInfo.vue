@@ -83,7 +83,7 @@
               <sui-icon name="users" class="meeting-tab-icon" />
               Attendance
             </sui-list-item> -->
-            <sui-list-item 
+            <sui-list-item v-if="is_instructor" 
             :class="'stats-tab ' + (show_meeting_stats ? 'solid-border-bottom' : '')"
             @click="showMeetingStats">
               <sui-icon name="chart line" class="stats-tab-icon" />
