@@ -241,7 +241,7 @@ export default {
             width: 100%;
 
             .task-edit-btn {
-              margin-left: 22rem;
+              margin-left: 45%;
               margin-top: 1rem;
             }
           }
