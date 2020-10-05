@@ -2,6 +2,14 @@
   <div class="task-info-container">
     <!-- Upper Area -->
     <div class="upper-area">
+      <div v-if="is_priveleged_user && !is_qr" class="hover-content">
+        <div class="hover-background"></div>
+        <div class="task-buttons-container">
+<!--           <sui-button @click="$emit('show-edit-recording-modal',task)"
+          class="venue-blue task-edit-btn" content="Edit" /> -->
+          <sui-button class="task-edit-btn" @click="removeRecording" color="red" content="Delete" />
+        </div>
+      </div>
       <div class="left-side">
           <div class="title-area">
             <h4 v-if="is_qr">QR Submission</h4>
@@ -183,6 +191,11 @@ export default {
     checkIfPrivelegedUser() {
       this.is_priveleged_user = (this.for_course && this.is_instructor) ||
       (!this.for_course && this.is_board_member)
+    },
+    removeRecording() {
+      let confirmation = confirm("Are you sure you want to remove this recording?")
+      if(confirmation)
+        this.$emit('remove-recording',this.task._id)
     }
   }
 }
@@ -196,6 +209,44 @@ export default {
         display: flex;
         box-sizing: border-box;
         padding: 10px 15px;
+
+        .hover-content {
+          position: absolute;
+          margin-left: -15px;
+          margin-top: -10px;
+          height: 70px;
+          width: 100%;
+          border-radius: 5px;
+          visibility: hidden;
+          -webkit-transition: visibility 0.1s linear;
+          -ms-transition: visibility 0.1s linear;
+          transition: visibility 0.1s linear;
+          
+
+          .hover-background {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            border-radius: 5px;
+            background-color: #a8a8a8;
+            opacity: 0;
+            -webkit-transition: opacity 0.1s linear;
+            -ms-transition: 0.1s linear;
+            transition: 0.1s linear;
+          }
+
+          .task-buttons-container {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+
+            .task-edit-btn {
+              margin-left: 22rem;
+              margin-top: 1rem;
+            }
+          }
+
+        }
 
         .left-side {
             flex-grow: 1;
@@ -212,6 +263,15 @@ export default {
                 height: 50px;
             }
         }
+    }
+
+    .upper-area:hover {
+      .hover-content {
+        visibility: visible;
+        .hover-background {
+          opacity: 0.7;
+        }
+      }
     }
 
     .lower-area {

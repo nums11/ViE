@@ -11,6 +11,8 @@
       :code="full_screen_code" 
       :students="attendees"
     />
+    <!-- Edit Modal -->
+    <EditRecordingModal ref="EditRecordingModal" />
     <QRSuccessAnimation v-if="show_qr_success_animation" />
 
     <!-- Header -->
@@ -119,7 +121,8 @@
                   :is_board_member="is_board_member"
                   v-on:show-qr-scanning-window="showQRScanningWindow"
                   v-on:show-task-attendance="showTaskAttendance"
-                  v-on:show-fullscreen-code="showFullScreenQRCodeModal" />
+                  v-on:show-fullscreen-code="showFullScreenQRCodeModal"
+                  v-on:remove-recording="removeRecording" />
                 </div>
                 <div style="margin-top:3rem;" v-if="meeting.has_async_attendance">
                   <div class="title">
@@ -135,7 +138,9 @@
                   :attendees="attendees"
                   :for_course="for_course"
                   :is_board_member="is_board_member"
-                  v-on:show-task-attendance="showTaskAttendance"  />
+                  v-on:show-task-attendance="showTaskAttendance"
+                  v-on:remove-recording="removeRecording"
+                  v-on:show-edit-recording-modal="showEditRecordingModal" />
                 </div>
               </div>
               <div key="2" v-else>
@@ -194,6 +199,7 @@ import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 import MeetingAPI from '@/services/MeetingAPI.js';
 import qrcode from '@chenfengyuan/vue-qrcode';
 import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
+import EditRecordingModal from '@/components/EditRecordingModal.vue'
 import  VenueChart  from "@/components/VenueChart.vue"
 
 export default {
@@ -211,8 +217,8 @@ export default {
     MeetingTaskList,
     MeetingAttendanceList,
     QRSuccessAnimation,
+    EditRecordingModal,
     VenueChart,
-    
   },
   data () {
     return {
@@ -256,7 +262,6 @@ export default {
     this.getMeetingAttendees()
     this.separateAttendees()
     this.meeting_has_loaded = true
-    this.initMeetingStats()
   },
   methods: {
     usingiOS() {
@@ -603,6 +608,14 @@ export default {
         else
           this.$router.push({name: "org_info", params: {id: this.meeting.org._id}})
       }
+    },
+    async removeRecording(recording_id) {
+      await MeetingAPI.removeRecordingFromMeeting(this.meeting._id,
+        this.meeting.async_attendance._id, recording_id)
+      this.$router.go()
+    },
+    showEditRecordingModal(recording) {
+      this.$refs.EditRecordingModal.showModal(recording)
     }
   }
 }

@@ -41,9 +41,9 @@ export default {
       recording
     })
   },
-  removeRecordingFromMeeting(async_attendance_id,recording_id) {
-    return API().delete('meetings/remove_recording/' +
-      async_attendance_id + '/' + recording_id)
+  removeRecordingFromMeeting(meeting_id, async_attendance_id,recording_id) {
+    return API().delete(`meetings/remove_recording/${meeting_id}` +
+      `/${async_attendance_id}/${recording_id}`)
   },
   getMeeting(id) {
     return API().get('meetings/get/' + id)
