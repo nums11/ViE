@@ -83,10 +83,9 @@
               <sui-icon name="users" class="meeting-tab-icon" />
               Attendance
             </sui-list-item> -->
-
             <sui-list-item 
-            :class="'stats-tab ' + (show_stats ? 'solid-border-bottom' : '')"
-            @click="showStats">
+            :class="'stats-tab ' + (show_meeting_stats ? 'solid-border-bottom' : '')"
+            @click="showMeetingStats">
               <sui-icon name="chart line" class="stats-tab-icon" />
               Stats
             </sui-list-item>
@@ -148,7 +147,7 @@
             </transition-group>
           </div>
           <!-- Stats -->
-          <div v-else-if="show_stats">
+          <div v-else-if="show_meeting_stats">
             <h3>Attendance Stats</h3>
         <VenueChart 
             :chartData="chartData"
@@ -226,7 +225,7 @@ export default {
       show_qr_scanning_window: false,
       attendees: [],
       show_meeting_tasks: true,
-      show_stats: false,
+      show_meeting_stats: false,
       is_board_member: false,
       show_qr_success_animation: false,
 
@@ -508,10 +507,10 @@ export default {
     },
     showMeetingTasks() {
       this.show_meeting_tasks = true
-      this.show_stats = false
+      this.show_meeting_stats = false
     },
-    showStats(){
-      this.show_stats = true
+    showMeetingStats(){
+      this.show_meeting_stats = true
       this.show_meeting_tasks = false
     },
     showMeetingAttendance() {
