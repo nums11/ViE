@@ -21,7 +21,7 @@
       <div class="dashboard-row-one dashboard-row">
         <div class="dashboard-section">
           <div class="section-title">
-            <div class="title-value">Live Meetings</div>
+            <div class="title-value">Live Meetingsssss</div>
             <div class="title-subvalue" >({{live_meetings.length}}) meeting<span v-if="live_meetings.length != 1">s</span> with live attendance</div>
           </div>
             <div v-if="!user_has_loaded">
