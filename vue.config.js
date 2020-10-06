@@ -1,5 +1,7 @@
-// module.exports = {
-//   devServer: {
-//     https: true
-//   },
-// }
+module.exports = {
+  pwa: {
+    workboxOptions: {
+      skipWaiting: true
+    }
+  }
+}
