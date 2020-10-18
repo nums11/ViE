@@ -64,6 +64,7 @@ function start() {
   const recordingRouter = require('./Recording/Recording.route')
   const asyncSubmissionRouter = require('./AsyncSubmission/AsyncSubmission.route')
   const qrCheckinRouter = require('./QRCheckin/QRCheckin.route')
+  const notificationRouter = require('./Notification/Notification.route')
   const AttendanceFinder = require('./socket/AttendanceFinder')
 
   let io;
@@ -173,6 +174,6 @@ app.use(cors(
   app.use('/recordings', recordingRouter);
   app.use('/asyncsubmissions', asyncSubmissionRouter);
   app.use('/qrcheckins', qrCheckinRouter);
-
+  app.use('/notifications', notificationRouter);
 
 }

@@ -1,37 +1,35 @@
-/* eslint-disable no-console */
+// /* eslint-disable no-console */
 
-import { register } from 'register-service-worker'
+// import { register } from 'register-service-worker'
+// import Vue from "vue";
 
-if (process.env.NODE_ENV === 'production') {
-  register(`${process.env.BASE_URL}service-worker.js`, {
-    ready () {
-      console.log(
-        'App is being served from cache by a service worker.\n' +
-        'For more details, visit https://goo.gl/AFskqB'
-      )
-    },
-    registered () {
-      console.log('Service worker has been registered.')
-    },
-    cached () {
-      console.log('Content has been cached for offline use.')
-    },
-    updatefound () {
-      console.log('New content is downloading.')
-    },
-    updated () {
-      console.log('New content is available; please refresh.')
-      setTimeout(() => {
-        caches.keys().then(function(names) {
-          for (let name of names) caches.delete(name);
-        });
-      }, 1000)
-    },
-    offline () {
-      console.log('No internet connection found. App is running in offline mode.')
-    },
-    error (error) {
-      console.error('Error during service worker registration:', error)
-    }
-  })
-}
+// export default() => {
+//   if (process.env.NODE_ENV === 'production') {
+//     return register(`${process.env.BASE_URL}service-worker.js`, {
+//       ready () {
+//         console.log(
+//           'App is being served from cache by a service worker.\n' +
+//           'For more details, visit https://goo.gl/AFskqB'
+//         )
+//       },
+//       registered () {
+//         console.log('Service worker has been registered.')
+//       },
+//       cached () {
+//         console.log('Content has been cached for offline use.')
+//       },
+//       updatefound () {
+//         console.log('New content is downloading.')
+//       },
+//       updated () {
+//         console.log('New content is available; please refresh.')
+//       },
+//       offline () {
+//         console.log('No internet connection found. App is running in offline mode.')
+//       },
+//       error (error) {
+//         console.error('Error during service worker registration:', error)
+//       }
+//     })
+//   }
+// }

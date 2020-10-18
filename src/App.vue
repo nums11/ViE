@@ -28,6 +28,7 @@ import '@/assets/css/venue.css';
 import axios from 'axios';
 import io from 'socket.io';
 import Cookie from 'cookie';
+import Vue from "vue";
 
 export default {
   watch: {
@@ -45,8 +46,8 @@ export default {
       dark_mode: false
     }
   },
-  created() {
-    console.log("env", process.env)
+  async created() {
+    // console.log("env", process.env)
     axios.defaults.headers.common['Access-Control-Allow-Methods'] = ["GET, POST, DELETE"]
 
     // // Let's check if the browser supports notifications

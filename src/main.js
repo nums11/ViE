@@ -16,6 +16,8 @@ Vue.use(SuiVue)
 Vue.use(PortalVue)
 Vue.use(VueAxios, axios);
 
+// Vue.prototype.$registered_worker = {first:"Hello"}
+
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
 import '@/assets/css/venue-2.scss';
 import '@/assets/css/venue.css';
@@ -23,7 +25,14 @@ import '@/assets/css/venue-core.css';
 import 'semantic-ui-css/semantic.min.css';
 import '@/assets/css/icomoon2.css';
 import '@/assets/css/icomoon3.css';
-import './registerServiceWorker'
+// import registerWorker from './registerServiceWorker'
+// console.log("App.vue registered worker", registerWorker())
+// Vue.prototype.$registered_worker = registerWorker()
+
+// navigator.serviceWorker.ready.then(sw => {
+//     console.log("Service worker ready", sw)
+// })
+
 
 Vue.config.productionTip = false;
 
@@ -63,7 +72,7 @@ Vue.directive('click-outside', {
 new Vue({
     router,
     store,
-    created(){
+    async created(){
     	// Automatic Login
     	const userString = localStorage.getItem('user')
     	if(userString) {
