@@ -17,6 +17,8 @@
          </sui-dropdown-menu>
         </sui-dropdown> -->
       </div>
+
+      <button @click="notifyAllUsers">Notify all users</button>
       
       <div class="dashboard-row-one dashboard-row">
         <div class="dashboard-section">
@@ -67,6 +69,7 @@
   import {showAt, hideAt} from 'vue-breakpoints'
   import SquareLoader from "@/components/Loaders/SquareLoader.vue"
   import MeetingInfoPill from '@/components/MeetingInfoPill.vue'
+  import NotificationAPI from '@/services/NotificationAPI.js';
 
   export default {
     name: 'Dashboard',
@@ -95,6 +98,13 @@
       this.categorizeMeetings()
     },
     methods: {
+      async notifyAllUsers() {
+        let confirmation = confirm("Are you sure you want to notify all users?")
+        if(confirmation) {
+          const response = await NotificationAPI.sendNotification()
+          console.log("Notification sent")
+        }
+      },
       async getCurrentUser() {
         this.user = this.$store.state.user.current_user
         this.is_instructor = this.user.is_instructor
