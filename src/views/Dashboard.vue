@@ -18,7 +18,7 @@
         </sui-dropdown> -->
       </div>
 
-      <button @click="notifyAllUsers">Notify all users</button>
+      <button @click="notifyAllUsers">Notify myself</button>
       
       <div class="dashboard-row-one dashboard-row">
         <div class="dashboard-section">
