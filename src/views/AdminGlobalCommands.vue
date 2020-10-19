@@ -35,12 +35,12 @@ export default {
     async notifyAllUsers() {
       let confirmation = confirm("Are you sure you want to notify all users?")
       if(confirmation) {
-        const response = await NotificationAPI.sendNotification()
+        const response = await NotificationAPI.notifyAllUsers()
         console.log("Notification sent")
       }
     },
     async addServiceWorkerSubscriptionsToUsers() {
-      let confirmation = confirm("Are you sure you want to notify all users?")
+      let confirmation = confirm("Are you sure you want to add service worker subscriptions to all users?")
       if(confirmation) {
         const response = await UserAPI.addServiceWorkerSubscriptionsToAllUsers()
         alert("Service worker subscriptions successfully added")
