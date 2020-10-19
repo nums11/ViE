@@ -1,161 +1,166 @@
 <template>
-  <div class="new-meeting-form">
-    <div class="form-center">
-      <div class="left-side-area">
-        <div class="logo-area"></div>
-        <div class="tasks-list">
-          <div class="section-header">LIVE TASKS</div>
-          <div class="empty-area">No live tasks</div>
-        </div>
-        <div class="tasks-list">
-          <div class="section-header">ASYNCHRONOUS TASKS</div>
-          <div class="empty-area">No asynchronous tasks</div>
-        </div>
-      </div>
-
-      <div class="right-side-area"> 
-        <div class="new-meeting-title">
-          <div class="label">NEW MEETING</div>
-          <h3>{{ for_course ? course.name : org.name}}</h3>
-        </div>
-        <div class="meeting-name">
-          <InputField2
-            v-model="meeting.title"
-            :validate="{
-              mustBeFilled: (x) => [x.length > 0, 'Field cannot be left empty.']
-            }"
-            :config="{
-              label: 'Meeting Name',
-              icon: 'users',
-              width: '60%'
-            }"
-          />
-          <div class="info-area">
-            Enter the name for your meeting.
+  <div>
+    <div v-if="notification_permission_status === 'default' && meeting.has_live_attendance"
+    class="notification-message">You currently do not have notifications enabled for Venue, so you will not be able to receive a notification for any QR Codes that become available. To enable notifications click <span @click="requestNotificationPermission">here</span>.</div>
+    <div v-else-if="notification_permission_status === 'blocked' && meeting.has_live_attendance"
+    class="notification-message">You currently have notifications blocked for Venue, so you will not be able to receive a notification for any QR Codes that become available. To enable notifications click on the icon in the top left of your search bar and set notifications to "Allow".</div>
+    <div class="new-meeting-form">
+      <div class="form-center">
+        <div class="left-side-area">
+          <div class="logo-area"></div>
+          <div class="tasks-list">
+            <div class="section-header">LIVE TASKS</div>
+            <div class="empty-area">No live tasks</div>
+          </div>
+          <div class="tasks-list">
+            <div class="section-header">ASYNCHRONOUS TASKS</div>
+            <div class="empty-area">No asynchronous tasks</div>
           </div>
         </div>
 
-        <div class="live-meeting-portion">
-          <div>
-            <div class="checkbox">
-              <input type="checkbox" @click="toggleLiveInputs" />
-              <label>Include QR Code Checkin</label>
+        <div class="right-side-area"> 
+          <div class="new-meeting-title">
+            <div class="label">NEW MEETING</div>
+            <h3>{{ for_course ? course.name : org.name}}</h3>
+          </div>
+          <div class="meeting-name">
+            <InputField2
+              v-model="meeting.title"
+              :validate="{
+                mustBeFilled: (x) => [x.length > 0, 'Field cannot be left empty.']
+              }"
+              :config="{
+                label: 'Meeting Name',
+                icon: 'users',
+                width: '60%'
+              }"
+            />
+            <div class="info-area">
+              Enter the name for your meeting.
             </div>
           </div>
-          <transition name="fade" mode="out-in">
-            <div v-if="meeting.has_live_attendance">
 
-              <div class="meeting-time-picker-area" :style="{width: '60%'}">
-                <h4 style="margin-top:1rem;">Meeting Times</h4>
-                <div class="info-area">
-                  Choose the start and end times for the live portion of your meeting.
-                </div>
-                <div class="date-label">START TIME</div>
-                <input class="new-meeting-datetime-picker" placeholder="Select date & time"
-                id="meeting_start" aria-labelledby="start_time_label" type="datetime-local"/>
-                <div class="date-label" :style="{marginTop: '20px'}">END TIME</div>
-                <input class="new-meeting-datetime-picker" placeholder="Select date & time"
-                id="meeting_end" aria-labelledby="end_time_label" type="datetime-local"
-                :disabled="!meetingHasStartTime"/>
+          <div class="live-meeting-portion">
+            <div>
+              <div class="checkbox">
+                <input type="checkbox" @click="toggleLiveInputs" />
+                <label>Include QR Code Checkin</label>
               </div>
-
-              <div class="meeting-time-picker-area" :style="{width: '60%', marginTop: '30px'}">
-                <h4>QR Checkin Times</h4>
-                <div class="info-area" >
-                  Choose the time window for which students will be able to scan a QR code for
-                  attendance during the live portion of your meeting. You will receive a notification to
-                  show the QR Code to your students at the start time.
-                </div>
-                <div class="date-label">START TIME</div>
-                <input class="new-meeting-datetime-picker" placeholder="Select date & time"
-                id="qr_checkin_start" aria-labelledby="qr_start_time_label" type="datetime-local"
-                :disabled="!meetingHasStartAndEndTime"/>
-                <div class="date-label" :style="{marginTop: '20px'}">END TIME</div>
-                <input class="new-meeting-datetime-picker" placeholder="Select date & time"
-                id="qr_checkin_end" aria-labelledby="qr_end_time_label" type="datetime-local"
-                :disabled="!meetingHasStartAndEndTime || !qrCheckinHasStartTime"/>
-              </div>
-
             </div>
-          </transition>
-        </div>
+            <transition name="fade" mode="out-in">
+              <div v-if="meeting.has_live_attendance">
 
-        <div class="live-meeting-portion">
-          <div>
-            <div class="checkbox">
-              <input type="checkbox" @click="toggleAsyncInputs" />
-              <label>Include recording</label>
-            </div>
-          </div>
-          <transition name="fade" mode="out-in">
-            <div v-if="meeting.has_async_attendance">
-              <div class="meeting-time-picker-area" :style="{width: '60%'}">
-                <h4 style="margin-top:1rem;">Video Recording</h4>
-                <div class="info-area">
-                  Choose the time window for which your students are allowed to watch
-                  the recording for attendance. The recording will become available for student viewing
-                  at the beginning of the time window and will remain available after the end of the
-                  time window, however, afterward students will not be able to watch for attendance.
-                </div>
-                <div :class="`video-upload-holder ${recording.video != null ? 'active' : ''}`" @click="showFileSelector">
-                  <div v-if="recording.video == null">
-                    <p>Click to add a recording</p>
-                    <p class="small">File format (.mp4, .wav, etc?)</p>
+                <div class="meeting-time-picker-area" :style="{width: '60%'}">
+                  <h4 style="margin-top:1rem;">Meeting Times</h4>
+                  <div class="info-area">
+                    Choose the start and end times for the live portion of your meeting.
                   </div>
-                  <div v-else>{{ recording.video.name }}</div>
-                  <input type="file" id="recording-upload-input" @change="setRecordingFile" />
+                  <div class="date-label">START TIME</div>
+                  <input class="new-meeting-datetime-picker" placeholder="Select date & time"
+                  id="meeting_start" aria-labelledby="start_time_label" type="datetime-local"/>
+                  <div class="date-label" :style="{marginTop: '20px'}">END TIME</div>
+                  <input class="new-meeting-datetime-picker" placeholder="Select date & time"
+                  id="meeting_end" aria-labelledby="end_time_label" type="datetime-local"
+                  :disabled="!meetingHasStartTime"/>
                 </div>
-                <div v-if="recording.video != null" class="clear" @click="clearVideoUpload">clear</div>
-                <div class="date-label" style="margin-top:2rem;">START TIME</div>
-                <input class="new-meeting-datetime-picker" placeholder="Select date & time"
-                id="recording_submission_start" aria-labelledby="recording_submission_start_time" type="datetime-local" />
-                <div class="date-label" :style="{marginTop: '20px'}">END TIME</div>
-                <input class="new-meeting-datetime-picker" placeholder="Select date & time"
-                id="recording_submission_end" aria-labelledby="recording_submission_end_time" type="datetime-local"
-                :disabled="!recordingHasStartTime" />
+
+                <div class="meeting-time-picker-area" :style="{width: '60%', marginTop: '30px'}">
+                  <h4>QR Checkin Times</h4>
+                  <div class="info-area" >
+                    Choose the time window for which students will be able to scan a QR code for
+                    attendance during the live portion of your meeting. You will receive a notification to
+                    show the QR Code to your students at the start time.
+                  </div>
+                  <div class="date-label">START TIME</div>
+                  <input class="new-meeting-datetime-picker" placeholder="Select date & time"
+                  id="qr_checkin_start" aria-labelledby="qr_start_time_label" type="datetime-local"
+                  :disabled="!meetingHasStartAndEndTime"/>
+                  <div class="date-label" :style="{marginTop: '20px'}">END TIME</div>
+                  <input class="new-meeting-datetime-picker" placeholder="Select date & time"
+                  id="qr_checkin_end" aria-labelledby="qr_end_time_label" type="datetime-local"
+                  :disabled="!meetingHasStartAndEndTime || !qrCheckinHasStartTime"/>
+                </div>
+
+              </div>
+            </transition>
+          </div>
+
+          <div class="live-meeting-portion">
+            <div>
+              <div class="checkbox">
+                <input type="checkbox" @click="toggleAsyncInputs" />
+                <label>Include recording</label>
               </div>
             </div>
-          </transition>
-        </div>
+            <transition name="fade" mode="out-in">
+              <div v-if="meeting.has_async_attendance">
+                <div class="meeting-time-picker-area" :style="{width: '60%'}">
+                  <h4 style="margin-top:1rem;">Video Recording</h4>
+                  <div class="info-area">
+                    Choose the time window for which your students are allowed to watch
+                    the recording for attendance. The recording will become available for student viewing
+                    at the beginning of the time window and will remain available after the end of the
+                    time window, however, afterward students will not be able to watch for attendance.
+                  </div>
+                  <div :class="`video-upload-holder ${recording.video != null ? 'active' : ''}`" @click="showFileSelector">
+                    <div v-if="recording.video == null">
+                      <p>Click to add a recording</p>
+                      <p class="small">File format (.mp4, .wav, etc?)</p>
+                    </div>
+                    <div v-else>{{ recording.video.name }}</div>
+                    <input type="file" id="recording-upload-input" @change="setRecordingFile" />
+                  </div>
+                  <div v-if="recording.video != null" class="clear" @click="clearVideoUpload">clear</div>
+                  <div class="date-label" style="margin-top:2rem;">START TIME</div>
+                  <input class="new-meeting-datetime-picker" placeholder="Select date & time"
+                  id="recording_submission_start" aria-labelledby="recording_submission_start_time" type="datetime-local" />
+                  <div class="date-label" :style="{marginTop: '20px'}">END TIME</div>
+                  <input class="new-meeting-datetime-picker" placeholder="Select date & time"
+                  id="recording_submission_end" aria-labelledby="recording_submission_end_time" type="datetime-local"
+                  :disabled="!recordingHasStartTime" />
+                </div>
+              </div>
+            </transition>
+          </div>
 
-        <div class="live-meeting-portion">
-          <Button2 
-            :style="{marginBottom: '20px', marginRight: '2%'}"
-            :onClick="cancelForm"
-            :config="{
-              width: '8%',
-              iconOnly: true,
-              icon: 'arrow left',
-              color: 'venue-grey'
-            }" />
-          <Button2 
-            :style="{marginBottom: '20px'}"
-            text="Create New Meeting"
-            :disabled="!meetingCanBeCreated"
-            :onClick="createMeeting"
-            :config="{
-              width: '50%',
-              icon: 'right arrow',
-              iconSide: 'right'
-            }" />
+          <div class="live-meeting-portion">
+            <Button2 
+              :style="{marginBottom: '20px', marginRight: '2%'}"
+              :onClick="cancelForm"
+              :config="{
+                width: '8%',
+                iconOnly: true,
+                icon: 'arrow left',
+                color: 'venue-grey'
+              }" />
+            <Button2 
+              :style="{marginBottom: '20px'}"
+              text="Create New Meeting"
+              :disabled="!meetingCanBeCreated"
+              :onClick="createMeeting"
+              :config="{
+                width: '50%',
+                icon: 'right arrow',
+                iconSide: 'right'
+              }" />
+          </div>
         </div>
       </div>
-    </div>
 
-    <div v-if="meeting_saving" class="submission-fullscreen">
-      <div class="centerer">
-        <v-lottie-player 
-          name="QR CODE"
-          :animationData="require('@/assets/lottie/uploading.json')"
-          loop
-          width="300px"
-          height="300px"
-          autoplay
-        />
+      <div v-if="meeting_saving" class="submission-fullscreen">
+        <div class="centerer">
+          <v-lottie-player 
+            name="QR CODE"
+            :animationData="require('@/assets/lottie/uploading.json')"
+            loop
+            width="300px"
+            height="300px"
+            autoplay
+          />
+        </div>
       </div>
     </div>
   </div>
-
 </template>
 <script>
 import moment from 'moment'
@@ -168,6 +173,7 @@ import {NewMeetingTransform} from '@/modules/MeetingTransform.module'
 import VueLottiePlayer from 'vue-lottie-player'
 import flatpickr from "flatpickr";
 import 'flatpickr/dist/themes/material_blue.css';
+import UserAPI from '@/services/UserAPI';
 
 export default {
   name: 'NewMeeting',
@@ -208,11 +214,11 @@ export default {
       qr_end_time_picker: null,
       recording_start_time_picker: null,
       recording_end_time_picker: null,
-
       live_tasks: [],
       async_tasks: [],
       meeting_data: {},
       course_org_info: null,
+      notification_permission_status: ""
     }
   },
   computed: {
@@ -248,9 +254,19 @@ export default {
     }
   },
   created () {
+    this.current_user = this.$store.state.user.current_user
+    this.getNotificationPermissionStatus()
     this.getCourseOrOrg()
   },
   methods: {
+    getNotificationPermissionStatus() {
+      if(Notification.permission === "default")
+        this.notification_permission_status = "default"
+      else if(Notification.permission === "granted")
+        this.notification_permission_status = "granted"
+      else
+        this.notification_permission_status = "blocked"
+    },
     updateTime () {
 
     },
@@ -568,6 +584,55 @@ export default {
      }
      return result;
    },
+   async requestNotificationPermission() {
+    let permission = await Notification.requestPermission()
+    if (permission === "granted") {
+      this.notification_permission_status = "granted"
+      this.registerServiceWorkerAndAddSubscription()
+    } else if(permission === "default") {
+      this.notification_permission_status = "default"
+    } else {
+      this.notification_permission_status = "blocked"
+    }
+   },
+   async registerServiceWorkerAndAddSubscription() {
+    // Register service worker
+    console.log("Registering service worker...");
+    let register = await navigator.serviceWorker.register("worker.js", {
+      scope: "/"
+    });
+    console.log("Service Worker Registered...", register);
+    // Wait until worker is ready
+    console.log("Waiting for service worker to be ready...")
+    register = await navigator.serviceWorker.ready
+    console.log("Service worker ready", register)
+    // Register Push
+    console.log("Registering Push...");
+    const publicVapidKey =
+      "BG5zFCphvwcm3WYs3N5d41jO85PcvpJkEYPlz9j3OjVdzI_XX0KPw_U8V5aEmaOBHXIymaGcCWyOAH-TmoobXKA"
+    const subscription = await register.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: this.urlBase64ToUint8Array(publicVapidKey)
+    });
+    console.log("Push Registered...", subscription);
+    const response = await UserAPI.addServiceWorkerSubscriptionForUser(
+      this.current_user._id,subscription)
+    console.log("Added subscription to user", response.data)
+   },
+   urlBase64ToUint8Array(base64String) {
+     const padding = "=".repeat((4 - base64String.length % 4) % 4);
+     const base64 = (base64String + padding)
+       .replace(/\-/g, "+")
+       .replace(/_/g, "/");
+
+     const rawData = window.atob(base64);
+     const outputArray = new Uint8Array(rawData.length);
+
+     for (let i = 0; i < rawData.length; ++i) {
+       outputArray[i] = rawData.charCodeAt(i);
+     }
+     return outputArray;
+   },
   }
 }
 </script>
@@ -620,18 +685,32 @@ export default {
   }
 }
 
+.notification-message {
+  text-align:center;
+  height: 5rem;
+  width: 100%;
+  margin-top: 1rem;
+  font-weight: bold;
+  font-size: 1.5rem;
+
+  span {
+    font-weight: bold;
+    color: blue;
+    cursor: pointer;
+  }
+}
+
 .new-meeting-form {
   position: fixed;
   left: 0;
   right: 0;
-  top: 0;
+  top: 100px;
   bottom: 0;
   overflow-y: scroll;
 
   .form-center {
     width: 1000px;
     margin: 0 auto;
-    margin-top: 50px;
     display: flex;
     position: relative;
 
@@ -642,7 +721,7 @@ export default {
       padding-right: 40px;
       box-sizing: border-box;
       position: fixed;
-      top: 50px;
+      top: 100px;
       bottom: 50px;
 
       .logo-area {

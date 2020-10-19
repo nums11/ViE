@@ -61,7 +61,8 @@ let User = new Schema({
 		type: Boolean,
 		default: false,
 		required: true
-	}
+	},
+	service_worker_subscriptions: [{}]
 });
 
 module.exports = mongoose.model('User', User);
