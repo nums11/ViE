@@ -58,6 +58,7 @@ export default {
 
     // Let's check if the browser supports notifications
     if(this.is_logged_in) {
+      console.log("User is logged in")
       this.checkNotificationPermissions()
     }
 
@@ -99,6 +100,7 @@ export default {
   },
   methods: {
     async checkNotificationPermissions() {
+      console.log("Notification permission", Notification.permission)
       if (!("Notification" in window)) {
         alert("This browser does not support notifications. Notifications are" +
           " an important part of Venue's functionality. Please switch to a browser that"
