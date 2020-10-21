@@ -169,11 +169,14 @@ import Button2 from '@/components/Button2.vue'
 import MeetingAPI from '@/services/MeetingAPI'
 import CourseAPI from '@/services/CourseAPI'
 import OrgAPI from '@/services/OrgAPI'
+import NotificationAPI from '@/services/NotificationAPI'
 import {NewMeetingTransform} from '@/modules/MeetingTransform.module'
 import VueLottiePlayer from 'vue-lottie-player'
 import flatpickr from "flatpickr";
 import 'flatpickr/dist/themes/material_blue.css';
 import UserAPI from '@/services/UserAPI';
+import schedule from 'node-schedule';
+
 
 export default {
   name: 'NewMeeting',
@@ -267,44 +270,6 @@ export default {
       else
         this.notification_permission_status = "blocked"
     },
-    updateTime () {
-
-    },
-    // async createMeeting () {
-    //   this.meeting_submission_in_progress = true
-    //   let result = await NewMeetingTransform(this.meeting_data, this.has_live, this.has_async)
-    //   console.log("Result before, ", result)
-
-    //   // Create New dates for meeting times so meeting times save correctly on the server
-    //   result.start_time = new Date(result.start_time)
-    //   result.end_time = new Date(result.end_time)
-    //   if(result.qr_checkins){
-    //     result.qr_checkins.forEach(qr_checkin => {
-    //       qr_checkin.qr_checkin_start_time = new Date(qr_checkin.qr_checkin_start_time)
-    //       qr_checkin.qr_checkin_end_time = new Date(qr_checkin.qr_checkin_end_time)
-    //     })
-    //   }
-    //   if(result.recordings) {
-    //     result.recordings.forEach(recording => {
-    //       recording.recording_submission_start_time = new Date(recording.recording_submission_start_time)
-    //       recording.recording_submission_end_time = new Date(recording.recording_submission_end_time)
-    //     })
-    //   }
-
-    //   console.log("Result after, ", result)
-
-    //   setTimeout(() => {
-    //     // create the meeting
-    //     MeetingAPI.addMeeting(result, 
-    //       this.meeting.forCourse,
-    //       this.meeting.forCourse ? this.meeting.course : this.meeting.org
-    //     )
-    //     .then(res => {
-    //       console.log(res)
-    //       this.$router.push({name: 'meeting_info', params: { meeting_id: res.data._id }})
-    //     })
-    //   }, 500)
-    // },
     async getCourseOrOrg() {
       if(this.$route.name === "course_new_meeting"){
         this.course_id = this.$route.params.course_id;
@@ -525,8 +490,11 @@ export default {
        await this.saveRecordingVideoToGCS()
       let meeting = await this.saveMeetingToCourseOrOrg()
       this.meeting_saving = false
-      if(meeting != null)
+      if(meeting != null){
+        if(meeting.has_live_attendance)
+          this.scheduleShowQRNotificationsForInstructors(meeting)
         this.$router.push({name: 'meeting_info', params: {meeting_id: meeting._id}})
+      }
       else
         alert("Error saving meeting")
     }
@@ -633,6 +601,19 @@ export default {
      }
      return outputArray;
    },
+   scheduleShowQRNotificationsForInstructors(meeting) {
+    let primary_instructor_id = this.meeting.course.instructor._id
+    let secondary_instructor_id = this.meeting.course.secondary_instructor ?
+    this.meeting.course.secondary_instructor._id : null
+    console.log("Scheduling job for", new Date(this.qr_checkin.qr_checkin_start_time))
+    let j = schedule.scheduleJob(new Date(this.qr_checkin.qr_checkin_start_time),
+      () => {
+        console.log("Showing scheduled notification")
+        NotificationAPI.sendShowQRNotificationToInstructors(
+          primary_instructor_id, secondary_instructor_id, meeting._id)
+    })
+    console.log("This is the job", j)
+   }
   }
 }
 </script>

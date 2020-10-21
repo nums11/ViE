@@ -85,22 +85,24 @@ authRoutes.route('/login').post(function (req, res) {
   if(user){
     User.findOne({ user_id: user.user_id }, function(error, current_user) {
       if(error || !current_user){
-        console.log("Error unable to find user: " + user)
-        res.status(404).json({ error: 'Invalid Login Credentials. Please try again' })
-      }
-      else {
-        console.log(current_user)
+        console.log("<ERROR> (auth/login) error finding user with id",
+          user.user_id, error)
+        res.status(400).json(error)
+      }else {
         bcrypt.compare(user.password, current_user.password, function(err, result) {
           if(result == true){
             const token = jwt.sign({ current_user }, process.env.AUTH_KEY)
+            console.log("<SUCCESS> (auth/login) finding user with correct password")
             res.json({token, current_user})
           } else {
+            console.log("<ERROR> (auth/login) invalid login credentials.")
             res.status(404).json({ error: 'Invalid Login Credentials. Please try again' })
           }
         });
       }
     })
   }else{
+    console.log("<ERROR> (auth/login) user object was not passed through request body")
     res.status(400).json({ error: 'Invalid login. Please try again.' })
   }
 });

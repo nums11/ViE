@@ -91,7 +91,7 @@ userRoutes.route('/get/:id').get(function (req, res) {
   exec((error,user) => {
     if(error || user == null){
       console.log("<ERROR> (users/get) Getting user with ID:",id,error)
-      res.status(404).json(error);
+      res.json(error);
     } else {
       console.log("<SUCCESS> (users/get) Getting user by ID:",id)
       res.json(user);

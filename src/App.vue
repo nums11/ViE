@@ -30,6 +30,7 @@ import io from 'socket.io';
 import Cookie from 'cookie';
 import Vue from "vue";
 import UserAPI from '@/services/UserAPI';
+import schedule from 'node-schedule';
 
 export default {
   watch: {
@@ -49,6 +50,12 @@ export default {
     }
   },
   async created() {
+    let log_date = new Date(2020, 9, 19, 13, 52, 0)
+    let j = schedule.scheduleJob(log_date, () => {
+      console.log("I was scheduled")
+    })
+    console.log("This is the job", j)
+
     if(this.$store.state.user) {
       this.is_logged_in = true
       this.current_user = this.$store.state.user.current_user
@@ -58,7 +65,6 @@ export default {
 
     // Let's check if the browser supports notifications
     if(this.is_logged_in) {
-      console.log("User is logged in")
       this.checkNotificationPermissions()
     }
 
@@ -100,7 +106,6 @@ export default {
   },
   methods: {
     async checkNotificationPermissions() {
-      console.log("Notification permission", Notification.permission)
       if (!("Notification" in window)) {
         alert("This browser does not support notifications. Notifications are" +
           " an important part of Venue's functionality. Please switch to a browser that"

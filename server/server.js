@@ -119,24 +119,14 @@ function start() {
     });
   });
 
-let whitelist = ['http://localhost:8080']
-// try to whitelist mobile and source ip's
-if (process.env.SOURCE_IP) {
-  whitelist.push(`http://${process.env.SOURCE_IP}:8080`)
-}
-if (process.env.MOBILE_IP) {
-  whitelist.push(`http://${process.env.MOBILE_IP}:8080`)
-}
-console.log(`Whitelist:`)
-console.log(whitelist)
-
-app.use(cors(
-  { 
-    origin: whitelist,
-    methods:['GET','POST', 'DELETE'],
-    credentials: true
-  }
-));
+  const origin_url = process.env.NODE_ENV === 'production' ?
+  'https://byakugan.herokuapp.com' : 'http://localhost:8080'
+  console.log("Origin url", origin_url)
+  app.use(cors({
+    origin: origin_url,
+    methods:['GET','POST','DELETE','PUT'],
+    credentials:true, 
+  }))
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
 

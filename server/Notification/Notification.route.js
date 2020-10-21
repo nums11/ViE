@@ -12,23 +12,67 @@ webpush.setVapidDetails(
   privateVapidKey
 );
 
-notificationRoutes.post('/send', function (req, res) {
-  console.log("In API Call")
-  // Get pushSubscription object
-  const subscription = req.body.subscription;
-  console.log("Received subscription", subscription)
+const sendNotificationToUser = async (user_id, payload, route) => {
+  let notification_promises = []
+  await User.findById(user_id, (error, user) => {
+    if(error || user == null) {
+      console.log(`<ERROR> (${route}) Finding user by id`,
+        user_id, error)
+    } else {
+      user.service_worker_subscriptions.forEach(subscription => {
+        notification_promises.push(new Promise((resolve, reject) => {
+          webpush
+            .sendNotification(subscription, payload)
+            .then(notification => {
+              console.log("SUCCESSFULY SENT NOTIFICATION")
+              resolve(notification)
+            })
+            .catch(error => {
+              console.log(`<ERROR> (${route}) sending notification with subscription`,
+                subscription, error)
+              resolve({})
+            });
+        }))
+      })
+    }
+  })
+  return notification_promises
+}
 
-  // Send 201 - resource created
-  res.status(201).json({});
+notificationRoutes.post('/show_qr/:primary_instructor_id/:secondary_instructor_id/:meeting_id',
+  async (req, res) => {
+  let primary_instructor_id = req.params.primary_instructor_id
+  let secondary_instructor_id = req.params.secondary_instructor_id
+  let meeting_id = req.params.meeting_id
+  console.log("Meeting id", meeting_id)
+  const redirect_url = `${process.env.NODE_ENV === "production" ? 
+    "https://byakugan.herokuapp.com/#/meeting_info/" :
+    "http://localhost:8080/#/meeting_info/"}` + meeting_id
+  console.log("Meeting Info url", redirect_url)
 
-  // Create payload
-  const payload = JSON.stringify({ title: "Venue - QR Code is ready to be shown" });
+  const payload = JSON.stringify({
+    title: "Venue - It's time to show your QR Code!",
+    redirect_url: redirect_url
+  });
+  const route = "notifications/show_qr"
+  let notification_promises = []
+  let instructor_notification_promises = await sendNotificationToUser(primary_instructor_id, payload, route)
+  notification_promises =  notification_promises.concat(instructor_notification_promises)
+  if(secondary_instructor_id !== "null"){
+    let secondary_instructor_notification_promises =
+      await sendNotificationToUser(secondary_instructor_id, payload, route)
+    notification_promises = notification_promises.concat(secondary_instructor_notification_promises)
+  }
 
-  // Pass object into sendNotification
-  // webpush
-  //   .sendNotification(subscription, payload)
-  //   .then(() => {console.log("Sent notification successfully")})
-  //   .catch(err => console.log("Error sending webpush notification", err));
+  try {
+    const notifications = await Promise.all(notification_promises)
+    console.log(`<SUCCESS> (${route}) sending notifications to instructor(s)`)
+    res.json(notifications)
+  } catch (error) {
+    console.log(`<ERROR> (${route}) awaiting notifications to be sent to instructor(s)`,
+      primary_instructor_id, secondary_instructor_id, error)
+    res.json(error)
+  }
 });
 
 notificationRoutes.post('/notify_all', (req, res) => {
@@ -54,7 +98,6 @@ notificationRoutes.post('/notify_all', (req, res) => {
         })
       })
       try {
-        console.log("In success block")
         const notifications = await Promise.all(notification_promises)
         console.log("<SUCCESS> (notifications/notify_all) Notifying all users")
         res.json(notifications)
