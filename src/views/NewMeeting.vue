@@ -175,7 +175,6 @@ import VueLottiePlayer from 'vue-lottie-player'
 import flatpickr from "flatpickr";
 import 'flatpickr/dist/themes/material_blue.css';
 import UserAPI from '@/services/UserAPI';
-import cron from 'cron'
 
 export default {
   name: 'NewMeeting',
@@ -604,21 +603,9 @@ export default {
     let primary_instructor_id = this.meeting.course.instructor._id
     let secondary_instructor_id = this.meeting.course.secondary_instructor ?
     this.meeting.course.secondary_instructor._id : null
-    console.log("Scheduling job for", new Date(this.qr_checkin.qr_checkin_start_time))
-    try {
-      let CronJob = cron.CronJob
-      let job = new CronJob(new Date(this.qr_checkin.qr_checkin_start_time),
-        function() {
-          console.log('Showing scheduled notification');
-          NotificationAPI.sendShowQRNotificationToInstructors(
-            primary_instructor_id, secondary_instructor_id, meeting._id)
-        }
-      );
-      job.start();
-      console.log("Scheduled job", job)
-    } catch(error) {
-      console.log("Notification was not scheduled", error)
-    }
+    NotificationAPI.scheduleShowQRNotificationForInstructors(
+      primary_instructor_id, secondary_instructor_id, meeting._id,
+      this.qr_checkin.qr_checkin_start_time)
    }
   }
 }
