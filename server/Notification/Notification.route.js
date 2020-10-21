@@ -45,9 +45,9 @@ notificationRoutes.post('/show_qr/:primary_instructor_id/:secondary_instructor_i
   let secondary_instructor_id = req.params.secondary_instructor_id
   let meeting_id = req.params.meeting_id
   console.log("Meeting id", meeting_id)
-  const redirect_url = `${process.env.NODE_ENV === "production" ? 
-    "https://byakugan.herokuapp.com/#/meeting_info/" :
-    "http://localhost:8080/#/meeting_info/"}` + meeting_id
+  const redirect_url = process.env.NODE_ENV === "production" ?
+  `https://byakugan.herokuapp.com/#/meeting_info/${meeting_id}` :
+  `http://localhost:8080/#/meeting_info/${meeting_id}`
   console.log("Meeting Info url", redirect_url)
 
   const payload = JSON.stringify({
