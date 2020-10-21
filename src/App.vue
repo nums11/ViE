@@ -30,7 +30,7 @@ import io from 'socket.io';
 import Cookie from 'cookie';
 import Vue from "vue";
 import UserAPI from '@/services/UserAPI';
-import schedule from 'node-schedule';
+// import cron from 'cron'
 
 export default {
   watch: {
@@ -50,11 +50,13 @@ export default {
     }
   },
   async created() {
-    let log_date = new Date(2020, 9, 19, 13, 52, 0)
-    let j = schedule.scheduleJob(log_date, () => {
-      console.log("I was scheduled")
-    })
-    console.log("This is the job", j)
+    // let CronJob = cron.CronJob
+    // let log_date = new Date(2020, 9, 21, 14, 8, 0)
+    // let job = new CronJob(log_date, function() {
+    //   console.log('Running job...');
+    // });
+    // job.start();
+
 
     if(this.$store.state.user) {
       this.is_logged_in = true
