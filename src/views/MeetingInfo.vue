@@ -261,6 +261,7 @@ export default {
     this.getActiveTasksForMeeting()
     this.getMeetingAttendees()
     this.separateAttendees()
+    this.initMeetingStats()
     this.meeting_has_loaded = true
   },
   methods: {
@@ -386,6 +387,7 @@ export default {
       return submission_ids
     },
     initMeetingStats() {
+      console.log("Called")
       this.chartData = {
         labels: ['Present %', 'Absent %'],
         datasets:[{ 
