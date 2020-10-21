@@ -490,7 +490,7 @@ export default {
       let meeting = await this.saveMeetingToCourseOrOrg()
       this.meeting_saving = false
       if(meeting != null){
-        if(meeting.has_live_attendance)
+        if(meeting.has_live_attendance )
           this.scheduleShowQRNotificationsForInstructors(meeting)
         this.$router.push({name: 'meeting_info', params: {meeting_id: meeting._id}})
       }
@@ -605,15 +605,20 @@ export default {
     let secondary_instructor_id = this.meeting.course.secondary_instructor ?
     this.meeting.course.secondary_instructor._id : null
     console.log("Scheduling job for", new Date(this.qr_checkin.qr_checkin_start_time))
-    let CronJob = cron.CronJob
-    let job = new CronJob(new Date(this.qr_checkin.qr_checkin_start_time),
-      function() {
-        console.log('Showing scheduled notification');
-        NotificationAPI.sendShowQRNotificationToInstructors(
-          primary_instructor_id, secondary_instructor_id, meeting._id)
-      }
-    );
-    job.start();
+    try {
+      let CronJob = cron.CronJob
+      let job = new CronJob(new Date(this.qr_checkin.qr_checkin_start_time),
+        function() {
+          console.log('Showing scheduled notification');
+          NotificationAPI.sendShowQRNotificationToInstructors(
+            primary_instructor_id, secondary_instructor_id, meeting._id)
+        }
+      );
+      job.start();
+      console.log("Scheduled job", job)
+    } catch(error) {
+      console.log("Notification was not scheduled", error)
+    }
    }
   }
 }
