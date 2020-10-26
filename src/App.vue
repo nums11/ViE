@@ -30,6 +30,7 @@ import io from 'socket.io';
 import Cookie from 'cookie';
 import Vue from "vue";
 import UserAPI from '@/services/UserAPI';
+import schedule from 'node-schedule';
 
 export default {
   watch: {
@@ -49,6 +50,13 @@ export default {
     }
   },
   async created() {
+
+    // let log_date = new Date(2020, 9, 21, 20, 54, 0)
+    // var j = schedule.scheduleJob(log_date, function(){
+    //   console.log('Tschedule job executing');
+    // });
+    // console.log("job",j)
+    // console.log("next invocation", j.nextInvocation()._date._d)
 
     if(this.$store.state.user) {
       this.is_logged_in = true

@@ -13,6 +13,8 @@ const passport = require('passport')
 const session = require('express-session')
 var cookieParser = require('cookie-parser');
 const RealTimeAttendanceQueue = require('./socket/RealTimeAttendanceQueue')
+const NotificationJob = require('./Notification/NotificationJob.model');
+const schedule = require('node-schedule');
 
 // For Concurrency
 const throng = require('throng')
@@ -101,20 +103,7 @@ function start() {
             else {
               console.log(`<SOCKETIO/start attendance update> Problem occurred while adding socket to queue.`)
             }
-
-            // AttendanceFinder.find(task_info)
-            // .then(res => {
-            //   console.log(`Attendance Finder result:`)
-            //   console.log(res)
-            // })
-            // .catch(err => {
-            //   console.log(`Error`)
-            //   console.log(err)
-            // })
-            
           })
-          
-          
       });
     });
   });
@@ -165,5 +154,30 @@ function start() {
   app.use('/asyncsubmissions', asyncSubmissionRouter);
   app.use('/qrcheckins', qrCheckinRouter);
   app.use('/notifications', notificationRouter);
+
+  // Reschedule all notification jobs on server start
+  NotificationJob.find((error, notification_jobs) => {
+    if(error || notification_jobs == null) {
+      console.log("<ERROR> getting all notifications")
+    } else {
+      console.log("NotificationJobs", notification_jobs)
+      notification_jobs.forEach(notification_job => {
+        console.log("Rescheduling job",notification_job.job)
+        notification_job.job.reschedule(notification_job.sheduled_time,
+          function() {
+            notification_job.sendShowQRNotificationToInstructors()
+            NotificationJob.findByIdAndRemove(notification_job._id, (error) => {
+              if (error) {
+                console.log("<ERROR> (notifications/schedule_show_qr) Deleting NotificationJob with ID:",
+                  notification_job._id, error)
+              } else {
+                console.log("<SUCCESS> (notifications/schedule_show_qr) Deleting NotificationJob")
+              }
+            });
+          })
+      })
+      console.log("Rescheduled all jobs")
+    }
+  })
 
 }

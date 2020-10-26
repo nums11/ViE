@@ -485,7 +485,7 @@ meetingRoutes.route('/remove_recording/:async_attendance_id/:recording_id').dele
       }
       Recording.findByIdAndRemove(recording_id, (err) => {
         if (err) {
-          console.log("<ERROR (meetings/remove_recording)> Deleting Recording with ID:", recording_id)
+          console.log("<ERROR> (meetings/remove_recording) Deleting Recording with ID:", recording_id)
           res.json(err);
         } else {
           console.log("<SUCCESS> (meetings/remove) Deleting recording with ID:",recording_id)
