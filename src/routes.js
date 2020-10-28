@@ -50,6 +50,7 @@ import AttendChecker from './views/AttendChecker.vue';
 import LoginView from './views/LoginView.vue';
 import AddRecording from './views/AddRecording.vue';
 
+
 Vue.use(VueRouter);
 
 const router = new VueRouter({

@@ -11,6 +11,8 @@
       :code="full_screen_code" 
       :students="attendees"
     />
+    <!-- Edit Modal -->
+    <EditRecordingModal ref="EditRecordingModal" />
     <QRSuccessAnimation v-if="show_qr_success_animation" />
 
     <!-- Header -->
@@ -92,6 +94,12 @@
               <sui-icon name="users" class="meeting-tab-icon" />
               Attendance
             </sui-list-item> -->
+            <sui-list-item v-if="is_instructor" 
+            :class="'meeting-tab ' + (show_meeting_stats ? 'solid-border-bottom' : '')"
+            @click="showMeetingStats">
+              <sui-icon name="chart line" class="stats-tab-icon" />
+              Stats
+            </sui-list-item>
           </sui-list>
           <!-- Meeting Tasks -->
           <div v-if="show_meeting_tasks">
@@ -117,7 +125,8 @@
                   :is_board_member="is_board_member"
                   v-on:show-qr-scanning-window="showQRScanningWindow"
                   v-on:show-task-attendance="showTaskAttendance"
-                  v-on:show-fullscreen-code="showFullScreenQRCodeModal" />
+                  v-on:show-fullscreen-code="showFullScreenQRCodeModal"
+                  v-on:remove-recording="removeRecording" />
                 </div>
                 <div style="margin-top:3rem;" v-if="meeting.has_async_attendance">
                   <div class="title">
@@ -133,7 +142,9 @@
                   :attendees="attendees"
                   :for_course="for_course"
                   :is_board_member="is_board_member"
-                  v-on:show-task-attendance="showTaskAttendance"  />
+                  v-on:show-task-attendance="showTaskAttendance"
+                  v-on:remove-recording="removeRecording"
+                  v-on:show-edit-recording-modal="showEditRecordingModal" />
                 </div>
               </div>
               <div key="2" v-else>
@@ -152,6 +163,16 @@
                 />
               </div>
             </transition-group>
+          </div>
+          <!-- Stats -->
+          <div v-else-if="show_meeting_stats">
+            <h3>Attendance Stats</h3>
+            <VenueChart 
+                :chartData="chartData"
+                :chartOptions="chartOptions"
+                :labels="chartData.labels"
+                :style="{height: '400px'}"
+            />
           </div>
           <!-- Meeting Attendance -->
           <div v-else>
@@ -182,7 +203,12 @@ import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 import MeetingAPI from '@/services/MeetingAPI.js';
 import qrcode from '@chenfengyuan/vue-qrcode';
 import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
+<<<<<<< HEAD
 import UserAPI from '@/services/UserAPI';
+=======
+import EditRecordingModal from '@/components/EditRecordingModal.vue'
+import  VenueChart  from "@/components/VenueChart.vue"
+>>>>>>> video_upload_fix
 
 export default {
   name: 'MeetingInfo',
@@ -199,6 +225,8 @@ export default {
     MeetingTaskList,
     MeetingAttendanceList,
     QRSuccessAnimation,
+    EditRecordingModal,
+    VenueChart,
   },
   data () {
     return {
@@ -219,9 +247,14 @@ export default {
       show_qr_scanning_window: false,
       attendees: [],
       show_meeting_tasks: true,
+      show_meeting_stats: false,
       is_board_member: false,
       show_qr_success_animation: false,
       notification_permission_status: "",
+      chartData: {},
+      chartOptions: {},
+      present_attendees: [],
+      absent_attendees: []
     }
   },
   async created () {
@@ -236,6 +269,8 @@ export default {
     this.checkIfMeetingIsLive()
     this.getActiveTasksForMeeting()
     this.getMeetingAttendees()
+    this.separateAttendees()
+    this.initMeetingStats()
     this.meeting_has_loaded = true
   },
   methods: {
@@ -337,6 +372,56 @@ export default {
     isEmptyObj(obj) {
       return Object.keys(obj).length === 0 && obj.constructor === Object
     },
+    separateAttendees() {
+      let submission_ids = this.getSubmissionIds()
+      this.attendees.forEach(attendee => {
+        if(submission_ids.has(attendee.user_id))
+          this.present_attendees.push(attendee)
+        else
+          this.absent_attendees.push(attendee)
+      })
+    },
+    getSubmissionIds() {
+      let submission_ids = new Set()
+      if(this.meeting.live_attendance){
+        this.meeting.live_attendance.qr_checkins.forEach(qr_checkin => {
+          
+          let submissions = qr_checkin.qr_checkin_submissions
+
+          submissions.forEach(submission => {
+            submission_ids.add(submission.submitter.user_id)
+          })
+        })
+      }
+      if(this.meeting.async_attendance){
+        this.meeting.async_attendance.recordings.forEach(recording => {
+          let submissions = recording.recording_submissions
+          submissions.forEach(submission => {
+            submission_ids.add(submission.submitter.user_id)
+          })
+        })
+      }
+      return submission_ids
+    },
+    initMeetingStats() {
+      console.log("Called")
+      this.chartData = {
+        labels: ['Present %', 'Absent %'],
+        datasets:[{ 
+          backgroundColor: ['#5EFFB4','#fe7073'],
+          data: [
+            ((this.present_attendees.length/this.attendees.length)*100).toFixed(2),
+            ((this.absent_attendees.length/this.attendees.length)*100).toFixed(2)]
+        }]
+      }
+      this.chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        legend: {
+            display: true
+        }
+      }
+    },
     getStartTime () {
       if (this.meeting == null) return ''
       let start_ = new Date (this.meeting.start_time)
@@ -358,14 +443,14 @@ export default {
         this.task_focus_mode = "show-info"
     },
     showTaskQR (task) {
-        this.task_focus = -1
-        console.log("In func")
-        this.focused_task = task
-        this.task_focus_mode = "show-info"
+      this.task_focus = -1
+      console.log("In func")
+      this.focused_task = task
+      this.task_focus_mode = "show-info"
     },
     focusTaskAttendance (task_id) {
-        this.task_focus = task_id
-        this.task_focus_mode = "show-attendance"
+      this.task_focus = task_id
+      this.task_focus_mode = "show-attendance"
     },
     showTaskAttendance(task) {
       this.task_focus = -1
@@ -373,7 +458,7 @@ export default {
       this.task_focus_mode = "show-attendance"
     },
     cancelTask () {
-        this.task_focus = null
+      this.task_focus = null
     },
     checkIfMeetingIsLive () {
       let current_time = new Date()
@@ -410,6 +495,9 @@ export default {
         })
       }
     },
+    
+    
+    
     getMeetingAttendees() {
       if(this.for_course)
         this.attendees = this.meeting.course.students
@@ -500,6 +588,11 @@ export default {
     },
     showMeetingTasks() {
       this.show_meeting_tasks = true
+      this.show_meeting_stats = false
+    },
+    showMeetingStats(){
+      this.show_meeting_stats = true
+      this.show_meeting_tasks = false
     },
     showMeetingAttendance() {
       this.show_meeting_tasks = false
@@ -584,6 +677,14 @@ export default {
       }
       return outputArray;
     },
+    async removeRecording(recording_id) {
+      await MeetingAPI.removeRecordingFromMeeting(this.meeting._id,
+        this.meeting.async_attendance._id, recording_id)
+      this.$router.go()
+    },
+    showEditRecordingModal(recording) {
+      this.$refs.EditRecordingModal.showModal(recording)
+    }
   }
 }
 </script>
@@ -723,6 +824,10 @@ export default {
           font-size: 1.5rem;
           cursor:pointer;
           margin-bottom: 2rem;
+
+          &:nth-child(2) {
+            margin-left: 5rem;
+          }
 
           .meeting-tab-icon {
             margin-right: 0.5rem;
