@@ -51,6 +51,7 @@ meetingRoutes.post('/save_new_recording/:recording_name', (req, res) => {
 
   form.on('error', (err) => {
     console.log("<ERROR> (meetings/save_new_recording) form error", err)
+    res.status(500).json(err)
   })
 
   form.on('close', () => {
@@ -63,7 +64,8 @@ meetingRoutes.post('/save_new_recording/:recording_name', (req, res) => {
     console.log("(meetings/save_new_recording) received part of size", part.byteCount)
     part.pipe(
       blob.createWriteStream({
-          resumable: false
+          resumable: false,
+          timeout: 600000 //10 minutes
       })
     )
     // part.resume()

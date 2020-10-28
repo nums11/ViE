@@ -132,20 +132,25 @@ export default {
     async addRecording () {
       let confirmation = confirm(this.getConfirmationString())
       if(confirmation){
-        console.log("In addRecording about to make API call")
-        this.meeting_saving = true
-        const response = await MeetingAPI.saveRecordingVideoToGCS(this.recording_video)
-        let video_url = response.data
-        let recording = {
-          video_url: video_url,
-          recording_submission_start_time: this.recording_submission_start_time,
-          recording_submission_end_time: this.recording_submission_end_time
+        try {
+          console.log("In addRecording about to make API call")
+          this.meeting_saving = true
+          const response = await MeetingAPI.saveRecordingVideoToGCS(this.recording_video)
+          let video_url = response.data
+          let recording = {
+            video_url: video_url,
+            recording_submission_start_time: this.recording_submission_start_time,
+            recording_submission_end_time: this.recording_submission_end_time
+          }
+          await MeetingAPI.addRecordingToMeeting (this.$route.params.meeting_id,
+            recording)
+          // show the uploading animation
+          this.meeting_saving = false;
+          this.$router.push({name: 'meeting_info', params: {meeting_id: this.$route.params.meeting_id}})
+        }catch(error) {
+          alert("Error saving video")
+          this.$router.go()
         }
-        await MeetingAPI.addRecordingToMeeting (this.$route.params.meeting_id,
-          recording)
-        // show the uploading animation
-        this.meeting_saving = false;
-        this.$router.push({name: 'meeting_info', params: {meeting_id: this.$route.params.meeting_id}})
       }
     },
     getConfirmationString() {
