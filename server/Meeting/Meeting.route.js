@@ -63,7 +63,8 @@ meetingRoutes.post('/save_new_recording/:recording_name', (req, res) => {
     console.log("(meetings/save_new_recording) received part of size", part.byteCount)
     part.pipe(
       blob.createWriteStream({
-          resumable: false
+          resumable: false,
+          timeout: 600000 //10 minutes
       })
     )
     // part.resume()

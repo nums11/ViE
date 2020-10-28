@@ -77,6 +77,7 @@ function start() {
     console.log("Database connection ready");
     // Initialize the app.
     var server = app.listen(process.env.PORT || LOCAL_PORT, function () {
+      server.headersTimeout = 0;
       var port = server.address().port;
       console.log("App is now running on port", port);
       io = require('socket.io')(server);
