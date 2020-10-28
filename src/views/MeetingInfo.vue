@@ -203,12 +203,9 @@ import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 import MeetingAPI from '@/services/MeetingAPI.js';
 import qrcode from '@chenfengyuan/vue-qrcode';
 import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
-<<<<<<< HEAD
 import UserAPI from '@/services/UserAPI';
-=======
 import EditRecordingModal from '@/components/EditRecordingModal.vue'
 import  VenueChart  from "@/components/VenueChart.vue"
->>>>>>> video_upload_fix
 
 export default {
   name: 'MeetingInfo',
