@@ -21,6 +21,7 @@ import AdminNewOrg from './components/admin/Organization/AdminNewOrg.vue';
 import AdminOrgs from './components/admin/Organization/AdminOrgs.vue';
 import AdminEditOrg from './components/admin/Organization/AdminEditOrg.vue';
 import AdminEditMeeting from './components/admin/Meeting/AdminEditMeeting.vue';
+import AdminNotificationJobs from './components/admin/Notification/AdminNotificationJobs.vue';
 import NewMeeting from './views/NewMeeting.vue';
 import AdminNewEvent from './components/admin/Event/AdminNewEvent.vue';
 import AdminEvents from './components/admin/Event/AdminEvents.vue';
@@ -499,6 +500,15 @@ const router = new VueRouter({
       name: 'attend_checker',
       path: '/attend/:meeting_id/:code',
       component: AttendChecker,
+    },
+    {
+      name: 'admin_notification_jobs',
+      path: '/admin/notification_jobs',
+      component: AdminNotificationJobs,
+      meta: {
+        requiresAuth: true,
+        requireAdmin: true
+      }
     }
   ]
 })

@@ -8,6 +8,9 @@ export default {
       	qr_checkin_start_time: qr_checkin_start_time
       })
   },
+  getNotificationJobs() {
+    return API().get('notifications')
+  },
   notifyAllUsers() {
     return API().post('notifications/notify_all')
   }

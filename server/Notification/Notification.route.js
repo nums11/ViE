@@ -34,6 +34,18 @@ notificationRoutes.post('/schedule_show_qr/:primary_instructor_id/:secondary_ins
   res.json({})
 })
 
+notificationRoutes.get('/', (req, res) => {
+  NotificationJob.find(function(err, notification_jobs){
+    if(err || notification_jobs == null) {
+      console.log("<ERROR> (notifications/) Getting all notification_jobs", err)
+      res.status(500).json(err);
+    } else {
+      console.log("<SUCCESS> (notifications/) Getting all notification jobs")
+      res.json(notification_jobs);
+    }
+  })
+})
+
 // notificationRoutes.post('/notify_all', (req, res) => {
 //   const payload = JSON.stringify({ title: "Notification from Venue" });
 //   User.find(async (error, users) => {
