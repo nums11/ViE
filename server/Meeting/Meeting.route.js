@@ -12,6 +12,7 @@ let Course = require('../Course/Course.model');
 let Org = require('../Organization/Organization.model');
 let Poll = require('../Poll/Poll.model');
 let User = require('../User/User.model');
+const NotificationJob = require('../Notification/NotificationJob.model');
 const {Storage} = require("@google-cloud/storage")
 const path = require('path');
 // var multer = require("multer")
@@ -551,6 +552,7 @@ delete(async function (req, res) {
   )
 })
 
+// TODO: Update routes to use deleteMany
 meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
   let meeting_id = req.params.meeting_id
   let meeting = req.body.meeting
@@ -558,6 +560,7 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
   let meeting_live_attendance = meeting.live_attendance
   let qr_submission_promises = []
   let qr_promises = []
+  let notification_job_promise = null
   // Delete live attendance
   if(meeting.has_live_attendance) {
     meeting_live_attendance.qr_checkins.forEach(qr_checkin => {
@@ -592,11 +595,25 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
         });
       }))
     })
+    // Delete notification jobs
+    notification_job_promise = new Promise((resolve,reject) => { 
+      NotificationJob.deleteMany({meeting_id: meeting_id}, (error) => {
+        if(error) {
+          console.log("<ERROR (meetings/delete)> deleting notification jobs",
+            error)
+          reject(false)
+          res.json(error)
+        } else {
+          resolve(true)
+        }
+      })
+    })
   }
   // Delete live attendance
   try {
     await Promise.all(qr_submission_promises)
     await Promise.all(qr_promises)
+    await Promise.resolve(notification_job_promise)
     LiveAttendance.findByIdAndRemove(meeting_live_attendance._id, (err) => {
       if (err) {
         console.log("<ERROR (meetings/delete)> deleting live attendance with ID:", meeting_live_attendance._id)
@@ -605,7 +622,7 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
     });
   } catch (error) {
     console.log("<ERROR> (meetings/delete) deleting live attendance:",error)
-    res.json(error)
+    res.status(500).json(error)
   }
 
   let meeting_async_attendance = meeting.async_attendance
