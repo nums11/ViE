@@ -157,28 +157,25 @@ function start() {
   app.use('/notifications', notificationRouter);
 
   // Reschedule all notification jobs on server start
-  // NotificationJob.find((error, notification_jobs) => {
-  //   if(error || notification_jobs == null) {
-  //     console.log("<ERROR> getting all notifications")
-  //   } else {
-  //     console.log("NotificationJobs", notification_jobs)
-  //     notification_jobs.forEach(notification_job => {
-  //       console.log("Rescheduling job",notification_job.job)
-  //       notification_job.job.reschedule(notification_job.sheduled_time,
-  //         function() {
-  //           notification_job.sendShowQRNotificationToInstructors()
-  //           NotificationJob.findByIdAndRemove(notification_job._id, (error) => {
-  //             if (error) {
-  //               console.log("<ERROR> (notifications/schedule_show_qr) Deleting NotificationJob with ID:",
-  //                 notification_job._id, error)
-  //             } else {
-  //               console.log("<SUCCESS> (notifications/schedule_show_qr) Deleting NotificationJob")
-  //             }
-  //           });
-  //         })
-  //     })
-  //     console.log("Rescheduled all jobs")
-  //   }
-  // })
+  NotificationJob.find((error, notification_jobs) => {
+    if(error || notification_jobs == null) {
+      console.log("<ERROR> getting all notifications")
+    } else {
+      notification_jobs.forEach(notification_job => {
+        console.log(`Rescheduling job for ${new Date(notification_job.scheduled_time)}`)
+        schedule.scheduleJob(notification_job.scheduled_time, function(){
+          notification_job.sendScheduledShowQRNotificationsToInstructors()
+          NotificationJob.findByIdAndRemove(notification_job._id, (error) => {
+            if (error) {
+              console.log("<ERROR> Deleting NotificationJob with ID:",
+                saved_notification_job._id, error)
+            } else {
+              console.log("<SUCCESS> Deleting NotificationJob")
+            }
+          });
+        });
+      })
+    }
+  })
 
 }

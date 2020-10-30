@@ -13,9 +13,6 @@ webpush.setVapidDetails(
 
 //Define collection and schema for NotificationJob
 let NotificationJob = new Schema({
-	job: {
-		type: Object
-	},
 	scheduled_time: {
 		type: Date,
 		required: true

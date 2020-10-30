@@ -4,21 +4,6 @@ const schedule = require('node-schedule');
 const User = require('../User/User.model');
 const NotificationJob = require('./NotificationJob.model');
 
-const addJobToNotificationJob = (notification_job_id,job) => {
-  NotificationJob.findByIdAndUpdate(notification_job_id,
-    {job: job},
-    (error) => {
-      if (error) {
-        console.log("<ERROR> (notifications/schedule_show_qr) Updating NotificationJob with ID:",
-          notification_job_id, "and job", job, error)
-      } else {
-        console.log("<SUCCESS> (notifications/schedule_show_qr) Updating NotificationJob with ID:",
-          notification_job_id)
-      }
-    }
-  );
-}
-
 notificationRoutes.post('/schedule_show_qr/:primary_instructor_id/:secondary_instructor_id/:meeting_id',
   async (req, res) => {
   let primary_instructor_id = req.params.primary_instructor_id
@@ -34,7 +19,7 @@ notificationRoutes.post('/schedule_show_qr/:primary_instructor_id/:secondary_ins
   })
   const saved_notification_job = await notification_job.save()
 
-  let job = schedule.scheduleJob(qr_checkin_start_time, function(){
+  schedule.scheduleJob(qr_checkin_start_time, function(){
     saved_notification_job.sendScheduledShowQRNotificationsToInstructors()
     NotificationJob.findByIdAndRemove(saved_notification_job._id, (error) => {
       if (error) {
@@ -46,7 +31,6 @@ notificationRoutes.post('/schedule_show_qr/:primary_instructor_id/:secondary_ins
     });
   });
 
-  addJobToNotificationJob(saved_notification_job._id, job)
   res.json({})
 })
 
