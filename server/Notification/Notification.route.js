@@ -19,7 +19,7 @@ notificationRoutes.post('/schedule_show_qr/:primary_instructor_id/:secondary_ins
   })
   const saved_notification_job = await notification_job.save()
 
-  schedule.scheduleJob(qr_checkin_start_time, function(){
+  let job = schedule.scheduleJob(qr_checkin_start_time, function(){
     saved_notification_job.sendScheduledShowQRNotificationsToInstructors()
     NotificationJob.findByIdAndRemove(saved_notification_job._id, (error) => {
       if (error) {
@@ -31,7 +31,22 @@ notificationRoutes.post('/schedule_show_qr/:primary_instructor_id/:secondary_ins
     });
   });
 
-  res.json({})
+  all_notification_jobs.push(job)
+  let global_index = all_notification_jobs.length - 1
+  NotificationJob.findByIdAndUpdate(saved_notification_job._id,
+    {global_index: global_index},
+    (error, notification_job) => {
+      if(error || notification_job == null) {
+        console.log("<ERROR> (notifications/schedule_show_qr) Updating NotificationJob with ID:",
+          saved_notification_job._id, error)
+        res.status(500).json(error)
+      } else {
+        console.log("<SUCCESS> (notifications/schedule_show_qr) Updating NotificationJob with"
+          + " global_index")
+        res.json(notification_job)
+      }
+    }
+  )
 })
 
 notificationRoutes.get('/', (req, res) => {
