@@ -101,21 +101,15 @@ function start() {
             else {
               console.log(`<SOCKETIO/start attendance update> Problem occurred while adding socket to queue.`)
             }
-
-            // AttendanceFinder.find(task_info)
-            // .then(res => {
-            //   console.log(`Attendance Finder result:`)
-            //   console.log(res)
-            // })
-            // .catch(err => {
-            //   console.log(`Error`)
-            //   console.log(err)
-            // })
-            
-          })
-          
-          
+        })
       });
+      // Forces a page refresh for all users so they can be on the updated version of the app
+      // if (process.env.NODE_ENV === 'production'){
+        setTimeout(function() {
+          console.log("Emitting server update")
+          io.emit('server-update')
+        }, 5000)
+      // }
     });
   });
 

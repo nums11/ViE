@@ -15,6 +15,7 @@
         <router-view :key="$route.fullPath" />
       </transition>
     </div>
+    <NewVersionMessage v-if="new_app_version_exists" />
   </div>
 </template>
 
@@ -26,8 +27,9 @@ import LectureAPI from './services/LectureAPI';
 import {getLiveLectures,getUpcomingLectures,getPastLectures} from './services/GlobalFunctions.js'
 import '@/assets/css/venue.css';
 import axios from 'axios';
-import io from 'socket.io';
+import io from 'socket.io-client';
 import Cookie from 'cookie';
+import NewVersionMessage from '@/components/NewVersionMessage'
 
 export default {
   watch: {
@@ -37,34 +39,31 @@ export default {
   },
   components: {
     NavBar,
-    Footer
+    Footer,
+    NewVersionMessage
   },
   data() {
     return {
       current_user: null,
-      dark_mode: false
+      dark_mode: false,
+      new_app_version_exists: false
     }
   },
   created() {
     console.log("env", process.env)
     axios.defaults.headers.common['Access-Control-Allow-Methods'] = ["GET, POST, DELETE"]
 
-    // window.onbeforeunload = () => {
-    //     io.emit('leave', this.username);
-    // }
-
-    // io.on('connection', (socket) => {
-    //   console.log('made socket connection');
-    //   socket.on('chat', function(data){
-    //     // io.sockets.emit('chat',data);
-    //     console.log(data);
-    //   });
-    // });
-
-    
-    // io.on('connections', (data) => {
-    //     this.connections = data;
-    // });
+    let url = ""
+    if(process.env.NODE_ENV === "production") {
+      url = "https://byakugan.herokuapp.com/"
+    } else {
+      url = "http://localhost:4000/"
+    }
+    let client_io = io (url, {forceNew: true})
+    client_io.on('server-update', () => {
+      console.log("New App version exists")
+      this.new_app_version_exists = true
+    })
 
     let self = this
     var waitForUser = setInterval(function(){
