@@ -57,7 +57,7 @@ export default {
 
     let url = ""
     if(process.env.NODE_ENV === "production") {
-      url = "https://byakugan.herokuapp.com/"
+      url = "https://venue-attend.herokuapp.com/"
     } else {
       url = "http://localhost:4000/"
     }
@@ -143,7 +143,7 @@ export default {
       notification.onclick = function(event) {
         event.preventDefault(); // prevent the browser from focusing the Notification's tab
         if(process.env.NODE_ENV === "production") {
-          window.open('https://byakugan.herokuapp.com/#/lecture_info/'+lectureid, '_blank');
+          window.open('https://venue-attend.herokuapp.com/#/lecture_info/'+lectureid, '_blank');
         } else {
           window.open('http://localhost:8080/#/lecture_info/'+lectureid, '_blank');
         }
