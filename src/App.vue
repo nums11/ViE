@@ -15,6 +15,7 @@
         <router-view :key="$route.fullPath" />
       </transition>
     </div>
+    <NewVersionMessage v-if="new_app_version_exists" />
   </div>
 </template>
 
@@ -26,27 +27,32 @@ import LectureAPI from './services/LectureAPI';
 import {getLiveLectures,getUpcomingLectures,getPastLectures} from './services/GlobalFunctions.js'
 import '@/assets/css/venue.css';
 import axios from 'axios';
-import io from 'socket.io';
+import io from 'socket.io-client';
 import Cookie from 'cookie';
 import Vue from "vue";
 import UserAPI from '@/services/UserAPI';
 import schedule from 'node-schedule';
+import NewVersionMessage from '@/components/NewVersionMessage'
 
 export default {
   watch: {
     '$route' (to, from) {
       document.title = to.meta.title || 'Venue'
+      if(this.new_app_version_exists)
+        this.$router.go()
     }
   },
   components: {
     NavBar,
-    Footer
+    Footer,
+    NewVersionMessage
   },
   data() {
     return {
       current_user: null,
       dark_mode: false,
-      is_logged_in: false
+      is_logged_in: false,
+      new_app_version_exists: false
     }
   },
   async created() {
@@ -86,6 +92,17 @@ export default {
     // io.on('connections', (data) => {
     //     this.connections = data;
     // });
+    let url = ""
+    if(process.env.NODE_ENV === "production") {
+      url = "https://byakugan.herokuapp.com/"
+    } else {
+      url = "http://localhost:4000/"
+    }
+    let client_io = io (url, {forceNew: true})
+    client_io.on('server-update', () => {
+      console.log("New App version exists")
+      this.new_app_version_exists = true
+    })
 
     let self = this
     var waitForUser = setInterval(function(){
