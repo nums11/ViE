@@ -104,12 +104,12 @@ function start() {
         })
       });
       // Forces a page refresh for all users so they can be on the updated version of the app
-      // if (process.env.NODE_ENV === 'production'){
+      if (process.env.NODE_ENV === 'production'){
         setTimeout(function() {
           console.log("Emitting server update")
           io.emit('server-update')
-        }, 5000)
-      // }
+        }, 30000)
+      }
     });
   });
 
