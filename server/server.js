@@ -85,10 +85,7 @@ function start() {
       console.log("App is now running on port", port);
       io = require('socket.io')(server);
       io.on('connection', (socket) => {
-          console.log(`<SOCKETIO> Connection recieved.`)
-
           socket.on('disconnect', () => {
-              console.log("<SOCKETIO> A user disconnected");
               attendanceSocketQueue.removeFromQueue(socket.id)
           });
 
