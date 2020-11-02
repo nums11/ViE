@@ -134,28 +134,24 @@ export default {
         if (permission === "granted") {
           this.registerServiceWorkerAndAddSubscription()
         }
+      } else if(Notification.permission === "granted") {
+          this.registerServiceWorkerAndAddSubscription()
       }
     },
     async registerServiceWorkerAndAddSubscription() {
      // Register service worker
-     console.log("Registering service worker...");
      let register = await navigator.serviceWorker.register("worker.js", {
        scope: "/"
      });
-     console.log("Service Worker Registered...", register);
      // Wait until worker is ready
-     console.log("Waiting for service worker to be ready...")
      register = await navigator.serviceWorker.ready
-     console.log("Service worker ready", register)
      // Register Push
-     console.log("Registering Push...");
      const publicVapidKey =
        "BG5zFCphvwcm3WYs3N5d41jO85PcvpJkEYPlz9j3OjVdzI_XX0KPw_U8V5aEmaOBHXIymaGcCWyOAH-TmoobXKA"
      const subscription = await register.pushManager.subscribe({
        userVisibleOnly: true,
        applicationServerKey: this.urlBase64ToUint8Array(publicVapidKey)
      });
-     console.log("Push Registered...", subscription);
      const response = await UserAPI.addServiceWorkerSubscriptionForUser(
        this.current_user._id,subscription)
      console.log("Added subscription to user", response.data)
