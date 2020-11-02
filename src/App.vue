@@ -35,6 +35,8 @@ export default {
   watch: {
     '$route' (to, from) {
       document.title = to.meta.title || 'Venue'
+      if(this.new_app_version_exists)
+        this.$router.go()
     }
   },
   components: {
