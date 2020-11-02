@@ -4,8 +4,8 @@
       <img src="@/assets/venue-logo.svg" class="venue-logo" alt="Venue Logo" aria-label="Venue Logo" style="width:15rem;" />
       <div><h1 class="logo-text" style="font-size:8rem;">venue</h1></div>
       <div class="sub-logo" style="font-size:1.5rem;">
-        <span class="logotext1">secure </span> 
-        <span class="logotext2">attendance</span>
+        <span class="logotext1">engage </span> 
+        <span class="logotext2">more</span>
       </div>
     </div>
     <div v-else>
