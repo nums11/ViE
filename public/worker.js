@@ -23,7 +23,7 @@ self.addEventListener('notificationclick', function(event) {
     type: "window"
   }).then(async function(clientList) {
   	// let venue_url = process.env.NODE_ENV === "production" ?
-  	// "https://byakugan.herokuapp.com/" :
+  	// "https://venue-attend.herokuapp.com/" :
   	// "http://localhost:8080/"
   	let push_client;
     for (let i = 0; i < clientList.length; i++) {

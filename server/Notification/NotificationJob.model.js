@@ -37,7 +37,7 @@ let NotificationJob = new Schema({
 NotificationJob.methods.sendScheduledShowQRNotificationsToInstructors = 
 	async function() {
 	  const redirect_url = process.env.NODE_ENV === "production" ?
-	  `https://byakugan.herokuapp.com/#/meeting_info/${this.meeting_id}` :
+	  `https://venue-attend.herokuapp.com/#/meeting_info/${this.meeting_id}` :
 	  `http://localhost:8080/#/meeting_info/${this.meeting_id}`
 	  const payload = JSON.stringify({
 	    title: "Venue - It's time to show your QR Code!",
