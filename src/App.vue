@@ -30,6 +30,7 @@ import axios from 'axios';
 import io from 'socket.io-client';
 import Cookie from 'cookie';
 import NewVersionMessage from '@/components/NewVersionMessage'
+import UserAPI from '@/services/UserAPI';
 
 export default {
   watch: {
@@ -54,6 +55,12 @@ export default {
   created() {
     console.log("env", process.env)
     axios.defaults.headers.common['Access-Control-Allow-Methods'] = ["GET, POST, DELETE"]
+
+    if(this.$store.state.user) {
+      this.is_logged_in = true
+      this.current_user = this.$store.state.user.current_user
+      this.checkNotificationPermissions()
+    }
 
     let url = ""
     if(process.env.NODE_ENV === "production") {
@@ -87,6 +94,50 @@ export default {
     }
   },
   methods: {
+    async checkNotificationPermissions() {
+      if (!("Notification" in window)) {
+        alert("This browser does not support notifications. Notifications are" +
+          " an important part of Venue's functionality. Please switch to a browser that"
+          + " supports notifications (Chrome, Firefox, Safari, etc.)");
+      } else if(Notification.permission === "default") {
+        let permission = await Notification.requestPermission()
+        if (permission === "granted") {
+          this.registerServiceWorkerAndAddSubscription()
+        }
+      } else if(Notification.permission === "granted") {
+          this.registerServiceWorkerAndAddSubscription()
+      }
+    },
+    async registerServiceWorkerAndAddSubscription() {
+     // Register service worker
+     let register = await navigator.serviceWorker.register("worker.js", {
+       scope: "/"
+     });
+     // Wait until worker is ready
+     register = await navigator.serviceWorker.ready
+     // Register Push
+     const publicVapidKey =
+       "BG5zFCphvwcm3WYs3N5d41jO85PcvpJkEYPlz9j3OjVdzI_XX0KPw_U8V5aEmaOBHXIymaGcCWyOAH-TmoobXKA"
+     const subscription = await register.pushManager.subscribe({
+       userVisibleOnly: true,
+       applicationServerKey: this.urlBase64ToUint8Array(publicVapidKey)
+     });
+     const response = await UserAPI.addServiceWorkerSubscriptionForUser(
+       this.current_user._id,subscription)
+     console.log("Added subscription to user", response.data)
+    },
+    urlBase64ToUint8Array(base64String) {
+      const padding = "=".repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding)
+        .replace(/\-/g, "+")
+        .replace(/_/g, "/");
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+      for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
+    },
     isNavbarlessView () {
       let exclude = ['landing_page', 'login', 'attend_checker', 'course_new_meeting',
       'org_new_meeting', 'add_recording']
