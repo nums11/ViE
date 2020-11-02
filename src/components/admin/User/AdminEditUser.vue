@@ -40,7 +40,7 @@
         </div>
     </form>
 
-    <div class="container">
+    <div class="container" v-if="user_has_loaded">
       <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">Instructor Courses</h3>
       <h4 v-for="course in user.instructor_courses">{{ course.name }}</h4>
       <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">Student Courses</h3>
@@ -53,6 +53,9 @@
       <h4 v-for="submission in user.live_submissions">{{ new Date(submission.live_submission_time) }}</h4>
       <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">Async Submisions</h3>
       <h4 v-for="submission in user.async_submissions">Async sub</h4>
+      <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">Service Worker Subscriptions 
+      ({{user.service_worker_subscriptions.length}})</h3>
+      <h4 v-for="subscription in user.service_worker_subscriptions">{{ subscription.endpoint }}</h4>
     </div>
   </div>
 </template>
