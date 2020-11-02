@@ -806,4 +806,32 @@ meetingRoutes.post('/add_async_attendance', async (req, res) => {
   })
 })
 
+meetingRoutes.route('/upcoming').get(function (req, res) {
+  Meeting.find().
+  populate({
+    path: 'course'
+  }).
+  populate({
+    path: 'live_attendance',
+    populate: {
+      path: 'qr_checkins'
+    }
+  }).
+  exec((error,meetings) => {
+    if(error || meetings == null){
+      console.log("<ERROR> (meetings/upcoming) Getting meetings",error)
+      res.json(error);
+    } else {
+      let upcoming_meetings = []
+      meetings.forEach(meeting => {
+        if(meeting.has_live_attendance && new Date(meeting.start_time) > new Date()) {
+          upcoming_meetings.push(meeting)
+        }
+      })
+      console.log("<SUCCESS> (meetings/upcoming) Getting upcoming meetings")
+      res.json(upcoming_meetings);
+    }
+  })
+});
+
 module.exports = meetingRoutes;
