@@ -320,8 +320,6 @@ userRoutes.route('/students_for_lecture/:lecture_id').get(function (req, res) {
 userRoutes.post('/add_service_worker_subscription/:user_id', (req, res) => {
   let user_id = req.params.user_id
   let subscription = req.body.subscription
-  console.log("User id", user_id)
-  console.log("Subscription", subscription)
   User.findByIdAndUpdate(user_id,
     {$push: {service_worker_subscriptions: subscription}},
     {new: true},

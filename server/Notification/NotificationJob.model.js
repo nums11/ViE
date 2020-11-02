@@ -44,18 +44,27 @@ NotificationJob.methods.sendScheduledShowQRNotificationsToInstructors =
 	    redirect_url: redirect_url
 	  });
 	  const route = "notifications/schedule_show_qr"
-	  let notification_promises = []
 	  let instructor_notification_promises = await sendNotificationToUser(this.primary_instructor_id,
 	  	payload, route)
-	  notification_promises =  notification_promises.concat(instructor_notification_promises)
+	  let secondary_instructor_notification_promises = []
 	  if(this.secondary_instructor_id !== "null"){
-	    let secondary_instructor_notification_promises =
+	    secondary_instructor_notification_promises =
 	      await sendNotificationToUser(this.secondary_instructor_id, payload, route)
-	    notification_promises = notification_promises.concat(secondary_instructor_notification_promises)
 	  }
 
 	  try {
-	    const notifications = await Promise.all(notification_promises)
+	    const primary_instructor_subscriptions = await Promise.all(instructor_notification_promises)
+	    const secondary_instructor_subscriptions = await Promise.all(secondary_instructor_notification_promises)
+	    const stale_primary_instructor_subscriptions = removeUndefinedValues(primary_instructor_subscriptions)
+	    const stale_secondary_instructor_subscriptions = removeUndefinedValues(secondary_instructor_subscriptions)
+	    if(stale_primary_instructor_subscriptions.length > 0) {
+	    	removeStaleSubscriptionsFromUser(this.primary_instructor_id,
+	    		stale_primary_instructor_subscriptions)
+	    }
+	    if(stale_secondary_instructor_subscriptions.length > 0) {
+	    	removeStaleSubscriptionsFromUser(this.secondary_instructor_id,
+	    		stale_secondary_instructor_subscriptions)
+	    }
 	    console.log(`<SUCCESS> (${route}) sending notifications to instructor(s)`)
 	  } catch (error) {
 	    console.log(`<ERROR> (${route}) awaiting notifications to be sent to instructor(s)`,
@@ -76,18 +85,45 @@ const sendNotificationToUser = async (user_id, payload, route) => {
             .sendNotification(subscription, payload)
             .then(notification => {
               console.log("SUCCESSFULY SENT NOTIFICATION")
-              resolve(notification)
+              resolve()
             })
             .catch(error => {
-              console.log(`<ERROR> (${route}) sending notification with subscription`,
-                subscription, error)
-              resolve({})
+              console.log("STALE SUBSCRIPTION")
+              resolve(subscription)
             });
         }))
       })
     }
   })
   return notification_promises
+}
+
+function removeUndefinedValues(array) {
+	return array.filter((el) => {
+	  return el != null;
+	});
+}
+
+function removeStaleSubscriptionsFromUser(user_id, stale_subscriptions) {
+	let stale_subscription_endpoints = getSubscriptionEndpoints(stale_subscriptions)
+	User.findByIdAndUpdate(user_id,
+		{$pull: {service_worker_subscriptions: {"endpoint": {$in: stale_subscription_endpoints}}}},
+		(error, user) => {
+			if(error || user == null) {
+				console.log("<ERROR> (removeStaleSubscriptionsFromUser) removing stale_subscriptions",
+					stale_subscriptions,"from user id", user_id, error)
+			} else {
+				console.log("SUCCESSFULLY REMVOVED STALE SUBSCRIPTIONS")
+			}
+		})
+}
+
+function getSubscriptionEndpoints(subscriptions) {
+	let endpoints = []
+	subscriptions.forEach(subscription => {
+		endpoints.push(subscription.endpoint)
+	})
+	return endpoints
 }
 
 module.exports = mongoose.model('NotificationJob', NotificationJob);
