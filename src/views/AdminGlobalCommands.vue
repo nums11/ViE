@@ -3,6 +3,7 @@
     <button @click="addAsyncAttendanceToMeetings">Add Async Attendance to all meetings</button>
     <button @click="notifyAllUsers">Notify all users</button>
     <button @click="addServiceWorkerSubscriptionsToUsers">Add service worker subscriptions to users</button>
+    <button @click="scheduleJobsForAllUpcomingMeetings">Schedule jobs for all upcoming meetings</button>
   </div>
 </template>
 
@@ -10,6 +11,7 @@
 import MeetingAPI from '@/services/MeetingAPI.js';
 import NotificationAPI from '@/services/NotificationAPI.js';
 import UserAPI from '@/services/UserAPI.js';
+
 export default {
   name: 'AdminGlobalCommands',
   data() {
@@ -42,6 +44,20 @@ export default {
         const response = await UserAPI.addServiceWorkerSubscriptionsToAllUsers()
         alert("Service worker subscriptions successfully added")
         console.log(response.data)
+      }
+    },
+    async scheduleJobsForAllUpcomingMeetings() {
+      let confirmation = confirm("Are you sure you want to schedule jobs for all upcoming meetings?")
+      if(confirmation) {
+        let response = await MeetingAPI.getUpcomingMeetings()
+        let upcoming_meetings = response.data
+        console.log("Upcoming meetings", upcoming_meetings)
+        upcoming_meetings.forEach(meeting => {
+          NotificationAPI.scheduleShowQRNotificationForInstructors(
+            meeting.course.instructor, meeting.course.secondary_instructor, meeting._id,
+            meeting.live_attendance.qr_checkins[0].qr_checkin_start_time)
+        })
+        alert("Scheduled jobs for all upcoming_meetings")
       }
     }
   }

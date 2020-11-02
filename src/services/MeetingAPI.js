@@ -63,4 +63,7 @@ export default {
   addAsyncAttendanceToMeetings() {
     return API().post('meetings/add_async_attendance')
   },
+  getUpcomingMeetings() {
+    return API().get('meetings/upcoming')
+  }
 }
