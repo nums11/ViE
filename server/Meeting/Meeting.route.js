@@ -12,6 +12,7 @@ let Course = require('../Course/Course.model');
 let Org = require('../Organization/Organization.model');
 let Poll = require('../Poll/Poll.model');
 let User = require('../User/User.model');
+const NotificationJob = require('../Notification/NotificationJob.model');
 const {Storage} = require("@google-cloud/storage")
 const path = require('path');
 // var multer = require("multer")
