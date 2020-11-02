@@ -320,20 +320,42 @@ userRoutes.route('/students_for_lecture/:lecture_id').get(function (req, res) {
 userRoutes.post('/add_service_worker_subscription/:user_id', (req, res) => {
   let user_id = req.params.user_id
   let subscription = req.body.subscription
-  User.findByIdAndUpdate(user_id,
-    {$push: {service_worker_subscriptions: subscription}},
-    {new: true},
-    (error, user) => {
-      if (error || user == null) {
-        console.log("<ERROR> (users/add_service_worker_subscription) Updating user by ID:",
-          user_id, error)
-        res.json(error)
-      } else {
-        console.log("<SUCCESS> (users/add_service_worker_subscription) Updating user")
+  User.findById(user_id, (error, user) => {
+    if (error || user == null) {
+      console.log("<ERROR> (users/add_service_worker_subscription) Finding user by ID:",
+        user_id, error)
+      res.json(error)
+    } else {
+      let subscription_exists = false
+      for(let i = 0; i < user.service_worker_subscriptions.length; i++) {
+        let existing_subscription = user.service_worker_subscriptions[i]
+        if(existing_subscription.endpoint === subscription.endpoint) {
+          subscription_exists = true
+          break
+        }
+      }
+      if(subscription_exists) {
+        console.log("<SUCCESS> (users/add_service_worker_subscription) subscription exists",
+          " - no updated needed")
         res.json(user)
+      } else {
+        User.findByIdAndUpdate(user_id,
+          {$push: {service_worker_subscriptions: subscription}},
+          {new: true},
+          (error, user) => {
+            if (error || user == null) {
+              console.log("<ERROR> (users/add_service_worker_subscription) Updating user by ID:",
+                user_id, error)
+              res.json(error)
+            } else {
+              console.log("<SUCCESS> (users/add_service_worker_subscription) Updating user")
+              res.json(user)
+            }
+          }
+        )
       }
     }
-  )
+  })
 })
 
 userRoutes.post('/add_service_worker_subscriptions_to_all', (req, res) => {
