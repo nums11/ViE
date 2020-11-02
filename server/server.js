@@ -13,6 +13,8 @@ const passport = require('passport')
 const session = require('express-session')
 var cookieParser = require('cookie-parser');
 const RealTimeAttendanceQueue = require('./socket/RealTimeAttendanceQueue')
+const NotificationJob = require('./Notification/NotificationJob.model');
+const schedule = require('node-schedule');
 
 // For Concurrency
 const throng = require('throng')
@@ -64,6 +66,7 @@ function start() {
   const recordingRouter = require('./Recording/Recording.route')
   const asyncSubmissionRouter = require('./AsyncSubmission/AsyncSubmission.route')
   const qrCheckinRouter = require('./QRCheckin/QRCheckin.route')
+  const notificationRouter = require('./Notification/Notification.route')
   const AttendanceFinder = require('./socket/AttendanceFinder')
 
   let io;
@@ -98,8 +101,8 @@ function start() {
             else {
               console.log(`<SOCKETIO/start attendance update> Problem occurred while adding socket to queue.`)
             }
+          })
         })
-      });
       // Forces a page refresh for all users so they can be on the updated version of the app
       if (process.env.NODE_ENV === 'production'){
         setTimeout(function() {
@@ -110,24 +113,14 @@ function start() {
     });
   });
 
-let whitelist = ['http://localhost:8080']
-// try to whitelist mobile and source ip's
-if (process.env.SOURCE_IP) {
-  whitelist.push(`http://${process.env.SOURCE_IP}:8080`)
-}
-if (process.env.MOBILE_IP) {
-  whitelist.push(`http://${process.env.MOBILE_IP}:8080`)
-}
-console.log(`Whitelist:`)
-console.log(whitelist)
-
-app.use(cors(
-  { 
-    origin: whitelist,
-    methods:['GET','POST', 'DELETE'],
-    credentials: true
-  }
-));
+  const origin_url = process.env.NODE_ENV === 'production' ?
+  'https://byakugan.herokuapp.com' : 'http://localhost:8080'
+  console.log("Origin url", origin_url)
+  app.use(cors({
+    origin: origin_url,
+    methods:['GET','POST','DELETE','PUT'],
+    credentials:true, 
+  }))
   app.use(bodyParser.urlencoded({ extended: true }));
   app.use(bodyParser.json());
 
@@ -165,6 +158,57 @@ app.use(cors(
   app.use('/recordings', recordingRouter);
   app.use('/asyncsubmissions', asyncSubmissionRouter);
   app.use('/qrcheckins', qrCheckinRouter);
+  app.use('/notifications', notificationRouter);
 
+  rescheduleAllNotificationJobs()
+}
 
+function rescheduleAllNotificationJobs() {
+  global.all_notification_jobs = []
+  // Reschedule all notification jobs on server start
+  NotificationJob.find(async (error, notification_jobs) => {
+    if(error || notification_jobs == null) {
+      console.log("<ERROR> getting all notifications")
+    } else {
+      let notification_job_promises = []
+      notification_jobs.forEach(notification_job => {
+        console.log(`Rescheduling job for ${new Date(notification_job.scheduled_time)}`)
+        let job = schedule.scheduleJob(notification_job.scheduled_time, function(){
+          notification_job.sendScheduledShowQRNotificationsToInstructors()
+          NotificationJob.findByIdAndRemove(notification_job._id, (error) => {
+            if (error) {
+              console.log("<ERROR> Deleting NotificationJob with ID:",
+                saved_notification_job._id, error)
+            } else {
+              console.log("<SUCCESS> Deleting NotificationJob")
+            }
+          });
+        });
+        all_notification_jobs.push(job)
+        let global_index = all_notification_jobs.length - 1
+        if(notification_job.global_index != global_index) {
+          notification_job_promises.push(new Promise((resolve, reject) => {
+            NotificationJob.findByIdAndUpdate(notification_job._id,
+              {global_index: global_index},
+              (error, notification_job) => {
+                if(error || notification_job == null) {
+                  console.log("<ERROR> Updating NotificationJob global_index",
+                    notification_job._id, error)
+                  reject(notification_job)
+                } else {
+                  resolve(notification_job)
+                }
+              }
+            )
+          }))
+        }
+      })
+      try {
+        const resolved_jobs = await Promise.all(notification_job_promises)
+        console.log(`<SUCCESS> updated ${resolved_jobs.length} jobs with new global_index`)
+      } catch(error) {
+        console.log("<ERROR> updating notification jobs with new global index")
+      }
+    }
+  })
 }

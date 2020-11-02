@@ -12,6 +12,7 @@ let Course = require('../Course/Course.model');
 let Org = require('../Organization/Organization.model');
 let Poll = require('../Poll/Poll.model');
 let User = require('../User/User.model');
+const NotificationJob = require('../Notification/NotificationJob.model');
 const {Storage} = require("@google-cloud/storage")
 const path = require('path');
 // var multer = require("multer")
@@ -551,6 +552,7 @@ delete(async function (req, res) {
   )
 })
 
+// TODO: Update routes to use deleteMany
 meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
   let meeting_id = req.params.meeting_id
   let meeting = req.body.meeting
@@ -558,6 +560,7 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
   let meeting_live_attendance = meeting.live_attendance
   let qr_submission_promises = []
   let qr_promises = []
+  let notification_job_promises = []
   // Delete live attendance
   if(meeting.has_live_attendance) {
     meeting_live_attendance.qr_checkins.forEach(qr_checkin => {
@@ -592,20 +595,46 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
         });
       }))
     })
+    // Cancel all notifications for this meeting and delete all NotificationJob objects
+    // notification_job_promises.push(new Promise((resolve,reject) => { 
+    NotificationJob.find({meeting_id: meeting_id}, (error, meeting_notification_jobs) => {
+      if(error || meeting_notification_jobs == null) {
+        console.log("<ERROR (meetings/delete)> getting notification jobs for meeting",
+          error)
+        res.json(error)
+      } else {
+        meeting_notification_jobs.forEach(notification_job => {
+         notification_job_promises.push(new Promise((resolve,reject) => { 
+            let global_index = notification_job.global_index
+            all_notification_jobs[global_index].cancel()
+            let notification_job_id = notification_job._id
+            NotificationJob.findByIdAndRemove(notification_job_id, (error) => {
+              if(error){
+                console.log("<ERROR> (meetings/delete)> deleting notification_job with ID:",
+                  notification_job_id)
+                reject(false)
+              }
+              resolve(true)
+            }) 
+          }))
+        })
+      }
+    })
   }
   // Delete live attendance
   try {
     await Promise.all(qr_submission_promises)
     await Promise.all(qr_promises)
+    await Promise.all(notification_job_promises)
     LiveAttendance.findByIdAndRemove(meeting_live_attendance._id, (err) => {
       if (err) {
-        console.log("<ERROR (meetings/delete)> deleting live attendance with ID:", meeting_live_attendance._id)
+        console.log("<ERROR> (meetings/delete)> deleting live attendance with ID:", meeting_live_attendance._id)
         res.json(err);
       }
     });
   } catch (error) {
     console.log("<ERROR> (meetings/delete) deleting live attendance:",error)
-    res.json(error)
+    res.status(500).json(error)
   }
 
   let meeting_async_attendance = meeting.async_attendance

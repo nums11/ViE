@@ -113,6 +113,10 @@
                     </h3>
                     <h3 v-else>Live Tasks</h3>
                   </div>
+                  <div v-if="notification_permission_status === 'default' && is_instructor"
+                  class="notification-message">You currently do not have notifications enabled for Venue, so you will not be able to receive a notification for any QR Codes that become available. To enable notifications click <span @click="requestNotificationPermission">here</span>.</div>
+                  <div v-else-if="notification_permission_status === 'blocked' && is_instructor"
+                  class="notification-message">You currently have notifications blocked for Venue, so you will not be able to receive a notification for any QR Codes that become available. To enable notifications click on the icon in the top left of your search bar and set notifications to "Allow".</div>
                   <MeetingTaskList
                   :tasks="meeting.live_attendance.qr_checkins"
                   :is_live="true"
@@ -199,6 +203,7 @@ import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
 import MeetingAPI from '@/services/MeetingAPI.js';
 import qrcode from '@chenfengyuan/vue-qrcode';
 import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
+import UserAPI from '@/services/UserAPI';
 import EditRecordingModal from '@/components/EditRecordingModal.vue'
 import  VenueChart  from "@/components/VenueChart.vue"
 
@@ -242,7 +247,7 @@ export default {
       show_meeting_stats: false,
       is_board_member: false,
       show_qr_success_animation: false,
-
+      notification_permission_status: "",
       chartData: {},
       chartOptions: {},
       present_attendees: [],
@@ -252,6 +257,7 @@ export default {
   async created () {
     this.current_user = this.$store.state.user.current_user
     this.is_instructor = this.current_user.is_instructor
+    this.getNotificationPermissionStatus()
     await this.getMeeting ()
     console.log("Meeting Info got meeting", this.meeting)
     if(!this.for_course)
@@ -265,6 +271,14 @@ export default {
     this.meeting_has_loaded = true
   },
   methods: {
+    getNotificationPermissionStatus() {
+      if(Notification.permission === "default")
+        this.notification_permission_status = "default"
+      else if(Notification.permission === "granted")
+        this.notification_permission_status = "granted"
+      else
+        this.notification_permission_status = "blocked"
+    },
     usingiOS() {
       let userAgent = window.navigator.userAgent,
           platform = window.navigator.platform,
@@ -611,6 +625,55 @@ export default {
           this.$router.push({name: "org_info", params: {id: this.meeting.org._id}})
       }
     },
+    async requestNotificationPermission() {
+     let permission = await Notification.requestPermission()
+     if (permission === "granted") {
+       this.notification_permission_status = "granted"
+       this.registerServiceWorkerAndAddSubscription()
+     } else if(permission === "default") {
+       this.notification_permission_status = "default"
+     } else {
+       this.notification_permission_status = "blocked"
+     }
+    },
+    async registerServiceWorkerAndAddSubscription() {
+     // Register service worker
+     console.log("Registering service worker...");
+     let register = await navigator.serviceWorker.register("worker.js", {
+       scope: "/"
+     });
+     console.log("Service Worker Registered...", register);
+     // Wait until worker is ready
+     console.log("Waiting for service worker to be ready...")
+     register = await navigator.serviceWorker.ready
+     console.log("Service worker ready", register)
+     // Register Push
+     console.log("Registering Push...");
+     const publicVapidKey =
+       "BG5zFCphvwcm3WYs3N5d41jO85PcvpJkEYPlz9j3OjVdzI_XX0KPw_U8V5aEmaOBHXIymaGcCWyOAH-TmoobXKA"
+     const subscription = await register.pushManager.subscribe({
+       userVisibleOnly: true,
+       applicationServerKey: this.urlBase64ToUint8Array(publicVapidKey)
+     });
+     console.log("Push Registered...", subscription);
+     const response = await UserAPI.addServiceWorkerSubscriptionForUser(
+       this.current_user._id,subscription)
+     console.log("Added subscription to user", response.data)
+    },
+    urlBase64ToUint8Array(base64String) {
+      const padding = "=".repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding)
+        .replace(/\-/g, "+")
+        .replace(/_/g, "/");
+
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+
+      for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
+    },
     async removeRecording(recording_id) {
       await MeetingAPI.removeRecordingFromMeeting(this.meeting._id,
         this.meeting.async_attendance._id, recording_id)
@@ -637,6 +700,21 @@ export default {
   overflow-y: scroll;
   margin-bottom: 5rem;
   padding-top: 15rem;
+}
+
+.notification-message {
+  text-align:center;
+  height: 5rem;
+  width: 100%;
+  margin-top: 1rem;
+  font-weight: bold;
+  font-size: 1.25rem;
+
+  span {
+    font-weight: bold;
+    color: blue;
+    cursor: pointer;
+  }
 }
 
 #qr-scanning-container {

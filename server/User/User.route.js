@@ -317,4 +317,62 @@ userRoutes.route('/students_for_lecture/:lecture_id').get(function (req, res) {
   })
 });
 
+userRoutes.post('/add_service_worker_subscription/:user_id', (req, res) => {
+  let user_id = req.params.user_id
+  let subscription = req.body.subscription
+  User.findByIdAndUpdate(user_id,
+    {$push: {service_worker_subscriptions: subscription}},
+    {new: true},
+    (error, user) => {
+      if (error || user == null) {
+        console.log("<ERROR> (users/add_service_worker_subscription) Updating user by ID:",
+          user_id, error)
+        res.json(error)
+      } else {
+        console.log("<SUCCESS> (users/add_service_worker_subscription) Updating user")
+        res.json(user)
+      }
+    }
+  )
+})
+
+userRoutes.post('/add_service_worker_subscriptions_to_all', (req, res) => {
+  User.find(async (err, users) => {
+    if(err || users == null) {
+      console.log("<ERROR> Getting all users")
+      res.json(err);
+    } else {
+      let user_promises = []
+      users.forEach(user => {
+        user_promises.push(new Promise((resolve, reject) => {
+          User.findByIdAndUpdate(user._id,
+            {
+              service_worker_subscriptions: []
+            },
+            function(err, user) {
+              if (err || user == null) {
+                console.log("<ERROR> (users/add_service_worker_subscriptions_to_all) Updating user by ID:",
+                  user._id, err)
+                reject(err)
+              } else {
+                resolve(user);
+              }
+            }
+          );
+        }))
+      })
+      try{
+        let updated_users = await Promise.all(user_promises)
+        console.log("<SUCCESS> (users/add_service_worker_subscriptions_to_all) Updating all users")
+        res.json(updated_users);
+      } catch(error) {
+        console.log("<ERROR> (users/add_service_worker_subscriptions_to_all) saving live attendance:"
+          ,error)
+        res.json(error)
+      }
+    }
+  })
+});
+
+
 module.exports = userRoutes;
