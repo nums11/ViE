@@ -18,23 +18,25 @@
     <div class="body-area">
       <div class="inline-block student-attendance-list-container">
         <h3>Present ({{present_attendees.length}}/{{attendees.length}})</h3>
-        <p v-for="(attendee,i) in present_attendees">
-          {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
-          <span v-if="!is_qr">- {{ video_percentages[i].toFixed(0) }}%</span>
-        </p>
+          <div class="attendee-list">
+            <p v-for="(attendee,i) in present_attendees">
+              {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
+              <span v-if="!is_qr">- {{ video_percentages[i].toFixed(0) }}%</span>
+            </p>
+          </div>
       </div>
       <div class="inline-block student-attendance-list-container">
         <h3>Absent ({{absent_attendees.length}}/{{attendees.length}})</h3>
-        <div v-if="is_qr">
+        <div v-if="is_qr" class="attendee-list">
           <sui-button @click="markPresent(attendee)" class="thing-btn" animated v-for="attendee in absent_attendees">
             <sui-button-content style="font-weight:bold; color: black;" visible>{{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})</sui-button-content>
             <sui-button-content style="font-weight:bold; color: black;" hidden>Mark as present</sui-button-content>
           </sui-button>
         </div>
-        <div v-else>
-          <p v-for="(attendee,i) in absent_attendees">
-            {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
-          </p>
+        <div v-else class="attendee-list">
+            <p v-for="(attendee,i) in absent_attendees">
+              {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
+            </p>
         </div>
       </div>
     </div>
@@ -154,69 +156,80 @@ export default {
     
   .student-attendance-list-container {
     width: 50%;
+    height: 100%;
     vertical-align: top;
     text-align: center;
 
     .thing-btn {
-      width: 50%;
+      width: 70%;
       margin-top: 1rem;
+    }
+
+    .attendee-list {
+      height: 88%;
+      width: 95%;
+      margin: auto;
+      overflow-y: auto;
     }
   }
 
 }
 
 .task-info-modal-instructor-expanded {
-    border-radius: 3px;
-    margin-bottom: 30px;
+  border-radius: 3px;
+  margin-bottom: 30px;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  height: 30rem;
 
-    .header-area {
-        display: flex;
-        box-sizing: border-box;
-        padding: 10px 15px;
+  .header-area {
+    display: flex;
+    box-sizing: border-box;
+    height: 5%;
+    padding: 10px 15px;
 
-        .left-side {
-            flex-grow: 1;
+    .left-side {
+      flex-grow: 1;
 
-            display: flex;
-            .title-area {
-                margin-right: 10px;
-            }
-        }
-    }
-
-    .body-area {
-      margin-top: 1rem;
-      min-height: 450px;
-      box-sizing: border-box;
-      padding: 10px 15px;
-
-      .body-contents {
-          text-align: center;
+      display: flex;
+      .title-area {
+        margin-right: 10px;
       }
     }
+  }
 
-    .footer-area {
-        box-sizing: border-box;
-        padding: 10px 15px;
-        display: flex;
-        align-items: center;
-        border-bottom-left-radius: 5px;
-        border-bottom-right-radius: 5px;
+  .body-area {
+    margin-top: 1rem;
+    height: 82%;
+    //min-height: 450px;
+    box-sizing: border-box;
+    padding: 10px 15px;
 
-        .center-area {
-            flex-grow: 1;
-            text-align: center;
-        }
+    .body-contents {
+      text-align: center;
     }
+  }
+
+  .footer-area {
+    box-sizing: border-box;
+    padding: 10px 15px;
+    height: 10%;
+    display: flex;
+    align-items: center;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+
+    .center-area {
+      flex-grow: 1;
+      text-align: center;
+    }
+  }
 
 }
 
 .light-mode {
     .task-info-modal-instructor-expanded {
         background-color: white;
-        border: 1px solid rgba(0, 0, 0, 0.25);
-            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-
         .footer-area {
             background-color: #E3EBF2;
         }
