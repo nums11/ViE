@@ -72,7 +72,7 @@ function start() {
   let io;
 
   // Connect to the database before starting the application server.
-  mongoose.connect(process.env.MONGODB_URI || config.DB, function (err, client) {
+  mongoose.connect(process.env.DB_URI || config.DB, function (err, client) {
     if (err) {
       console.log(err);
       process.exit(1);
