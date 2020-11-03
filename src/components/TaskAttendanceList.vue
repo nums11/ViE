@@ -200,7 +200,7 @@ export default {
 
   .body-area {
     margin-top: 1rem;
-    height: 82%;
+    height: 81.75%;
     //min-height: 450px;
     box-sizing: border-box;
     padding: 10px 15px;
