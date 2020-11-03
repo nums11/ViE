@@ -3,7 +3,7 @@
     <div class="header-area">
       <div class="left-side">
         <div class="title-area">
-          <h4>Meeting Attendance</h4>
+          <h4 class="sub-text">Attendees who submitted to at least one task are considered present</h4>
         </div>
       </div>
       <div class="right-side">
@@ -17,15 +17,19 @@
     <div class="body-area">
       <div class="inline-block student-attendance-list-container">
         <h3>Present ({{present_attendees.length}}/{{attendees.length}})</h3>
-        <p v-for="attendee in present_attendees">
-          {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
-        </p>
+        <div class="attendee-list">
+          <p v-for="attendee in present_attendees">
+            {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
+          </p>
+        </div>
       </div>
       <div class="inline-block student-attendance-list-container">
         <h3>Absent ({{absent_attendees.length}}/{{attendees.length}})</h3>
-        <p v-for="attendee in absent_attendees">
-          {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
-        </p>
+        <div class="attendee-list">
+          <p v-for="attendee in absent_attendees">
+            {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
+          </p>
+        </div>
         </sui-label>
       </div>
     </div>
@@ -132,14 +136,14 @@ export default {
 
             display: flex;
             .title-area {
-                margin-right: 10px;
+              width: 100%;
+              margin-right: 10px;
             }
         }
     }
 
     .body-area {
       margin-top: 1rem;
-      min-height: 450px;
       box-sizing: border-box;
       padding: 10px 15px;
 
@@ -162,6 +166,12 @@ export default {
         }
     }
 
+}
+
+.sub-text {
+  text-align: center;
+  font-weight: bold;
+  color: #595757;
 }
 
 .light-mode {

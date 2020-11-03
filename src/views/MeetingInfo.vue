@@ -82,27 +82,26 @@
           <!-- Tabs -->
           <sui-list v-if="is_instructor" id="meeting-tabs" horizontal>
             <sui-list-item 
-            :class="'meeting-tab ' + (show_meeting_tasks ? 'solid-border-bottom' : '')"
+            :class="'meeting-tab ' + (focused_section === 'tasks' ? 'solid-border-bottom' : '')"
             @click="showMeetingTasks">
               <sui-icon name="tasks" class="meeting-tab-icon" />
               Tasks
             </sui-list-item>
-<!--             <sui-list-item
-            :class="'meeting-tab ' + (show_meeting_tasks ? '' : 'solid-border-bottom')"
-            id="attendance-tab"
+            <sui-list-item
+            :class="'meeting-tab ' + (focused_section === 'attendance' ? 'solid-border-bottom' : '')"
             @click="showMeetingAttendance">
               <sui-icon name="users" class="meeting-tab-icon" />
-              Attendance
-            </sui-list-item> -->
+              Meeting Attendance
+            </sui-list-item>
             <sui-list-item v-if="is_instructor" 
-            :class="'meeting-tab ' + (show_meeting_stats ? 'solid-border-bottom' : '')"
+            :class="'meeting-tab ' + (focused_section === 'stats' ? 'solid-border-bottom' : '')"
             @click="showMeetingStats">
               <sui-icon name="chart line" class="stats-tab-icon" />
               Stats
             </sui-list-item>
           </sui-list>
           <!-- Meeting Tasks -->
-          <div v-if="show_meeting_tasks">
+          <div v-if="focused_section === 'tasks'">
             <transition-group name="fade" mode="out-in">
               <div key="1" v-if="task_focus == null">
                 <div v-if="meeting.has_live_attendance">
@@ -165,7 +164,7 @@
             </transition-group>
           </div>
           <!-- Stats -->
-          <div v-else-if="show_meeting_stats">
+          <div v-else-if="focused_section === 'stats'">
             <h3>Attendance Stats</h3>
             <VenueChart 
                 :chartData="chartData"
@@ -243,8 +242,7 @@ export default {
       full_screen_code: "",
       show_qr_scanning_window: false,
       attendees: [],
-      show_meeting_tasks: true,
-      show_meeting_stats: false,
+      focused_section: "tasks",
       is_board_member: false,
       show_qr_success_animation: false,
       notification_permission_status: "",
@@ -584,15 +582,13 @@ export default {
       this.show_qr_scanning_window = false
     },
     showMeetingTasks() {
-      this.show_meeting_tasks = true
-      this.show_meeting_stats = false
-    },
-    showMeetingStats(){
-      this.show_meeting_stats = true
-      this.show_meeting_tasks = false
+      this.focused_section = "tasks"
     },
     showMeetingAttendance() {
-      this.show_meeting_tasks = false
+      this.focused_section = "attendance"
+    },
+    showMeetingStats(){
+      this.focused_section = "stats"
     },
     getFormattedCourseNumber(course_number) {
       let course_number_str = course_number.toString()
@@ -822,7 +818,7 @@ export default {
           cursor:pointer;
           margin-bottom: 2rem;
 
-          &:nth-child(2) {
+          &:not(:first-child) {
             margin-left: 5rem;
           }
 

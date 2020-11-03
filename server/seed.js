@@ -111,7 +111,8 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 			dept: "CSCI",
 			course_number: 1200,
 			instructor: users[0]._id,
-			students: [users[2]._id, users[3]._id, users[4]._id, users[5]._id, users[6]._id],
+			students: [users[2]._id, users[3]._id, users[4]._id, users[5]._id, users[6]._id,
+			users[7]._id, users[8]._id, users[9]._id, users[10]._id, users[11]._id,],
 			meetings: []
 		}))
 		users[0].instructor_courses.push(courses[1])
@@ -120,6 +121,12 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 		users[4].student_courses.push(courses[1])
 		users[5].student_courses.push(courses[1])
 		users[6].student_courses.push(courses[1])
+		users[7].student_courses.push(courses[1])
+		users[8].student_courses.push(courses[1])
+		users[9].student_courses.push(courses[1])
+		users[10].student_courses.push(courses[1])
+		users[11].student_courses.push(courses[1])
+
 
 		// Creating organizations
 
