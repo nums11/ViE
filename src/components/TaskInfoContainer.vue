@@ -37,7 +37,7 @@
       </div>
       <div class="right-side">
         <sui-button class="float-right venue-blue" @click="$emit('show-task-attendance',task)"
-        content="View Attendance" icon="users" label-position="right" />
+        content="Task Attendance" icon="users" label-position="right" />
         <sui-button class="float-right" v-if="is_qr && task_window_status === 'open'" @click="$emit('show-fullscreen-code',task.code)"
         content="Show QR Code" icon="qrcode" label-position="right" color="teal" />
         <router-link

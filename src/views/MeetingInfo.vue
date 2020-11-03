@@ -91,7 +91,7 @@
             :class="'meeting-tab ' + (focused_section === 'attendance' ? 'solid-border-bottom' : '')"
             @click="showMeetingAttendance">
               <sui-icon name="users" class="meeting-tab-icon" />
-              Attendance
+              Meeting Attendance
             </sui-list-item>
             <sui-list-item v-if="is_instructor" 
             :class="'meeting-tab ' + (focused_section === 'stats' ? 'solid-border-bottom' : '')"
