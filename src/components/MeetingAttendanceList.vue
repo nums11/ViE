@@ -17,15 +17,19 @@
     <div class="body-area">
       <div class="inline-block student-attendance-list-container">
         <h3>Present ({{present_attendees.length}}/{{attendees.length}})</h3>
-        <p v-for="attendee in present_attendees">
-          {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
-        </p>
+        <div class="attendee-list">
+          <p v-for="attendee in present_attendees">
+            {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
+          </p>
+        </div>
       </div>
       <div class="inline-block student-attendance-list-container">
         <h3>Absent ({{absent_attendees.length}}/{{attendees.length}})</h3>
-        <p v-for="attendee in absent_attendees">
-          {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
-        </p>
+        <div class="attendee-list">
+          <p v-for="attendee in absent_attendees">
+            {{ attendee.first_name }} {{ attendee.last_name }} ({{ attendee.user_id }})
+          </p>
+        </div>
         </sui-label>
       </div>
     </div>
@@ -140,7 +144,6 @@ export default {
 
     .body-area {
       margin-top: 1rem;
-      min-height: 450px;
       box-sizing: border-box;
       padding: 10px 15px;
 
@@ -166,7 +169,6 @@ export default {
 }
 
 .sub-text {
-  margin-top: 1rem;
   text-align: center;
   font-weight: bold;
   color: #595757;
