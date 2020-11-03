@@ -3,7 +3,7 @@
     <div class="header-area">
       <div class="left-side">
         <div class="title-area">
-          <h4>Meeting Attendance</h4>
+          <h4 class="sub-text">Attendees who submitted to at least one task are considered present</h4>
         </div>
       </div>
       <div class="right-side">
@@ -132,7 +132,8 @@ export default {
 
             display: flex;
             .title-area {
-                margin-right: 10px;
+              width: 100%;
+              margin-right: 10px;
             }
         }
     }
@@ -162,6 +163,13 @@ export default {
         }
     }
 
+}
+
+.sub-text {
+  margin-top: 1rem;
+  text-align: center;
+  font-weight: bold;
+  color: #595757;
 }
 
 .light-mode {
