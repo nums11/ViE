@@ -92,7 +92,8 @@ authRoutes.route('/login').post(function (req, res) {
         console.log(current_user)
         bcrypt.compare(user.password, current_user.password, function(err, result) {
           if(result == true){
-            const token = jwt.sign({ current_user }, process.env.AUTH_KEY)
+            const token = jwt.sign(current_user.user_id + current_user.last_name +
+              current_user.first_name, process.env.AUTH_KEY)
             res.json({token, current_user})
           } else {
             res.status(404).json({ error: 'Invalid Login Credentials. Please try again' })
@@ -214,7 +215,8 @@ authRoutes.get("/loginStatus", function(req, res) {
         req.cookies["connect_sid"], err)
       res.json(null)
     } else {
-      const token = jwt.sign({current_user}, process.env.AUTH_KEY)
+      const token = jwt.sign(current_user.user_id + current_user.last_name +
+        current_user.first_name, process.env.AUTH_KEY)
       console.log("<SUCCESS> (auth/loginStatus) Finding user by connect_sid.")
       res.json({token, current_user})
     }
