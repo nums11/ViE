@@ -79,7 +79,7 @@
       <div class="left-spacer"></div>
       <!-- Content Area -->
       <div class="content-area">
-        <transition
+        <transition-group
           name="fade"
           mode="out-in"
         >
@@ -94,17 +94,26 @@
           </div>
           <!-- For instructors, show CourseStatistics. -->
           <!-- For students, show StudentStatistics. -->
-          <CourseStatistics
+<!--           <CourseStatistics
             v-if="activeTab == 'statistics'"
             key="2"
             v-bind:colorSets="colorSets"
-          />
-          <div v-if="activeTab === 'manage_students' || activeTab === 'members' ">
+          /> -->
+          <div v-if="activeTab === 'statistics'" key="2">
+            <CourseStudentList
+            v-if="show_student_list"
+            v-bind:students="course.students"
+            v-on:show-student-stats="showStudentStats" />
+            <StudentStats v-else
+            v-bind:student="focused_student" 
+            v-on:show-student-list="showStudentList" />
+          </div>
+          <div key="3" v-if="activeTab === 'manage_students' || activeTab === 'members' ">
             <ManageStudents v-if="for_course" v-bind:course="course" />
             <ManageStudents v-else v-bind:org="org" />
           </div>
-          <h3 style="text-align: center;" v-else-if="activeTab == 'settings'">Coming soon...</h3>
-        </transition>
+          <!-- <h3 style="text-align: center;" v-else-if="activeTab == 'settings'">Coming soon...</h3> -->
+        </transition-group>
       </div>
     </div>
 
@@ -118,13 +127,17 @@ import ManageStudents from "@/components/ManageStudents.vue"
 import CourseStatistics from "@/components/CourseStatistics.vue"
 import CourseAPI from "@/services/CourseAPI"
 import OrgAPI from "@/services/OrgAPI"
+import CourseStudentList from "@/components/CourseStudentList"
+import StudentStats from "@/components/StudentStats"
 
 export default {
     name: 'CourseOrgInfo',
     components: {
       MeetingAttendancePill,
       ManageStudents,
-      CourseStatistics
+      CourseStatistics,
+      CourseStudentList,
+      StudentStats
     },
     data () {
       return {
@@ -136,7 +149,9 @@ export default {
         org: {},
         current_user: {},
         for_course: false,
-        is_board_member: false
+        is_board_member: false,
+        show_student_list: true,
+        focused_student: null
       }
     },
     async created () {
@@ -177,6 +192,14 @@ export default {
           this.showManageStudents = false
         }
         if  (width >= 950 && !this.showManageStudents) this.showManageStudents = true
+      },
+      showStudentStats(student) {
+        this.focused_student = student
+        this.show_student_list = false
+      },
+      showStudentList(student) {
+        this.focused_student = null
+        this.show_student_list = true
       },
       toggleSectionStatistics(section) {
         this.statisticsSections[section].display = !this.statisticsSections[section].display
