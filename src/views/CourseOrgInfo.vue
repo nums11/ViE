@@ -20,7 +20,8 @@
               <ul>
                 <li @click="activeTab = 'meeting_history'" :class="activeTab == 'meeting_history' ? 'active' : ''">
                   Meeting History</li>
-                <li @click="activeTab = 'statistics'" :class="activeTab == 'statistics' ? 'active' : ''">
+                <li v-if="current_user.is_instructor"
+                  @click="activeTab = 'statistics'" :class="activeTab == 'statistics' ? 'active' : ''">
                   <div class="icon-box"><i class="icon chart line"></i></div>
                   <div>Statistics</div>
                 </li>
