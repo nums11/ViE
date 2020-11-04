@@ -101,11 +101,11 @@ export default {
           this.num_overall_meetings_attended++
       })
       if(this.num_meetings > 0)
-        this.overall_percent = this.num_overall_meetings_attended / this.num_meetings
+        this.overall_percent = (this.num_overall_meetings_attended / this.num_meetings) * 100
       if(this.num_live_meetings > 0)
-        this.live_percent = this.num_live_meetings_attended / this.num_live_meetings
+        this.live_percent = (this.num_live_meetings_attended / this.num_live_meetings) * 100
       if(this.num_async_meetings >0)
-        this.async_percent = this.num_async_meetings_attended / this.num_async_meetings
+        this.async_percent = (this.num_async_meetings_attended / this.num_async_meetings) * 100
     },
     getMeetingSubmissionIDs(meeting) {
       let live_submission_ids = new Set()
@@ -158,7 +158,7 @@ export default {
 
 .metric-value {
   text-align: center;
-  font-size: 7rem;
+  font-size: 6rem;
   margin-bottom: 0;
 }
 
