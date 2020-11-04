@@ -105,7 +105,8 @@
             v-bind:students="course.students"
             v-on:show-student-stats="showStudentStats" />
             <StudentStats v-else
-            v-bind:student="focused_student" 
+            v-bind:student="focused_student"
+            v-bind:course="course"
             v-on:show-student-list="showStudentList" />
           </div>
           <div key="3" v-if="activeTab === 'manage_students' || activeTab === 'members' ">

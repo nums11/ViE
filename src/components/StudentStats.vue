@@ -10,17 +10,35 @@
       <div class="metric-container">
         <h3 class="metric-title">Overall Attendance %</h3>
         <h4 class="metric-description">Percentage of meetings attend either live or asynchrnously</h4>
-        <p class="metric-value">87%</p>
+        <div class="spinner-border" role="status" v-if="calculating_metrics">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <div class="metric-details" v-else>
+          <p class="metric-value">{{ overall_percent }}%</p>
+          <p class="metric-fraction">({{num_overall_meetings_attended}}/{{num_meetings}})</p>
+        </div>
       </div>
       <div class="metric-container">
         <h3 class="metric-title">Live Attendance %</h3>
         <h4 class="metric-description">Percentage of meetings attend live</h4>
-        <p class="metric-value">87%</p>
+        <div class="spinner-border" role="status" v-if="calculating_metrics">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <div class="metric-details" v-else>
+          <p class="metric-value">{{ live_percent }}%</p>
+          <p class="metric-fraction">({{num_live_meetings_attended}}/{{num_live_meetings}})</p>
+        </div>
       </div>
       <div class="metric-container">
         <h3 class="metric-title">Async Attendance %</h3>
         <h4 class="metric-description">Percentage of meetings attend asynchronously</h4>
-        <p class="metric-value">87%</p>
+        <div class="spinner-border" role="status" v-if="calculating_metrics">
+          <span class="sr-only">Loading...</span>
+        </div>
+        <div class="metric-details" v-else>
+          <p class="metric-value">{{ async_percent }}%</p>
+          <p class="metric-fraction">({{num_async_meetings_attended}}/{{num_async_meetings}})</p>
+        </div>
       </div>
     </div>
   </div>
@@ -33,6 +51,10 @@ export default {
     student: {
       type: Object,
       required: true
+    },
+    course: {
+      type: Object,
+      required: true
     }
   },
   components: {
@@ -40,19 +62,71 @@ export default {
   },
   data () {
     return {
-
+      calculating_metrics: true,
+      overall_percent: 0,
+      live_percent: 0,
+      async_percent: 0,
+      num_meetings: 0,
+      num_live_meetings_attended: 0,
+      num_async_meetings_attended: 0,
+      num_overall_meetings_attended: 0,
+      num_live_meetings: 0,
+      num_async_meetings: 0
     }
   },
   created () {
-
+    console.log("Course", this.course)
+    this.calculateMetrics()
+    this.calculating_metrics = false
   },
   methods: {
-
+    calculateMetrics() {
+      this.num_meetings = this.course.meetings.length
+      this.course.meetings.forEach(meeting => {
+        if(meeting.has_live_attendance)
+          this.num_live_meetings++
+        if(meeting.has_async_attendance)
+          this.num_async_meetings++
+        let [live_submission_ids, async_submission_ids] = this.getMeetingSubmissionIDs(meeting)
+        let attended = false
+        if(live_submission_ids.has(this.student.user_id)) {
+          this.num_live_meetings_attended++
+          attended = true
+        }
+        if(async_submission_ids.has(this.student.user_id)) {
+          this.num_async_meetings_attended++
+          attended = true
+        }
+        if(attended)
+          this.num_overall_meetings_attended++
+      })
+      if(this.num_meetings > 0)
+        this.overall_percent = this.num_overall_meetings_attended / this.num_meetings
+      if(this.num_live_meetings > 0)
+        this.live_percent = this.num_live_meetings_attended / this.num_live_meetings
+      if(this.num_async_meetings >0)
+        this.async_percent = this.num_async_meetings_attended / this.num_async_meetings
+    },
+    getMeetingSubmissionIDs(meeting) {
+      let live_submission_ids = new Set()
+      meeting.live_attendance.qr_checkins.forEach(qr_checkin =>{
+        qr_checkin.qr_checkin_submissions.forEach(submission => {
+          live_submission_ids.add(submission.submitter.user_id)
+        })
+      })
+      let async_submission_ids = new Set()
+      meeting.async_attendance.recordings.forEach(recording =>{
+        recording.recording_submissions.forEach(submission => {
+          async_submission_ids.add(submission.submitter.user_id)
+        })
+      })
+      return [live_submission_ids, async_submission_ids]
+    }
   }
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="css" scoped>
 .metrics-container {
   margin-top: 2rem;
   height: 32rem;
@@ -78,9 +152,22 @@ export default {
   height: 10%;
 }
 
+.metric-details {
+  margin-top: 0;
+}
+
 .metric-value {
-  margin-top: 4rem;
   text-align: center;
   font-size: 7rem;
+  margin-bottom: 0;
+}
+
+.metric-fraction {
+  top: 0;
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #595757;
 }
 </style>

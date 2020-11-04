@@ -386,9 +386,27 @@ courseRoutes.route('/get/:id').get(function (req, res) {
   populate({
     path: 'meetings',
     populate: [{
-      path: 'live_attendance'
+      path: 'live_attendance',
+      populate: {
+        path: 'qr_checkins',
+        populate: {
+          path: 'qr_checkin_submissions',
+          populate: {
+            path: 'submitter'
+          }
+        }
+      }
     }, {
-      path: 'async_attendance'
+      path: 'async_attendance',
+      populate: {
+        path: 'recordings',
+        populate: {
+          path: 'recording_submissions',
+          populate: {
+            path: 'submitter'
+          }
+        }
+      }
     }]
   }).
   exec((error,course) => {
