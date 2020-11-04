@@ -79,13 +79,16 @@
     <div class="content-area-wrapper">
       <div class="left-spacer"></div>
       <!-- Content Area -->
-      <div class="content-area">
+      <div class="spinner-border" role="status" v-if="!course_or_org_has_loaded">
+        <span class="sr-only">Loading...</span>
+      </div>
+      <div v-else class="content-area">
         <transition-group
           name="fade"
           mode="out-in"
         >
           <div v-if="activeTab == 'meeting_history'" key="1">
-            <h3>January</h3>
+            <!-- <h3>January</h3> -->
             <div v-if="for_course" class="attendance-for-month">
               <MeetingAttendancePill v-for="meeting in course.meetings" :key="meeting._id" v-bind:meeting="meeting" />
             </div>
@@ -153,7 +156,8 @@ export default {
         for_course: false,
         is_board_member: false,
         show_student_list: true,
-        focused_student: null
+        focused_student: null,
+        course_or_org_has_loaded: false
       }
     },
     async created () {
@@ -177,6 +181,7 @@ export default {
           const response = await OrgAPI.getOrg(this.org_id)
           this.org = response.data
         }
+        this.course_or_org_has_loaded = true
       },
       checkIfCurrentUserIsBoardMember() {
         let org_board_members = this.org.board_members
