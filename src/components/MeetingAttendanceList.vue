@@ -90,6 +90,8 @@ export default {
           else
             this.absent_attendees.push(attendee)
         })
+        this.present_attendees.sort((a,b) => (a.user_id > b.user_id) ? 1 : -1)
+        this.absent_attendees.sort((a,b) => (a.user_id > b.user_id) ? 1 : -1)
       },
       getSubmissionIds() {
         let submission_ids = new Set()
