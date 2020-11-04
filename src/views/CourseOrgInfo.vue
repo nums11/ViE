@@ -21,7 +21,7 @@
                 <li @click="activeTab = 'meeting_history'" :class="activeTab == 'meeting_history' ? 'active' : ''">
                   Meeting History</li>
                 <li @click="activeTab = 'statistics'" :class="activeTab == 'statistics' ? 'active' : ''">
-                  <div class="icon-box"><i class="icon flask"></i></div>
+                  <div class="icon-box"><i class="icon chart line"></i></div>
                   <div>Statistics</div>
                 </li>
                 <li v-if="for_course && current_user.is_instructor" 
