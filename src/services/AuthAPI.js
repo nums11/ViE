@@ -25,4 +25,12 @@ export default {
       user: user
     })
   },
+  recordAuthHeaderUpdate(user_id) {
+    return API().post('auth/record_auth_header_update', {
+      user_id
+    })
+  },
+  getUsersWithUpdatedAuthHeaders() {
+    return API().get('auth/user_with_updated_auth_headers')
+  },
 }

@@ -62,7 +62,11 @@ let User = new Schema({
 		default: false,
 		required: true
 	},
-	service_worker_subscriptions: [{}]
+	service_worker_subscriptions: [{}],
+	updated_auth_header: {
+		type: Boolean,
+		default: false
+	}
 });
 
 module.exports = mongoose.model('User', User);

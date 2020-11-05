@@ -31,9 +31,13 @@ export default new Vuex.Store({
       let current_user = state.user.current_user
       const token = jwt.sign(current_user.user_id + current_user.last_name +
         current_user.first_name, "dsad923Scxsdds1281230aFJ9DF0Ujmf")
+      let userData = {token, current_user}
+      state.user = userData
+      localStorage.setItem('user', JSON.stringify(userData))
       axios.defaults.headers.common['Authorization'] = `Bearer ${
-        token
+        userData.token
       }`
+      AuthAPI.recordAuthHeaderUpdate(current_user.user_id)
     },
   },
   actions: {

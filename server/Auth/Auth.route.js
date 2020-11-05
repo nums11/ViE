@@ -229,4 +229,35 @@ authRoutes.get("/logoutCAS", function(req, res) {
   res.send()
 });
 
+authRoutes.post('/record_auth_header_update', function (req, res) {
+  let user_id = req.body.user_id
+  User.findOneAndUpdate(
+    {user_id: user_id},
+    {updated_auth_header: true},
+    {new: true},
+    (error, user) => {
+      if(error || user == null) {
+        console.log("<ERROR> (auth/record_auth_header_update) updating user with updated_auth_header.")
+        res.status(500).json(error)
+      } else {
+        console.log("<SUCCESS> (auth/record_auth_header_update) updated user with updated_auth_header.",
+          user.updated_auth_header)
+        res.json(user)
+      }
+    })
+});
+
+authRoutes.get('/user_with_updated_auth_headers', function (req, res) {
+  User.find({updated_auth_header: true},
+    (error, users) => {
+      if(error || users == null) {
+        console.log("<ERROR> (auth/user_with_updated_auth_headers) getting users with updated_auth_headers.")
+        res.status(500).json(error)
+      } else {
+        console.log("<SUCCESS> (auth/user_with_updated_auth_headers) getting user with updated_auth_headers.")
+        res.json(users)
+      }
+    })
+});
+
 module.exports = authRoutes;

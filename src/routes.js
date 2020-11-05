@@ -27,6 +27,7 @@ import AdminEvents from './components/admin/Event/AdminEvents.vue';
 import AdminEditEvent from './components/admin/Event/AdminEditEvent.vue';
 import AdminGlobalCommands from './views/AdminGlobalCommands.vue';
 import AdminNotificationJobs from './components/admin/Notification/AdminNotificationJobs.vue';
+import AdminUpdatedAuthHeaders from './components/admin/User/AdminUpdatedAuthHeaders.vue';
 import NewSubmission from './components/admin/Submission/NewSubmission.vue';
 import Submissions from './components/admin/Submission/Submissions.vue';
 import AdminStudentInvite from './components/admin/Course/StudentInvite.vue';
@@ -256,6 +257,15 @@ const router = new VueRouter({
       name: 'admin_notifiacation_jobs',
       path: '/admin/notification_jobs',
       component: AdminNotificationJobs,
+      meta: {
+        requiresAuth: true,
+        requiresAdmin: true
+      }
+    },
+    {
+      name: 'admin_updated_auth_headers',
+      path: '/admin/updated_auth_headers',
+      component: AdminUpdatedAuthHeaders,
       meta: {
         requiresAuth: true,
         requiresAdmin: true
