@@ -215,8 +215,9 @@ authRoutes.get("/loginStatus", function(req, res) {
         req.cookies["connect_sid"], err)
       res.json(null)
     } else {
-      const token = jwt.sign(current_user.user_id + current_user.last_name +
-        current_user.first_name, process.env.AUTH_KEY)
+      // const token = jwt.sign(current_user.user_id + current_user.last_name +
+      //   current_user.first_name, process.env.AUTH_KEY)
+      const token = jwt.sign({current_user}, process.env.AUTH_KEY)
       console.log("<SUCCESS> (auth/loginStatus) Finding user by connect_sid.")
       res.json({token, current_user})
     }
@@ -226,6 +227,37 @@ authRoutes.get("/loginStatus", function(req, res) {
 authRoutes.get("/logoutCAS", function(req, res) {
   res.header("Set-Cookie","connect_sid="+";expires=Thu, 01 Jan 1970 00:00:00 GMT")
   res.send()
+});
+
+authRoutes.post('/record_auth_header_update', function (req, res) {
+  let user_id = req.body.user_id
+  User.findOneAndUpdate(
+    {user_id: user_id},
+    {updated_auth_header: true},
+    {new: true},
+    (error, user) => {
+      if(error || user == null) {
+        console.log("<ERROR> (auth/record_auth_header_update) updating user with updated_auth_header.")
+        res.status(500).json(error)
+      } else {
+        console.log("<SUCCESS> (auth/record_auth_header_update) updated user with updated_auth_header.",
+          user.updated_auth_header)
+        res.json(user)
+      }
+    })
+});
+
+authRoutes.get('/user_with_updated_auth_headers', function (req, res) {
+  User.find({updated_auth_header: true},
+    (error, users) => {
+      if(error || users == null) {
+        console.log("<ERROR> (auth/user_with_updated_auth_headers) getting users with updated_auth_headers.")
+        res.status(500).json(error)
+      } else {
+        console.log("<SUCCESS> (auth/user_with_updated_auth_headers) getting user with updated_auth_headers.")
+        res.json(users)
+      }
+    })
 });
 
 module.exports = authRoutes;
