@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 import AuthAPI from '@/services/AuthAPI.js';
+import jwt from 'jsonwebtoken';
 
 Vue.use(Vuex)
 
@@ -25,7 +26,15 @@ export default new Vuex.Store({
     CLEAR_USER_DATA() {
       localStorage.removeItem('user')
       location.reload()
-    }
+    },
+    SET_NEW_TOKEN(state){
+      let current_user = state.user.current_user
+      const token = jwt.sign(current_user.user_id + current_user.last_name +
+        current_user.first_name, "dsad923Scxsdds1281230aFJ9DF0Ujmf")
+      axios.defaults.headers.common['Authorization'] = `Bearer ${
+        token
+      }`
+    },
   },
   actions: {
     login({ commit }, user) {
@@ -49,6 +58,15 @@ export default new Vuex.Store({
           commit('SET_USER_DATA', data)
         })
     },
+    fixTokenIfNeeded({commit}) {
+      let auth_header = axios.defaults.headers.common['Authorization']
+      console.log("auth_header", auth_header)
+      if(auth_header.length > 400) {
+        console.log("Updating auth header")
+        commit('SET_NEW_TOKEN')
+        console.log("New auth header", axios.defaults.headers.common['Authorization'])
+      }
+    }
   },
   getters: {
     loggedIn(state) {

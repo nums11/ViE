@@ -59,6 +59,7 @@ export default {
     if(this.$store.state.user) {
       this.is_logged_in = true
       this.current_user = this.$store.state.user.current_user
+      this.$store.dispatch('fixTokenIfNeeded')
       this.checkNotificationPermissions()
     }
 
