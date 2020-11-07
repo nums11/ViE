@@ -606,6 +606,10 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
         meeting_notification_jobs.forEach(notification_job => {
          notification_job_promises.push(new Promise((resolve,reject) => { 
             let global_index = notification_job.global_index
+            if(all_notification_jobs[global_index] == null) {
+              console.log(`<ERROR> all_notification_jobs[global_index] is null where global_index`
+                + `is ${global_index} and all_notification_jobs length is ${all_notification_jobs.length}`)
+            }
             all_notification_jobs[global_index].cancel()
             let notification_job_id = notification_job._id
             NotificationJob.findByIdAndRemove(notification_job_id, (error) => {
