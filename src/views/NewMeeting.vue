@@ -275,7 +275,7 @@ export default {
         const response = await CourseAPI.getCourse(this.course_id)
         this.course = response.data
         this.meeting.for_course = true
-        this.meeting.course = this.course
+        this.meeting.course = this.course._id
       } else {
         this.org_id = this.$route.params.org_id;
         const response = await OrgAPI.getOrg(this.org_id)
@@ -600,9 +600,9 @@ export default {
      return outputArray;
    },
    scheduleShowQRNotificationsForInstructors(meeting) {
-    let primary_instructor_id = this.meeting.course.instructor._id
-    let secondary_instructor_id = this.meeting.course.secondary_instructor ?
-    this.meeting.course.secondary_instructor._id : null
+    let primary_instructor_id = this.course.instructor._id
+    let secondary_instructor_id = this.course.secondary_instructor ?
+    this.course.secondary_instructor._id : null
     NotificationAPI.scheduleShowQRNotificationForInstructors(
       primary_instructor_id, secondary_instructor_id, meeting._id,
       this.qr_checkin.qr_checkin_start_time)
