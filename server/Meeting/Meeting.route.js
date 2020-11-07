@@ -609,6 +609,7 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
             if(all_notification_jobs[global_index] == null) {
               console.log(`<ERROR> all_notification_jobs[global_index] is null where global_index`
                 + `is ${global_index} and all_notification_jobs length is ${all_notification_jobs.length}`)
+              console.log("all_notification_jobs", all_notification_jobs)
             } else {
               all_notification_jobs[global_index].cancel()
             }
