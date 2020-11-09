@@ -30,7 +30,10 @@ export default {
     return API().post('courses/remove_student/' + course_id + '/' + student_id, {})
   },
   getCourse(id) {
-    return API().get('courses/get/' + id)
+    return API().get(`courses/get/${id}/false`)
+  },
+  getCourseWithMeetings(id) {
+    return API().get(`courses/get/${id}/true`)
   },
   updateCourse(id, course){
     return API().post('courses/update/' + id, {

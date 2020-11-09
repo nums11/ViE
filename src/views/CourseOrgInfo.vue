@@ -174,7 +174,7 @@ export default {
         if(this.$route.name === "course_info"){
           this.course_id = this.$route.params.id;
           this.for_course = true
-          const response = await CourseAPI.getCourse(this.course_id)
+          const response = await CourseAPI.getCourseWithMeetings(this.course_id)
           this.course = response.data
         } else {
           this.org_id = this.$route.params.id;
