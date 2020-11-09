@@ -377,47 +377,66 @@ courseRoutes.route('/').get(function (req, res) {
   });
 });
 
-courseRoutes.route('/get/:id').get(function (req, res) {
+courseRoutes.route('/get/:id/:with_meetings').get(function (req, res) {
   let id = req.params.id;
-  Course.findById(id).
-  populate('instructor').
-  populate('secondary_instructor').
-  populate('students').
-  populate({
-    path: 'meetings',
-    populate: [{
-      path: 'live_attendance',
-      populate: {
-        path: 'qr_checkins',
+  let with_meetings = req.params.with_meetings === 'true'
+  if(with_meetings) {
+    Course.findById(id).
+    populate('instructor').
+    populate('secondary_instructor').
+    populate('students').
+    populate({
+      path: 'meetings',
+      populate: [{
+        path: 'live_attendance',
         populate: {
-          path: 'qr_checkin_submissions',
+          path: 'qr_checkins',
           populate: {
-            path: 'submitter'
+            path: 'qr_checkin_submissions',
+            populate: {
+              path: 'submitter'
+            }
           }
         }
-      }
-    }, {
-      path: 'async_attendance',
-      populate: {
-        path: 'recordings',
+      }, {
+        path: 'async_attendance',
         populate: {
-          path: 'recording_submissions',
+          path: 'recordings',
           populate: {
-            path: 'submitter'
+            path: 'recording_submissions',
+            populate: {
+              path: 'submitter'
+            }
           }
         }
+      }]
+    }).
+    exec((error,course) => {
+      if(error || course == null){
+        console.log("<ERROR> (courses/get) Getting course with ID:",id, 
+          "with meetings", error)
+        res.status(404).json(error);
+      } else {
+        console.log("<SUCCESS> (courses/get) Getting course by ID:",id,
+          "with meetings")
+        res.json(course)
       }
-    }]
-  }).
-  exec((error,course) => {
-    if(error || course == null){
-      console.log("<ERROR> (courses/get) Getting course with ID:",id, error)
-      res.status(404).json(error);
-    } else {
-      console.log("<SUCCESS> (courses/get) Getting course by ID:",id)
-      res.json(course)
-    }
-  })
+    })
+  } else {
+    Course.findById(id).
+    populate('instructor').
+    populate('secondary_instructor').
+    populate('students').
+    exec((error,course) => {
+      if(error || course == null){
+        console.log("<ERROR> (courses/get) Getting course with ID:",id, error)
+        res.status(404).json(error);
+      } else {
+        console.log("<SUCCESS> (courses/get) Getting course by ID:",id)
+        res.json(course)
+      }
+    })
+  }
 });
 
 courseRoutes.route('/update/:id').post(function (req, res) {
