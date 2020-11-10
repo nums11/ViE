@@ -307,7 +307,8 @@ export default {
         alert("Scanning window cannot open for iOS users unless they are using Safari. "
           + "Please either switch to Safari or scan using the phone camera app or "
           + "other scanning app.")
-      this.qr_scanning_window_open = true
+      else
+        this.qr_scanning_window_open = true
     },
     closeQRScanningWindow() {
       this.qr_scanning_window_open = false
