@@ -96,13 +96,15 @@ export default {
   },
   methods: {
     async checkNotificationPermissions() {
-      if(Notification.permission === "default") {
-        let permission = await Notification.requestPermission()
-        if (permission === "granted") {
-          this.registerServiceWorkerAndAddSubscription()
+      if ("Notification" in window) {
+        if(Notification.permission === "default") {
+          let permission = await Notification.requestPermission()
+          if (permission === "granted") {
+            this.registerServiceWorkerAndAddSubscription()
+          }
+        } else if(Notification.permission === "granted") {
+            this.registerServiceWorkerAndAddSubscription()
         }
-      } else if(Notification.permission === "granted") {
-          this.registerServiceWorkerAndAddSubscription()
       }
     },
     async registerServiceWorkerAndAddSubscription() {

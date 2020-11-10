@@ -270,12 +270,14 @@ export default {
   },
   methods: {
     getNotificationPermissionStatus() {
-      if(Notification.permission === "default")
-        this.notification_permission_status = "default"
-      else if(Notification.permission === "granted")
-        this.notification_permission_status = "granted"
-      else
-        this.notification_permission_status = "blocked"
+      if ("Notification" in window) {
+        if(Notification.permission === "default")
+          this.notification_permission_status = "default"
+        else if(Notification.permission === "granted")
+          this.notification_permission_status = "granted"
+        else
+          this.notification_permission_status = "blocked"
+      }
     },
     usingiOS() {
       let userAgent = window.navigator.userAgent,
