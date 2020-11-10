@@ -270,12 +270,14 @@ export default {
   },
   methods: {
     getNotificationPermissionStatus() {
-      if(Notification.permission === "default")
-        this.notification_permission_status = "default"
-      else if(Notification.permission === "granted")
-        this.notification_permission_status = "granted"
-      else
-        this.notification_permission_status = "blocked"
+      if ("Notification" in window) {
+        if(Notification.permission === "default")
+          this.notification_permission_status = "default"
+        else if(Notification.permission === "granted")
+          this.notification_permission_status = "granted"
+        else
+          this.notification_permission_status = "blocked"
+      }
     },
     usingiOS() {
       let userAgent = window.navigator.userAgent,
@@ -307,7 +309,8 @@ export default {
         alert("Scanning window cannot open for iOS users unless they are using Safari. "
           + "Please either switch to Safari or scan using the phone camera app or "
           + "other scanning app.")
-      this.qr_scanning_window_open = true
+      else
+        this.qr_scanning_window_open = true
     },
     closeQRScanningWindow() {
       this.qr_scanning_window_open = false
