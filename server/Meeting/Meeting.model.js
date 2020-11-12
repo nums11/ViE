@@ -14,11 +14,9 @@ let Meeting = new Schema({
   },
   start_time: {
     type: Date,
-    required: true
   },
   end_time: {
     type: Date,
-    required: true
   },
   for_course: {type: Boolean, default: false},
   course: {
