@@ -4,7 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path')
 const mongoose = require('mongoose');
-const config = require('./DB.js');
+const DB = require('./DB.js');
 const jwt = require('jsonwebtoken');
 const serveStatic = require('serve-static');
 const LOCAL_PORT = 4000;
@@ -72,7 +72,7 @@ function start() {
   let io;
 
   // Connect to the database before starting the application server.
-  mongoose.connect(process.env.DB_URI || config.DB, function (err, client) {
+  mongoose.connect(process.env.DB_URI || DB.DB_URL, function (err, client) {
     if (err) {
       console.log(err);
       process.exit(1);

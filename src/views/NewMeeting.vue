@@ -34,6 +34,7 @@
                 icon: 'users',
                 width: '60%'
               }"
+              id="meeting-title"
             />
             <div class="info-area">
               Enter the name for your meeting.
@@ -43,7 +44,7 @@
           <div class="live-meeting-portion">
             <div>
               <div class="checkbox">
-                <input type="checkbox" @click="toggleLiveInputs" />
+                <input id="qr-checkbox" type="checkbox" @click="toggleLiveInputs" />
                 <label>Include QR Code Checkin</label>
               </div>
             </div>
@@ -88,7 +89,7 @@
           <div class="live-meeting-portion">
             <div>
               <div class="checkbox">
-                <input type="checkbox" @click="toggleAsyncInputs" />
+                <input id="recording-checkbox" type="checkbox" @click="toggleAsyncInputs" />
                 <label>Include recording</label>
               </div>
             </div>
@@ -463,10 +464,12 @@ export default {
         this.$router.push({name: 'org_info', params: {id: this.$route.params.org_id}})
     },
    showFileSelector () {
+      console.log("Showing file selector")
      document.getElementById("recording-upload-input").click()
    },
    setRecordingFile (e) {
     // todo check if valid file extension
+    console.log("Recording file changed")
     this.recording.video = e.target.files[0]
    },
    clearVideoUpload () {
@@ -477,8 +480,8 @@ export default {
    },
     // Todo: Revert this allowing for multiple qr_checkins and recordings
    async createMeeting() {
-    let confirmation = confirm(this.getConfirmationString())
-    if(confirmation){
+    // let confirmation = confirm(this.getConfirmationString())
+    // if(confirmation){
       this.meeting_saving = true
       if(this.meeting.has_live_attendance) {
         this.qr_checkin.code = this.generateRandomCode()
@@ -491,11 +494,13 @@ export default {
       if(meeting != null){
         if(meeting.has_live_attendance )
           this.scheduleShowQRNotificationsForInstructors(meeting)
+        console.log("About to route to meeting info with meeting_id", meeting._id,
+          "for meeting", meeting)
         this.$router.push({name: 'meeting_info', params: {meeting_id: meeting._id}})
       }
       else
         alert("Error saving meeting")
-    }
+    // }
    },
    async saveRecordingVideoToGCS() {
     const response = await MeetingAPI.saveRecordingVideoToGCS(this.recording.video)

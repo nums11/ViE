@@ -33,6 +33,7 @@
           @blur="inputBlur"
           :type="getInputType()"
           @input="updateInputValue($event.target.value)"
+          :id="id"
         />
       </div>
 
@@ -53,7 +54,11 @@ export default {
   props: {
     config: Object,
     value: String,
-    validate: Object
+    validate: Object,
+    id: {
+      type: String,
+      default: ""
+    }
   },
   data () {
     return {

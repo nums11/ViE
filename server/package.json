@@ -5,6 +5,7 @@
   "main": "server.js",
   "types": "lib/index",
   "scripts": {
+    "small_seed": "node seeds/small_seed.js",
     "seed": "node seed.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",

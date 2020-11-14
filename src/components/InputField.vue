@@ -2,7 +2,7 @@
   <div class="input-field-container">
     <div class="input-field">
       <div class="input-label"><label class="input-field-label" :id="label+'-label'">{{label}}</label></div>
-      <input v-on:keyup="change" v-on:change="change" v-model="input_value" :type="type" :aria-labelledby="label+'-label'">
+      <input v-on:keyup="change" v-on:change="change" v-model="input_value" :type="type" :aria-labelledby="label+'-label'" :id="label">
     </div>
   </div>
 </template>

@@ -23,9 +23,9 @@
       <div class="page-info-area">
         <!-- Page Info -->
         <div class="left-side">
-            <h2 class="inline-block">{{ meeting == null ? '' : meeting.title }}</h2>
+            <h2 class="inline-block" id="meeting-title-header">{{ meeting == null ? '' : meeting.title }}</h2>
             <div class="details-area">
-              <sui-label v-if="for_course" :style="{marginBottom: '5px'}">
+              <sui-label id="course-name-label" v-if="for_course" :style="{marginBottom: '5px'}">
                 Course
                 <sui-label-detail>{{ meeting.course.name }}</sui-label-detail>
               </sui-label>
@@ -33,7 +33,7 @@
                 Organization
                 <sui-label-detail>{{ meeting.org.name }}</sui-label-detail>
               </sui-label>
-              <sui-label v-if="for_course" class="venue-red" id="dept-text" :style="{marginBottom: '5px'}">
+              <sui-label v-if="for_course" class="venue-red" id="course-dept-label" :style="{marginBottom: '5px'}">
                   Dept
                 <sui-label-detail>{{ meeting.course.dept }} {{ getFormattedCourseNumber(meeting.course.course_number) }}</sui-label-detail>
               </sui-label>

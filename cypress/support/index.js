@@ -26,6 +26,6 @@ before(() => {
 	cy.seed()
 })
 
-after(() => {
-	cy.seed()
-})
+// after(() => {
+// 	cy.seed()
+// })
