@@ -130,6 +130,7 @@ function createMeeting(course, has_live_attendance, num_live_submissions,
 			}))
 		}
 		qr_checkin.qr_checkin_submissions = qr_checkin_submissions
+		meeting.live_attendance.qr_checkins = qr_checkin
 
 		qr_checkins.push(qr_checkin)
 		live_submissions = live_submissions.concat(qr_checkin_submissions)
@@ -171,6 +172,7 @@ function createMeeting(course, has_live_attendance, num_live_submissions,
 			}))
 		}
 		recording.recording_submissions = recording_submissions
+		meeting.async_attendance.recordings = recording
 
 		recordings.push(recording)
 		async_submissions = async_submissions.concat(recording_submissions)
