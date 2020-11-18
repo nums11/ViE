@@ -13,7 +13,6 @@ let SeedModels = {
 	async_submissions: [],
 }
 let seed_size = process.env.seed_size
-console.log("Seed size", seed_size)
 
 if(seed_size === "small")
 	initSmallSeed()

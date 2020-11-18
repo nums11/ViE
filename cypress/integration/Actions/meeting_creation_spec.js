@@ -1,23 +1,19 @@
 import 'cypress-file-upload'
 
-/*
-if(some_var) {
-  load small seed file
-} else if (some other var) {
-  load med seed file
-} else {
-  load large seed file
-}
-*/
 before(() => {
-  console.log("hmmm")
-  cy.log('Seed size', Cypress.env('seed_size'))
   let seed_size = Cypress.env('seed_size')
-  if(seed_size === "small")
-    cy.log('Seed size was small')
-  else
-    cy.log('Seed size was NOT small')
-  cy.task("log","Will this print")
+  if(seed_size === "large"){
+    cy.task("log","Calling large seed")
+    cy.largeSeed()
+  }
+  else if(seed_size === "medium"){
+    cy.task("log","Calling medium seed")
+    cy.mediumSeed()
+  }
+  else{
+    cy.task("log","Calling small seed")
+    cy.smallSeed()
+  }
 })
 
 
