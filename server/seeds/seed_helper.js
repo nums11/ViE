@@ -312,7 +312,6 @@ function loadAndClearModels(resolve, reject) {
 	seeder.clearModels(['Course', 'User', 'Organization', 'Meeting',
 		'LiveAttendance', 'AsyncAttendance', 'LiveSubmission', 'AsyncSubmission',
 		'QRCheckin', 'Recording', 'Poll', 'NotificationJob'], function () {
-			console.log("In clearModels callback disconnecting")
 			seeder.disconnect()
 			resolve(true)
 	})
