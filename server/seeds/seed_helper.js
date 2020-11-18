@@ -18,34 +18,20 @@ const saltRounds = 10;
 let is_monday_meeting = true
 
 module.exports = {clearAllModels, createInstructor, createStudents,
-createCourse, createMeeting};
+createCourse, createMeeting, populateModels};
 
-function clearAllModels() {
-	seeder.connect(process.env.MONGODB_URI || DB.DB_URL, function () {
-		// seeder loads from the server folder
-		seeder.loadModels([
-			"Course/Course.model",
-			"User/User.model",
-			"Poll/Poll.model",
-			"Organization/Organization.model",
-			"Meeting/Meeting.model",
-			"LiveAttendance/LiveAttendance.model",
-			"AsyncAttendance/AsyncAttendance.model",
-			"LiveSubmission/LiveSubmission.model",
-			"AsyncSubmission/AsyncSubmission.model",
-			"QRCheckin/QRCheckin.model",
-			"Recording/Recording.model",
-			"Notification/NotificationJob.model"
-		]);
-		seeder.clearModels(['Course', 'User', 'Organization', 'Meeting',
-			'LiveAttendance', 'AsyncAttendance', 'LiveSubmission', 'AsyncSubmission',
-			'QRCheckin', 'Recording', 'Poll', 'NotificationJob'], function () {
-				seeder.disconnect()
-			})
+async function clearAllModels() {
+	let clear_promise = new Promise((resolve, reject) => {
+		seeder.connect(process.env.MONGODB_URI || DB.DB_URL,
+			loadAndClearModels.bind(this,resolve,reject))
 	})
+	try {
+		await Promise.resolve(clear_promise)
+	} catch(error) {
+	}
 }
 
-function createInstructor(is_admin, SeedModels) {
+async function createInstructor(is_admin, SeedModels) {
 	SeedModels.instructors.push(new User({
 		first_name: "Numfor",
 		last_name: "Mbiziwo-Tiapo",
@@ -62,9 +48,10 @@ function createInstructor(is_admin, SeedModels) {
 		async_submissions: [],
 		service_worker_subscriptions: []
 	}))
+	await hashPasswordsForUsers(true, SeedModels)
 }
 
-function createStudents(num_students, SeedModels) {
+async function createStudents(num_students, SeedModels) {
 	for(let i=0;i<num_students;i++) { //a-p 
 		SeedModels.students.push(new User({
 			first_name: "Student",
@@ -82,6 +69,7 @@ function createStudents(num_students, SeedModels) {
 			async_submissions: [],
 		}))
 	}
+	await hashPasswordsForUsers(false, SeedModels)
 }
 
 function createCourse(name, dept, course_number,
@@ -211,7 +199,7 @@ function generateRecording(meeting, course_students, num_async_submissions,
 			is_recording: true,
 			recording: recording._id,
 			furthest_video_time: furthest_video_time,
-			video_percent_watched: furthest_video_time/13
+			video_percent_watched: (furthest_video_time/13)*100
 		}))
 	}
 	recording.recording_submissions = recording_submissions
@@ -222,16 +210,112 @@ function generateRecording(meeting, course_students, num_async_submissions,
 		SeedModels.async_submissions.concat(recording_submissions)
 }
 
+async function hashPasswordsForUsers(is_instructor, SeedModels) {
+	let users = is_instructor ? SeedModels.instructors :
+															SeedModels.students
+	let password_promises = []
+	users.forEach(user => {
+		password_promises.push(new Promise((resolve, reject) => {
+			bcrypt.hash(user.password,saltRounds,(err,hashed_password) => {
+				user.password = hashed_password
+				resolve(hashed_password)
+			})
+		}))
+	})
+	try {
+		await Promise.all(password_promises)
+	} catch(error) {
+		console.log("Error resolving passwords")
+	}
+}
+
 function populateModels(SeedModels) {
-	seeder.populateModels(data, function (err, done) {
+	let seed_data = getSeedData(SeedModels)
+	seeder.connect(process.env.MONGODB_URI || DB.DB_URL,
+		loadAndPopulateModels.bind(this, seed_data))
+}
+
+function loadAndPopulateModels(seed_data) {
+	loadModels()
+	seeder.populateModels(seed_data, function (err, done) {
 		if (err) {
-			return console.log("seed err", err)
-		}
-		if (done) {
-			return console.log("seed finished", done)
+			console.log("<ERROR> Populating Models.", err)
+		} else if (done) {
+			console.log("<SUCCESS> Seed Completed", done)
 		}
 		seeder.disconnect()
 	})
+}
+
+function loadAndClearModels(resolve, reject) {
+	loadModels()
+	seeder.clearModels(['Course', 'User', 'Organization', 'Meeting',
+		'LiveAttendance', 'AsyncAttendance', 'LiveSubmission', 'AsyncSubmission',
+		'QRCheckin', 'Recording', 'Poll', 'NotificationJob'], function () {
+			console.log("In clearModels callback disconnecting")
+			seeder.disconnect()
+			resolve(true)
+	})
+}
+
+function loadModels() {
+	// seeder loads from the server folder
+	seeder.loadModels([
+		"Course/Course.model",
+		"User/User.model",
+		"Poll/Poll.model",
+		"Organization/Organization.model",
+		"Meeting/Meeting.model",
+		"LiveAttendance/LiveAttendance.model",
+		"AsyncAttendance/AsyncAttendance.model",
+		"LiveSubmission/LiveSubmission.model",
+		"AsyncSubmission/AsyncSubmission.model",
+		"QRCheckin/QRCheckin.model",
+		"Recording/Recording.model",
+		"Notification/NotificationJob.model"
+	]);
+}
+
+function getSeedData(SeedModels) {
+	return [
+		{
+			'model': 'User',
+			'documents': SeedModels.instructors.
+										concat(SeedModels.students),
+		},
+		{
+			'model': 'Course',
+			'documents': SeedModels.courses
+		},
+		{
+			'model': 'Meeting',
+			'documents': SeedModels.meetings
+		},
+		{
+			'model': 'LiveAttendance',
+			'documents': SeedModels.live_attendances
+		},
+		{
+			'model': 'AsyncAttendance',
+			'documents': SeedModels.async_attendances
+		},
+		{
+			'model': 'QRCheckin',
+			'documents': SeedModels.qr_checkins
+		},
+		{
+			'model': 'Recording',
+			'documents': SeedModels.recordings
+		},
+		{
+			'model': 'LiveSubmission',
+			'documents': SeedModels.live_submissions
+		},
+		{
+			'model': 'AsyncSubmission',
+			'documents': SeedModels.async_submissions
+		}
+	]
 }
 
 function getRandomIDsFromArray(arr, num_rand_ids) {

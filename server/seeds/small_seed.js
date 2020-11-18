@@ -24,18 +24,23 @@ let SeedModels = {
 	async_submissions: [],
 }
 
-SeedHelper.clearAllModels()
-SeedHelper.createInstructor(true, SeedModels)
-SeedHelper.createStudents(16, SeedModels)
-SeedHelper.createCourse("RCOS", "CSCI", 2961,
-	SeedModels.instructors[0], SeedModels.students,
-	SeedModels)
-SeedHelper.createMeeting(SeedModels.courses[0],
-	true, 9, false, 0, SeedModels)
-SeedHelper.createMeeting(SeedModels.courses[0],
-	true, 10, true, 5, SeedModels)
-SeedHelper.createMeeting(SeedModels.courses[0],
-	false, 0, true, 5, SeedModels)
-SeedHelper.populatModels(SeedModels)
+initSmallSeed()
+
+async function initSmallSeed() {
+	await SeedHelper.clearAllModels()
+	await SeedHelper.createInstructor(true, SeedModels)
+	await SeedHelper.createStudents(16, SeedModels)
+	SeedHelper.createCourse("RCOS", "CSCI", 2961,
+		SeedModels.instructors[0], SeedModels.students,
+		SeedModels)
+	SeedHelper.createMeeting(SeedModels.courses[0],
+		true, 9, false, 0, SeedModels)
+	SeedHelper.createMeeting(SeedModels.courses[0],
+		true, 10, true, 5, SeedModels)
+	SeedHelper.createMeeting(SeedModels.courses[0],
+		false, 0, true, 5, SeedModels)
+	console.log("About to populate")
+	SeedHelper.populateModels(SeedModels)
+}
 
 
