@@ -215,9 +215,8 @@ authRoutes.get("/loginStatus", function(req, res) {
         req.cookies["connect_sid"], err)
       res.json(null)
     } else {
-      // const token = jwt.sign(current_user.user_id + current_user.last_name +
-      //   current_user.first_name, process.env.AUTH_KEY)
-      const token = jwt.sign({current_user}, process.env.AUTH_KEY)
+      const token = jwt.sign(current_user.user_id + current_user.last_name +
+        current_user.first_name, process.env.AUTH_KEY)
       console.log("<SUCCESS> (auth/loginStatus) Finding user by connect_sid.")
       res.json({token, current_user})
     }
