@@ -5,8 +5,9 @@
   "main": "server.js",
   "types": "lib/index",
   "scripts": {
-    "small_seed": "node seeds/small_seed.js",
-    "seed": "node seed.js",
+    "small_seed": "seed_size=small node seeds/seed.js",
+    "medium_seed": "seed_size=medium node seeds/seed.js",
+    "large_seed": "seed_size=large node seeds/seed.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
     "nodemon": "nodemon serve.js"

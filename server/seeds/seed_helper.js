@@ -18,7 +18,7 @@ const saltRounds = 10;
 let is_monday_meeting = true
 
 module.exports = {clearAllModels, createInstructor, createStudents,
-createCourse, createMeeting, populateModels};
+createCourse, createMeetingsForCourse, populateModels};
 
 async function clearAllModels() {
 	let clear_promise = new Promise((resolve, reject) => {
@@ -32,22 +32,42 @@ async function clearAllModels() {
 }
 
 async function createInstructor(is_admin, SeedModels) {
-	SeedModels.instructors.push(new User({
-		first_name: "Numfor",
-		last_name: "Mbiziwo-Tiapo",
-		user_id: "mbizin",
-		email: "venue@rpi.edu",
-		password: "nimda",
-		is_instructor: true,
-		is_admin: true,
-		instructor_courses: [],
-		student_courses: [],
-		users_orgs: [],
-		meetings: [],
-		live_submissions: [],
-		async_submissions: [],
-		service_worker_subscriptions: []
-	}))
+	if(is_admin) {
+		SeedModels.instructors.push(new User({
+			first_name: "Numfor",
+			last_name: "Mbiziwo-Tiapo",
+			user_id: "mbizin",
+			email: "venue@rpi.edu",
+			password: "nimda",
+			is_instructor: true,
+			is_admin: true,
+			instructor_courses: [],
+			student_courses: [],
+			users_orgs: [],
+			meetings: [],
+			live_submissions: [],
+			async_submissions: [],
+			service_worker_subscriptions: []
+		}))
+	} else {
+		let num_instructors = SeedModels.instructors.length
+		SeedModels.instructors.push(new User({
+			first_name: "Inst",
+			last_name: `${num_instructors + 1}`,
+			user_id: `inst${num_instructors + 1}`,
+			email: `inst${num_instructors + 1}@rpi.edu`,
+			password: "password",
+			is_instructor: true,
+			is_admin: false,
+			instructor_courses: [],
+			student_courses: [],
+			users_orgs: [],
+			meetings: [],
+			live_submissions: [],
+			async_submissions: [],
+			service_worker_subscriptions: []
+		}))
+	}
 	await hashPasswordsForUsers(true, SeedModels)
 }
 
@@ -73,19 +93,57 @@ async function createStudents(num_students, SeedModels) {
 }
 
 function createCourse(name, dept, course_number,
-	instructor, students, SeedModels) {
+	instructor, secondary_instructor, students,
+	SeedModels) {
 	let course = new Course({ // 0
 		name: name,
 		dept: dept,
 		course_number: course_number,
 		instructor: instructor,
+		secondary_instructor: secondary_instructor,
 		students: students,
 		meetings: []
 	})
 	SeedModels.courses.push(course)
 	instructor.instructor_courses.push(course._id)
+	if(secondary_instructor != null)
+		secondary_instructor.instructor_courses.push(course._id)
 	SeedModels.students.forEach(
 		student => student.student_courses.push(course._id))
+}
+
+/* Creates meetings of different types for course
+ Type 1 - live only
+ Type 2 - async only
+ Type 3 - both
+*/
+function createMeetingsForCourse(num_meetings, course,
+	seed_size, SeedModels) {
+	let num_live_submissions = 0, num_async_submissions = 0
+	if(seed_size === "small") {
+		num_live_submissions = 10
+		num_async_submissions = 5
+	} else if(seed_size === "medium") {
+		num_live_submissions = 40
+		num_async_submissions = 25
+	} else if(seed_size === "large") {
+		num_live_submissions = 100
+		num_async_submissions = 80
+	}
+	for(let i=1; i <= num_meetings; i++) {
+		let meeting_type = (i + 3) % 3
+		if(meeting_type === 1) {
+			createMeeting(course,
+				true, num_live_submissions, false, 0, SeedModels)
+		} else if(meeting_type === 2) {
+			createMeeting(course,
+				false, 0, true, num_async_submissions, SeedModels)
+		} else {
+			createMeeting(course,
+				true, num_live_submissions, true, num_async_submissions,
+				SeedModels)
+		}
+	}
 }
 
 function createMeeting(course, has_live_attendance, num_live_submissions,
@@ -129,6 +187,8 @@ function createMeeting(course, has_live_attendance, num_live_submissions,
 	// Update the course, instructor, and students
 	course.meetings.push(meeting)
 	course.instructor.meetings.push(meeting)
+	if(course.secondary_instructor !== null)
+		course.secondary_instructor.meetings.push(meeting)
 	course.students.forEach(student => student.meetings.push(meeting))
 
 	SeedModels.live_attendances.push(meeting.live_attendance)
