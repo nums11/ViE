@@ -15,6 +15,7 @@ var cookieParser = require('cookie-parser');
 const RealTimeAttendanceQueue = require('./socket/RealTimeAttendanceQueue')
 const NotificationJob = require('./Notification/NotificationJob.model');
 const schedule = require('node-schedule');
+const {exec} = require('child_process');
 
 // For Concurrency
 const throng = require('throng')
@@ -159,8 +160,16 @@ function start() {
   app.use('/asyncsubmissions', asyncSubmissionRouter);
   app.use('/qrcheckins', qrCheckinRouter);
   app.use('/notifications', notificationRouter);
+  app.post('/seeds/:seed_size', handleSeedRequest)
 
   rescheduleAllNotificationJobs()
+}
+
+function handleSeedRequest(req, res) {
+  let seed_size = req.params.seed_size
+  exec(`npm run ${seed_size}_seed`)
+  console.log(`<SUCCESS> (/seeds) executing ${seed_size} seed`)
+  res.json({})
 }
 
 function rescheduleAllNotificationJobs() {
