@@ -290,18 +290,20 @@ async function hashPasswordsForUsers(is_instructor, SeedModels) {
 	}
 }
 
-function populateModels(SeedModels) {
+async function populateModels(SeedModels) {
 	let seed_data = getSeedData(SeedModels)
-	seeder.connect(process.env.MONGODB_URI || DB.DB_URL,
-		loadAndPopulateModels.bind(this, seed_data))
-	// try {
-	// 	await Promise.resolve(clear_promise)
-	// } catch(error) {
-	// 	console.log("Error clearing models")
-	// }
+	let populate_promise = new Promise((resolve, reject) => {
+		seeder.connect(process.env.MONGODB_URI || DB.DB_URL,
+			loadAndPopulateModels.bind(this, seed_data, resolve, reject))
+	})
+	try {
+		await Promise.resolve(populate_promise)
+	} catch(error) {
+		console.log("Error populating models")
+	}
 }
 
-function loadAndPopulateModels(seed_data) {
+function loadAndPopulateModels(seed_data, resolve, reject) {
 	loadModels()
 	seeder.populateModels(seed_data, function (err, done) {
 		if (err) {
@@ -310,6 +312,7 @@ function loadAndPopulateModels(seed_data) {
 			console.log("<SUCCESS> Seed Completed", done)
 		}
 		seeder.disconnect()
+		resolve(true)
 	})
 }
 
@@ -342,7 +345,6 @@ function loadModels() {
 }
 
 function clearSeedModels(SeedModels) {
-	console.log("Clearing SeedModels")
 	for([key,value] of Object.entries(SeedModels)) {
 		SeedModels[key] =[]
 	}

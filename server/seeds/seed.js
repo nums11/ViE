@@ -45,11 +45,8 @@ async function initSmallSeed() {
 	SeedHelper.createMeetingsForCourse(3,
 		SeedModels.courses[0], seed_size, SeedModels)
 	console.log("About to populateModels:", SeedModels.students.length)
-	SeedHelper.populateModels(SeedModels)
+	await SeedHelper.populateModels(SeedModels)
 	SeedHelper.clearSeedModels(SeedModels)
-	for([key,value] of Object.entries(SeedModels)) {
-		console.log("key",key,"Value",value)
-	}
 }
 
 /*
@@ -80,9 +77,8 @@ async function initMediumSeed() {
 		SeedModels.courses[0], seed_size, SeedModels)
 	SeedHelper.createMeetingsForCourse(15,
 		SeedModels.courses[1], seed_size, SeedModels)
-	SeedHelper.populateModels(SeedModels)
+	await SeedHelper.populateModels(SeedModels)
 	SeedHelper.clearSeedModels(SeedModels)
-
 }
 
 /*
@@ -112,7 +108,7 @@ async function initLargeSeed() {
 		SeedModels.courses[0], seed_size, SeedModels)
 	SeedHelper.createMeetingsForCourse(90,
 		SeedModels.courses[1], seed_size, SeedModels)
-	SeedHelper.populateModels(SeedModels)
+	await SeedHelper.populateModels(SeedModels)
 	SeedHelper.clearSeedModels(SeedModels)
 }
 
