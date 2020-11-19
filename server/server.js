@@ -165,10 +165,15 @@ function start() {
   rescheduleAllNotificationJobs()
 }
 
-function handleSeedRequest(req, res) {
+async function handleSeedRequest(req, res) {
   let seed_size = req.params.seed_size
-  console.log("In handleSeedRequest")
-  Seed.initSmallSeed()
+  if(seed_size === "small")
+    await Seed.initSmallSeed()
+  else if(seed_size === "medium")
+    await Seed.initMediumSeed()
+  else if(seed_size === "large")
+    await Seed.initLargeSeed()
+  console.log(`<SUCCESS> (/seeds) executing ${seed_size} seed`)
   res.json({})
 }
 

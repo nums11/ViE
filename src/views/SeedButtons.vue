@@ -26,10 +26,13 @@
 
     },
     methods: {
-      initSeed(seed_size) {
+      async initSeed(seed_size) {
         let confirmation = confirm(`Are you sure you want to do a ${seed_size} seed?`)
-        if(confirmation)
-          SeedAPI.seed(seed_size)
+        if(confirmation){
+          console.log(`Doing a ${seed_size} seed`)
+          await SeedAPI.seed(seed_size)
+          alert("Seeding done")
+        }
       }
     }
   }
