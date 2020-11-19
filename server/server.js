@@ -15,7 +15,8 @@ var cookieParser = require('cookie-parser');
 const RealTimeAttendanceQueue = require('./socket/RealTimeAttendanceQueue')
 const NotificationJob = require('./Notification/NotificationJob.model');
 const schedule = require('node-schedule');
-const {exec} = require('child_process');
+// const {exec} = require('child_process');
+const npm = require('npm')
 
 // For Concurrency
 const throng = require('throng')
@@ -167,9 +168,14 @@ function start() {
 
 function handleSeedRequest(req, res) {
   let seed_size = req.params.seed_size
-  exec(`npm run ${seed_size}_seed`)
-  console.log(`<SUCCESS> (/seeds) executing ${seed_size} seed`)
-  res.json({})
+  npm.command.run(`${seed_size}_seed`, (error) => {
+    if(error){
+      console.log(`<ERROR> (/seeds) executing ${seed_size} seed`, error)
+      res.json(error)
+    } else {
+      console.log(`<SUCCESS> (/seeds) executing ${seed_size} seed`)
+    }
+  });
 }
 
 function rescheduleAllNotificationJobs() {
