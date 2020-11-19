@@ -47,14 +47,10 @@ Cypress.Commands.add('checkAccessibility', () => {
   cy.checkA11y()
 })
 
-Cypress.Commands.add('smallSeed', () => { 
-  cy.exec('cd server && npm run small_seed && cd ..')
-})
-
-Cypress.Commands.add('mediumSeed', () => { 
-  cy.exec('cd server && npm run medium_seed && cd ..')
-})
-
-Cypress.Commands.add('largeSeed', () => { 
-  cy.exec('cd server && npm run large_seed && cd ..')
+Cypress.Commands.add('seed', (seed_size, prod_mode) => {
+  if(prod_mode){
+    cy.visit('/seed_buttons')
+  } else {
+    cy.exec(`cd server && npm run ${seed_size}_seed && cd ..`)
+  }
 })

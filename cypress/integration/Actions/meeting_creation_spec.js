@@ -2,19 +2,13 @@ import 'cypress-file-upload'
 
 before(() => {
   let seed_size = Cypress.env('seed_size')
-  // if(seed_size === "large"){
-  //   cy.task("log","Calling large seed")
-  //   cy.largeSeed()
-  // }
-  // else if(seed_size === "medium"){
-  //   cy.task("log","Calling medium seed")
-  //   cy.mediumSeed()
-  // }
-  // else{
-  //   cy.task("log","Calling small seed")
-  //   cy.smallSeed()
-  // }
-  cy.mediumSeed()
+  let prod_mode = Cypress.env('prod_mode') == true
+  cy.task("log", `seed_size ${seed_size}`)
+  cy.task("log", `prod_mode ${prod_mode}`)
+  if(seed_size == null)
+    cy.seed("small", prod_mode)
+  else
+    cy.seed(seed_size, prod_mode)
 })
 
 
@@ -22,15 +16,15 @@ describe('Meeting Creation', () => {
 
 //   // Begin each test from the NewMeeting view
   beforeEach(() => {
-    cy.visit('/')
-    cy.contains('Dev Login').click()
-    cy.get('#user-id').type('mbizin')
-      .should('have.value', 'mbizin')
-    cy.get('#password').type('nimda')
-    cy.contains('Login').click()
-    cy.url().should('eq', 'http://localhost:8080/#/dashboard')
-    cy.contains('RCOS').click({force: true})
-    cy.contains('Schedule Meeting').click()
+    // cy.visit('/')
+    // cy.contains('Dev Login').click()
+    // cy.get('#user-id').type('mbizin')
+    //   .should('have.value', 'mbizin')
+    // cy.get('#password').type('nimda')
+    // cy.contains('Login').click()
+    // cy.url().should('eq', 'http://localhost:8080/#/dashboard')
+    // cy.contains('RCOS').click({force: true})
+    // cy.contains('Schedule Meeting').click()
   })
 it('does nothing', () => {
   cy.task("log","In test")

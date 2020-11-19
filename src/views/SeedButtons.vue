@@ -1,9 +1,9 @@
 <template>
   <div>
     <h1>Seed Buttons</h1>
-    <button @click="initSeed('small')">Small Seed</button>
-    <button @click="initSeed('medium')">Medium Seed</button>
-    <button @click="initSeed('large')">Large Seed</button>
+    <button @click="initSeed('small')" id="small-seed">Small Seed</button>
+    <button @click="initSeed('medium')" id="medium-seed">Medium Seed</button>
+    <button @click="initSeed('large')" id="large-seed">Large Seed</button>
   </div>
 </template>
 
