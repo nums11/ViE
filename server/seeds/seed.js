@@ -1,5 +1,7 @@
 const SeedHelper = require('./seed_helper')
 
+module.exports = {initSmallSeed, initMediumSeed, initLargeSeed};
+
 let SeedModels = {
 	instructors: [],
 	students: [],
@@ -42,7 +44,12 @@ async function initSmallSeed() {
 		SeedModels)
 	SeedHelper.createMeetingsForCourse(3,
 		SeedModels.courses[0], seed_size, SeedModels)
+	console.log("About to populateModels:", SeedModels.students.length)
 	SeedHelper.populateModels(SeedModels)
+	SeedHelper.clearSeedModels(SeedModels)
+	for([key,value] of Object.entries(SeedModels)) {
+		console.log("key",key,"Value",value)
+	}
 }
 
 /*
@@ -74,6 +81,8 @@ async function initMediumSeed() {
 	SeedHelper.createMeetingsForCourse(15,
 		SeedModels.courses[1], seed_size, SeedModels)
 	SeedHelper.populateModels(SeedModels)
+	SeedHelper.clearSeedModels(SeedModels)
+
 }
 
 /*
@@ -104,6 +113,7 @@ async function initLargeSeed() {
 	SeedHelper.createMeetingsForCourse(90,
 		SeedModels.courses[1], seed_size, SeedModels)
 	SeedHelper.populateModels(SeedModels)
+	SeedHelper.clearSeedModels(SeedModels)
 }
 
 

@@ -18,7 +18,7 @@ const saltRounds = 10;
 let is_monday_meeting = true
 
 module.exports = {clearAllModels, createInstructor, createStudents,
-createCourse, createMeetingsForCourse, populateModels};
+createCourse, createMeetingsForCourse, populateModels, clearSeedModels};
 
 async function clearAllModels() {
 	let clear_promise = new Promise((resolve, reject) => {
@@ -28,6 +28,7 @@ async function clearAllModels() {
 	try {
 		await Promise.resolve(clear_promise)
 	} catch(error) {
+		console.log("Error clearing models")
 	}
 }
 
@@ -293,6 +294,11 @@ function populateModels(SeedModels) {
 	let seed_data = getSeedData(SeedModels)
 	seeder.connect(process.env.MONGODB_URI || DB.DB_URL,
 		loadAndPopulateModels.bind(this, seed_data))
+	// try {
+	// 	await Promise.resolve(clear_promise)
+	// } catch(error) {
+	// 	console.log("Error clearing models")
+	// }
 }
 
 function loadAndPopulateModels(seed_data) {
@@ -333,6 +339,13 @@ function loadModels() {
 		"Recording/Recording.model",
 		"Notification/NotificationJob.model"
 	]);
+}
+
+function clearSeedModels(SeedModels) {
+	console.log("Clearing SeedModels")
+	for([key,value] of Object.entries(SeedModels)) {
+		SeedModels[key] =[]
+	}
 }
 
 function getSeedData(SeedModels) {
