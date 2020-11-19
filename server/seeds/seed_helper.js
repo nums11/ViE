@@ -22,7 +22,7 @@ createCourse, createMeetingsForCourse, populateModels, clearSeedModels};
 
 async function clearAllModels() {
 	let clear_promise = new Promise((resolve, reject) => {
-		seeder.connect(process.env.MONGODB_URI || DB.DB_URL,
+		seeder.connect(process.env.DB_URI || DB.DB_URL,
 			loadAndClearModels.bind(this,resolve,reject))
 	})
 	try {
@@ -293,7 +293,7 @@ async function hashPasswordsForUsers(is_instructor, SeedModels) {
 async function populateModels(SeedModels) {
 	let seed_data = getSeedData(SeedModels)
 	let populate_promise = new Promise((resolve, reject) => {
-		seeder.connect(process.env.MONGODB_URI || DB.DB_URL,
+		seeder.connect(process.env.DB_URI || DB.DB_URL,
 			loadAndPopulateModels.bind(this, seed_data, resolve, reject))
 	})
 	try {

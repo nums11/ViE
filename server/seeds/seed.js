@@ -44,7 +44,6 @@ async function initSmallSeed() {
 		SeedModels)
 	SeedHelper.createMeetingsForCourse(3,
 		SeedModels.courses[0], seed_size, SeedModels)
-	console.log("About to populateModels:", SeedModels.students.length)
 	await SeedHelper.populateModels(SeedModels)
 	SeedHelper.clearSeedModels(SeedModels)
 }
