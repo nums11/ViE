@@ -311,7 +311,6 @@ function loadAndPopulateModels(seed_data, resolve, reject) {
 		} else if (done) {
 			console.log("<SUCCESS> Seed Completed", done)
 		}
-		seeder.disconnect()
 		resolve(true)
 	})
 }
