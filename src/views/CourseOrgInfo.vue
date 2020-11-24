@@ -33,7 +33,7 @@
               </ul>
             </div>
             <div class="actions">
-              <router-link :to="for_course ? {name: 'course_new_meeting', params: { course_id: course._id }} : {name: 'org_new_meeting', params: { org_id: org._id }}">
+              <router-link :to="for_course ? {name: 'course_new_meeting', params: { course_id: course_id }} : {name: 'org_new_meeting', params: { org_id: org._id }}">
                 <sui-button
                   v-if="isPrivelegedUser()"
                   class="labeled
@@ -151,6 +151,7 @@ export default {
         statisticsSections: {},
         colorSets: [],
         course: {},
+        course_id: null,
         org: {},
         current_user: {},
         for_course: false,
@@ -163,6 +164,7 @@ export default {
     async created () {
       this.current_user = this.$store.state.user.current_user
       this.is_instructor = this.current_user.is_instructor
+      this.course_id = this.$route.params.id;
       await this.getCourseOrOrg();
       if(!this.for_course)
         this.checkIfCurrentUserIsBoardMember()
@@ -172,7 +174,6 @@ export default {
     methods: {
       async getCourseOrOrg () {
         if(this.$route.name === "course_info"){
-          this.course_id = this.$route.params.id;
           this.for_course = true
           const response = await CourseAPI.getCourseWithMeetings(this.course_id)
           this.course = response.data
