@@ -28,7 +28,7 @@ describe('Meeting Creation', () => {
       'http://localhost:8080/#/dashboard' :
       'http://localhost:8080/#/dashboard')
     cy.contains('RCOS').click({force: true})
-    // cy.contains('Schedule Meeting').click()
+    cy.contains('Schedule Meeting').click()
   })
 
   // it('does nothing', () => {
@@ -38,25 +38,26 @@ describe('Meeting Creation', () => {
   // Still need to add test for uploading large video file
 
   it('Can create a meeting with a live task', () => {
-    // cy.get('#meeting-title').type('Meeting with live task')
-    //   .should('have.value', 'Meeting with live task')
-    // cy.get('#qr-checkbox').click()
-    // cy.get('#meeting_start').click()
-    // cy.get('.left-side-area').click()
-    // cy.get('#qr_checkin_start').click()
-    // cy.get('.left-side-area').click()
-    // cy.contains('Create New Meeting').click()
-    // cy.url().should('contain', 'meeting_info')
-    // cy.get('#meeting-title-header').should('contain','Meeting with live task')
-    // cy.get('#course-name-label').should('contain','RCOS')
-    // cy.get('#course-dept-label').should('contain', 'CSCI 2961')
-    // cy.contains('(1) Live Tasks')
-    // cy.get('.task-info-container').should('contain', 'QR Submission')
-    // cy.contains('Dashboard').click({force: true})
-    // cy.get('#live-section .meeting-info-pill').should('contain','Meeting with live task')
-    //   .and('contain', 'CSCI 2961').and('contain', 'RCOS')
-    // cy.contains('RCOS').click({force: true})
-    // cy.get('.meeting-attendance-pill').contains('Meeting with live task')
+    cy.get('#meeting-title').type('Meeting with live task')
+      .should('have.value', 'Meeting with live task')
+    cy.get('#qr-checkbox').click()
+    cy.get('#meeting_start').click()
+    cy.get('.left-side-area').click()
+    cy.get('#qr_checkin_start').click()
+    cy.get('.left-side-area').click()
+    cy.contains('Create New Meeting').click()
+    cy.url().should('contain', 'meeting_info')
+    cy.get('#meeting-title-header').should('contain','Meeting with live task')
+    cy.get('#course-name-label').should('contain','RCOS')
+    cy.get('#course-dept-label').should('contain', 'CSCI 2961')
+    cy.contains('(1) Live Tasks')
+    cy.get('.task-info-container').should('contain', 'QR Submission')
+    cy.contains('Dashboard').click({force: true})
+    cy.get('#live-section .meeting-info-pill').should('contain','Meeting with live task')
+      .and('contain', 'CSCI 2961').and('contain', 'RCOS')
+    cy.contains('RCOS').click({force: true})
+    cy.get('.meeting-attendance-pill').
+      contains('Meeting with live task', {timeout: 10000})
   })
 
   // it('Can create a meeting with an async task',() => {
