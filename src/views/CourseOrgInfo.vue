@@ -165,6 +165,7 @@ export default {
       this.current_user = this.$store.state.user.current_user
       this.is_instructor = this.current_user.is_instructor
       this.course_id = this.$route.params.id;
+      this.for_course = true
       await this.getCourseOrOrg();
       if(!this.for_course)
         this.checkIfCurrentUserIsBoardMember()
@@ -174,7 +175,6 @@ export default {
     methods: {
       async getCourseOrOrg () {
         if(this.$route.name === "course_info"){
-          this.for_course = true
           const response = await CourseAPI.getCourseWithMeetings(this.course_id)
           this.course = response.data
         } else {
