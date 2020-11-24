@@ -40,6 +40,7 @@ async function initSmallSeed(close_db_connection = true) {
 	await SeedHelper.clearAllModels()
 	await SeedHelper.createInstructor(true, SeedModels)
 	await SeedHelper.createStudents(16, SeedModels)
+	await SeedHelper.hashUserPasswords(SeedModels)
 	SeedHelper.createCourse("RCOS", "CSCI", 2961,
 		SeedModels.instructors[0], null, SeedModels.students,
 		SeedModels)
@@ -66,17 +67,19 @@ async function initMediumSeed(close_db_connection = true) {
 	await SeedHelper.clearAllModels()
 	await SeedHelper.createInstructor(true, SeedModels)
 	await SeedHelper.createInstructor(false, SeedModels)
-	await SeedHelper.createStudents(50, SeedModels)
-	SeedHelper.createCourse("RCOS", "CSCI", 2961,
-		SeedModels.instructors[0], null,
-		SeedModels.students, SeedModels)
-	SeedHelper.createCourse("Data Structures", "CSCI", 1200,
-		SeedModels.instructors[0], SeedModels.instructors[1],
-		SeedModels.students, SeedModels)
-	SeedHelper.createMeetingsForCourse(15,
-		SeedModels.courses[0], seed_size, SeedModels)
-	SeedHelper.createMeetingsForCourse(15,
-		SeedModels.courses[1], seed_size, SeedModels)
+	// console.log("Instructors", SeedModels.instructors)
+	// await SeedHelper.createStudents(50, SeedModels)
+	await SeedHelper.hashUserPasswords(SeedModels)
+	// SeedHelper.createCourse("RCOS", "CSCI", 2961,
+	// 	SeedModels.instructors[0], null,
+	// 	SeedModels.students, SeedModels)
+	// SeedHelper.createCourse("Data Structures", "CSCI", 1200,
+	// 	SeedModels.instructors[0], SeedModels.instructors[1],
+	// 	SeedModels.students, SeedModels)
+	// SeedHelper.createMeetingsForCourse(15,
+	// 	SeedModels.courses[0], seed_size, SeedModels)
+	// SeedHelper.createMeetingsForCourse(15,
+	// 	SeedModels.courses[1], seed_size, SeedModels)
 	await SeedHelper.populateModels(SeedModels, close_db_connection)
 	SeedHelper.clearSeedModels(SeedModels)
 }
@@ -98,6 +101,7 @@ async function initLargeSeed(close_db_connection = true) {
 	await SeedHelper.createInstructor(true, SeedModels)
 	await SeedHelper.createInstructor(false, SeedModels)
 	await SeedHelper.createStudents(300, SeedModels)
+	await SeedHelper.hashUserPasswords(SeedModels)
 	SeedHelper.createCourse("RCOS", "CSCI", 2961,
 		SeedModels.instructors[0], null,
 		SeedModels.students, SeedModels)

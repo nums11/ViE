@@ -18,7 +18,8 @@ const saltRounds = 10;
 let is_monday_meeting = true
 
 module.exports = {clearAllModels, createInstructor, createStudents,
-createCourse, createMeetingsForCourse, populateModels, clearSeedModels};
+createCourse, createMeetingsForCourse, populateModels, hashUserPasswords,
+clearSeedModels};
 
 async function clearAllModels() {
 	let clear_promise = new Promise((resolve, reject) => {
@@ -69,7 +70,6 @@ async function createInstructor(is_admin, SeedModels) {
 			service_worker_subscriptions: []
 		}))
 	}
-	await hashPasswordsForUsers(true, SeedModels)
 }
 
 async function createStudents(num_students, SeedModels) {
@@ -90,7 +90,6 @@ async function createStudents(num_students, SeedModels) {
 			async_submissions: [],
 		}))
 	}
-	await hashPasswordsForUsers(false, SeedModels)
 }
 
 function createCourse(name, dept, course_number,
@@ -271,9 +270,18 @@ function generateRecording(meeting, course_students, num_async_submissions,
 		SeedModels.async_submissions.concat(recording_submissions)
 }
 
-async function hashPasswordsForUsers(is_instructor, SeedModels) {
-	let users = is_instructor ? SeedModels.instructors :
-															SeedModels.students
+async function hashUserPasswords(SeedModels) {
+	let password_promises = hashPasswords(SeedModels.instructors)
+	password_promises = password_promises.concat(hashPasswords(
+		SeedModels.students))
+	try {
+		await Promise.all(password_promises)
+	} catch(error) {
+		console.log("Error resolving passwords")
+	}
+}
+
+function hashPasswords(users) {
 	let password_promises = []
 	users.forEach(user => {
 		password_promises.push(new Promise((resolve, reject) => {
@@ -283,11 +291,7 @@ async function hashPasswordsForUsers(is_instructor, SeedModels) {
 			})
 		}))
 	})
-	try {
-		await Promise.all(password_promises)
-	} catch(error) {
-		console.log("Error resolving passwords")
-	}
+	return password_promises
 }
 
 async function populateModels(SeedModels, close_db_connection) {
