@@ -168,11 +168,11 @@ function start() {
 async function handleSeedRequest(req, res) {
   let seed_size = req.params.seed_size
   if(seed_size === "small")
-    await Seed.initSmallSeed()
+    await Seed.initSmallSeed(false)
   else if(seed_size === "medium")
-    await Seed.initMediumSeed()
+    await Seed.initMediumSeed(false)
   else if(seed_size === "large")
-    await Seed.initLargeSeed()
+    await Seed.initLargeSeed(false)
   console.log(`<SUCCESS> (/seeds) executing ${seed_size} seed`)
   res.json({})
 }

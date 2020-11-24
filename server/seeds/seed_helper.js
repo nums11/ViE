@@ -290,11 +290,12 @@ async function hashPasswordsForUsers(is_instructor, SeedModels) {
 	}
 }
 
-async function populateModels(SeedModels) {
+async function populateModels(SeedModels, close_db_connection) {
 	let seed_data = getSeedData(SeedModels)
 	let populate_promise = new Promise((resolve, reject) => {
 		seeder.connect(process.env.DB_URI || DB.DB_URL,
-			loadAndPopulateModels.bind(this, seed_data, resolve, reject))
+			loadAndPopulateModels.bind(this, seed_data, close_db_connection,
+			 resolve, reject))
 	})
 	try {
 		await Promise.resolve(populate_promise)
@@ -303,7 +304,8 @@ async function populateModels(SeedModels) {
 	}
 }
 
-function loadAndPopulateModels(seed_data, resolve, reject) {
+function loadAndPopulateModels(seed_data, close_db_connection,
+	resolve, reject) {
 	loadModels()
 	seeder.populateModels(seed_data, function (err, done) {
 		if (err) {
@@ -311,6 +313,8 @@ function loadAndPopulateModels(seed_data, resolve, reject) {
 		} else if (done) {
 			console.log("<SUCCESS> Seed Completed", done)
 		}
+		if(close_db_connection)
+			seeder.disconnect()
 		resolve(true)
 	})
 }

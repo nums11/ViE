@@ -35,7 +35,8 @@ Seeds database with these parameters
 - Meetings with live attendance have 10 live submissions
 - Meetings with async attendance have 5 async submissions
 */
-async function initSmallSeed() {
+async function initSmallSeed(close_db_connection = true) {
+	console.log("close_db_connection", close_db_connection)
 	await SeedHelper.clearAllModels()
 	await SeedHelper.createInstructor(true, SeedModels)
 	await SeedHelper.createStudents(16, SeedModels)
@@ -44,7 +45,7 @@ async function initSmallSeed() {
 		SeedModels)
 	SeedHelper.createMeetingsForCourse(3,
 		SeedModels.courses[0], seed_size, SeedModels)
-	await SeedHelper.populateModels(SeedModels)
+	await SeedHelper.populateModels(SeedModels, close_db_connection)
 	SeedHelper.clearSeedModels(SeedModels)
 }
 
@@ -61,7 +62,7 @@ Seeds database with these parameters
 - Meetings with live attendance have 40 live submissions
 - Meetings with async attendance have 25 async submissions
 */
-async function initMediumSeed() {
+async function initMediumSeed(close_db_connection = true) {
 	await SeedHelper.clearAllModels()
 	await SeedHelper.createInstructor(true, SeedModels)
 	await SeedHelper.createInstructor(false, SeedModels)
@@ -76,7 +77,7 @@ async function initMediumSeed() {
 		SeedModels.courses[0], seed_size, SeedModels)
 	SeedHelper.createMeetingsForCourse(15,
 		SeedModels.courses[1], seed_size, SeedModels)
-	await SeedHelper.populateModels(SeedModels)
+	await SeedHelper.populateModels(SeedModels, close_db_connection)
 	SeedHelper.clearSeedModels(SeedModels)
 }
 
@@ -92,7 +93,7 @@ Seeds database with these parameters
 - Meetings with live attendance have 100 live submissions
 - Meetings with async attendance have 80 async submissions
 */
-async function initLargeSeed() {
+async function initLargeSeed(close_db_connection = true) {
 	await SeedHelper.clearAllModels()
 	await SeedHelper.createInstructor(true, SeedModels)
 	await SeedHelper.createInstructor(false, SeedModels)
@@ -107,7 +108,7 @@ async function initLargeSeed() {
 		SeedModels.courses[0], seed_size, SeedModels)
 	SeedHelper.createMeetingsForCourse(90,
 		SeedModels.courses[1], seed_size, SeedModels)
-	await SeedHelper.populateModels(SeedModels)
+	await SeedHelper.populateModels(SeedModels, close_db_connection)
 	SeedHelper.clearSeedModels(SeedModels)
 }
 
