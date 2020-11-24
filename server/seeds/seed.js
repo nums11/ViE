@@ -36,7 +36,6 @@ Seeds database with these parameters
 - Meetings with async attendance have 5 async submissions
 */
 async function initSmallSeed(close_db_connection = true) {
-	console.log("close_db_connection", close_db_connection)
 	await SeedHelper.clearAllModels()
 	await SeedHelper.createInstructor(true, SeedModels)
 	await SeedHelper.createStudents(16, SeedModels)
@@ -67,19 +66,18 @@ async function initMediumSeed(close_db_connection = true) {
 	await SeedHelper.clearAllModels()
 	await SeedHelper.createInstructor(true, SeedModels)
 	await SeedHelper.createInstructor(false, SeedModels)
-	// console.log("Instructors", SeedModels.instructors)
-	// await SeedHelper.createStudents(50, SeedModels)
+	await SeedHelper.createStudents(50, SeedModels)
 	await SeedHelper.hashUserPasswords(SeedModels)
-	// SeedHelper.createCourse("RCOS", "CSCI", 2961,
-	// 	SeedModels.instructors[0], null,
-	// 	SeedModels.students, SeedModels)
-	// SeedHelper.createCourse("Data Structures", "CSCI", 1200,
-	// 	SeedModels.instructors[0], SeedModels.instructors[1],
-	// 	SeedModels.students, SeedModels)
-	// SeedHelper.createMeetingsForCourse(15,
-	// 	SeedModels.courses[0], seed_size, SeedModels)
-	// SeedHelper.createMeetingsForCourse(15,
-	// 	SeedModels.courses[1], seed_size, SeedModels)
+	SeedHelper.createCourse("RCOS", "CSCI", 2961,
+		SeedModels.instructors[0], null,
+		SeedModels.students, SeedModels)
+	SeedHelper.createCourse("Data Structures", "CSCI", 1200,
+		SeedModels.instructors[0], SeedModels.instructors[1],
+		SeedModels.students, SeedModels)
+	SeedHelper.createMeetingsForCourse(15,
+		SeedModels.courses[0], seed_size, SeedModels)
+	SeedHelper.createMeetingsForCourse(15,
+		SeedModels.courses[1], seed_size, SeedModels)
 	await SeedHelper.populateModels(SeedModels, close_db_connection)
 	SeedHelper.clearSeedModels(SeedModels)
 }
