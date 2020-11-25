@@ -51,7 +51,9 @@ Cypress.Commands.add('seed', (seed_size, prod_mode) => {
   if(prod_mode){
     cy.visit('/seed_buttons')
     cy.get(`#${seed_size}-seed`).click()
-    cy.contains("Seeding done", {timeout: 30000})
+    cy.contains("Seeding done", {timeout: 90000})
+    cy.exec('heroku restart --app byakugan')
+    cy.wait(25000)
   } else {
     cy.exec(`cd server && npm run ${seed_size}_seed && cd ..`)
   }
