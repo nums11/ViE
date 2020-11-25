@@ -26,6 +26,7 @@ throng({
   lifetime: Infinity // respawn dead workers
 }, start);
 
+let io;
 function start() {
 
   let attendanceSocketQueue = new RealTimeAttendanceQueue ()
@@ -70,8 +71,6 @@ function start() {
   const notificationRouter = require('./Notification/Notification.route')
   const AttendanceFinder = require('./socket/AttendanceFinder')
 
-  let io;
-
   // Connect to the database before starting the application server.
   mongoose.connect(process.env.DB_URI || DB.DB_URL, function (err, client) {
     if (err) {
@@ -104,6 +103,7 @@ function start() {
             }
           })
         })
+
       // Forces a page refresh for all users so they can be on the updated version of the app
       if (process.env.NODE_ENV === 'production'){
         setTimeout(function() {
@@ -167,6 +167,10 @@ function start() {
 
 async function handleSeedRequest(req, res) {
   let seed_size = req.params.seed_size
+  // Since seeding may take a long time, send response
+  // immediately to avoid request timeout and emit io event when
+  // seeding is finished
+  res.json({})
   if(seed_size === "small")
     await Seed.initSmallSeed(false)
   else if(seed_size === "medium")
@@ -174,7 +178,7 @@ async function handleSeedRequest(req, res) {
   else if(seed_size === "large")
     await Seed.initLargeSeed(false)
   console.log(`<SUCCESS> (/seeds) executing ${seed_size} seed`)
-  res.json({})
+  io.emit('seeding-done')
 }
 
 function rescheduleAllNotificationJobs() {

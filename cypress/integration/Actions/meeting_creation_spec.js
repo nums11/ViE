@@ -25,7 +25,7 @@ describe('Meeting Creation', () => {
     cy.get('#password').type('nimda')
     cy.contains('Login').click()
     cy.url().should('eq', prod_mode ?
-      'http://localhost:8080/#/dashboard' :
+      'https://byakugan.herokuapp.com/#/dashboard' :
       'http://localhost:8080/#/dashboard')
     cy.contains('RCOS').click({force: true})
     cy.contains('Schedule Meeting').click()
@@ -42,7 +42,7 @@ describe('Meeting Creation', () => {
     cy.get('#qr_checkin_start').click()
     cy.get('.left-side-area').click()
     cy.contains('Create New Meeting').click()
-    cy.url({timeout: 5000}).should('contain', 'meeting_info')
+    cy.url({timeout: 10000}).should('contain', 'meeting_info')
     cy.get('#meeting-title-header').should('contain','Meeting with live task')
     cy.get('#course-name-label').should('contain','RCOS')
     cy.get('#course-dept-label').should('contain', 'CSCI 2961')
@@ -70,7 +70,7 @@ describe('Meeting Creation', () => {
       })
     })
     cy.contains('Create New Meeting').click()
-    cy.url({timeout: 5000}).should('contain', 'meeting_info')
+    cy.url({timeout: 10000}).should('contain', 'meeting_info')
     cy.get('#meeting-title-header').should('contain','Meeting with async task')
     cy.get('#course-name-label').should('contain','RCOS')
     cy.get('#course-dept-label').should('contain', 'CSCI 2961')
@@ -104,7 +104,7 @@ describe('Meeting Creation', () => {
         })
       })
       cy.contains('Create New Meeting').click()
-      cy.url({timeout: 5000}).should('contain', 'meeting_info')
+      cy.url({timeout: 10000}).should('contain', 'meeting_info')
       cy.get('#meeting-title-header')
         .should('contain','Meeting with live and async task')
       cy.get('#course-name-label').should('contain','RCOS')
