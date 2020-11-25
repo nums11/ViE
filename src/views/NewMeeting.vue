@@ -480,8 +480,8 @@ export default {
    },
     // Todo: Revert this allowing for multiple qr_checkins and recordings
    async createMeeting() {
-    // let confirmation = confirm(this.getConfirmationString())
-    // if(confirmation){
+    let confirmation = confirm(this.getConfirmationString())
+    if(confirmation){
       this.meeting_saving = true
       if(this.meeting.has_live_attendance) {
         this.qr_checkin.code = this.generateRandomCode()
@@ -494,13 +494,11 @@ export default {
       if(meeting != null){
         if(meeting.has_live_attendance )
           this.scheduleShowQRNotificationsForInstructors(meeting)
-        console.log("About to route to meeting info with meeting_id", meeting._id,
-          "for meeting", meeting)
         this.$router.push({name: 'meeting_info', params: {meeting_id: meeting._id}})
       }
       else
         alert("Error saving meeting")
-    // }
+    }
    },
    async saveRecordingVideoToGCS() {
     const response = await MeetingAPI.saveRecordingVideoToGCS(this.recording.video)

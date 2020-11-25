@@ -104,19 +104,20 @@ meetingRoutes.post('/save_new_recording/:recording_name', (req, res) => {
 // )
 
 // TODO: Update the secondary instructor's meetings as well
-meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
-  let meeting = req.body.meeting;
-  let for_course = false
-  let course_id = ""
-  let org_id = ""
-  if(req.params.for_course === "true"){
+meetingRoutes.post('/add', async (req, res) => {
+  let meeting = req.body.meeting, course_id = req.body.course_id,
     for_course = true
-    course_id = req.params.course_or_org_id
-    console.log("Was for course", course_id)
-  } else {
-    org_id = req.params.course_or_org_id
-    console.log("Was for org", org_id)
-  }
+  meeting.course = course_id
+  meeting.for_course = true
+  // let for_course = true, course_id = "", org_id = ""
+  // if(meeting.for_course){
+  //   for_course = true
+  //   course_id = meeting.course
+  //   console.log("Was for course", course_id)
+  // } else {
+  //   org_id = meeting.org
+  //   console.log("Was for org", org_id)
+  // }
 
   let new_meeting = new Meeting(meeting)
   let live_attendance = new LiveAttendance()

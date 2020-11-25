@@ -46,7 +46,7 @@ describe('Meeting Creation', () => {
     cy.get('#qr_checkin_start').click()
     cy.get('.left-side-area').click()
     cy.contains('Create New Meeting').click()
-    cy.url().should('contain', 'meeting_info')
+    cy.url({timeout: 5000}).should('contain', 'meeting_info')
     cy.get('#meeting-title-header').should('contain','Meeting with live task')
     cy.get('#course-name-label').should('contain','RCOS')
     cy.get('#course-dept-label').should('contain', 'CSCI 2961')
@@ -56,8 +56,8 @@ describe('Meeting Creation', () => {
     cy.get('#live-section .meeting-info-pill').should('contain','Meeting with live task')
       .and('contain', 'CSCI 2961').and('contain', 'RCOS')
     cy.contains('RCOS').click({force: true})
-    cy.get('.meeting-attendance-pill').
-      contains('Meeting with live task', {timeout: 10000})
+    cy.get('.meeting-attendance-pill', {timeout: 10000}).
+      contains('Meeting with live task')
   })
 
   // it('Can create a meeting with an async task',() => {
