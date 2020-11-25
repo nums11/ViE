@@ -30,10 +30,11 @@ export default {
   //     }
   //   )
   // },
-  addMeeting(meeting, for_course, course_or_org_id) {
-    return API().post('meetings/add' + '/' + for_course
-      + '/' + course_or_org_id, {
-        meeting: meeting
+  addMeeting(meeting, for_course, course_id) {
+    console.log("In API call. Sending meeting", meeting)
+    return API().post('meetings/add', {
+        meeting: meeting,
+        course_id: course_id
     })
   },
   addRecordingToMeeting(meeting_id, recording) {

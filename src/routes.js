@@ -51,7 +51,7 @@ import WatchRecording from './views/WatchRecording.vue';
 import AttendChecker from './views/AttendChecker.vue';
 import LoginView from './views/LoginView.vue';
 import AddRecording from './views/AddRecording.vue';
-
+import SeedButtons from './views/SeedButtons.vue';
 
 Vue.use(VueRouter);
 
@@ -519,6 +519,11 @@ const router = new VueRouter({
       name: 'attend_checker',
       path: '/attend/:meeting_id/:code',
       component: AttendChecker,
+    },
+    {
+      name: 'seed_buttons',
+      path: '/seed_buttons',
+      component: SeedButtons,
     }
   ]
 })

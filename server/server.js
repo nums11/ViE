@@ -4,7 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path')
 const mongoose = require('mongoose');
-const config = require('./DB.js');
+const DB = require('./DB.js');
 const jwt = require('jsonwebtoken');
 const serveStatic = require('serve-static');
 const LOCAL_PORT = 4000;
@@ -15,6 +15,7 @@ var cookieParser = require('cookie-parser');
 const RealTimeAttendanceQueue = require('./socket/RealTimeAttendanceQueue')
 const NotificationJob = require('./Notification/NotificationJob.model');
 const schedule = require('node-schedule');
+const Seed = require('./seeds/seed')
 
 // For Concurrency
 const throng = require('throng')
@@ -25,6 +26,7 @@ throng({
   lifetime: Infinity // respawn dead workers
 }, start);
 
+let io;
 function start() {
 
   let attendanceSocketQueue = new RealTimeAttendanceQueue ()
@@ -69,10 +71,8 @@ function start() {
   const notificationRouter = require('./Notification/Notification.route')
   const AttendanceFinder = require('./socket/AttendanceFinder')
 
-  let io;
-
   // Connect to the database before starting the application server.
-  mongoose.connect(process.env.DB_URI || config.DB, function (err, client) {
+  mongoose.connect(process.env.DB_URI || DB.DB_URL, function (err, client) {
     if (err) {
       console.log(err);
       process.exit(1);
@@ -103,6 +103,7 @@ function start() {
             }
           })
         })
+
       // Forces a page refresh for all users so they can be on the updated version of the app
       if (process.env.NODE_ENV === 'production'){
         setTimeout(function() {
@@ -159,8 +160,25 @@ function start() {
   app.use('/asyncsubmissions', asyncSubmissionRouter);
   app.use('/qrcheckins', qrCheckinRouter);
   app.use('/notifications', notificationRouter);
+  app.post('/seeds/:seed_size', handleSeedRequest)
 
   rescheduleAllNotificationJobs()
+}
+
+async function handleSeedRequest(req, res) {
+  let seed_size = req.params.seed_size
+  // Since seeding may take a long time, send response
+  // immediately to avoid request timeout and emit io event when
+  // seeding is finished
+  res.json({})
+  if(seed_size === "small")
+    await Seed.initSmallSeed(false)
+  else if(seed_size === "medium")
+    await Seed.initMediumSeed(false)
+  else if(seed_size === "large")
+    await Seed.initLargeSeed(false)
+  console.log(`<SUCCESS> (/seeds) executing ${seed_size} seed`)
+  io.emit('seeding-done')
 }
 
 function rescheduleAllNotificationJobs() {

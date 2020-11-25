@@ -34,6 +34,7 @@
                 icon: 'users',
                 width: '60%'
               }"
+              id="meeting-title"
             />
             <div class="info-area">
               Enter the name for your meeting.
@@ -43,7 +44,7 @@
           <div class="live-meeting-portion">
             <div>
               <div class="checkbox">
-                <input type="checkbox" @click="toggleLiveInputs" />
+                <input id="qr-checkbox" type="checkbox" @click="toggleLiveInputs" />
                 <label>Include QR Code Checkin</label>
               </div>
             </div>
@@ -88,7 +89,7 @@
           <div class="live-meeting-portion">
             <div>
               <div class="checkbox">
-                <input type="checkbox" @click="toggleAsyncInputs" />
+                <input id="recording-checkbox" type="checkbox" @click="toggleAsyncInputs" />
                 <label>Include recording</label>
               </div>
             </div>
@@ -463,10 +464,12 @@ export default {
         this.$router.push({name: 'org_info', params: {id: this.$route.params.org_id}})
     },
    showFileSelector () {
+      console.log("Showing file selector")
      document.getElementById("recording-upload-input").click()
    },
    setRecordingFile (e) {
     // todo check if valid file extension
+    console.log("Recording file changed")
     this.recording.video = e.target.files[0]
    },
    clearVideoUpload () {

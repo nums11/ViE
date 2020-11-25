@@ -9,6 +9,7 @@
           :config="{
             fontSize: '1.3rem'
           }"
+          id="login-btn"
         />
       </div>
       <div class="button-container">
