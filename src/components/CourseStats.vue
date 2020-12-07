@@ -18,11 +18,21 @@
     <div class="table">
       <sui-table celled padded>
         <sui-table-header>
-          <sui-table-header-cell text-align="center">Name</sui-table-header-cell>
-          <sui-table-header-cell text-align="center">ID</sui-table-header-cell>
-          <sui-table-header-cell text-align="center">Overall Attendance %</sui-table-header-cell>
-          <sui-table-header-cell text-align="center">Live Attendance %</sui-table-header-cell>
-          <sui-table-header-cell text-align="center">Async Attendance %</sui-table-header-cell>
+          <sui-table-header-cell text-align="center">
+            <span @click="sortTable('name')" class="header-cell">Name</span>
+          </sui-table-header-cell>
+          <sui-table-header-cell text-align="center" class="header-cell">
+            <span @click="sortTable('id')" class="header-cell">ID</span>
+          </sui-table-header-cell>
+          <sui-table-header-cell text-align="center" class="header-cell">
+            <span @click="sortTable('overall')" class="header-cell">Overall Attendance %</span>
+          </sui-table-header-cell>
+          <sui-table-header-cell text-align="center" class="header-cell">
+            <span @click="sortTable('live')" class="header-cell">Live Attendance %</span>
+          </sui-table-header-cell>
+          <sui-table-header-cell text-align="center" class="header-cell">
+            <span @click="sortTable('async')" class="header-cell">Async Attendance %</span>
+          </sui-table-header-cell>
         </sui-table-header>
         <sui-table-body>
           <sui-table-row v-for="student in students_with_metrics">
@@ -63,6 +73,7 @@ export default {
     this.num_meetings = this.course.meetings.length
     this.num_live_meetings = 0
     this.num_async_meetings = 0
+    this.table_sorting_property = null
     this.getSubmissionIDSForAllMeetings()
     this.calculateMetricsForEachStudent()
   },
@@ -127,6 +138,49 @@ export default {
         })
       })
       return [live_submission_ids, async_submission_ids]
+    },
+    sortTable(property) {
+      this.table_sorting_property = property
+      if(this.table_sorting_property !== "name" &&
+        this.table_sorting_property !== "id"){
+        this.students_with_metrics.sort(this.compareNumbers)
+      } else {
+        this.students_with_metrics.sort(this.compareStrings)
+      }
+    },
+    compareStrings(a,b) {
+      let [a_value, b_value] = this.getValuesBasedOnTableSortingProperty(a,b)
+      if ( a_value < b_value ){
+        return -1;
+      }
+      if ( a_value > b_value ){
+        return 1;
+      }
+      return 0;
+    },
+    compareNumbers(a,b) {
+      let [a_value, b_value] = this.getValuesBasedOnTableSortingProperty(a,b)
+      return a_value - b_value;
+    },
+    getValuesBasedOnTableSortingProperty(a,b) {
+      let a_value = null, b_value = null
+      if(this.table_sorting_property === "name"){
+        a_value = a.name
+        b_value = b.name
+      }else if(this.table_sorting_property === "id"){
+        a_value = a.id
+        b_value = b.id
+      }else if(this.table_sorting_property === "overall"){
+        a_value = a.overall_percent
+        b_value = b.overall_percent
+      }else if(this.table_sorting_property === "live"){
+        a_value = a.live_percent
+        b_value = b.live_percent
+      }else if(this.table_sorting_property === "async"){
+        a_value = a.async_percent
+        b_value = b.async_percent
+      }
+      return [a_value, b_value]
     }
   }
 }
@@ -166,7 +220,8 @@ export default {
   overflow-y: scroll;
 }
 
-.table-cell {
-  text-align: center;
+.header-cell {
+  font-weight: bold;
+  cursor: pointer;
 }
 </style>
