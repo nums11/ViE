@@ -19,19 +19,39 @@
       <sui-table celled padded>
         <sui-table-header>
           <sui-table-header-cell text-align="center">
-            <span @click="sortTable('name')" class="header-cell">Name</span>
+            <sui-popup content="Sort by Name" position="top center" inverted>
+              <span @click="sortTable('name')" class="header-cell" slot="trigger">
+                Name
+              </span>
+            </sui-popup>
           </sui-table-header-cell>
           <sui-table-header-cell text-align="center" class="header-cell">
-            <span @click="sortTable('id')" class="header-cell">ID</span>
+            <sui-popup content="Sort by ID" position="top center" inverted>
+              <span @click="sortTable('id')" class="header-cell" slot="trigger">
+                ID
+              </span>
+            </sui-popup>
           </sui-table-header-cell>
           <sui-table-header-cell text-align="center" class="header-cell">
-            <span @click="sortTable('overall')" class="header-cell">Overall Attendance %</span>
+            <sui-popup content="Sort by Overall Attendance %" position="top center" inverted>
+              <span @click="sortTable('overall')" class="header-cell" slot="trigger">
+                Overall Attendance %
+              </span>
+            </sui-popup>
           </sui-table-header-cell>
           <sui-table-header-cell text-align="center" class="header-cell">
-            <span @click="sortTable('live')" class="header-cell">Live Attendance %</span>
+            <sui-popup content="Sort by Live Attendance %" position="top center" inverted>
+              <span @click="sortTable('live')" class="header-cell" slot="trigger">
+                Live Attendance %
+              </span>
+            </sui-popup>
           </sui-table-header-cell>
           <sui-table-header-cell text-align="center" class="header-cell">
-            <span @click="sortTable('async')" class="header-cell">Async Attendance %</span>
+            <sui-popup content="Sort by Async Attendance %" position="top center" inverted>
+              <span @click="sortTable('async')" class="header-cell" slot="trigger">
+                Async Attendance %
+              </span>
+            </sui-popup>
           </sui-table-header-cell>
         </sui-table-header>
         <sui-table-body>
