@@ -112,6 +112,8 @@
             v-bind:student="focused_student"
             v-bind:course="course"
             v-on:show-student-list="showStudentList" /> -->
+            <CourseStats v-if="course_or_org_has_loaded" :course="course" />
+            <p v-else>Loading Course...</p>
           </div>
           <div key="3" v-if="activeTab === 'manage_students' || activeTab === 'members' ">
             <ManageStudents v-if="for_course" v-bind:course="course" />

@@ -1,6 +1,42 @@
 <template>
   <div class="course-stats">
+    <div class="metrics">
+      <div class="metric-container">
+        <h4 class="metric-title">Overall Attendance %:</h4>
+        <h5 class="metric-description">Percentage of meetings attend either live or asynchronously</h5>
+      </div>
+      <div class="metric-container">
+        <h4 class="metric-title">Live Attendance %:</h4>
+        <h5 class="metric-description">Percentage of meetings attend live</h5>
+      </div>
+      <div class="metric-container">
+        <h4 class="metric-title">Async Attendance %:</h4>
+        <h5 class="metric-description">Percentage of meetings attend asynchronously</h5>
+      </div>
+    </div>
 
+    <div class="table">
+      <sui-table celled padded>
+        <sui-table-header>
+          <sui-table-header-cell text-align="center">Name</sui-table-header-cell>
+          <sui-table-header-cell text-align="center">ID</sui-table-header-cell>
+          <sui-table-header-cell text-align="center">Overall Attendance %</sui-table-header-cell>
+          <sui-table-header-cell text-align="center">Live Attendance %</sui-table-header-cell>
+          <sui-table-header-cell text-align="center">Async Attendance %</sui-table-header-cell>
+        </sui-table-header>
+        <sui-table-body>
+          <sui-table-row v-for="student in students_with_metrics">
+            <sui-table-cell text-align="center">
+              <h4>{{ student.name }}</h4>
+            </sui-table-cell>
+            <sui-table-cell >{{ student.id }}</sui-table-cell>
+            <sui-table-cell text-align="center">{{ student.overall_percent }}%</sui-table-cell>
+            <sui-table-cell text-align="center">{{ student.live_percent }}%</sui-table-cell>
+            <sui-table-cell text-align="center">{{ student.async_percent }}%</sui-table-cell>
+          </sui-table-row>
+        </sui-table-body>
+      </sui-table>
+    </div>
   </div>
 </template>
 
@@ -8,25 +44,129 @@
 export default {
   name: 'CourseStats',
   props: {
-
+    course: {
+      type: Object,
+      required: true
+    },
   },
   components: {
 
   },
   data () {
     return {
-
+      meeting_submission_ids: [],
+      students_with_metrics: []
     }
   },
   created () {
-
+    console.log("Course", this.course)
+    this.num_meetings = this.course.meetings.length
+    this.num_live_meetings = 0
+    this.num_async_meetings = 0
+    this.getSubmissionIDSForAllMeetings()
+    this.calculateMetricsForEachStudent()
   },
   methods: {
-
+    getSubmissionIDSForAllMeetings() {
+      this.course.meetings.forEach(meeting => {
+        if(meeting.has_live_attendance)
+          this.num_live_meetings++
+        if(meeting.has_async_attendance)
+          this.num_async_meetings++
+        let [live_submission_ids, async_submission_ids] = this.getMeetingSubmissionIDs(meeting)
+        this.meeting_submission_ids.push({
+          live_submission_ids: live_submission_ids,
+          async_submission_ids: async_submission_ids
+        })
+      })
+    },
+    calculateMetricsForEachStudent() {
+      this.course.students.forEach(student => {
+        let num_live_attended = 0
+        let num_async_attended = 0
+        let total_num_attended = 0
+        this.meeting_submission_ids.forEach(meeting => {
+          let attended = false
+          if(meeting.live_submission_ids.has(student.user_id)) {
+            num_live_attended++
+            attended = true
+          }
+          if(meeting.async_submission_ids.has(student.user_id)) {
+            num_async_attended++
+            attended = true
+          }
+          if(attended)
+            total_num_attended++
+        })
+        let overall_percent = this.num_meetings === 0 ? 0:
+          ((total_num_attended / this.num_meetings) * 100).toFixed(1)
+        let live_percent = this.num_live_meetings === 0 ? 0:
+          ((num_live_attended / this.num_live_meetings) * 100).toFixed(1)
+        let async_percent = this.num_async_meetings === 0 ? 0:
+          ((num_async_attended / this.num_async_meetings) * 100).toFixed(1)
+        this.students_with_metrics.push({
+          name: `${student.first_name} ${student.last_name}`,
+          id: student.user_id,
+          overall_percent: overall_percent,
+          live_percent: live_percent,
+          async_percent: async_percent
+        })
+      })
+    },
+    getMeetingSubmissionIDs(meeting) {
+      let live_submission_ids = new Set()
+      meeting.live_attendance.qr_checkins.forEach(qr_checkin =>{
+        qr_checkin.qr_checkin_submissions.forEach(submission => {
+          live_submission_ids.add(submission.submitter.user_id)
+        })
+      })
+      let async_submission_ids = new Set()
+      meeting.async_attendance.recordings.forEach(recording =>{
+        recording.recording_submissions.forEach(submission => {
+          async_submission_ids.add(submission.submitter.user_id)
+        })
+      })
+      return [live_submission_ids, async_submission_ids]
+    }
   }
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="css" scoped>
+.course-stats {
+  /*border: green solid;*/
+}
 
+.metrics {
+  /*border: blue solid;*/
+  margin-top: 1rem;
+}
+
+.metric-container {
+  padding: 0;
+}
+
+.metric-title {
+  display: inline-block;
+  margin-top: 0;
+}
+
+.metric-description {
+  display: inline-block;
+  margin-left: 0.5rem;
+  color: #595757;
+  margin-top: 0;
+}
+
+.table {
+  /*border: blue solid;*/
+  padding: 3px;
+  margin-top: 2rem;
+  height: 30rem;
+  overflow-y: scroll;
+}
+
+.table-cell {
+  text-align: center;
+}
 </style>
