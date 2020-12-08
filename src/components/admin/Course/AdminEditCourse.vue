@@ -56,6 +56,18 @@
         </div>
     </form>
 
+    <div v-if="course_has_loaded">
+      <h2>Sections ({{ course.sections.length }})</h2>
+      <form @submit.prevent="addSection">
+        <input type="number" v-model="section_number">
+        <button>Add Section</button>
+      </form>
+      <div v-for="section in course.sections">
+        <p>Section Number: {{ section.section_number }}, 
+        # of students: {{ section.students.length }}</p>
+      </div>
+    </div>
+
     <h2>Select Primary Instructor</h2>
     <Instructors v-on:select-instructor="selectInstructor" />
     <h2>Select Secondary Instructor</h2>
@@ -103,7 +115,8 @@
         course: {},
         new_section: {},
         course_has_loaded: false,
-        has_secondary_instructor: false
+        has_secondary_instructor: false,
+        section_number: null
       }
     },
     async created() {
@@ -115,10 +128,11 @@
       async getCourse() {
         const response = await CourseAPI.getCourse(this.course_id)
         this.course = response.data
+        console.log("Course", this.course)
         this.course_has_loaded = true
       },
       async addSection () {
-        const response = await CourseAPI.addSectionToCourse(this.course_id, this.new_section)
+        const response = await CourseAPI.addSectionToCourse(this.course_id, this.section_number)
         this.$router.go()
       },
       async updateCourse() {

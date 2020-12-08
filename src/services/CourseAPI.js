@@ -19,9 +19,9 @@ export default {
     return API().post('courses/remove_secondary_instructor/' + course_id
       + '/' + instructor_id)
   },
-  addSectionToCourse(course_id, section) {
+  addSectionToCourse(course_id, section_number) {
     return API().post('courses/add_section/' + course_id, {
-      section: section
+      section_number: section_number
     })
   },
   addStudentToCourse(course_id, student_id) {
