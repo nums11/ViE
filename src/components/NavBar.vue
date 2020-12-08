@@ -32,9 +32,14 @@
                   v-on:mouseleave="unfocusMenuDropdown()" 
                   :class="`dropdown-column ${dropdown_focus == 'course' ? 'focus' : 'unfocus'}`">
                     <div class="title">COURSES</div>
-                    <ul v-if="user_courses && user_courses.length > 0">
-                      <router-link v-for="(course, i) in user_courses" :key="i" :to="`/course_info/${course._id}`" @click="update"><li>{{ course.name }}</li></router-link>
-                    </ul>
+                    <div v-if="user_courses && user_courses.length > 0">
+                      <ul v-if="is_instructor">
+                        <router-link v-for="(course, i) in user_courses" :key="i" :to="`/course_info/${course._id}`" @click="update"><li>{{ course.name }}</li></router-link>
+                      </ul>
+                      <ul v-else>
+                        <router-link v-for="(section, i) in user_courses" :key="i" :to="`/course_info/${section.course._id}`" @click="update"><li>{{ section.course.name }} - {{ section.section_number }}</li></router-link>
+                      </ul>
+                    </div>
                     <ul v-else>
                       <li>No courses</li>
                     </ul>
@@ -138,8 +143,11 @@
           <ul>
             <router-link to="/dashboard"><li>Dashboard</li></router-link>
             <li v-if="user_courses && user_courses.length > 0">Courses
-              <ul>
+              <ul v-if="is_instructor">
                 <router-link v-for="(course, i) in user_courses" :key="i" :to="`/course_info/${course._id}`" @click="update"><li>{{ course.name }}</li></router-link>
+              </ul>
+              <ul v-else>
+                <router-link v-for="(section, i) in user_courses" :key="i" :to="`/course_info/${section.course._id}`" @click="update"><li>{{ section.course.name }} - {{ section.section_number }}</li></router-link>
               </ul>
             </li>
             <li v-if="user_orgs && user_orgs.length > 0">Organizations
@@ -278,7 +286,8 @@
         if (user.is_instructor)
           this.user_courses = user.instructor_courses
         else
-          this.user_courses = user.student_courses
+          this.user_courses = user.student_sections
+        console.log("User courses", this.user_courses)
         this.user_orgs = user.user_orgs
       },
       async getSectionsWithCourses() {
