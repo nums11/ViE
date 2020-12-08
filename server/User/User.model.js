@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 let Course = require('../Course/Course.model');
+let Section = require('../Section/Section.model');
 let Organization = require('../Organization/Organization.model');
 let Meeting = require('../Meeting/Meeting.model');
 let LiveSubmission = require('../LiveSubmission/LiveSubmission.model');
@@ -28,9 +29,9 @@ let User = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Course'
 	}],
-	student_courses: [{
+	student_sections: [{
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Course'
+		ref: 'Section'
 	}],
 	user_orgs: [{
 		type: mongoose.Schema.Types.ObjectId,

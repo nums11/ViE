@@ -19,10 +19,10 @@ let Meeting = new Schema({
     type: Date,
   },
   for_course: {type: Boolean, default: false},
-  course: {
+  sections: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Course'
-  },
+    ref: 'Section'
+  }],
   org: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Organization'

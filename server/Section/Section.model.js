@@ -3,19 +3,23 @@ const Schema = mongoose.Schema;
 
 let Course = require('../Course/Course.model');
 let User = require('../User/User.model');
-let Event = require('../Event/Event.model');
+let Meeting = require('../Meeting/Meeting.model');
 
 //Define collection and schema for User
 let Section = new Schema({
-	number: Number,
+	section_number: Number,
+	course: {
+	  type: mongoose.Schema.Types.ObjectId,
+	  ref: 'Course'
+	},
 	students: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
 	}],
-	teaching_assistants: [{
+	meetings: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
-	}]
+	}],
 });
 
 module.exports = mongoose.model('Section', Section);
