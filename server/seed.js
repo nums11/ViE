@@ -10,6 +10,7 @@ const Recording = require("./Recording/Recording.model")
 const User = require("./User/User.model")
 const Poll = require("./Poll/Poll.model")
 const Meeting = require("./Meeting/Meeting.model")
+const Section = require("./Section/Section.model")
 
 const db = "mongodb://localhost:27017/Venue2v2";
 
@@ -28,14 +29,16 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 		"./LiveSubmission/LiveSubmission.model",
 		"./AsyncSubmission/AsyncSubmission.model",
 		"./QRCheckin/QRCheckin.model",
-		"./Recording/Recording.model"
+		"./Recording/Recording.model",
+		"./Section/Section.model"
 	]);
 	seeder.clearModels(['Course', 'User', 'Organization', 'Meeting',
 		'LiveAttendance', 'AsyncAttendance', 'LiveSubmission', 'AsyncSubmission',
-		'QRCheckin', 'Recording', 'Poll'], function () {
+		'QRCheckin', 'Recording', 'Poll', 'Section'], function () {
 
 		let users = []
 		let courses = []
+		let sections = []
 		let organizations = []
 
 		// Creating Users
@@ -49,7 +52,7 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 			is_instructor: true,
 			is_admin: true,
 			instructor_courses: [],
-			student_courses: [],
+			student_sections: [],
 			users_orgs: [],
 			meetings: [],
 			live_submissions: [],
@@ -65,7 +68,7 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 			is_instructor: true,
 			is_admin: false,
 			instructor_courses: [],
-			student_courses: [],
+			student_sections: [],
 			users_orgs: [],
 			meetings: [],
 			live_submissions: [],
@@ -83,7 +86,7 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 				is_instructor: false,
 				is_admin: false,
 				instructor_courses: [],
-				student_courses: [],
+				student_sections: [],
 				users_orgs: [],
 				meetings: [],
 				live_submissions: [],
@@ -98,64 +101,86 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 			dept: "CSCI",
 			course_number: 2961,
 			instructor: users[0]._id,
+			sections: []
+			// students: [users[2]._id, users[3]._id, users[4]._id],
+			// meetings: []
+		}))
+		sections.push(new Section({
+			section_number: 1,
+			course: courses[0]._id,
 			students: [users[2]._id, users[3]._id, users[4]._id],
 			meetings: []
 		}))
-		users[0].instructor_courses.push(courses[0])
-		users[2].student_courses.push(courses[0])
-		users[3].student_courses.push(courses[0])
-		users[4].student_courses.push(courses[0])
+		courses[0].sections.push(sections[0]._id)
+		users[0].instructor_courses.push(courses[0]._id)
+		users[2].student_sections.push(sections[0]._id)
+		users[3].student_sections.push(sections[0]._id)
+		users[4].student_sections.push(sections[0]._id)
 
 		courses.push(new Course({ // 1
 			name: "Data Structures",
 			dept: "CSCI",
 			course_number: 1200,
 			instructor: users[0]._id,
-			students: [users[2]._id, users[3]._id, users[4]._id, users[5]._id, users[6]._id,
-			users[7]._id, users[8]._id, users[9]._id, users[10]._id, users[11]._id,],
+			// students: [users[2]._id, users[3]._id, users[4]._id, users[5]._id, users[6]._id,
+			// users[7]._id, users[8]._id, users[9]._id, users[10]._id, users[11]._id,],
 			meetings: []
 		}))
-		users[0].instructor_courses.push(courses[1])
-		users[2].student_courses.push(courses[1])
-		users[3].student_courses.push(courses[1])
-		users[4].student_courses.push(courses[1])
-		users[5].student_courses.push(courses[1])
-		users[6].student_courses.push(courses[1])
-		users[7].student_courses.push(courses[1])
-		users[8].student_courses.push(courses[1])
-		users[9].student_courses.push(courses[1])
-		users[10].student_courses.push(courses[1])
-		users[11].student_courses.push(courses[1])
+		sections.push(new Section({
+			section_number: 1,
+			course: courses[1]._id,
+			students: [users[2]._id, users[3]._id, users[4]._id, users[5]._id, users[6]._id],
+			meetings: []
+		}))
+		sections.push(new Section({
+			section_number: 2,
+			course: courses[1]._id,
+			students: [users[7]._id, users[8]._id, users[9]._id, users[10]._id, users[11]._id],
+			meetings: []
+		}))
+		courses[1].sections.push(sections[1]._id)
+		courses[1].sections.push(sections[2]._id)
+		users[0].instructor_courses.push(courses[1]._id)
+		users[2].student_sections.push(sections[1]._id)
+		users[3].student_sections.push(sections[1]._id)
+		users[4].student_sections.push(sections[1]._id)
+		users[5].student_sections.push(sections[1]._id)
+		users[6].student_sections.push(sections[1]._id)
+		users[7].student_sections.push(sections[2]._id)
+		users[8].student_sections.push(sections[2]._id)
+		users[9].student_sections.push(sections[2]._id)
+		users[10].student_sections.push(sections[2]._id)
+		users[11].student_sections.push(sections[2]._id)
 
 
 		// Creating organizations
 
-		organizations.push(new Organization({
-			name: "NSBE",
-			board_members: [users[2]._id, users[3]._id, users[4]._id, users[5]._id],
-			general_members: [users[6],users[7],users[8]]
-		}))
-		users[2].user_orgs.push(organizations[0])
-		users[3].user_orgs.push(organizations[0])
-		users[4].user_orgs.push(organizations[0])
-		users[5].user_orgs.push(organizations[0])
-		users[6].user_orgs.push(organizations[0])
-		users[7].user_orgs.push(organizations[0])
-		users[8].user_orgs.push(organizations[0])
+		// organizations.push(new Organization({
+		// 	name: "NSBE",
+		// 	board_members: [users[2]._id, users[3]._id, users[4]._id, users[5]._id],
+		// 	general_members: [users[6],users[7],users[8]]
+		// }))
+		// users[2].user_orgs.push(organizations[0])
+		// users[3].user_orgs.push(organizations[0])
+		// users[4].user_orgs.push(organizations[0])
+		// users[5].user_orgs.push(organizations[0])
+		// users[6].user_orgs.push(organizations[0])
+		// users[7].user_orgs.push(organizations[0])
+		// users[8].user_orgs.push(organizations[0])
 
-		organizations.push(new Organization({
-			name: "BSA",
-			board_members: [users[0]._id, users[1]._id],
-			general_members: [users[2]._id,users[3]._id,users[4]._id,users[5]._id,users[6]._id,users[7]._id]
-		}))
-		users[0].user_orgs.push(organizations[1])
-		users[1].user_orgs.push(organizations[1])
-		users[2].user_orgs.push(organizations[1])
-		users[3].user_orgs.push(organizations[1])
-		users[4].user_orgs.push(organizations[1])
-		users[5].user_orgs.push(organizations[1])
-		users[6].user_orgs.push(organizations[1])
-		users[7].user_orgs.push(organizations[1])
+		// organizations.push(new Organization({
+		// 	name: "BSA",
+		// 	board_members: [users[0]._id, users[1]._id],
+		// 	general_members: [users[2]._id,users[3]._id,users[4]._id,users[5]._id,users[6]._id,users[7]._id]
+		// }))
+		// users[0].user_orgs.push(organizations[1])
+		// users[1].user_orgs.push(organizations[1])
+		// users[2].user_orgs.push(organizations[1])
+		// users[3].user_orgs.push(organizations[1])
+		// users[4].user_orgs.push(organizations[1])
+		// users[5].user_orgs.push(organizations[1])
+		// users[6].user_orgs.push(organizations[1])
+		// users[7].user_orgs.push(organizations[1])
 
 		// Hash user passwords
 
@@ -180,6 +205,9 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 				}, {
 					"model": "Course",
 					"documents": courses
+				}, {
+					"model": "Section",
+					"documents": sections
 				}, {
 					"model": "Organization",
 					"documents": organizations
