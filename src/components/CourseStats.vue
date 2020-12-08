@@ -94,6 +94,7 @@ export default {
     this.num_live_meetings = 0
     this.num_async_meetings = 0
     this.table_sorting_property = null
+    this.sorting_orientation = "least_to_greatest"
     this.getSubmissionIDSForAllMeetings()
     this.calculateMetricsForEachStudent()
   },
@@ -160,6 +161,8 @@ export default {
       return [live_submission_ids, async_submission_ids]
     },
     sortTable(property) {
+      if(this.table_sorting_property === property)
+        this.invertSortingOrientation()
       this.table_sorting_property = property
       if(this.table_sorting_property !== "name" &&
         this.table_sorting_property !== "id"){
@@ -167,20 +170,22 @@ export default {
       } else {
         this.students_with_metrics.sort(this.compareStrings)
       }
+      this.invert_sort = false
     },
     compareStrings(a,b) {
       let [a_value, b_value] = this.getValuesBasedOnTableSortingProperty(a,b)
       if ( a_value < b_value ){
-        return -1;
+        return this.sorting_orientation === "greatest_to_least" ? 1 : -1;
       }
       if ( a_value > b_value ){
-        return 1;
+        return this.sorting_orientation === "greatest_to_least" ? -1 : 1;
       }
       return 0;
     },
     compareNumbers(a,b) {
       let [a_value, b_value] = this.getValuesBasedOnTableSortingProperty(a,b)
-      return a_value - b_value;
+      return this.sorting_orientation === "greatest_to_least" ?
+              b_value - a_value : a_value - b_value;
     },
     getValuesBasedOnTableSortingProperty(a,b) {
       let a_value = null, b_value = null
@@ -201,6 +206,12 @@ export default {
         b_value = b.async_percent
       }
       return [a_value, b_value]
+    },
+    invertSortingOrientation() {
+      if(this.sorting_orientation === "least_to_greatest")
+        this.sorting_orientation = "greatest_to_least"
+      else
+        this.sorting_orientation = "least_to_greatest"
     }
   }
 }
