@@ -62,9 +62,16 @@
         <input type="number" v-model="section_number">
         <button>Add Section</button>
       </form>
-      <div v-for="section in course.sections">
-        <p>Section Number: {{ section.section_number }}, 
-        # of students: {{ section.students.length }}</p>
+      <div v-for="section in course.sections" style="margin-top:1rem;">
+        <p style="display: inline-block;">
+          Section Number: {{ section.section_number }}, 
+          # of students: {{ section.students.length }}
+        </p>
+        <router-link :to="{name: 'admin_edit_section',
+        params: { id: section._id }}" class="btn btn-primary"
+        style="color:black; display: inline-block; margin-left: 1rem;">
+        Edit
+        </router-link>
       </div>
     </div>
 
@@ -74,7 +81,7 @@
     <Instructors v-on:select-instructor="addSecondaryInstructor" />
 
     <!-- Course Students -->
-    <h4 style="margin-top: 2rem;">Course Students</h4>
+<!--     <h4 style="margin-top: 2rem;">Course Students</h4>
     <table style="margin-bottom: 2rem;" class="table table-hover">
         <thead>
         <tr>
@@ -91,9 +98,9 @@
               <td><button class="btn btn-danger" @click.prevent="removeStudent(student)">Remove</button></td>
             </tr>
         </tbody>
-    </table>
+    </table> -->
 
-    <Students v-on:select-student="addStudent" />
+    <!-- <Students v-on:select-student="addStudent" /> -->
 
   </div>
 </template>

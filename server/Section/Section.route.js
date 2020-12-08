@@ -53,21 +53,18 @@ sectionRoutes.route('/get/:id').get(function (req, res) {
   });
 });
 
-sectionRoutes.route('/update/:id').post(function (req, res) {
-  let id = req.params.id;
-  let updated_section = req.body.updated_section;
-  Section.findByIdAndUpdate(id,
-    {
-      number: updated_section.number,
-      students: updated_section.students,
-      teaching_assistants: updated_section.teaching_assistants,
-    },
+sectionRoutes.route('/update_section_number/:section_id').post(function (req, res) {
+  let section_id = req.params.section_id;
+  let updated_section_number = req.body.updated_section_number;
+  Section.findByIdAndUpdate(section_id,
+    {section_number: updated_section_number},
     function(err, section) {
       if (err || section == null) {
-        console.log("<ERROR> Updating section by ID:",id,"with:",updated_section)
-        res.status(404).send("section not found");
+        console.log("<ERROR> (secctions/update_section_number) Updating section number"
+         + "for section with ID:",id,"with section number",update_section_number, error)
+        res.json(error);
       } else {
-        console.log("<SUCCESS> Updating section by ID:",id,"with:",updated_section)
+        console.log("<SUCCESS> (secctions/update_section_number) Updating section number")
         res.json(section);
       }
     }

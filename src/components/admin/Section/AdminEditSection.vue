@@ -1,15 +1,15 @@
 <template>
   <div>
     <h2>Edit Section</h2>
-    <form @submit.prevent="updateSection">
+    <form @submit.prevent="updateSectionNumber">
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
             <label>section_number:</label>
-            <input type="number" class="form-control" v-model="section.number">
+            <input type="number" class="form-control" v-model="section.section_number">
           </div>
           <div class="form-group">
-            <button class="btn btn-primary">Update</button>
+            <button class="btn btn-primary">Update Section Number</button>
           </div>
         </div>
       </div>
@@ -69,6 +69,7 @@
       async getSection(){
         const response = await SectionAPI.getSection(this.section_id)
         this.section = response.data
+        console.log("Section", this.section)
         this.students = this.section.students
       },
       addStudent(student){
@@ -83,9 +84,9 @@
       removeStudent(student){
         this.students.splice(this.students.indexOf(student),1)
       },
-      async updateSection() {
-        this.section.students = this.students
-        const response = await SectionAPI.updateSection(this.section_id, this.section)
+      async updateSectionNumber() {
+        const response = await SectionAPI.updateSectionNumber(this.section_id,
+          this.section.section_number)
         this.$router.go()
       }
     }

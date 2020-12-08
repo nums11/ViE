@@ -12,9 +12,9 @@ export default {
   getSection(id) {
     return API().get('sections/get/' + id)
   },
-  updateSection(id, section){
-    return API().post('sections/update/' + id, {
-      updated_section: section
+  updateSectionNumber(section_id, section_number){
+    return API().post(`sections/update_section_number/${section_id}`, {
+      updated_section_number: section_number
     })
   },
   deleteSection(id) {
