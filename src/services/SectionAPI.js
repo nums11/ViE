@@ -9,6 +9,9 @@ export default {
       section: section // add our data to the request body
     })
   },
+  addStudentToSection(section_id, student_id) {
+    return API().post(`sections/add_student/${section_id}/${student_id}`, {})
+  },
   getSection(id) {
     return API().get('sections/get/' + id)
   },

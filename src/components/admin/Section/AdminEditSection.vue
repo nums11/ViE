@@ -72,14 +72,21 @@
         console.log("Section", this.section)
         this.students = this.section.students
       },
-      addStudent(student){
+      async addStudent(student){
         let student_in_section = false
         this.students.forEach(section_student => {
           if(student._id == section_student._id)
             student_in_section = true
         })
-        if(!student_in_section)
-          this.students.push(student)
+        if(student_in_section){
+          alert("Student already in section")
+        } else {
+          let confirmation = confirm(`Are you sure you want to add ${student.user_id}?`)
+          if(confirmation) {
+            await SectionAPI.addStudentToSection(this.section_id, student._id)
+            this.$router.go()
+          }
+        }
       },
       removeStudent(student){
         this.students.splice(this.students.indexOf(student),1)

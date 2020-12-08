@@ -69,7 +69,7 @@ userRoutes.route('/get/:id').get(function (req, res) {
   let id = req.params.id;
   User.findById(id).
   populate('instructor_courses').
-  populate('student_courses').
+  populate('student_sections').
   populate('user_orgs').
   populate({
     path: 'meetings',
