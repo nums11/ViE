@@ -178,25 +178,72 @@ courseRoutes.route('/cas_invite_student/:course_id').post((req, res) => {
   })
 })
 
-courseRoutes.route('/add').post(function (req, res) {
+courseRoutes.route('/add').post(async function (req, res) {
   let course = new Course(req.body.course);
-  course.save()
-    .then(() => {
-      User.findByIdAndUpdate(course.instructor,
-      {$push: {instructor_courses: course}},
-      (error,user) => {
-        if(error || user == null) {
-          console.log("<ERROR> Updating user while trying to add course:",course)
-        } else {
-          console.log("<SUCCESS> Adding course with id",course._id)
-          res.status(200).json(course);
+  let section_numbers = req.body.section_numbers
+
+  try {
+    let new_course = await course.save()
+
+    // Save Sections
+    let section_promises = []
+    section_numbers.forEach(section_number => {
+      section_promises.push(new Promise(async (resolve,reject) => {
+        let section = new Section({
+          course: new_course._id,
+          section_number: section_number
+        })
+        try {
+          let saved_section = await section.save()
+          resolve(saved_section)
+        } catch(error) {
+          console.log("<ERROR> (courses/add) saving section",section, error)
+          reject(error)
         }
-      });
+      }))
     })
-    .catch(() => {
-      console.log("<ERROR> Adding course:",course)
-      res.status(400).send("unable to save course to database");
-    });
+    let saved_sections = await Promise.all(section_promises)
+
+    // Update the course
+    let course_update_promise = new Promise((resolve, reject) => {
+      Course.findByIdAndUpdate(new_course._id,
+        {$push: {sections: {$each: saved_sections}}},
+        {new: true},
+        (error, updated_course) => {
+          if(error) {
+            console.log("<ERROR> (courses/add) Updating course with new sections",
+              updated_course, error)
+            reject(error)
+          } else {
+            resolve(updated_course)
+          }
+        }
+      )
+    })
+    let updated_course = await Promise.resolve(course_update_promise)
+
+    // Update the instructor with the new course
+    let instructor_update_promise = new Promise((resolve, reject) => {
+      User.findByIdAndUpdate(updated_course.instructor,
+        {$push: {instructor_courses: updated_course}},
+        {new: true},
+        (error, updated_instructor) => {
+          if(error) {
+            console.log("<ERROR> (courses/add) Updating instructor with course",
+              updated_instructor, error)
+            reject(error)
+          } else {
+            resolve(updated_instructor)
+          }
+        }
+      )
+    })
+    let updated_instructor = await Promise.resolve(instructor_update_promise)
+    console.log("<SUCCESS> (courses/add) creating course")
+    res.json(updated_course)
+  } catch(error) {
+    console.log("<ERROR> (courses/add)",error)
+  }
 });
 
 courseRoutes.route('/add_student/:course_id/:student_id').post(function (req, res) {

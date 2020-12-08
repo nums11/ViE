@@ -4,9 +4,10 @@ export default {
   getCourses() {
     return API().get('courses')
   },
-  addCourse(course) {
+  addCourse(course, section_numbers) {
     return API().post('courses/add', {
-      course: course
+      course: course,
+      section_numbers: section_numbers
     })
   },
   addSecondaryInstructor(course_id, instructor_id) {
