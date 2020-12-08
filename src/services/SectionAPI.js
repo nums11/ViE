@@ -12,6 +12,9 @@ export default {
   addStudentToSection(section_id, student_id) {
     return API().post(`sections/add_student/${section_id}/${student_id}`, {})
   },
+  removeStudentFromSection(section_id, student_id) {
+    return API().post(`sections/remove_student/${section_id}/${student_id}`, {})
+  },
   getSection(id) {
     return API().get('sections/get/' + id)
   },

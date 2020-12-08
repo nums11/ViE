@@ -88,8 +88,12 @@
           }
         }
       },
-      removeStudent(student){
-        this.students.splice(this.students.indexOf(student),1)
+      async removeStudent(student){
+        let confirmation = confirm(`Are you sure you want to remove ${student.user_id}?`)
+        if(confirmation) {
+          await SectionAPI.removeStudentFromSection(this.section_id, student._id)
+          this.$router.go()
+        }
       },
       async updateSectionNumber() {
         const response = await SectionAPI.updateSectionNumber(this.section_id,

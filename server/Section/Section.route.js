@@ -105,6 +105,42 @@ sectionRoutes.route('/add_student/:section_id/:student_id').post(function (req, 
   );
 });
 
+sectionRoutes.route('/remove_student/:section_id/:student_id').post(function (req, res) {
+  let section_id = req.params.section_id;
+  let student_id = req.params.student_id;
+  console.log()
+  Section.findByIdAndUpdate(section_id,
+    {$pull: {students: student_id}},
+    function (err, section) {
+      if (err || section == null) {
+        console.log("<ERROR> (sections/remove_student) Updating section with id",
+          section_id,err)
+        res.status(400).json(err);
+      } else {
+        User.findByIdAndUpdate(student_id,
+        {
+          $pull: {
+            student_sections: section_id,
+            meetings: {$in: section.meetings}
+          },
+        },
+        (error, user) => {
+          if (err || user == null) {
+            console.log("<ERROR> (sections/remove_student) Updating user with id",
+              student_id,err)
+            res.status(400).json(err);
+          } else {
+            console.log("Student sections",user.student_sections)
+            console.log("<SUCCESS> (sections/remove_student) Removing student with id",student_id,
+              "from section with ID:",section_id)
+            res.status(200).json(section);
+          }
+        })
+      }
+    }
+  );
+});
+
 sectionRoutes.route('/delete/:id').delete(function (req, res) {
   Section.findByIdAndRemove({_id: req.params.id}, function(err){
     if(err) {
