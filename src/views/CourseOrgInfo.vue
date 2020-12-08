@@ -104,14 +104,16 @@
             v-bind:colorSets="colorSets"
           /> -->
           <div v-if="activeTab === 'statistics'" key="2">
-            <CourseStudentList
+<!--             <CourseStudentList
             v-if="show_student_list"
             v-bind:students="course.students"
             v-on:show-student-stats="showStudentStats" />
             <StudentStats v-else
             v-bind:student="focused_student"
             v-bind:course="course"
-            v-on:show-student-list="showStudentList" />
+            v-on:show-student-list="showStudentList" /> -->
+            <CourseStats v-if="course_or_org_has_loaded" :course="course" />
+            <p v-else>Loading Course...</p>
           </div>
           <div key="3" v-if="activeTab === 'manage_students' || activeTab === 'members' ">
             <ManageStudents v-if="for_course" v-bind:course="course" />
@@ -134,6 +136,7 @@ import CourseAPI from "@/services/CourseAPI"
 import OrgAPI from "@/services/OrgAPI"
 import CourseStudentList from "@/components/CourseStudentList"
 import StudentStats from "@/components/StudentStats"
+import CourseStats from "@/components/CourseStats"
 
 export default {
     name: 'CourseOrgInfo',
@@ -142,7 +145,8 @@ export default {
       ManageStudents,
       CourseStatistics,
       CourseStudentList,
-      StudentStats
+      StudentStats,
+      CourseStats
     },
     data () {
       return {
