@@ -2,10 +2,10 @@
   <div class="container">
     <div v-if="show_large_logo">
       <img src="@/assets/venue-logo.svg" class="venue-logo" alt="Venue Logo" aria-label="Venue Logo" style="width:15rem;" />
-      <div><h1 class="logo-text" style="font-size:8rem;">venue</h1></div>
-      <div class="sub-logo" style="font-size:1.5rem;">
-        <span class="logotext1">engage </span> 
-        <span class="logotext2">more</span>
+      <div><h1 class="logo-text" style="font-size:8rem; margin-top:-30px;">ViE</h1></div>
+      <div class="sub-logo" style="font-size:1.5rem; margin-bottom:3rem;">
+        <span class="logotext1">Virtually </span> 
+        <span class="logotext2">Engaging</span>
       </div>
     </div>
     <div v-else>
