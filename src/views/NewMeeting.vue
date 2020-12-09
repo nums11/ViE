@@ -43,7 +43,8 @@
           <div class="section-selectors">
             <h5>Select the sections for your meeting</h5>
             <div v-for="section in course.sections" :key="section._id" 
-            @click="selectSection(section)" class="section-selector">
+            @click="selectSection(section)" class="section-selector"
+            :id="`section${section.section_number}`">
               Section {{ section.section_number }}
             </div>
           </div>
@@ -618,8 +619,36 @@ export default {
       this.qr_checkin.qr_checkin_start_time)
    },
    selectSection(section) {
-    this.meeting.sections.push(section)
+    let [meeting_has_section, index] = this.meetingHasSection(section)
+    let section_container = document.getElementById(`section${section.section_number}`);
+    if(meeting_has_section)
+      this.removeSectionFromMeeting(index, section_container)
+    else {
+      this.addSectionToMeeting(section, section_container)
+    }
     console.log("Sections", this.meeting.sections)
+   },
+   meetingHasSection(section) {
+    console.log("In func")
+    let meeting_has_section = false
+    let index = -1
+    for(let i = 0; i < this.meeting.sections.length; i++) {
+      if(this.meeting.sections[i].section_number
+          === section.section_number){
+        meeting_has_section = true
+        index = i 
+        break
+      }
+    }
+    return [meeting_has_section, index]
+   },
+   addSectionToMeeting(section, section_container) {
+    this.meeting.sections.push(section)
+    section_container.classList.add("selected-section")
+   },
+   removeSectionFromMeeting(index, section_container) {
+     this.meeting.sections.splice(index, 1);
+     section_container.classList.remove("selected-section")
    }
   }
 }
@@ -691,6 +720,12 @@ export default {
   height: 2rem;
   width: 6rem;
   padding-top: 0.2rem;
+}
+
+.selected-section {
+  background-color: #47C4FC;
+  border: #47C4FC solid;
+  color: white;
 }
 
 .notification-message {
