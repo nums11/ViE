@@ -287,7 +287,6 @@
           this.user_courses = user.instructor_courses
         else
           this.user_courses = user.student_sections
-        console.log("User courses", this.user_courses)
         this.user_orgs = user.user_orgs
       },
       async getSectionsWithCourses() {

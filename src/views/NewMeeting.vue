@@ -40,6 +40,14 @@
             </div>
           </div>
 
+          <div class="section-selectors">
+            <h5>Select the sections for your meeting</h5>
+            <div v-for="section in course.sections" :key="section._id" 
+            @click="selectSection(section)" class="section-selector">
+              Section {{ section.section_number }}
+            </div>
+          </div>
+
           <div class="live-meeting-portion">
             <div>
               <div class="checkbox">
@@ -190,7 +198,8 @@ export default {
         has_live_attendance: false,
         has_async_attendance: false,
         start_time: null,
-        end_time: null
+        end_time: null,
+        sections: []
       },
       // TODO: Remove these and use the arrays to
       // allow for multiple qr checkins and recordings
@@ -237,6 +246,7 @@ export default {
     },
     meetingCanBeCreated() {
       if(this.meeting.title === "") return false;
+      if(this.meeting.sections.length === 0) return false;
       if(!(this.meeting.has_live_attendance || this.meeting.has_async_attendance))
         return false
       if(this.meeting.has_live_attendance){
@@ -275,7 +285,7 @@ export default {
         const response = await CourseAPI.getCourse(this.course_id)
         this.course = response.data
         this.meeting.for_course = true
-        this.meeting.course = this.course._id
+        // this.meeting.course = this.course._id
       } else {
         this.org_id = this.$route.params.org_id;
         const response = await OrgAPI.getOrg(this.org_id)
@@ -606,6 +616,10 @@ export default {
     NotificationAPI.scheduleShowQRNotificationForInstructors(
       primary_instructor_id, secondary_instructor_id, meeting._id,
       this.qr_checkin.qr_checkin_start_time)
+   },
+   selectSection(section) {
+    this.meeting.sections.push(section)
+    console.log("Sections", this.meeting.sections)
    }
   }
 }
@@ -657,6 +671,26 @@ export default {
     position: relative;
     top: 25%;
   }
+}
+
+.section-selectors {
+  width: 32rem;
+  position: relative;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.section-selector {
+  display: inline-block;
+  text-align: center;
+  margin: auto;
+  margin-left: 0.75rem;
+  border: #adadad solid thin;
+  cursor: pointer;
+  border-radius: 3px;
+  height: 2rem;
+  width: 6rem;
+  padding-top: 0.2rem;
 }
 
 .notification-message {
