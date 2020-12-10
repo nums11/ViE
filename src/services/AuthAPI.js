@@ -33,4 +33,9 @@ export default {
   getUsersWithUpdatedAuthHeaders() {
     return API().get('auth/user_with_updated_auth_headers')
   },
+  onboardUser(user) {
+    return API().post('auth/onboard_user', {
+      user: user // add our data to the request body
+    })
+  },
 }

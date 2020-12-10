@@ -55,6 +55,7 @@ if(process.env.NODE_ENV === "production") {
   }, function(profile, done) {
     var login = profile.user.toLowerCase();
     User.findOne({user_id: login}, function (err, user) {
+      console.log("In the findOne")
       if (err) {
         return done(err);
       }
@@ -67,6 +68,24 @@ if(process.env.NODE_ENV === "production") {
   }));
 }
 //Passport setup END
+
+authRoutes.route('/onboard_user').post(function (req, res, next) {
+  let new_user = new User(req.body.user);
+  User.find({user_id: new_user.user_id},
+    async (error, existing_users) => {
+    if(error) {
+      console.log("<ERROR> Onboarding new user with user_id:",
+        new_user.user_id)
+      next(error)
+    } else if(existing_users.length > 0) {
+      res.status(409).send("User with this user_id already exists")
+    } else {
+      const saved_user = await new_user.save()
+      console.log("<SUCCESS> (auth/onboard_user) creating user")
+      res.json(saved_user)
+    }
+  })
+});
 
 authRoutes.route('/signup').post(function (req, res) {
   let user = new User(req.body.user)
@@ -160,10 +179,12 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next)
   let optional_meeting_id = req.params.optional_meeting_id
   let optional_code = req.params.optional_code
   passport.authenticate('cas', function (err, user, info) {
+    console.log("Authenticated", err, user, info)
     if (err) {
       console.log("<ERROR> (auth/loginCAS) authenticating", err)
       return next(err);
     } else if (!user) {
+      console.log("No User")
       req.session.messages = info.message;
       if(process.env.NODE_ENV === "production") {
         return res.redirect('https://venue-attend.herokuapp.com');
@@ -171,7 +192,9 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next)
         return res.redirect('http://localhost:8080');
       }
     } else {
+      console.log("In else")
       req.logIn(user, function (err) {
+        console.log("In req.login")
         if (err) {
           console.log("<ERROR> (auth/loginCAS) logging in", err)
           return next(err);
@@ -207,6 +230,71 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next)
     }
   })(req, res, next);
 });
+
+// authRoutes.get("/login_cas_onboard", (req, res, next) => {
+//   console.log("In login_cas_onboard")
+//   passport.authenticate('cas', function (err, user, info) {
+//     console.log("Authenticated cas")
+//     if (err) {
+//       console.log("<ERROR> (auth/loginCAS) authenticating", err)
+//       return next(err);
+//     } else if (!user) {
+//       console.log("No user")
+//       req.session.messages = info.message;
+//       if(process.env.NODE_ENV === "production") {
+//         return res.redirect('https://venue-attend.herokuapp.com');
+//       } else {
+//         return res.redirect('http://localhost:8080');
+//       }
+//     } else {
+//       console.log("Going into req.login")
+//       req.logIn(user, function (err) {
+//         if (err) {
+//           console.log("<ERROR> (auth/loginCAS) logging in", err)
+//           return next(err);
+//         } else {
+//           req.session.messages = '';
+//           let venueSID = generateSID()
+//           Promise.resolve(venueSID).then(resolvedSID => {
+//             if(resolvedSID != null) {
+//               console.log("About to find user by id", user.user_id)
+//               User.findById(user.user_id, (error,user) => {
+//                 if(error) {
+//                   console.log("Error", error)
+//                 } else {
+//                   console.log("Did I find user?", user)
+//                 }
+//                 return res.redirect('http://localhost:8080');
+//               })
+
+//               // User.findOneAndUpdate({user_id: user.user_id},{connect_sid: resolvedSID},{new:true},function(err,user) {
+//               //   if(err || user == null) {
+//               //     console.log("<ERROR> (auth/loginCAS) updating user by id", user.user_id,
+//               //       err)
+//               //     return next(err);
+//               //   } else {
+//               //     res.header("Set-Cookie","connect_sid="+resolvedSID)
+//               //     console.log("<SUCCESS> (auth/loginCAS) updating user and setting cookie.")
+//               //     if(process.env.NODE_ENV === "production") {
+//               //       return res.redirect(`https://venue-attend.herokuapp.com/#/redirectCASLogin/`
+//               //         + `${optional_meeting_id}/${optional_code}`);
+//               //     } else {
+//               //       return res.redirect(`http://localhost:8080/#/redirectCASLogin/`
+//               //         + `${optional_meeting_id}/${optional_code}`);
+//               //     }
+//               //   }
+//               // })
+//             } else {
+//               console.log("<ERROR> (auth/loginCAS) resolving SID", resolvedSID)
+//               return res.redirect('http://localhost:8080');
+//             }
+//           })
+//         }
+//       });
+//     }
+//   })(req, res, next);
+// });
+
 
 authRoutes.get("/loginStatus", function(req, res) {
   User.findOne({connect_sid: req.cookies["connect_sid"]}, function (err, current_user) {

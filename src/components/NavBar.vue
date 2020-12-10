@@ -113,6 +113,12 @@
                                   Type
                                   <sui-label-detail>{{ is_instructor ? "Instructor" : "Student" }}</sui-label-detail>
                               </sui-label>
+                              <div class="register-course-btn">
+                                <router-link :to="{name: 'register_course'}" class="register-course-btn">
+                                  <sui-button v-if="is_instructor" size="small" color="black"
+                                  >Register New Course</sui-button>
+                                </router-link>
+                              </div>
                           </div>
                           <ul class="user-action-menu">
                               <li>Settings</li>
@@ -310,6 +316,10 @@
 </script>
 
 <style lang="scss">
+.register-course-btn {
+  margin-top: 1rem;
+}
+
 .dark-mode {
   .off-canvas-menu {
     color: white;

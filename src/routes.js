@@ -51,7 +51,8 @@ import WatchRecording from './views/WatchRecording.vue';
 import AttendChecker from './views/AttendChecker.vue';
 import LoginView from './views/LoginView.vue';
 import AddRecording from './views/AddRecording.vue';
-
+import GettingStarted from './views/GettingStarted.vue';
+import RegisterCourse from './views/RegisterCourse.vue'
 
 Vue.use(VueRouter);
 
@@ -519,6 +520,20 @@ const router = new VueRouter({
       name: 'attend_checker',
       path: '/attend/:meeting_id/:code',
       component: AttendChecker,
+    },
+    {
+      name: 'getting_started',
+      path: '/getting_started',
+      component: GettingStarted,
+    },
+    {
+      name: 'register_course',
+      path: '/register_course',
+      component: RegisterCourse,
+      meta: {
+        requiresAuth: true,
+        requireAdmin: false
+      }
     }
   ]
 })
