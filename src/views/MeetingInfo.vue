@@ -27,7 +27,7 @@
             <div class="details-area">
               <sui-label v-if="for_course" :style="{marginBottom: '5px'}">
                 Course
-                <sui-label-detail>{{ meeting.course.name }}</sui-label-detail>
+                <sui-label-detail>{{ meeting_course.name }}</sui-label-detail>
               </sui-label>
               <sui-label v-else :style="{marginBottom: '5px'}">
                 Organization
@@ -35,7 +35,9 @@
               </sui-label>
               <sui-label v-if="for_course" class="venue-red" id="dept-text" :style="{marginBottom: '5px'}">
                   Dept
-                <sui-label-detail>{{ meeting.course.dept }} {{ getFormattedCourseNumber(meeting.course.course_number) }}</sui-label-detail>
+                <sui-label-detail>{{ meeting_course.dept }} {{ getFormattedCourseNumber(meeting_course.course_number) }} - <span v-for="(section,i) in meeting.sections" :key="section._id">
+                {{ section.section_number }}<span v-if="i !== meeting.sections.length - 1"
+                >,</span></span></sui-label-detail>
               </sui-label>
               <sui-label v-if="meeting.has_live_attendance" id="meeting-time-text">
                 {{ new Date(meeting.start_time) | moment("M/D, h:mma") }} - {{ new Date(meeting.end_time) | moment("M/D, h:mma") }}
@@ -58,10 +60,10 @@
     <div v-else class="sidebar-area">
       <div v-if="for_course" class="instructor-info">
         <sui-label class="venue-blue" icon="graduation cap" label-position="right" :style="{marginBottom: '5px'}" v-if="for_course">
-            <sui-label-detail>{{ meeting.course.instructor.first_name }} {{ meeting.course.instructor.last_name }}</sui-label-detail>
+            <sui-label-detail>{{ meeting_course.instructor.first_name }} {{ meeting_course.instructor.last_name }}</sui-label-detail>
         </sui-label>
-        <sui-label class="venue-blue" icon="graduation cap" label-position="right" :style="{marginBottom: '5px'}" v-if="for_course && meeting.course.secondary_instructor">
-            <sui-label-detail>{{ meeting.course.secondary_instructor.first_name }} {{ meeting.course.secondary_instructor.last_name }}</sui-label-detail>
+        <sui-label class="venue-blue" icon="graduation cap" label-position="right" :style="{marginBottom: '5px'}" v-if="for_course && meeting_course.secondary_instructor">
+            <sui-label-detail>{{ meeting_course.secondary_instructor.first_name }} {{ meeting_course.secondary_instructor.last_name }}</sui-label-detail>
         </sui-label>
       </div>
 
@@ -249,7 +251,8 @@ export default {
       chartData: {},
       chartOptions: {},
       present_attendees: [],
-      absent_attendees: []
+      absent_attendees: [],
+      meeting_course: null
     }
   },
   async created () {
@@ -337,10 +340,9 @@ export default {
       this.createLiveSubmission(open_checkin)
     },
     currentUserIsStudentForCourse() {
-      let meeting_students = this.meeting.course.students
       let user_is_student = false
-      for(let i = 0; i < meeting_students.length; i++) {
-        if(meeting_students[i].user_id === this.current_user.user_id) {
+      for(let i = 0; i < this.attendees.length; i++) {
+        if(this.attendees[i].user_id === this.current_user.user_id) {
           user_is_student = true
           break
         }
@@ -468,6 +470,7 @@ export default {
       const response = await MeetingAPI.getMeeting(this.meeting_id)
       this.meeting = response.data
       this.for_course = this.meeting.for_course
+      this.meeting_course = this.meeting.sections[0].course
     },
     getActiveTasksForMeeting () {
       let current_time = new Date ();
@@ -497,10 +500,11 @@ export default {
     
     
     getMeetingAttendees() {
-      if(this.for_course)
-        this.attendees = this.meeting.course.students
-      else
-        this.attendees = this.meeting.org.general_members
+      let attendees = []
+      this.meeting.sections.forEach(section => {
+        attendees = attendees.concat(section.students)
+      })
+      this.attendees = attendees
     },
     isBetweenTimes(time, start_time, end_time) {
       return time >= start_time &&
@@ -619,7 +623,7 @@ export default {
       if(confirmation){
         await MeetingAPI.deleteMeeting(this.meeting)
         if(this.for_course)
-          this.$router.push({name: "course_info", params: {id: this.meeting.course._id}})
+          this.$router.push({name: "course_info", params: {id: this.meeting_course._id}})
         else
           this.$router.push({name: "org_info", params: {id: this.meeting.org._id}})
       }

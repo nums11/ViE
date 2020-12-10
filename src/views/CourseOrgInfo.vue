@@ -89,20 +89,14 @@
         >
           <div v-if="activeTab == 'meeting_history'" key="1">
             <!-- <h3>January</h3> -->
-            <div v-if="for_course" class="attendance-for-month">
-              <MeetingAttendancePill v-for="meeting in course.meetings" :key="meeting._id" v-bind:meeting="meeting" />
-            </div>
-            <div v-else class="attendance-for-month">
-              <MeetingAttendancePill v-for="meeting in org.meetings" :key="meeting._id" v-bind:meeting="meeting" />
+            <div v-for="section in is_instructor ? course.sections : student_sections"
+            :key="section._id" class="course-section-container">
+              <h3>Section {{ section.section_number }}</h3>
+              <MeetingAttendancePill v-for="meeting in section.meetings"
+              :key="meeting._id" v-bind:meeting="meeting" />
             </div>
           </div>
-          <!-- For instructors, show CourseStatistics. -->
-          <!-- For students, show StudentStatistics. -->
-<!--           <CourseStatistics
-            v-if="activeTab == 'statistics'"
-            key="2"
-            v-bind:colorSets="colorSets"
-          /> -->
+
           <div v-if="activeTab === 'statistics'" key="2">
 <!--             <CourseStudentList
             v-if="show_student_list"
@@ -162,7 +156,8 @@ export default {
         is_board_member: false,
         show_student_list: true,
         focused_student: null,
-        course_or_org_has_loaded: false
+        course_or_org_has_loaded: false,
+        student_sections: []
       }
     },
     async created () {
@@ -181,12 +176,30 @@ export default {
         if(this.$route.name === "course_info"){
           const response = await CourseAPI.getCourseWithMeetings(this.course_id)
           this.course = response.data
+          if(!this.is_instructor)
+            this.getStudentSection()
         } else {
           this.org_id = this.$route.params.id;
           const response = await OrgAPI.getOrg(this.org_id)
           this.org = response.data
         }
         this.course_or_org_has_loaded = true
+      },
+      getStudentSection() {
+        let student_section_found = false
+        for(let i = 0; i < this.course.sections.length; i++) {
+          let section = this.course.sections[i]
+          for(let j = 0; j < section.students.length; j++) {
+            let students = section.students[j]
+            if(students.user_id === this.current_user.user_id){
+              this.student_sections.push(section)
+              student_section_found = true
+              break
+            }
+            if(student_section_found)
+              break
+          }
+        }
       },
       checkIfCurrentUserIsBoardMember() {
         let org_board_members = this.org.board_members
@@ -236,6 +249,10 @@ export default {
 </script>
 
 <style lang="scss">
+.course-section-container {
+  margin-top: 1rem;
+}
+
 .course-info {
     // Header, With title and Schedule Slider
     margin: auto;
