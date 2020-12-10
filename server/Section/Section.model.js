@@ -20,6 +20,15 @@ let Section = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Meeting'
 	}],
+	has_open_enrollment: {type: Boolean, default: false},
+	pending_approval_students: [{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User'
+	}],
+	invited_students: [{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User'
+	}]
 });
 
 module.exports = mongoose.model('Section', Section);
