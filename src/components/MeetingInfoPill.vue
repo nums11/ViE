@@ -3,8 +3,13 @@
     <div class="left-side">
       <div class="meeting-name">{{ meeting.title }}</div>
       <div class="meeting-course" v-if="meeting.for_course">
-          <span :style="{marginRight: '10px'}">{{ meeting.course.dept }} {{ meeting.course.course_number }}</span>
-          <span>{{ meeting.course.name }}</span>
+          <span>{{ meeting_course.dept }} {{ meeting_course.course_number }} -</span>
+          <span v-for="(section,i) in meeting.sections" :key="section._id"
+          :style="i === meeting.sections.length - 1 ? {marginRight: '10px'} : {}">
+          {{ section.section_number }}<span v-if="i !== meeting.sections.length - 1"
+          >,</span>
+          </span>
+          <span>{{ meeting_course.name }}</span>
       </div>
       <div class="meeting-course" v-else>
           <span :style="{marginRight: '10px'}">{{ meeting.org.name }}</span>
@@ -90,10 +95,12 @@ export default {
             FileSVG: FileSVG,
             RecordingSVG: RecordingSVG,
             LinkSVG: LinkSVG,
-            show_modal: false
+            show_modal: false,
+            meeting_course: null
         }
     },
     created () {
+      this.meeting_course = this.meeting.sections[0].course
     },
     methods: {
         getMeetingName ()  {

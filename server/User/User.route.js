@@ -79,7 +79,10 @@ userRoutes.route('/get/:id').get(function (req, res) {
   populate({
     path: 'meetings',
     populate: [{
-      path: 'course',
+      path: 'sections',
+      populate: {
+        path: 'course'
+      }
     }, {
       path: 'org'
     }, {
