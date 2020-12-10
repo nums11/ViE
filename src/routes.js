@@ -495,7 +495,8 @@ const router = new VueRouter({
       component: NewMeeting,
       meta: {
         requiresAuth: true,
-        requireAdmin: false
+        requireAdmin: false,
+        requiresInstructor: true
       }
     },
     {
@@ -532,7 +533,8 @@ const router = new VueRouter({
       component: RegisterCourse,
       meta: {
         requiresAuth: true,
-        requireAdmin: false
+        requireAdmin: false,
+        requiresInstructor: true
       }
     }
   ]

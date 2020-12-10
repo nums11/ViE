@@ -178,7 +178,7 @@ courseRoutes.route('/cas_invite_student/:course_id').post((req, res) => {
   })
 })
 
-courseRoutes.route('/add').post(async function (req, res) {
+courseRoutes.route('/add').post(async function (req, res, next) {
   let course = new Course(req.body.course);
   let section_numbers = req.body.section_numbers
 
@@ -209,7 +209,8 @@ courseRoutes.route('/add').post(async function (req, res) {
     console.log("<SUCCESS> (courses/add) creating course")
     res.json(updated_course)
   } catch(error) {
-    console.log("<ERROR> (courses/add)",error)
+    console.log("<ERROR> (courses/add)")
+    next(error)
   }
 });
 

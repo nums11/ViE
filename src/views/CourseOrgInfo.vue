@@ -161,6 +161,8 @@ export default {
       }
     },
     async created () {
+      if(this.$route.params.reload_page)
+        this.$router.go()
       this.current_user = this.$store.state.user.current_user
       this.is_instructor = this.current_user.is_instructor
       this.course_id = this.$route.params.id;
