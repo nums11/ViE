@@ -12,6 +12,7 @@ let Course = require('../Course/Course.model');
 let Org = require('../Organization/Organization.model');
 let Poll = require('../Poll/Poll.model');
 let User = require('../User/User.model');
+let Section = require('../Section/Section.model');
 const NotificationJob = require('../Notification/NotificationJob.model');
 const {Storage} = require("@google-cloud/storage")
 const path = require('path');
@@ -189,122 +190,28 @@ meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
     let saved_meeting = await new_meeting.save()
     if(for_course) {
 
-      //Update the Course and it's students & instructors
-      Course.findByIdAndUpdate(course_id,
-        {$push: {meetings: saved_meeting._id}},
-        (error,course) => {
-          if(error || course == null) {
-            console.log("<ERROR> (meetings/add) Updating course with id",
-              course_id, err)
-            res.json(error);
-          } else {
-            User.findByIdAndUpdate(course.instructor,
-              {$push: {meetings: saved_meeting._id}},
-              async (error, user) => {
-                if(error || user == null) {
-                  console.log("<ERROR> (meetings/add) Updating instructor with id",
-                    course.instructor, error)
-                  res.json(error);
-                } else {
-                  let student_promises = []
-                  course.students.forEach(student => {
-                    student_promises.push(new Promise(async (resolve, reject) => {
-                      User.findByIdAndUpdate(student,
-                        {$push: {meetings: saved_meeting._id}},
-                        (error, user) => {
-                          if(error || user == null) {
-                            console.log("<ERROR> (meetings/add) Updating student with id",
-                              student, error)
-                            res.json(error);
-                          } else {
-                            resolve(user)
-                          }
-                        })
-                    }))
-                  })
-                  try {
-                    let updated_students = await Promise.all(student_promises)
-                    if(course.secondary_instructor != null) {
-                      User.findByIdAndUpdate(course.secondary_instructor,
-                        {$push: {meetings: saved_meeting._id}},
-                        (error, secondary_instructor) => {
-                          if(error || secondary_instructor == null) {
-                            console.log("<ERROR> (meetings/add) Updating secondary instructor with id",
-                              course.secondary_instructor._id, error)
-                            res.json(error);
-                          } else {
-                            console.log("<SUCCESS> (meetings/add) Creating meeting and updating"
-                              + " course instructor, secondary instructor, and students")
-                            res.json(saved_meeting)
-                          }
-                        }
-                      )
-                    } else {
-                      console.log("<SUCCESS> (meetings/add) Creating meeting and updating"
-                        + " course instructor and students")
-                      res.json(saved_meeting)
-                    }
-                  } catch (error) {
-                    console.log("<ERROR> (meetings/add) Updating students", error)
-                    res.json(error)
-                  }
-                }
-              })
-          }
-        })
+      let updated_sections = await addMeetingToObjects(
+        saved_meeting.sections, "section", saved_meeting._id)
+      if(updated_sections == null)
+        throw "Error in addMeetingToObjects updating sections"
 
+      let student_ids = getAllStudentsFromSections(updated_sections)
+      let updated_students = await addMeetingToObjects(
+        student_ids, "user", saved_meeting._id)
+      if(updated_students == null)
+        throw "Error in addMeetingToObjects updating students"
+
+      let instructor_id = await getInstructorFromCourse(
+        updated_sections[0].course)
+      let updated_instructor = await addMeetingToObjects(
+        [instructor_id], "user", saved_meeting._id)
+      if(updated_instructor == null)
+        throw "Error in addMeetingToObjects updating instructor"
+
+      res.json(saved_meeting)
     } else {
 
       //Update the Org and it's board & general members
-      Org.findByIdAndUpdate(org_id,
-        {$push: {meetings: saved_meeting._id}},
-        async (error, org) => {
-          if(error || org == null) {
-            console.log("<ERROR> (meetings/add) Updating org with id org_id", error)
-            res.json(error);
-          } else {
-            let member_promises = []
-            org.board_members.forEach(board_member => {
-              member_promises.push(new Promise(async (resolve, reject) => {
-                User.findByIdAndUpdate(board_member,
-                  {$push: {meetings: saved_meeting._id}},
-                  (error, user) => {
-                    if(error || user == null) {
-                      console.log("<ERROR> (meetings/add) Updating board member with id",
-                        board_member, error)
-                      res.json(error);
-                    } else {
-                      resolve(user)
-                    }
-                  })
-              }))
-            })
-            org.general_members.forEach(general_member => {
-              member_promises.push(new Promise(async (resolve, reject) => {
-                User.findByIdAndUpdate(general_member,
-                  {$push: {meetings: saved_meeting._id}},
-                  (error, user) => {
-                    if(error || user == null) {
-                      console.log("<ERROR> (meetings/add) Updating board member with id",
-                        general_member, error)
-                      res.json(error);
-                    } else {
-                      resolve(user)
-                    }
-                  })
-              }))
-            })
-            try {
-              let updated_members = await Promise.all(member_promises)
-              console.log("<SUCCESS> (meetings/add) Creating meeting and updating"
-                + " org board and general members")
-              res.json(saved_meeting)
-            } catch (error) {
-              console.log("<ERROR> (meetings/add) Updating org members", error)
-              res.json(error)
-            }
-          }
-        })
 
     }
   } catch(error) {
@@ -839,5 +746,79 @@ meetingRoutes.route('/upcoming').get(function (req, res) {
     }
   })
 });
+
+async function addMeetingToObjects(object_ids, object_type, meeting_id) {
+  try {
+    let update_promises = []
+    object_ids.forEach(object_id => {
+      update_promises.push(new Promise(async (resolve,reject) => {
+        if(object_type === "section") {
+          Section.findByIdAndUpdate(object_id,
+            {$push: {meetings: meeting_id}},
+            {new: true},
+            (error, section) => {
+              if(error) {
+                console.log("<ERROR> (meetings/add) updating section",error)
+                reject(section)
+              } else {
+                resolve(section)
+              }
+            }
+          )
+        } else if(object_type === "user") {
+          User.findByIdAndUpdate(object_id,
+            {$push: {meetings: meeting_id}},
+            {new: true},
+            (error, user) => {
+              if(error) {
+                console.log("<ERROR> (meetings/add) updating user",error)
+                reject(user)
+              } else {
+                resolve(user)
+              }
+            }
+          )
+        }
+      }))
+    })
+    let updated_objects = await Promise.all(update_promises)
+    return updated_objects
+  } catch(error) {
+    console.log("<ERROR> (meetings/add) in addMeetingToObjects for object_ids",
+     object_ids,"with object type",object_type,"and meeting_id",meeting_id,error)
+    return null
+  }
+}
+
+function getAllStudentsFromSections(sections) {
+  let all_students = []
+  sections.forEach(section => {
+    all_students = all_students.concat(section.students)
+  })
+  return all_students
+}
+
+async function getInstructorFromCourse(course_id) {
+  try {
+    let course_promise = new Promise((resolve, reject) => {
+      Course.findById(course_id, (error, course) => {
+        if(error) {
+          console.log("<ERROR> (meetings/add) finding course by id",
+            course_id, error)
+            reject(course)
+        } else {
+          console.log("Returning")
+          resolve(course.instructor)
+        }
+      })
+    })
+    let instructor_id = await Promise.resolve(course_promise)
+    return instructor_id
+  } catch(error) {
+    console.log("<ERROR> (meetings/add) in getInstructorFromCourse for course_id",
+      course_id, error)
+    return null
+  }
+}
 
 module.exports = meetingRoutes;

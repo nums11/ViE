@@ -626,10 +626,8 @@ export default {
     else {
       this.addSectionToMeeting(section, section_container)
     }
-    console.log("Sections", this.meeting.sections)
    },
    meetingHasSection(section) {
-    console.log("In func")
     let meeting_has_section = false
     let index = -1
     for(let i = 0; i < this.meeting.sections.length; i++) {
