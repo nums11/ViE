@@ -386,31 +386,36 @@ courseRoutes.route('/get/:id/:with_meetings').get(function (req, res) {
     Course.findById(id).
     populate('instructor').
     populate('secondary_instructor').
-    populate('students').
     populate({
-      path: 'meetings',
+      path: 'sections',
       populate: [{
-        path: 'live_attendance',
-        populate: {
-          path: 'qr_checkins',
+        path: 'meetings',
+        populate: [{
+          path: 'live_attendance',
           populate: {
-            path: 'qr_checkin_submissions',
+            path: 'qr_checkins',
             populate: {
-              path: 'submitter'
+              path: 'qr_checkin_submissions',
+              populate: {
+                path: 'submitter'
+              }
             }
           }
-        }
-      }, {
-        path: 'async_attendance',
-        populate: {
-          path: 'recordings',
+        }, 
+        {
+          path: 'async_attendance',
           populate: {
-            path: 'recording_submissions',
+            path: 'recordings',
             populate: {
-              path: 'submitter'
+              path: 'recording_submissions',
+              populate: {
+                path: 'submitter'
+              }
             }
           }
-        }
+        }]
+      },{
+        path: 'students'
       }]
     }).
     exec((error,course) => {

@@ -18,7 +18,7 @@ let Section = new Schema({
 	}],
 	meetings: [{
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'User'
+		ref: 'Meeting'
 	}],
 });
 
