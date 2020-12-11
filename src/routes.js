@@ -33,7 +33,7 @@ import Submissions from './components/admin/Submission/Submissions.vue';
 import AdminStudentInvite from './components/admin/Course/StudentInvite.vue';
 import LandingPage from './views/LandingPage.vue';
 import SetPermanentPassword from './views/SetPermanentPassword.vue';
-import Signup from './components/Signup.vue';
+import Signup from './views/Signup.vue';
 import Dashboard from './views/Dashboard.vue';
 import CourseList from './components/CourseList.vue';
 import CourseOrgInfo from './views/CourseOrgInfo.vue';
@@ -53,6 +53,7 @@ import LoginView from './views/LoginView.vue';
 import AddRecording from './views/AddRecording.vue';
 import GettingStarted from './views/GettingStarted.vue';
 import RegisterCourse from './views/RegisterCourse.vue'
+import CreateUser from './views/CreateUser.vue'
 
 Vue.use(VueRouter);
 
@@ -304,8 +305,15 @@ const router = new VueRouter({
       path: '/signup',
       component: Signup,
       meta: {
-        requiresAuth: true,
-        requiresAdmin: true
+        requiresNoAuth: true,
+      }
+    },
+    {
+      name: 'create_user',
+      path: '/create_user/:user_id',
+      component: CreateUser,
+      meta: {
+        requiresNoAuth: true,
       }
     },
     {
