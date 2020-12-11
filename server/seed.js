@@ -109,7 +109,8 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 			section_number: 1,
 			course: courses[0]._id,
 			students: [users[2]._id, users[3]._id, users[4]._id],
-			meetings: []
+			meetings: [],
+			join_code: getJoinCodeForSection(1,courses[0]._id)
 		}))
 		courses[0].sections.push(sections[0]._id)
 		users[0].instructor_courses.push(courses[0]._id)
@@ -130,13 +131,15 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 			section_number: 1,
 			course: courses[1]._id,
 			students: [users[2]._id, users[3]._id, users[4]._id, users[5]._id, users[6]._id],
-			meetings: []
+			meetings: [],
+			join_code: getJoinCodeForSection(1,courses[1]._id)
 		}))
 		sections.push(new Section({
 			section_number: 2,
 			course: courses[1]._id,
 			students: [users[7]._id, users[8]._id, users[9]._id, users[10]._id, users[11]._id],
-			meetings: []
+			meetings: [],
+			join_code: getJoinCodeForSection(2,courses[1]._id)
 		}))
 		courses[1].sections.push(sections[1]._id)
 		courses[1].sections.push(sections[2]._id)
@@ -229,3 +232,18 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 			})
 	});
 });
+
+function getJoinCodeForSection(section_number, course_id) {
+  let random_string = generateRandomString()
+  return `${section_number}${course_id}${random_string}`
+}
+
+function generateRandomString() {
+  let length = 10,
+      charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+      str = "";
+  for (let i = 0, n = charset.length; i < length; ++i) {
+      str += charset.charAt(Math.floor(Math.random() * n))
+  }
+  return str
+}
