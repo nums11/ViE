@@ -20,6 +20,7 @@ let Section = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Meeting'
 	}],
+	join_code: {type: String, required: true},
 	has_open_enrollment: {type: Boolean, default: false},
 	pending_approval_students: [{
 		type: mongoose.Schema.Types.ObjectId,

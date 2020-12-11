@@ -525,9 +525,12 @@ async function createSectionsAndAddToCourse(section_numbers, course_id, route) {
     let section_promises = []
     section_numbers.forEach(section_number => {
       section_promises.push(new Promise(async (resolve,reject) => {
+        let join_code = getJoinCodeForSection(section_number, course_id)
+        console.log("Join code", join_code)
         let section = new Section({
           course: course_id,
-          section_number: section_number
+          section_number: section_number,
+          join_code: join_code
         })
         try {
           let saved_section = await section.save()
@@ -563,6 +566,21 @@ async function createSectionsAndAddToCourse(section_numbers, course_id, route) {
       error)
     return null
   }
+}
+
+function getJoinCodeForSection(section_number, course_id) {
+  let random_string = generateRandomString()
+  return `${section_number}${course_id}${random_string}`
+}
+
+function generateRandomString() {
+  let length = 10,
+      charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+      str = "";
+  for (let i = 0, n = charset.length; i < length; ++i) {
+      str += charset.charAt(Math.floor(Math.random() * n))
+  }
+  return str
 }
 
 module.exports = courseRoutes;
