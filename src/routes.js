@@ -53,6 +53,7 @@ import LoginView from './views/LoginView.vue';
 import AddRecording from './views/AddRecording.vue';
 import RegisterCourse from './views/RegisterCourse.vue'
 import CreateUser from './views/CreateUser.vue'
+import JoinCourse from './views/JoinCourse.vue'
 
 Vue.use(VueRouter);
 
@@ -537,6 +538,15 @@ const router = new VueRouter({
         requiresAuth: true,
         requireAdmin: false,
         requiresInstructor: true
+      }
+    },
+    {
+      name: 'join_course',
+      path: '/join_course',
+      component: JoinCourse,
+      meta: {
+        requiresAuth: true,
+        requireAdmin: false,
       }
     }
   ]

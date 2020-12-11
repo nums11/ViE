@@ -114,9 +114,15 @@
                                   <sui-label-detail>{{ is_instructor ? "Instructor" : "Student" }}</sui-label-detail>
                               </sui-label>
                               <div class="register-course-btn">
-                                <router-link :to="{name: 'register_course'}" class="register-course-btn">
-                                  <sui-button v-if="is_instructor" size="small" color="black"
+                                <router-link v-if="is_instructor" :to="{name: 'register_course'}"
+                                class="register-course-btn">
+                                  <sui-button size="small" color="black"
                                   >Register New Course</sui-button>
+                                </router-link>
+                                <router-link v-else :to="{name: 'join_course'}"
+                                class="register-course-btn">
+                                  <sui-button size="small" color="black"
+                                  >Join Course</sui-button>
                                 </router-link>
                               </div>
                           </div>

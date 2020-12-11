@@ -105,6 +105,31 @@ sectionRoutes.route('/add_student/:section_id/:student_id').post(function (req, 
   );
 });
 
+sectionRoutes.get('/by_join_code/:join_code', (req, res, next) => {
+  let join_code = req.params.join_code
+  Section.find({join_code: join_code}).
+  populate({
+    path: 'course',
+    populate: {
+      path: 'sections',
+      populate: {
+        path: 'students'
+      }
+    }
+  }).
+  exec((error, sections) => {
+      if(error) {
+        console.log("<ERROR> (sections/by_join_code) getting section by join_code",join_code)
+        next(error)
+      } else {
+        console.log("<SUCCESS> (sections/by_join_code) getting section by join_code")
+        res.json(sections[0])
+      }
+    }
+  )
+});
+
+
 sectionRoutes.route('/remove_student/:section_id/:student_id').post(function (req, res) {
   let section_id = req.params.section_id;
   let student_id = req.params.student_id;

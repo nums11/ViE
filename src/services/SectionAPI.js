@@ -43,5 +43,8 @@ export default {
   },
   getSectionsForCourse(course_id) {
     return API().get('sections/get_for_course/' + course_id)
+  },
+  getSectionByJoinCode(join_code) {
+    return API().get(`sections/by_join_code/${join_code}`)
   }
 }
