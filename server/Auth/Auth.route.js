@@ -242,49 +242,6 @@ authRoutes.get("/signup", (req, res, next) => {
         res.redirect(`https://venue-attend.herokuapp.com/#/create_user/${user_id}`);
       else
         res.redirect(`http://localhost:8080/#/create_user/${user_id}`);
-      // req.logIn(user, function (err) {
-      //   if (err) {
-      //     console.log("<ERROR> (auth/loginCAS) logging in", err)
-      //     return next(err);
-      //   } else {
-      //     req.session.messages = '';
-      //     let venueSID = generateSID()
-      //     Promise.resolve(venueSID).then(resolvedSID => {
-      //       if(resolvedSID != null) {
-      //         console.log("About to find user by id", user.user_id)
-      //         User.findById(user.user_id, (error,user) => {
-      //           if(error) {
-      //             console.log("Error", error)
-      //           } else {
-      //             console.log("Did I find user?", user)
-      //           }
-      //           return res.redirect('http://localhost:8080');
-      //         })
-
-      //         // User.findOneAndUpdate({user_id: user.user_id},{connect_sid: resolvedSID},{new:true},function(err,user) {
-      //         //   if(err || user == null) {
-      //         //     console.log("<ERROR> (auth/loginCAS) updating user by id", user.user_id,
-      //         //       err)
-      //         //     return next(err);
-      //         //   } else {
-      //         //     res.header("Set-Cookie","connect_sid="+resolvedSID)
-      //         //     console.log("<SUCCESS> (auth/loginCAS) updating user and setting cookie.")
-      //         //     if(process.env.NODE_ENV === "production") {
-      //         //       return res.redirect(`https://venue-attend.herokuapp.com/#/redirectCASLogin/`
-      //         //         + `${optional_meeting_id}/${optional_code}`);
-      //         //     } else {
-      //         //       return res.redirect(`http://localhost:8080/#/redirectCASLogin/`
-      //         //         + `${optional_meeting_id}/${optional_code}`);
-      //         //     }
-      //         //   }
-      //         // })
-      //       } else {
-      //         console.log("<ERROR> (auth/loginCAS) resolving SID", resolvedSID)
-      //         return res.redirect('http://localhost:8080');
-      //       }
-      //     })
-      //   }
-      // });
     }
   })(req, res, next);
 });
