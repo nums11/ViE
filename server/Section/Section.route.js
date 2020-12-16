@@ -72,47 +72,48 @@ sectionRoutes.route('/update_section_number/:section_id').post(function (req, re
 });
 
 sectionRoutes.post('/add_student/:section_id/:student_id/:has_open_enrollment',
-  (req, res, next) => {
+  async (req, res, next) => {
   let section_id = req.params.section_id;
   let student_id = req.params.student_id;
-  console.log(req.params.has_open_enrollment)
   let has_open_enrollment = req.params.has_open_enrollment === "true"
-  let update_block = {}
-  if(has_open_enrollment)
-    update_block.students = student_id
-  else
-    update_block.pending_approval_students = student_id
-  console.log("Update block", update_block)
-  Section.findByIdAndUpdate(section_id,
-    {$push: update_block},
-    function (err, section) {
-      if (err || section == null) {
-        console.log("<ERROR> (sections/add_student) Updating section with id",
-          section_id)
-        next(err);
-      } else {
-        User.findByIdAndUpdate(student_id,
-        {
-          $push: {
-            student_sections: section,
-            meetings: {$each: section.meetings}
-          },
-        },
-        (error, user) => {
-          if (err || user == null) {
-            console.log("<ERROR> (sections/add_student) Updating user with id",student_id,
-              err)
-            res.status(400).json(err);
-          } else {
-            console.log("<SUCCESS> (sections/add_student) Adding student with id",student_id,
-              "to section with ID:",section_id)
-            res.status(200).json(section);
-          }
-        })
-      }
-    }
-  );
-  res.json({})
+  try {
+    const section_operation = has_open_enrollment ?
+    "add_student" : "add_pending_approval_student"
+    const updated_section = await updateSection(section_id,
+      section_operation, student_id)
+    if(updated_section == null)
+      throw "<ERROR> (courses/add_student)"
+    const student_operation = has_open_enrollment ?
+    "add_student_section" : "add_pending_approval_section"
+    const updated_student = await updateStudent(student_id,
+      student_operation, updated_section)
+    if(updated_student == null)
+      throw "<ERROR> (courses/add_student)"
+    console.log("<SUCCESS> (courses/add_student)")
+    res.json(updated_section)
+  } catch(error) {
+    next(error)
+  }
+});
+
+sectionRoutes.post('/approve_student/:section_id/:student_id/',
+  async (req, res, next) => {
+  let section_id = req.params.section_id;
+  let student_id = req.params.student_id;
+  try {
+    const updated_section = await updateSection(section_id,
+      "approve_student", student_id)
+    if(updated_section == null)
+      throw "<ERROR> (courses/approve_student)"
+    const updated_student = await updateStudent(student_id,
+      "approve_student", updated_section)
+    if(updated_student == null)
+      throw "<ERROR> (courses/approve_student)"
+    console.log("<SUCCESS> (courses/approve_student)")
+    res.json(updated_section)
+  } catch(error) {
+    next(error)
+  }
 });
 
 sectionRoutes.get('/by_join_code/:join_code', (req, res, next) => {
@@ -131,6 +132,10 @@ sectionRoutes.get('/by_join_code/:join_code', (req, res, next) => {
       if(error) {
         console.log("<ERROR> (sections/by_join_code) getting section by join_code",join_code)
         next(error)
+      } else if(sections.length === 0) {
+        console.log("<ERROR> (sections/by_join_code) getting section by join_code",join_code,
+          "no sections found")
+        res.status(404).json("No sections with this join code found")
       } else {
         console.log("<SUCCESS> (sections/by_join_code) getting section by join_code")
         res.json(sections[0])
@@ -340,5 +345,94 @@ sectionRoutes.get('/get_for_course/:course_id', (req, res) => {
     }
   })
 })
+
+async function updateSection(section_id, operation, student_id) {
+  let update_block = {
+    pull_block: {},
+    push_block: {}
+  }
+  if(operation === "add_student") {
+    update_block.push_block.students = student_id
+  } else if(operation === "add_pending_approval_student") {
+    update_block.push_block.pending_approval_students = student_id
+  } else if(operation === "approve_student") {
+    update_block.pull_block.pending_approval_students = student_id
+    update_block.push_block.students = student_id
+  }
+  console.log("In updateSection", update_block)
+
+  try {
+    let update_promise = new Promise((resolve, reject) => {
+      Section.findByIdAndUpdate(section_id,
+        {
+          $push: update_block.push_block,
+          $pull: update_block.pull_block
+        },
+        {new: true},
+        (error, updated_section) => {
+          if(error) {
+            console.log(`<ERROR> updating section with id ${section_id}`
+              + ` and update_block`, update_block)
+            reject(error)
+          } else {
+            resolve(updated_section)
+          }
+        }
+      )
+    })
+    const updated_section = await Promise.resolve(update_promise)
+    return updated_section
+  } catch(error) {
+    console.log(`<ERROR> updateSection with section_id: ${section_id},` +
+      ` operation: '${operation}', student_id: ${student_id}`, error)
+    return null
+  }
+}
+
+async function updateStudent(student_id, operation, section) {
+  let update_block = {
+    pull_block: {},
+    push_block: {}
+  }
+  if(operation === "add_student_section") {
+    update_block.push_block.student_sections = section._id
+    update_block.push_block.meetings = section.meetings
+  } else if(operation === "add_pending_approval_section") {
+    update_block.push_block.pending_approval_sections = section._id
+  } else if(operation === "approve_student") {
+    update_block.pull_block.pending_approval_sections = section._id
+    update_block.push_block.student_sections = section._id
+  } else if(operation === "remove_pending_approval_section") {
+    update_block.pull_block.pending_approval_sections = section._id
+  }
+  console.log("In updateStudent", update_block)
+
+  try {
+    let update_promise = new Promise((resolve, reject) => {
+      User.findByIdAndUpdate(student_id,
+        {
+          $push: update_block.push_block,
+          $pull: update_block.pull_block
+        },
+        {new: true},
+        (error, updated_student) => {
+          if(error) {
+            console.log(`<ERROR> updating section with id ${section_id}`
+              + ` and update_block`, update_block)
+            reject(error)
+          } else {
+            resolve(updated_student)
+          }
+        }
+      )
+    })
+    const updated_student = await Promise.resolve(update_promise)
+    return updated_student
+  } catch(error) {
+    console.log(`<ERROR> updateStudent with student_id: ${student_id},` +
+      ` operation: '${operation}', section_id: ${section._id}`, error)
+    return null
+  }
+}
 
 module.exports = sectionRoutes;

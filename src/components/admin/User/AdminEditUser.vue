@@ -44,7 +44,10 @@
       <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">Instructor Courses</h3>
       <h4 v-for="course in user.instructor_courses">{{ course.name }}</h4>
       <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">Student Sections</h3>
-      <h4 v-for="section in user.student_sections">{{ section.section_number }}</h4>
+      <h4 v-for="section in user.student_sections">
+        {{ section.course.dept }} {{ section.course.course_number }}
+        -{{ section.section_number }} ({{ section.course.name }})
+      </h4>
       <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">User Orgs</h3>
       <h4 v-for="org in user.user_orgs">{{ org.name }}</h4>
       <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">Meetings</h3>

@@ -13,6 +13,10 @@ export default {
     return API().post(`sections/add_student/${section_id}/${student_id}` +
       `/${has_open_enrollment}`, {})
   },
+  approveStudentIntoSection(section_id, student_id) {
+    return API().post(`sections/approve_student/${section_id}/${student_id}`,
+      {})
+  },
   removeStudentFromSection(section_id, student_id) {
     return API().post(`sections/remove_student/${section_id}/${student_id}`, {})
   },

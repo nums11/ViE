@@ -6,7 +6,7 @@
       <p v-if="section.has_open_enrollment">Open Enrollment</p>
       <p v-else>Closed Enrollment</p>
       <p>Join Code: {{ section.join_code }}</p>
-      <h5>Students</h5>
+      <h5>Students ({{ section.students.length }})</h5>
       <div class="student-list">
         <div class="student-row-header">
           <div class="checkbox-area">
@@ -23,6 +23,23 @@
             <div class="first-name-area">{{ student.first_name }}</div>
             <div class="last-name-area">{{ student.last_name }}</div>
             <div class="email-area">{{ student.user_id }}</div>
+          </div>
+      </div>
+      <h5>Pending Aprroval ({{ section.pending_approval_students.length }})</h5>
+      <div class="student-list">
+        <div class="student-row-header">
+          <div class="first-name-area">First Name</div>
+          <div class="last-name-area">Last Name</div>
+          <div class="email-area">User ID</div>
+        </div>
+          <div v-for="student in section.pending_approval_students" :key="student._id" class="student-row">
+            <div class="first-name-area">{{ student.first_name }}</div>
+            <div class="last-name-area">{{ student.last_name }}</div>
+            <div class="email-area">{{ student.user_id }}</div>
+            <sui-button @click="approveStudent(section, student)" size="tiny" 
+            color="blue" content="approve" style="margin-left:2rem;" />
+            <sui-button @click="denyStudent(student)" size="tiny"
+            color="red" content="deny" style="margin-left:1rem;" />
           </div>
       </div>
     </div>
@@ -102,6 +119,8 @@
   </div>
 </template>
 <script>
+import SectionAPI from '@/services/SectionAPI'
+
 export default {
   name: 'ManageStudents',
   props: {
@@ -113,6 +132,20 @@ export default {
   },
   created() {
     console.log("course", this.course)
+  },
+  methods: {
+    async approveStudent(section, student) {
+      let confirmation = confirm(`Are you sure you want to approve` +
+        ` ${student.user_id}?`)
+      if(confirmation) {
+        const response = await SectionAPI.approveStudentIntoSection(
+          section._id, student._id)
+      }
+    },
+    denyStudent(student) {
+      let confirmation = confirm(`Are you sure you want to deny` +
+        ` approval for ${student.user_id}?`)
+    }
   }
 }
 </script>
@@ -142,6 +175,7 @@ export default {
             text-align: center;
         }
         .first-name-area {
+          margin-left: 1rem;
             width: 20%;
         }
         .last-name-area {
@@ -161,6 +195,7 @@ export default {
             text-align: center;
         }
         .first-name-area {
+          margin-left: 1rem;
             width: 20%;
         }
         .last-name-area {

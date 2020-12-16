@@ -96,6 +96,12 @@ userRoutes.route('/get/:id').get(function (req, res) {
   }).
   populate('live_submissions').
   populate('async_submissions').
+  populate({
+    path: 'pending_approval_sections',
+    populate: {
+      path: 'course'
+    }
+  }).
   exec((error,user) => {
     if(error || user == null){
       console.log("<ERROR> (users/get) Getting user with ID:",id,error)

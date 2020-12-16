@@ -187,7 +187,7 @@ courseRoutes.route('/add').post(async function (req, res, next) {
     let updated_course = await createSectionsAndAddToCourse(
       sections, new_course._id, "courses/add")
     if(updated_course == null)
-      throw "Error in createSectionsAndAddToCourse"
+      throw "<ERROR> (courses/add)"
 
     // Update the instructor with the new course
     let instructor_update_promise = new Promise((resolve, reject) => {
@@ -209,7 +209,6 @@ courseRoutes.route('/add').post(async function (req, res, next) {
     console.log("<SUCCESS> (courses/add) creating course")
     res.json(updated_course)
   } catch(error) {
-    console.log("<ERROR> (courses/add)")
     next(error)
   }
 });
@@ -355,17 +354,17 @@ courseRoutes.route('/remove_secondary_instructor/:course_id/:instructor_id').pos
 });
 
 // Broken because of change to sections... fix later
-courseRoutes.route('/add_section/:course_id').post(async function (req, res) {
+courseRoutes.route('/add_section/:course_id').post(async function (req, res, next) {
 	let course_id = req.params.course_id
   let section_number = req.body.section_number
   try {
     let updated_course = await createSectionsAndAddToCourse(
       [section_number], course_id, "courses/add_section")
     if(updated_course == null)
-      throw "Error in createSectionsAndAddToCourse"
+      throw "<ERROR> (courses/add_section)"
     res.json(updated_course)
   } catch(error) {
-    console.log("<ERROR> (courses/add_section)", error)
+    next(error)
   }
 });
 
@@ -418,6 +417,8 @@ courseRoutes.route('/get/:id/:with_meetings').get(function (req, res) {
         }]
       },{
         path: 'students'
+      }, {
+        path: 'pending_approval_students'
       }]
     }).
     exec((error,course) => {

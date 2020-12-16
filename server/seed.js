@@ -53,6 +53,7 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 			is_admin: true,
 			instructor_courses: [],
 			student_sections: [],
+			pending_approval_sections: [],
 			users_orgs: [],
 			meetings: [],
 			live_submissions: [],
@@ -69,6 +70,7 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 			is_admin: false,
 			instructor_courses: [],
 			student_sections: [],
+			pending_approval_sections: [],
 			users_orgs: [],
 			meetings: [],
 			live_submissions: [],
@@ -87,6 +89,7 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 				is_admin: false,
 				instructor_courses: [],
 				student_sections: [],
+				pending_approval_sections: [],
 				users_orgs: [],
 				meetings: [],
 				live_submissions: [],
@@ -102,15 +105,14 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 			course_number: 2961,
 			instructor: users[0]._id,
 			sections: []
-			// students: [users[2]._id, users[3]._id, users[4]._id],
-			// meetings: []
 		}))
 		sections.push(new Section({
 			section_number: 1,
 			course: courses[0]._id,
 			students: [users[2]._id, users[3]._id, users[4]._id],
 			meetings: [],
-			join_code: getJoinCodeForSection(1,courses[0]._id)
+			join_code: getJoinCodeForSection(1,courses[0]._id),
+			has_open_enrollment: true
 		}))
 		courses[0].sections.push(sections[0]._id)
 		users[0].instructor_courses.push(courses[0]._id)
@@ -123,8 +125,6 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 			dept: "CSCI",
 			course_number: 1200,
 			instructor: users[0]._id,
-			// students: [users[2]._id, users[3]._id, users[4]._id, users[5]._id, users[6]._id,
-			// users[7]._id, users[8]._id, users[9]._id, users[10]._id, users[11]._id,],
 			meetings: []
 		}))
 		sections.push(new Section({
