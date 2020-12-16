@@ -138,8 +138,9 @@ export default {
       let confirmation = confirm(`Are you sure you want to approve` +
         ` ${student.user_id}?`)
       if(confirmation) {
-        const response = await SectionAPI.approveStudentIntoSection(
+        await SectionAPI.approveStudentIntoSection(
           section._id, student._id)
+        this.$router.go()
       }
     },
     denyStudent(student) {

@@ -402,6 +402,7 @@ async function updateStudent(student_id, operation, section) {
   } else if(operation === "approve_student") {
     update_block.pull_block.pending_approval_sections = section._id
     update_block.push_block.student_sections = section._id
+    update_block.push_block.meetings = section.meetings
   } else if(operation === "remove_pending_approval_section") {
     update_block.pull_block.pending_approval_sections = section._id
   }
