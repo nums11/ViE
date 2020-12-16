@@ -10,21 +10,24 @@ export default {
     })
   },
   addStudentToSection(section_id, student_id, has_open_enrollment) {
-    return API().post(`sections/add_student/${section_id}/${student_id}` +
-      `/${has_open_enrollment}`, {})
+    const operation = has_open_enrollment ?
+    "add_student" : "add_pending_approval_student"
+    return API().post(`sections/handle_student/${section_id}/${student_id}` +
+      `/${operation}`, {})
+  },
+  removeStudentFromSection(section_id, student_id) {
+    return API().post(`sections/handle_student/${section_id}/${student_id}` +
+      `/remove_student`, {})
   },
   approveStudentIntoSection(section_id, student_id) {
     return API().post(
-      `sections/handle_enrollment/${section_id}/${student_id}/approve`,
+      `sections/handle_enrollment/${section_id}/${student_id}/approve_student`,
       {})
   },
   denyStudentApprovalIntoSection(section_id, student_id) {
     return API().post(
-      `sections/handle_enrollment/${section_id}/${student_id}/deny`,
+      `sections/handle_enrollment/${section_id}/${student_id}/deny_student`,
       {})
-  },
-  removeStudentFromSection(section_id, student_id) {
-    return API().post(`sections/remove_student/${section_id}/${student_id}`, {})
   },
   getSection(id) {
     return API().get('sections/get/' + id)

@@ -71,25 +71,30 @@ sectionRoutes.route('/update_section_number/:section_id').post(function (req, re
   );
 });
 
-sectionRoutes.post('/add_student/:section_id/:student_id/:has_open_enrollment',
+sectionRoutes.post('/handle_student/:section_id/:student_id/:operation',
   async (req, res, next) => {
-  let section_id = req.params.section_id;
-  let student_id = req.params.student_id;
-  let has_open_enrollment = req.params.has_open_enrollment === "true"
+  const section_id = req.params.section_id;
+  const student_id = req.params.student_id;
+  const section_operation = req.params.operation
+  console.log("Section operation", section_operation)
+  let student_operation;
+  if(section_operation === "add_student")
+    student_operation = "add_student_section"
+  else if(section_operation === "add_pending_approval_student")
+    student_operation = "add_pending_approval_section"
+  else if(section_operation === "remove_student")
+    student_operation = "remove_student_section"
+  console.log("student operation", student_operation)
   try {
-    const section_operation = has_open_enrollment ?
-    "add_student" : "add_pending_approval_student"
     const updated_section = await updateSection(section_id,
       section_operation, student_id)
     if(updated_section == null)
-      throw "<ERROR> (courses/add_student)"
-    const student_operation = has_open_enrollment ?
-    "add_student_section" : "add_pending_approval_section"
+      throw "<ERROR> (courses/handle_student)"
     const updated_student = await updateStudent(student_id,
       student_operation, updated_section)
     if(updated_student == null)
-      throw "<ERROR> (courses/add_student)"
-    console.log("<SUCCESS> (courses/add_student)")
+      throw "<ERROR> (courses/handle_student)"
+    console.log(`<SUCCESS> (courses/handle_student) ${section_operation}`)
     res.json(updated_section)
   } catch(error) {
     next(error)
@@ -98,10 +103,9 @@ sectionRoutes.post('/add_student/:section_id/:student_id/:has_open_enrollment',
 
 sectionRoutes.post('/handle_enrollment/:section_id/:student_id/:operation',
   async (req, res, next) => {
-  let section_id = req.params.section_id;
-  let student_id = req.params.student_id;
-  let operation = req.params.operation === "approve" ?
-  "approve_student" : "deny_student"
+  const section_id = req.params.section_id;
+  const student_id = req.params.student_id;
+  const operation = req.params.operation
   try {
     const updated_section = await updateSection(section_id,
       operation, student_id)
@@ -111,7 +115,7 @@ sectionRoutes.post('/handle_enrollment/:section_id/:student_id/:operation',
       operation, updated_section)
     if(updated_student == null)
       throw "<ERROR> (courses/handle_enrollment)"
-    console.log("<SUCCESS> (courses/handle_enrollment)")
+    console.log(`<SUCCESS> (courses/handle_enrollment) with operation ${operation}`)
     res.json(updated_section)
   } catch(error) {
     next(error)
@@ -144,43 +148,6 @@ sectionRoutes.get('/by_join_code/:join_code', (req, res, next) => {
       }
     }
   )
-});
-
-
-sectionRoutes.route('/remove_student/:section_id/:student_id').post(function (req, res) {
-  let section_id = req.params.section_id;
-  let student_id = req.params.student_id;
-  console.log()
-  Section.findByIdAndUpdate(section_id,
-    {$pull: {students: student_id}},
-    function (err, section) {
-      if (err || section == null) {
-        console.log("<ERROR> (sections/remove_student) Updating section with id",
-          section_id,err)
-        res.status(400).json(err);
-      } else {
-        User.findByIdAndUpdate(student_id,
-        {
-          $pull: {
-            student_sections: section_id,
-            meetings: {$in: section.meetings}
-          },
-        },
-        (error, user) => {
-          if (err || user == null) {
-            console.log("<ERROR> (sections/remove_student) Updating user with id",
-              student_id,err)
-            res.status(400).json(err);
-          } else {
-            console.log("Student sections",user.student_sections)
-            console.log("<SUCCESS> (sections/remove_student) Removing student with id",student_id,
-              "from section with ID:",section_id)
-            res.status(200).json(section);
-          }
-        })
-      }
-    }
-  );
 });
 
 sectionRoutes.route('/delete/:id').delete(function (req, res) {
@@ -362,6 +329,8 @@ async function updateSection(section_id, operation, student_id) {
     update_block.push_block.students = student_id
   } else if(operation === "deny_student") {
     update_block.pull_block.pending_approval_students = student_id
+  } else if(operation === "remove_student") {
+    update_block.pull_block.students = student_id
   }
   console.log("In updateSection", update_block)
 
@@ -396,6 +365,7 @@ async function updateSection(section_id, operation, student_id) {
 async function updateStudent(student_id, operation, section) {
   let update_block = {
     pull_block: {},
+    pull_all_block: {},
     push_block: {}
   }
   if(operation === "add_student_section") {
@@ -409,6 +379,9 @@ async function updateStudent(student_id, operation, section) {
     update_block.push_block.meetings = section.meetings
   } else if(operation === "deny_student") {
     update_block.pull_block.pending_approval_sections = section._id
+  } else if(operation === "remove_student_section") {
+    update_block.pull_block.student_sections = section._id
+    update_block.pull_all_block.meetings = section.meetings
   }
   console.log("In updateStudent", update_block)
 
@@ -417,12 +390,13 @@ async function updateStudent(student_id, operation, section) {
       User.findByIdAndUpdate(student_id,
         {
           $push: update_block.push_block,
-          $pull: update_block.pull_block
+          $pull: update_block.pull_block,
+          $pullAll: update_block.pull_all_block
         },
         {new: true},
         (error, updated_student) => {
           if(error) {
-            console.log(`<ERROR> updating section with id ${section_id}`
+            console.log(`<ERROR> updating student with id ${student_id}`
               + ` and update_block`, update_block)
             reject(error)
           } else {

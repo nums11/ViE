@@ -9,20 +9,18 @@
       <h5>Students ({{ section.students.length }})</h5>
       <div class="student-list">
         <div class="student-row-header">
-          <div class="checkbox-area">
-              <sui-checkbox />
-          </div>
           <div class="first-name-area">First Name</div>
           <div class="last-name-area">Last Name</div>
           <div class="email-area">User ID</div>
         </div>
           <div v-for="student in section.students" :key="student._id" class="student-row">
-            <div class="checkbox-area">
-                <sui-checkbox />
-            </div>
             <div class="first-name-area">{{ student.first_name }}</div>
             <div class="last-name-area">{{ student.last_name }}</div>
             <div class="email-area">{{ student.user_id }}</div>
+            <div class="remove-btn-area">
+              <sui-button @click="removeStudent(section, student)" size="tiny"
+              color="red" content="remove" style="margin-left:1rem;" />
+            </div>
           </div>
       </div>
       <h5>Pending Aprroval ({{ section.pending_approval_students.length }})</h5>
@@ -151,6 +149,15 @@ export default {
           section._id, student._id)
       this.$router.go()
       }
+    },
+    async removeStudent(section, student) {
+      let confirmation = confirm(`Are you sure you want to remove` +
+        ` ${student.user_id} from this section?`)
+      if(confirmation) {
+        await SectionAPI.removeStudentFromSection(
+          section._id, student._id)
+        this.$router.go()
+      }
     }
   }
 }
@@ -208,6 +215,7 @@ export default {
             width: 20%;
         }
         .email-area {
+          width: 10rem;
         }
     }
     .student-row.active {
@@ -249,4 +257,5 @@ export default {
 .section-info:not(:first-child) {
   margin-top: 2rem;
 }
+
 </style>
