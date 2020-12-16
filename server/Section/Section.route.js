@@ -96,20 +96,22 @@ sectionRoutes.post('/add_student/:section_id/:student_id/:has_open_enrollment',
   }
 });
 
-sectionRoutes.post('/approve_student/:section_id/:student_id/',
+sectionRoutes.post('/handle_enrollment/:section_id/:student_id/:operation',
   async (req, res, next) => {
   let section_id = req.params.section_id;
   let student_id = req.params.student_id;
+  let operation = req.params.operation === "approve" ?
+  "approve_student" : "deny_student"
   try {
     const updated_section = await updateSection(section_id,
-      "approve_student", student_id)
+      operation, student_id)
     if(updated_section == null)
-      throw "<ERROR> (courses/approve_student)"
+      throw "<ERROR> (courses/handle_enrollment)"
     const updated_student = await updateStudent(student_id,
-      "approve_student", updated_section)
+      operation, updated_section)
     if(updated_student == null)
-      throw "<ERROR> (courses/approve_student)"
-    console.log("<SUCCESS> (courses/approve_student)")
+      throw "<ERROR> (courses/handle_enrollment)"
+    console.log("<SUCCESS> (courses/handle_enrollment)")
     res.json(updated_section)
   } catch(error) {
     next(error)
@@ -358,6 +360,8 @@ async function updateSection(section_id, operation, student_id) {
   } else if(operation === "approve_student") {
     update_block.pull_block.pending_approval_students = student_id
     update_block.push_block.students = student_id
+  } else if(operation === "deny_student") {
+    update_block.pull_block.pending_approval_students = student_id
   }
   console.log("In updateSection", update_block)
 
@@ -403,7 +407,7 @@ async function updateStudent(student_id, operation, section) {
     update_block.pull_block.pending_approval_sections = section._id
     update_block.push_block.student_sections = section._id
     update_block.push_block.meetings = section.meetings
-  } else if(operation === "remove_pending_approval_section") {
+  } else if(operation === "deny_student") {
     update_block.pull_block.pending_approval_sections = section._id
   }
   console.log("In updateStudent", update_block)

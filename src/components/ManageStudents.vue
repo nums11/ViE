@@ -38,7 +38,7 @@
             <div class="email-area">{{ student.user_id }}</div>
             <sui-button @click="approveStudent(section, student)" size="tiny" 
             color="blue" content="approve" style="margin-left:2rem;" />
-            <sui-button @click="denyStudent(student)" size="tiny"
+            <sui-button @click="denyStudent(section, student)" size="tiny"
             color="red" content="deny" style="margin-left:1rem;" />
           </div>
       </div>
@@ -143,9 +143,14 @@ export default {
         this.$router.go()
       }
     },
-    denyStudent(student) {
+    async denyStudent(section, student) {
       let confirmation = confirm(`Are you sure you want to deny` +
         ` approval for ${student.user_id}?`)
+      if(confirmation) {
+        await SectionAPI.denyStudentApprovalIntoSection(
+          section._id, student._id)
+      this.$router.go()
+      }
     }
   }
 }

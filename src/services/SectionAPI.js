@@ -14,7 +14,13 @@ export default {
       `/${has_open_enrollment}`, {})
   },
   approveStudentIntoSection(section_id, student_id) {
-    return API().post(`sections/approve_student/${section_id}/${student_id}`,
+    return API().post(
+      `sections/handle_enrollment/${section_id}/${student_id}/approve`,
+      {})
+  },
+  denyStudentApprovalIntoSection(section_id, student_id) {
+    return API().post(
+      `sections/handle_enrollment/${section_id}/${student_id}/deny`,
       {})
   },
   removeStudentFromSection(section_id, student_id) {
