@@ -33,6 +33,10 @@ let User = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Section'
 	}],
+	pending_approval_sections: [{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Section'
+	}],
 	user_orgs: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Organization'

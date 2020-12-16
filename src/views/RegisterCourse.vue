@@ -33,14 +33,25 @@
       <div class="row section-row">
         <div class="col-md-6">
           <div class="form-group">
-            <label>section number:</label>
-            <input type="number" class="form-control" v-model="section_number">
+            <div>
+              <label for="section-number">section number:</label>
+              <input type="number" class="form-control" name="section-number"
+              v-model="section.section_number">
+            </div>
+            <div>
+              <label for="open-enrollment">has_open_enrollment</label>
+              <input type="checkbox" class="form-control" name="open-enrollment"
+              v-model="section.has_open_enrollment">
+            </div>
             <button @click.prevent="addSection">Add section</button>
           </div>
         </div>
       </div>
       <h3>Sections</h3>
-      <p v-for="section_number in section_numbers">{{ section_number }}</p>
+      <div v-for="section in sections" class="section-container">
+        <p>Section Number: {{ section.section_number }}</p>
+        <p>has_open_enrollment: {{ section.has_open_enrollment }}</p>
+      </div>
       <div class="form-group">
         <button class="btn btn-primary">Create</button>
       </div>
@@ -59,8 +70,10 @@ export default {
     data () {
       return {
         course: {},
-        section_numbers: [],
-        section_number: null,
+        sections: [],
+        section: {
+          has_open_enrollment: false
+        },
       }
     },
     created () {
@@ -69,20 +82,23 @@ export default {
     methods: {
       async registerCourse(){
         this.course.instructor = this.current_user._id
-        const response = await CourseAPI.addCourse(this.course, this.section_numbers);
+        const response = await CourseAPI.addCourse(this.course, this.sections);
         const new_course = response.data
         console.log("Receied new course", new_course)
         this.$router.push({name: 'course_info',
           params: {id: new_course._id, reload_page: true}});
       },
       addSection() {
-        this.section_numbers.push(this.section_number)
-        this.section_number = null
+        this.sections.push(this.section)
+        this.section = { has_open_enrollment: false }
+        console.log("Sections", this.sections)
       }
     }
 }
 </script>
 
 <style lang="css" scoped>
-
+.section-container {
+  border: black solid;
+}
 </style>

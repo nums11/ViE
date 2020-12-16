@@ -34,8 +34,12 @@ export default {
             + `${section.course.name} (${section.course.dept} `
             + `${section.course.course_number}) Section ${section.section_number}?`)
           if(confirmation) {
-            await SectionAPI.addStudentToSection(section._id, this.current_user._id)
-            alert("Section successfully joined")
+            await SectionAPI.addStudentToSection(section._id, this.current_user._id,
+              section.has_open_enrollment)
+            if(section.has_open_enrollment)
+              alert("Section successfully joined")
+            else
+              alert("Requested to join section. You will be notified when the instructor grants approval")
             this.$router.push({name: 'course_info',
               params: {id: section.course._id}})
           }

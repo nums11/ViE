@@ -71,16 +71,25 @@ sectionRoutes.route('/update_section_number/:section_id').post(function (req, re
   );
 });
 
-sectionRoutes.route('/add_student/:section_id/:student_id').post(function (req, res) {
+sectionRoutes.post('/add_student/:section_id/:student_id/:has_open_enrollment',
+  (req, res, next) => {
   let section_id = req.params.section_id;
   let student_id = req.params.student_id;
+  console.log(req.params.has_open_enrollment)
+  let has_open_enrollment = req.params.has_open_enrollment === "true"
+  let update_block = {}
+  if(has_open_enrollment)
+    update_block.students = student_id
+  else
+    update_block.pending_approval_students = student_id
+  console.log("Update block", update_block)
   Section.findByIdAndUpdate(section_id,
-    {$push: {students: student_id}},
+    {$push: update_block},
     function (err, section) {
       if (err || section == null) {
         console.log("<ERROR> (sections/add_student) Updating section with id",
-          section_id, err)
-        res.status(400).json(err);
+          section_id)
+        next(err);
       } else {
         User.findByIdAndUpdate(student_id,
         {
@@ -103,6 +112,7 @@ sectionRoutes.route('/add_student/:section_id/:student_id').post(function (req, 
       }
     }
   );
+  res.json({})
 });
 
 sectionRoutes.get('/by_join_code/:join_code', (req, res, next) => {

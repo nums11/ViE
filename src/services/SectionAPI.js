@@ -9,8 +9,9 @@ export default {
       section: section // add our data to the request body
     })
   },
-  addStudentToSection(section_id, student_id) {
-    return API().post(`sections/add_student/${section_id}/${student_id}`, {})
+  addStudentToSection(section_id, student_id, has_open_enrollment) {
+    return API().post(`sections/add_student/${section_id}/${student_id}` +
+      `/${has_open_enrollment}`, {})
   },
   removeStudentFromSection(section_id, student_id) {
     return API().post(`sections/remove_student/${section_id}/${student_id}`, {})

@@ -180,12 +180,12 @@ courseRoutes.route('/cas_invite_student/:course_id').post((req, res) => {
 
 courseRoutes.route('/add').post(async function (req, res, next) {
   let course = new Course(req.body.course);
-  let section_numbers = req.body.section_numbers
+  let sections = req.body.sections
 
   try {
     let new_course = await course.save()
     let updated_course = await createSectionsAndAddToCourse(
-      section_numbers, new_course._id, "courses/add")
+      sections, new_course._id, "courses/add")
     if(updated_course == null)
       throw "Error in createSectionsAndAddToCourse"
 
@@ -354,6 +354,7 @@ courseRoutes.route('/remove_secondary_instructor/:course_id/:instructor_id').pos
   );
 });
 
+// Broken because of change to sections... fix later
 courseRoutes.route('/add_section/:course_id').post(async function (req, res) {
 	let course_id = req.params.course_id
   let section_number = req.body.section_number
@@ -519,21 +520,18 @@ courseRoutes.route('/get_instructor_courses/:user_id').get(function (req, res) {
   })
 });
 
-async function createSectionsAndAddToCourse(section_numbers, course_id, route) {
+async function createSectionsAndAddToCourse(sections, course_id, route) {
     // Save Sections
   try {
     let section_promises = []
-    section_numbers.forEach(section_number => {
+    sections.forEach(section => {
       section_promises.push(new Promise(async (resolve,reject) => {
-        let join_code = getJoinCodeForSection(section_number, course_id)
-        console.log("Join code", join_code)
-        let section = new Section({
-          course: course_id,
-          section_number: section_number,
-          join_code: join_code
-        })
+        section.join_code = getJoinCodeForSection(section.section_number,
+          course_id)
+        section.course = course_id
+        let new_section = new Section(section)
         try {
-          let saved_section = await section.save()
+          let saved_section = await new_section.save()
           resolve(saved_section)
         } catch(error) {
           console.log(`<ERROR> (${route}) saving section`,section, error)
