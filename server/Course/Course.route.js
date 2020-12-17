@@ -450,22 +450,22 @@ courseRoutes.route('/get/:id/:with_meetings').get(function (req, res) {
 });
 
 courseRoutes.route('/update/:id').post(function (req, res) {
-  let id = req.params.id;
-  let updated_course = req.body.updated_course;
+  const id = req.params.id;
+  const new_course = req.body.new_course;
   Course.findByIdAndUpdate(id,
     {
-      name: updated_course.name,
-      dept: updated_course.dept,
-      course_number: updated_course.course_number,
-      instructor: updated_course.instructor,
+      name: new_course.name,
+      dept: new_course.dept,
+      course_number: new_course.course_number,
     },
-    function (err, course) {
-      if (err || course == null) {
-        console.log("<ERROR> Updating course by ID:",id,"with:",updated_course)
-        res.status(404).send("course not found");
+    {new: true},
+    function (error, updated_course) {
+      if (error) {
+        console.log("<ERROR> Updating course by ID:",id,"with:",new_course)
+        next(error)
       } else {
-        console.log("<SUCCESS> Updating course by ID:",id,"with:",updated_course)
-        res.json(course);
+        console.log("<SUCCESS> Updating course")
+        res.json(updated_course);
       }
     }
   );

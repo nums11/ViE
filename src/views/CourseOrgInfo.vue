@@ -2,17 +2,36 @@
   <div class="course-info">
     <div class="header">
       <!-- Page Title -->
-      <div class="page-title" v-if="for_course">Course Info</div>
+      <div class="page-title" v-if="for_course">
+        Course Info
+        <sui-popup content="Edit Course Details" position="top center" inverted>
+          <sui-icon @click="toggleCourseEditForms"
+          name="edit" style="margin-left:1rem; cursor:pointer;"slot="trigger"/>
+        </sui-popup>
+      </div>
       <div class="page-title" v-else>Org Info</div>
-        <div class="page-info-area">
+        <div v-if="course_or_org_has_loaded" class="page-info-area">
           <!-- Meeting Info Side -->
           <div class="left-side">
-            <h2>{{ for_course ? course.name : org.name }}</h2>
+            <input v-if="show_course_edit_forms" v-model="course.name"
+            class="course-name-input" type="text" />
+            <h2 v-else>{{ course.name }}</h2>
             <div class="details-area">
-              <sui-label v-if="for_course && course.course_number" class="venue-red" :style="{marginBottom: '5px'}">
+              <sui-label class="venue-red" :style="{marginBottom: '5px'}">
                   Dept
-                  <sui-label-detail>{{ course.dept }} {{ getFormattedCourseNumber(course.course_number) }}</sui-label-detail>
+                  <sui-label-detail v-if="show_course_edit_forms">
+                    <input v-model="course.dept" type="text"
+                    class="course-details-input" />
+                    <input v-model="course.course_number" type="number"
+                    class="course-details-input" />
+                    <!-- {{ getFormattedCourseNumber(course.course_number) }} -->
+                  </sui-label-detail>
+                  <sui-label-detail v-else>
+                    {{ course.dept }} {{ getFormattedCourseNumber(course.course_number) }}
+                  </sui-label-detail>
               </sui-label>
+              <sui-button v-if="show_course_edit_forms" @click="updateCourse"
+              size="small" style="margin:auto;" primary>Save Edits</sui-button>
             </div>
           </div>
           <div class="right-side">
@@ -157,7 +176,8 @@ export default {
         show_student_list: true,
         focused_student: null,
         course_or_org_has_loaded: false,
-        student_sections: []
+        student_sections: [],
+        show_course_edit_forms: false
       }
     },
     async created () {
@@ -241,12 +261,30 @@ export default {
         }
       },
       isPrivelegedUser() {
-        console.log("for course", this.for_course)
-        console.log("Is instructor", this.is_instructor)
-        console.log("is_board_member", this.is_board_member)
         return (this.for_course && this.is_instructor) || (!this.for_course && this.is_board_member)
+      },
+      toggleCourseEditForms() {
+        console.log("In func")
+        this.show_course_edit_forms = !this.show_course_edit_forms
+      },
+      // Figure out how to update navbar without page reload
+      async updateCourse() {
+        try {
+          const response = await CourseAPI.updateCourse(this.course_id, {
+            name: this.course.name,
+            dept: this.course.dept,
+            course_number: this.course.course_number
+          })
+          const updated_course = response.data
+          this.course.name = updated_course.name
+          this.course.dept = updated_course.dept
+          this.course.course_number = updated_course.course_number
+          this.show_course_edit_forms = false
+        } catch(error) {
+          console.log("Sorry, something went wrong updating the course.")
+        }
       }
-    }
+    },
 }
 </script>
 
@@ -495,5 +533,27 @@ export default {
         width: 100%;
     }
   }
+}
+
+.course-name-input {
+  margin-top: 0.25rem;
+  margin-bottom: 1rem;
+  padding: 0;
+  height: 2rem;
+  width: 15rem;
+  font-size: 1.7rem;
+  font-weight: bold;
+  border: #9e9e9e thin solid;
+  border-radius: 1px;
+}
+
+.course-details-input {
+  width: 3.5rem;
+  height: 1.25rem;
+  margin-top: -5px;
+  background-color: white;
+  border: #9e9e9e thin solid;
+  border-radius: 1px;
+
 }
 </style>

@@ -36,9 +36,9 @@ export default {
   getCourseWithMeetings(id) {
     return API().get(`courses/get/${id}/true`)
   },
-  updateCourse(id, course){
-    return API().post('courses/update/' + id, {
-      updated_course: course
+  updateCourse(course_id, new_course){
+    return API().post(`courses/update/${course_id}`, {
+      new_course: new_course
     })
   },
   inviteStudentsCAS (course_id, users) {
