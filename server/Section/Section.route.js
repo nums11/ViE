@@ -351,7 +351,7 @@ sectionRoutes.post('/invite_student/:section_id/:student_id',
     const invite_url = getInviteUrl(section_id,
       student_id, invite_code)
     const email_info = await sendInviteEmail(
-      `${student_id}@gmail.com`, invite_url, course_name,
+      `${student_id}@rpi.edu`, invite_url, course_name,
       instructor_name, updated_section.section_number)
     if(email_info == null)
       throw "<ERROR> (sections/invite_student)"
