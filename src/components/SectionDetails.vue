@@ -1,10 +1,32 @@
 <template>
   <div class="manage-students-area">
-    <div v-for="section in course.sections" :key="section._id"
-    class="section-info">
-      <h2>Section {{ section.section_number }}</h2>
-      <p v-if="section.has_open_enrollment">Open Enrollment</p>
-      <p v-else>Closed Enrollment</p>
+    <div class="section-info">
+      <h2>
+        Section
+        <input v-if="show_section_edit_forms"
+        v-model="section.section_number"
+        class="section-number-edit-input" type="text" />
+        <h2 v-else style="display: inline-block;">
+          {{ section.section_number }}
+        </h2>
+        <sui-popup content="Edit Section Details" position="top center" inverted>
+          <sui-icon @click="toggleSectionEditForms"
+          name="edit" style="margin-left:1rem; cursor:pointer;"slot="trigger"/>
+        </sui-popup>
+        <div class="save-edits-btn-container">
+          <sui-button v-if="show_section_edit_forms" @click="updateSection"
+          size="small" primary>Save Edits</sui-button>
+        </div>
+      </h2>
+      <p class="enrollment-text" v-if="section.has_open_enrollment">Open Enrollment</p>
+      <p class="enrollment-text" v-else>Closed Enrollment</p>
+      <div v-if="show_section_edit_forms"
+      class="has-open-enrollment-container">
+        <sui-popup content="Toggle Enrollment" position="bottom center" inverted>
+          <sui-checkbox v-model="section.has_open_enrollment"
+          slot="trigger" />
+        </sui-popup>
+      </div>
       <p>Join Code: {{ section.join_code }}</p>
       <h5>Students ({{ section.students.length }})</h5>
       <div class="student-list">
@@ -41,95 +63,25 @@
           </div>
       </div>
     </div>
-<!--     <div v-if="course">
-      <div class="action-row">
-        <div class="left-side">
-            <div :style="{fontSize: '1.2rem'}">{{ course.students.length }} Students</div>
-        </div>
-      </div>
-      <div class="student-list">
-        <div class="student-row-header">
-          <div class="checkbox-area">
-              <sui-checkbox />
-          </div>
-          <div class="first-name-area">First Name</div>
-          <div class="last-name-area">Last Name</div>
-          <div class="email-area">User ID</div>
-        </div>
-          <div v-for="student in course.students" :key="student._id" class="student-row">
-            <div class="checkbox-area">
-                <sui-checkbox />
-            </div>
-            <div class="first-name-area">{{ student.first_name }}</div>
-            <div class="last-name-area">{{ student.last_name }}</div>
-            <div class="email-area">{{ student.user_id }}</div>
-          </div>
-      </div>
-    </div> -->
-<!--     <div v-else>
-      <div class="action-row">
-        <div class="left-side">
-            <div :style="{fontSize: '1.2rem'}">{{ org.board_members.length }} Board Members</div>
-        </div>
-      </div>
-      <div class="student-list">
-        <div class="student-row-header">
-          <div class="checkbox-area">
-              <sui-checkbox />
-          </div>
-          <div class="first-name-area">First Name</div>
-          <div class="last-name-area">Last Name</div>
-          <div class="email-area">User ID</div>
-        </div>
-          <div v-for="member in org.board_members" :key="member._id" class="student-row">
-            <div class="checkbox-area">
-                <sui-checkbox />
-            </div>
-            <div class="first-name-area">{{ member.first_name }}</div>
-            <div class="last-name-area">{{ member.last_name }}</div>
-            <div class="email-area">{{ member.user_id }}</div>
-          </div>
-      </div>
-      <div class="action-row">
-        <div class="left-side">
-            <div :style="{fontSize: '1.2rem'}">{{ org.general_members.length }} General Members</div>
-        </div>
-      </div>
-      <div class="student-list">
-        <div class="student-row-header">
-          <div class="checkbox-area">
-              <sui-checkbox />
-          </div>
-          <div class="first-name-area">First Name</div>
-          <div class="last-name-area">Last Name</div>
-          <div class="email-area">User ID</div>
-        </div>
-          <div v-for="member in org.general_members" :key="member._id" class="student-row">
-            <div class="checkbox-area">
-                <sui-checkbox />
-            </div>
-            <div class="first-name-area">{{ member.first_name }}</div>
-            <div class="last-name-area">{{ member.last_name }}</div>
-            <div class="email-area">{{ member.user_id }}</div>
-          </div>
-      </div>
-    </div> -->
   </div>
 </template>
 <script>
 import SectionAPI from '@/services/SectionAPI'
 
 export default {
-  name: 'ManageStudents',
+  name: 'ManageCourse',
   props: {
-    course:  {
+    section:  {
       type: Object,
       required: true
     },
-    org: Object
+  },
+  data () {
+    return {
+      show_section_edit_forms: false
+    }
   },
   created() {
-    console.log("course", this.course)
   },
   methods: {
     async approveStudent(section, student) {
@@ -158,12 +110,34 @@ export default {
           section._id, student._id)
         this.$router.go()
       }
+    },
+    toggleSectionEditForms() {
+      if(this.show_section_edit_forms)
+        this.updateSection()
+      else
+        this.show_section_edit_forms = !this.show_section_edit_forms
+    },
+    async updateSection() {
+      try {
+        const response = await SectionAPI.updateSection(this.section._id, {
+          section_number: this.section.section_number,
+          has_open_enrollment: this.section.has_open_enrollment
+        })
+        const updated_section = response.data
+        this.section.section_number = updated_section.section_number
+        this.section.has_open_enrollment = updated_section.has_open_enrollment
+        this.show_section_edit_forms = false
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong updating the section.")
+      }
     }
   }
 }
 </script>
 <style lang="scss">
 .manage-students-area {
+  margin-bottom: 2rem;
   .action-row {
     height: 50px;
     display: flex;
@@ -254,8 +228,25 @@ export default {
     }
 }
 
-.section-info:not(:first-child) {
-  margin-top: 2rem;
+.section-number-edit-input {
+  width: 4rem;
+  border: #9e9e9e thin solid;
+  border-radius: 1px;
+  font-weight: bold;
 }
 
+.save-edits-btn-container {
+  display: inline-block;
+  margin-left: 2rem;
+}
+
+.enrollment-text {
+  display: inline-block;
+}
+
+.has-open-enrollment-container {
+  display: inline-block;
+  margin-left: 1rem;
+  vertical-align: top;
+}
 </style>

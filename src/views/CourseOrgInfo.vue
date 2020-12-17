@@ -4,7 +4,8 @@
       <!-- Page Title -->
       <div class="page-title" v-if="for_course">
         Course Info
-        <sui-popup content="Edit Course Details" position="top center" inverted>
+        <sui-popup v-if="is_instructor"
+        content="Edit Course Details" position="top center" inverted>
           <sui-icon @click="toggleCourseEditForms"
           name="edit" style="margin-left:1rem; cursor:pointer;"slot="trigger"/>
         </sui-popup>
@@ -46,7 +47,7 @@
                 </li>
                 <li v-if="for_course && current_user.is_instructor" 
                   @click="activeTab = 'manage_students'" 
-                  :class="activeTab == 'manage_students' ? 'active' : ''">Manage Students
+                  :class="activeTab == 'manage_students' ? 'active' : ''">Manage Course
                 </li>
                 <li v-else-if="!for_course && is_board_member" @click="activeTab = 'members'" :class="activeTab == 'members' ? 'active' : ''">Members</li>
               </ul>
@@ -129,8 +130,8 @@
             <p v-else>Loading Course...</p>
           </div>
           <div key="3" v-if="activeTab === 'manage_students' || activeTab === 'members' ">
-            <ManageStudents v-if="for_course" v-bind:course="course" />
-            <ManageStudents v-else v-bind:org="org" />
+            <ManageCourse v-if="for_course" v-bind:course="course" />
+            <ManageCourse v-else v-bind:org="org" />
           </div>
           <!-- <h3 style="text-align: center;" v-else-if="activeTab == 'settings'">Coming soon...</h3> -->
         </transition-group>
@@ -143,7 +144,7 @@
 
 <script>
 import MeetingAttendancePill from "@/components/MeetingAttendancePill"
-import ManageStudents from "@/components/ManageStudents.vue"
+import ManageCourse from "@/components/ManageCourse.vue"
 import CourseStatistics from "@/components/CourseStatistics.vue"
 import CourseAPI from "@/services/CourseAPI"
 import OrgAPI from "@/services/OrgAPI"
@@ -155,7 +156,7 @@ export default {
     name: 'CourseOrgInfo',
     components: {
       MeetingAttendancePill,
-      ManageStudents,
+      ManageCourse,
       CourseStatistics,
       CourseStudentList,
       StudentStats,
@@ -164,7 +165,7 @@ export default {
     data () {
       return {
         activeTab: 'meeting_history',
-        showManageStudents: true,
+        showManageCourse: true,
         statisticsSections: {},
         colorSets: [],
         course: {},
@@ -236,9 +237,9 @@ export default {
         let width = e.target.outerWidth
         if (width < 950 && this.activeTab == 'manage_students') {
           this.activeTab = 'meeting_history';
-          this.showManageStudents = false
+          this.showManageCourse = false
         }
-        if  (width >= 950 && !this.showManageStudents) this.showManageStudents = true
+        if  (width >= 950 && !this.showManageCourse) this.showManageCourse = true
       },
       showStudentStats(student) {
         this.focused_student = student
@@ -264,8 +265,10 @@ export default {
         return (this.for_course && this.is_instructor) || (!this.for_course && this.is_board_member)
       },
       toggleCourseEditForms() {
-        console.log("In func")
-        this.show_course_edit_forms = !this.show_course_edit_forms
+        if(this.show_course_edit_forms)
+          this.updateCourse()
+        else
+          this.show_course_edit_forms = !this.show_course_edit_forms
       },
       // Figure out how to update navbar without page reload
       async updateCourse() {
@@ -281,7 +284,8 @@ export default {
           this.course.course_number = updated_course.course_number
           this.show_course_edit_forms = false
         } catch(error) {
-          console.log("Sorry, something went wrong updating the course.")
+          console.log(error)
+          alert("Sorry, something went wrong updating the course.")
         }
       }
     },

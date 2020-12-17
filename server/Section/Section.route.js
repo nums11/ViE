@@ -53,6 +53,28 @@ sectionRoutes.route('/get/:id').get(function (req, res) {
   });
 });
 
+sectionRoutes.route('/update/:section_id').post(function (req, res) {
+  const section_id = req.params.section_id;
+  const new_section = req.body.new_section;
+  Section.findByIdAndUpdate(section_id,
+    {
+      section_number: new_section.section_number,
+      has_open_enrollment: new_section.has_open_enrollment
+    },
+    {new: true},
+    function(error, updated_section) {
+      if (error) {
+        console.log("<ERROR> (secctions/update) Updating section with ID:",id,
+         "with new_section",new_section)
+        next(error);
+      } else {
+        console.log("<SUCCESS> (secctions/update) Updating section")
+        res.json(updated_section);
+      }
+    }
+  );
+});
+
 sectionRoutes.route('/update_section_number/:section_id').post(function (req, res) {
   let section_id = req.params.section_id;
   let updated_section_number = req.body.updated_section_number;

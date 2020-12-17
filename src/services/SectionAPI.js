@@ -32,6 +32,11 @@ export default {
   getSection(id) {
     return API().get('sections/get/' + id)
   },
+  updateSection(section_id, new_section) {
+    return API().post(`sections/update/${section_id}`, {
+      new_section: new_section
+    })
+  },
   updateSectionNumber(section_id, section_number){
     return API().post(`sections/update_section_number/${section_id}`, {
       updated_section_number: section_number
