@@ -26,10 +26,11 @@ let Section = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User'
 	}],
-	invited_students: [{
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'User'
-	}]
+	invited_students: {
+		type: Map,
+		of: String,
+		default: {}
+	}
 });
 
 module.exports = mongoose.model('Section', Section);

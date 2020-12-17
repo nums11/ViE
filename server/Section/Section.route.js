@@ -2,10 +2,10 @@ const express = require('express');
 const sectionRoutes = express.Router();
 const jwt = require('jsonwebtoken')
 const ObjectID = require(`mongoose`).Types.ObjectId
-
-let Section = require('./Section.model');
-let User = require('../User/User.model');
-let Course = require('../Course/Course.model');
+const Section = require('./Section.model');
+const User = require('../User/User.model');
+const Course = require('../Course/Course.model');
+const nodemailer = require("nodemailer");
 
 sectionRoutes.route('/add').post(function (req, res) {
   let section = new Section(req.body.section);
@@ -98,7 +98,6 @@ sectionRoutes.post('/handle_student/:section_id/:student_id/:operation',
   const section_id = req.params.section_id;
   const student_id = req.params.student_id;
   const section_operation = req.params.operation
-  console.log("Section operation", section_operation)
   let student_operation;
   if(section_operation === "add_student")
     student_operation = "add_student_section"
@@ -106,7 +105,6 @@ sectionRoutes.post('/handle_student/:section_id/:student_id/:operation',
     student_operation = "add_pending_approval_section"
   else if(section_operation === "remove_student")
     student_operation = "remove_student_section"
-  console.log("student operation", student_operation)
   try {
     const updated_section = await updateSection(section_id,
       section_operation, student_id)
@@ -337,6 +335,32 @@ sectionRoutes.get('/get_for_course/:course_id', (req, res) => {
   })
 })
 
+sectionRoutes.post('/invite_student/:section_id/:student_id',
+  async (req, res, next) => {
+  const section_id = req.params.section_id
+  const student_id = req.params.student_id
+  const course_name = req.body.course_name
+  const instructor_name = req.body.instructor_name
+  try {
+    const invite_code = generateRandomString()
+    const updated_section = await addInvitedStudentToSection(
+      section_id, student_id, invite_code)
+    if(updated_section == null)
+      throw "<ERROR> (sections/invite_student)"
+    // Next actually send the email
+    const invite_url = getInviteUrl(section_id,
+      student_id, invite_code)
+    const email_info = await sendInviteEmail(
+      `${student_id}@gmail.com`, invite_url, course_name,
+      instructor_name, updated_section.section_number)
+    if(email_info == null)
+      throw "<ERROR> (sections/invite_student)"
+    res.json(updated_section)
+  } catch(error) {
+    next(error)
+  }
+})
+
 async function updateSection(section_id, operation, student_id) {
   let update_block = {
     pull_block: {},
@@ -434,6 +458,111 @@ async function updateStudent(student_id, operation, section) {
       ` operation: '${operation}', section_id: ${section._id}`, error)
     return null
   }
+}
+
+function generateRandomString() {
+  let length = 10,
+      charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+      str = "";
+  for (let i = 0, n = charset.length; i < length; ++i) {
+      str += charset.charAt(Math.floor(Math.random() * n))
+  }
+  return str
+}
+
+function getInviteUrl(section_id, student_id, invite_code) {
+  const base_url = process.env.NODE_ENV === 'production' ?
+  'https://byakugan.herokuapp.com/#/' : 'http://localhost:8080/#/'
+  const invite_url = `${base_url}invite/${section_id}/${student_id}/${invite_code}`
+  return invite_url
+}
+
+async function addInvitedStudentToSection(section_id, student_id, invite_code) {
+  try {
+    const key = `invited_students.${student_id}`
+    const update_block = {}
+    update_block[key] = invite_code
+    console.log("update_block", update_block)
+    // update_block["invited_students"] = {}
+    // update_block["invited_students"][student_id] = invite_code
+    let update_promise = new Promise((resolve, reject) => {
+      Section.findByIdAndUpdate(section_id,
+        {$set: update_block},
+        {new: true},
+        (error, section) => {
+          if(error) {
+            console.log(`<ERROR> adding to map for section_id:${section_id},`
+            + `student_id: ${student_id}, and invite_code: ${invite_code}`)
+            reject(error)
+          } else {
+            resolve(section)
+          }
+        }
+      )
+    })
+    const updated_section = await Promise.resolve(update_promise)
+    return updated_section
+  } catch(error) {
+    console.log(`<ERROR> addInvitedStudentToSection section_id: ${section_id},`
+      + ` student_id: ${student_id}, invite_code: ${invite_code}`, error)
+    return null
+  }
+}
+
+async function sendInviteEmail(student_email, invite_url, course_name,
+  instructor_name, section_number) {
+  let transporter = nodemailer.createTransport({
+   service: 'gmail',
+   auth: {
+     user: 'vie.do.not.reply@gmail.com',
+     pass: process.env.EMAIL_PASS
+   }
+  });
+  const subject = getEmailSubject(course_name, section_number)
+  const body = getEmailBody(instructor_name, course_name,
+    section_number, invite_url)
+  let mailOptions = {
+   from: 'vie.do.not.reply@gmail.com',
+   to: student_email,
+   subject: subject,
+   html: body
+  };
+  try {
+    let mail_promise = new Promise((resolve,reject) => {
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log("<ERROR> sending mail");
+          reject(error)
+        } else {
+          resolve(info)
+        }
+      });
+    })
+    const info = await Promise.resolve(mail_promise)
+    return info
+  } catch(error) {
+    console.log(`<ERROR> sendInviteEmail student_email: ${student_email}`
+      + `invite_url: ${invite_url}`, error)
+    return null
+  }
+}
+
+function getEmailSubject(course_name, section_number) {
+  const email_subject = `ViE - ${course_name}`
+    + ` Section ${section_number} Course Invite`
+  return email_subject
+}
+
+function getEmailBody(instructor_name, course_name,
+  section_number, invite_url) {
+  const email_body = `<p>${instructor_name} invited you to join their course`
+    + ` <strong>${course_name} Section ${section_number}.</strong>`
+    + `<br/><br/>`
+    + `To join click this link: ${invite_url}`
+    + `<br/><br/>`
+    + `--<br/>`
+    + `ViE - Virtually Engage</p>`
+  return email_body
 }
 
 module.exports = sectionRoutes;

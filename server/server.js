@@ -8,13 +8,13 @@ const config = require('./DB.js');
 const jwt = require('jsonwebtoken');
 const serveStatic = require('serve-static');
 const LOCAL_PORT = 4000;
-
 const passport = require('passport')
 const session = require('express-session')
 var cookieParser = require('cookie-parser');
 const RealTimeAttendanceQueue = require('./socket/RealTimeAttendanceQueue')
 const NotificationJob = require('./Notification/NotificationJob.model');
 const schedule = require('node-schedule');
+const nodemailer = require("nodemailer");
 
 // For Concurrency
 const throng = require('throng')
@@ -49,6 +49,8 @@ function start() {
   // get environment variabless when not in production
   if (process.env.NODE_ENV !== 'production')
     require('dotenv').config({ path: path.resolve(__dirname, '../variables.env') })
+  sendMail()
+
 
   // ensure auth key is available in environment
   if(!process.env.AUTH_KEY){
@@ -211,4 +213,30 @@ function rescheduleAllNotificationJobs() {
       }
     }
   })
+}
+
+function sendMail() {
+  // console.log("Email pass", process.env.EMAIL_PASS)
+  // let transporter = nodemailer.createTransport({
+  //  service: 'gmail',
+  //  auth: {
+  //    user: 'vie.do.not.reply@gmail.com',
+  //    pass: process.env.EMAIL_PASS
+  //  }
+  // });
+
+  // let html = '<h1>Testing new mail server</h1><p>This is some Mail!</p>'
+  // let mailOptions = {
+  //  from: 'vie.do.not.reply@gmail.com',
+  //  to: 'numsmt2@gmail.com',
+  //  subject: 'ViE Email',
+  //  html: html
+  // };
+  // transporter.sendMail(mailOptions, function(error, info){
+  //   if (error || info == null) {
+  //     console.log("Error sending mail", error);
+  //   } else {
+  //     console.log(`Email Sent. ${info.response}`);
+  //   }
+  // });
 }
