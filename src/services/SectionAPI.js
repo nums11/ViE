@@ -65,5 +65,13 @@ export default {
   },
   getSectionByJoinCode(join_code) {
     return API().get(`sections/by_join_code/${join_code}`)
+  },
+  inviteStudentToSection(section_id, student_id,
+    course_name, instructor_name) {
+    return API().post(`sections/invite_student/${section_id}/${student_id}`,
+    {
+      course_name: course_name,
+      instructor_name: instructor_name
+    })
   }
 }

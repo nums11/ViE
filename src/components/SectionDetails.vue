@@ -28,6 +28,11 @@
         </sui-popup>
       </div>
       <p>Join Code: {{ section.join_code }}</p>
+      <form @submit.prevent="inviteStudent" class="invite-form">
+        <input v-model="invite_student_id"
+        type="text" placeholder="Invite Student by RCS ID" class="invite-input" />
+        <sui-button style="margin-left:1rem;" size="tiny" primary>Invite</sui-button>
+      </form>
       <h5>Students ({{ section.students.length }})</h5>
       <div class="student-list">
         <div class="student-row-header">
@@ -62,6 +67,18 @@
             color="red" content="deny" style="margin-left:1rem;" />
           </div>
       </div>
+      <h5>Invited Students ({{ Object.keys(section.invited_students).length }})</h5>
+      <div class="student-list">
+        <div class="student-row-header">
+          <div class="first-name-area">User ID</div>
+        </div>
+          <div v-for="student_id in Object.keys(section.invited_students)"
+          :key="student_id" class="student-row">
+            <div class="first-name-area">{{ student_id }}</div>
+            <sui-button @click="denyStudent(section, student)" size="tiny"
+            color="grey" content="cancel" style="margin-left:1rem;" />
+          </div>
+      </div>
     </div>
   </div>
 </template>
@@ -75,10 +92,15 @@ export default {
       type: Object,
       required: true
     },
+    course: {
+      type: Object,
+      required: true
+    }
   },
   data () {
     return {
-      show_section_edit_forms: false
+      show_section_edit_forms: false,
+      invite_student_id: ""
     }
   },
   created() {
@@ -131,6 +153,56 @@ export default {
         console.log(error)
         alert("Sorry, something went wrong updating the section.")
       }
+    },
+    async inviteStudent() {
+      let confirmation = confirm(`Are you sure you want to send an email`
+        + ` to ${this.invite_student_id}@rpi.edu inviting them to join`
+        + ` ${this.course.name} section ${this.section.section_number}?`)
+      if(confirmation) {
+        console.log(this.section.invited_students)
+        if(this.invitedStudentIsStudentForCourse()){
+          alert(`Cannot invite student with id ${this.invite_student_id} ` +
+            `since they are already a student for a section within this course.`)
+          return
+        }
+        if(this.studentHasAlreadyBeenInvited()){
+          confirmation = confirm(`Student with id ${this.invite_student_id} has `
+            + `already been invited. Are you sure you want to send another invite?`)
+          if(!confirmation)
+            return
+        } 
+        try {
+          const response = await SectionAPI.inviteStudentToSection(
+            this.section._id, this.invite_student_id, this.course.name,
+            `${this.course.instructor.first_name} ${this.course.instructor.last_name}`)
+          const updated_section = response.data
+          this.section.invited_students = updated_section.invited_students
+          alert("Invite sent")
+        } catch(error) {
+          console.log(error)
+          alert("Sorry, something went wrong.")
+        }
+      }
+      this.invite_student_id = ""
+    },
+    invitedStudentIsStudentForCourse() {
+      let is_student = false
+      for(let i = 0; i < this.course.sections.length; i++) {
+        let section = this.course.sections[i]
+        for(let j = 0; j < section.students.length; j++) {
+          if(section.students[j].user_id === this.invite_student_id){
+            is_student = true
+            break
+          }
+        }
+        if(is_student)
+          break
+      }
+      return is_student
+    },
+    studentHasAlreadyBeenInvited() {
+      let keys = Object.keys(this.section.invited_students)
+      return keys.includes(this.invite_student_id)
     }
   }
 }
@@ -248,5 +320,10 @@ export default {
   display: inline-block;
   margin-left: 1rem;
   vertical-align: top;
+}
+
+.invite-input {
+  border: #9e9e9e thin solid;
+  border-radius: 1px;
 }
 </style>

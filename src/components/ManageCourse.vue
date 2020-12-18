@@ -1,7 +1,7 @@
 <template>
   <div>
     <SectionDetails v-for="section in course.sections"
-    :key="section._id" :section="section" />
+    :key="section._id" :section="section" :course="course" />
   </div>
 </template>
 
