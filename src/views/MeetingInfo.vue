@@ -35,7 +35,7 @@
               }"
               :config="{
                   label: 'Meeting name',
-                  onenter: onEditMeetingNameEnter
+                  onenter: updateMeetingName
                 }"
             />
             <div class="details-area">
@@ -291,7 +291,7 @@ export default {
       this.$refs.meetingNameInput.$refs.inputArea.value = this.meeting.title;
       this.$refs.meetingNameInput.updateInputValue(this.meeting.title);
       this.$refs.meetingNameInput.$refs.inputArea.select();
-      console.log(this.$refs.meetingNameInput.value);
+      this.$refs.meetingNameInput.$refs.inputArea.onfocusout = this.updateMeetingName;
     }
   },
   methods: {
@@ -498,12 +498,13 @@ export default {
     editMeetingName() {
       this.editing_meeting_name = true;
     },
-    async onEditMeetingNameEnter(){
+    async updateMeetingName(){
       this.editing_meeting_name = false;
       await MeetingAPI.updateMeeting(this.meeting._id, this.meeting);
       this.$router.go();
       console.log(this.meeting.title);
     },
+
     getActiveTasksForMeeting () {
       let current_time = new Date ();
       if (this.meeting.has_live_attendance) {
