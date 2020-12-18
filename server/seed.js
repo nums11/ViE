@@ -44,9 +44,9 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 		// Creating Users
 
 		users.push(new User({ // 0
-			first_name: "Numfor",
-			last_name: "Mbiziwo-Tiapo",
-			user_id: "mbizin",
+			first_name: "Fake",
+			last_name: "Inst",
+			user_id: "fakeinst",
 			email: "venue@rpi.edu",
 			password: "nimda",
 			is_instructor: true,
@@ -96,6 +96,23 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 				async_submissions: [],
 			}))
 		}
+
+		// users.push(new User({ // 1
+		// 	first_name: "Numfor",
+		// 	last_name: "Mbiziwo-Tiapo",
+		// 	user_id: "mbizin",
+		// 	email: "mbizin@rpi.edu",
+		// 	password: "password",
+		// 	is_instructor: false,
+		// 	is_admin: false,
+		// 	instructor_courses: [],
+		// 	student_sections: [],
+		// 	pending_approval_sections: [],
+		// 	users_orgs: [],
+		// 	meetings: [],
+		// 	live_submissions: [],
+		// 	async_submissions: [],
+		// }))
 
 		// Creating Courses
 

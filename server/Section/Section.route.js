@@ -6,6 +6,8 @@ const Section = require('./Section.model');
 const User = require('../User/User.model');
 const Course = require('../Course/Course.model');
 const nodemailer = require("nodemailer");
+const SectionHelper = require('../helpers/section_helper')
+const UserHelper = require('../helpers/user_helper')
 
 sectionRoutes.route('/add').post(function (req, res) {
   let section = new Section(req.body.section);
@@ -106,12 +108,12 @@ sectionRoutes.post('/handle_student/:section_id/:student_id/:operation',
   else if(section_operation === "remove_student")
     student_operation = "remove_student_section"
   try {
-    const updated_section = await updateSection(section_id,
-      section_operation, student_id)
+    const updated_section = await SectionHelper.updateSection(
+      section_id, section_operation, student_id)
     if(updated_section == null)
       throw "<ERROR> (courses/handle_student)"
-    const updated_student = await updateStudent(student_id,
-      student_operation, updated_section)
+    const updated_student = await UserHelper.updateStudent(
+      student_id, student_operation, updated_section)
     if(updated_student == null)
       throw "<ERROR> (courses/handle_student)"
     console.log(`<SUCCESS> (courses/handle_student) ${section_operation}`)
@@ -127,12 +129,12 @@ sectionRoutes.post('/handle_enrollment/:section_id/:student_id/:operation',
   const student_id = req.params.student_id;
   const operation = req.params.operation
   try {
-    const updated_section = await updateSection(section_id,
-      operation, student_id)
+    const updated_section = await SectionHelper.updateSection(
+      section_id, operation, student_id)
     if(updated_section == null)
       throw "<ERROR> (courses/handle_enrollment)"
-    const updated_student = await updateStudent(student_id,
-      operation, updated_section)
+    const updated_student = await UserHelper.updateStudent(
+      student_id, operation, updated_section)
     if(updated_student == null)
       throw "<ERROR> (courses/handle_enrollment)"
     console.log(`<SUCCESS> (courses/handle_enrollment) with operation ${operation}`)
@@ -343,8 +345,8 @@ sectionRoutes.post('/invite_student/:section_id/:student_id',
   const instructor_name = req.body.instructor_name
   try {
     const invite_code = generateRandomString()
-    const updated_section = await addInvitedStudentToSection(
-      section_id, student_id, invite_code)
+    const updated_section = await SectionHelper.handleInvitedStudent(
+      section_id, student_id, "add", invite_code)
     if(updated_section == null)
       throw "<ERROR> (sections/invite_student)"
     // Next actually send the email
@@ -353,6 +355,7 @@ sectionRoutes.post('/invite_student/:section_id/:student_id',
     const email_info = await sendInviteEmail(
       `${student_id}@rpi.edu`, invite_url, course_name,
       instructor_name, updated_section.section_number)
+    console.log("invite_url", invite_url)
     if(email_info == null)
       throw "<ERROR> (sections/invite_student)"
     res.json(updated_section)
@@ -361,105 +364,6 @@ sectionRoutes.post('/invite_student/:section_id/:student_id',
     next(error)
   }
 })
-
-async function updateSection(section_id, operation, student_id) {
-  let update_block = {
-    pull_block: {},
-    push_block: {}
-  }
-  if(operation === "add_student") {
-    update_block.push_block.students = student_id
-  } else if(operation === "add_pending_approval_student") {
-    update_block.push_block.pending_approval_students = student_id
-  } else if(operation === "approve_student") {
-    update_block.pull_block.pending_approval_students = student_id
-    update_block.push_block.students = student_id
-  } else if(operation === "deny_student") {
-    update_block.pull_block.pending_approval_students = student_id
-  } else if(operation === "remove_student") {
-    update_block.pull_block.students = student_id
-  }
-  console.log("In updateSection", update_block)
-
-  try {
-    let update_promise = new Promise((resolve, reject) => {
-      Section.findByIdAndUpdate(section_id,
-        {
-          $push: update_block.push_block,
-          $pull: update_block.pull_block
-        },
-        {new: true},
-        (error, updated_section) => {
-          if(error) {
-            console.log(`<ERROR> updating section with id ${section_id}`
-              + ` and update_block`, update_block)
-            reject(error)
-          } else {
-            resolve(updated_section)
-          }
-        }
-      )
-    })
-    const updated_section = await Promise.resolve(update_promise)
-    return updated_section
-  } catch(error) {
-    console.log(`<ERROR> updateSection with section_id: ${section_id},` +
-      ` operation: '${operation}', student_id: ${student_id}`, error)
-    return null
-  }
-}
-
-async function updateStudent(student_id, operation, section) {
-  let update_block = {
-    pull_block: {},
-    pull_all_block: {},
-    push_block: {}
-  }
-  if(operation === "add_student_section") {
-    update_block.push_block.student_sections = section._id
-    update_block.push_block.meetings = section.meetings
-  } else if(operation === "add_pending_approval_section") {
-    update_block.push_block.pending_approval_sections = section._id
-  } else if(operation === "approve_student") {
-    update_block.pull_block.pending_approval_sections = section._id
-    update_block.push_block.student_sections = section._id
-    update_block.push_block.meetings = section.meetings
-  } else if(operation === "deny_student") {
-    update_block.pull_block.pending_approval_sections = section._id
-  } else if(operation === "remove_student_section") {
-    update_block.pull_block.student_sections = section._id
-    update_block.pull_all_block.meetings = section.meetings
-  }
-  console.log("In updateStudent", update_block)
-
-  try {
-    let update_promise = new Promise((resolve, reject) => {
-      User.findByIdAndUpdate(student_id,
-        {
-          $push: update_block.push_block,
-          $pull: update_block.pull_block,
-          $pullAll: update_block.pull_all_block
-        },
-        {new: true},
-        (error, updated_student) => {
-          if(error) {
-            console.log(`<ERROR> updating student with id ${student_id}`
-              + ` and update_block`, update_block)
-            reject(error)
-          } else {
-            resolve(updated_student)
-          }
-        }
-      )
-    })
-    const updated_student = await Promise.resolve(update_promise)
-    return updated_student
-  } catch(error) {
-    console.log(`<ERROR> updateStudent with student_id: ${student_id},` +
-      ` operation: '${operation}', section_id: ${section._id}`, error)
-    return null
-  }
-}
 
 function generateRandomString() {
   let length = 10,
@@ -476,35 +380,6 @@ function getInviteUrl(section_id, student_id, invite_code) {
   'https://byakugan.herokuapp.com/#/' : 'http://localhost:8080/#/'
   const invite_url = `${base_url}invite/${section_id}/${student_id}/${invite_code}`
   return invite_url
-}
-
-async function addInvitedStudentToSection(section_id, student_id, invite_code) {
-  try {
-    const key = `invited_students.${student_id}`
-    const update_block = {}
-    update_block[key] = invite_code
-    let update_promise = new Promise((resolve, reject) => {
-      Section.findByIdAndUpdate(section_id,
-        {$set: update_block},
-        {new: true},
-        (error, section) => {
-          if(error) {
-            console.log(`<ERROR> adding to map for section_id:${section_id},`
-            + `student_id: ${student_id}, and invite_code: ${invite_code}`)
-            reject(error)
-          } else {
-            resolve(section)
-          }
-        }
-      )
-    })
-    const updated_section = await Promise.resolve(update_promise)
-    return updated_section
-  } catch(error) {
-    console.log(`<ERROR> addInvitedStudentToSection section_id: ${section_id},`
-      + ` student_id: ${student_id}, invite_code: ${invite_code}`, error)
-    return null
-  }
 }
 
 async function sendInviteEmail(student_email, invite_url, course_name,

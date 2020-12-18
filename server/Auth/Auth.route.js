@@ -3,7 +3,8 @@ const authRoutes = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-
+const SectionHelper = require('../helpers/section_helper')
+const UserHelper = require('../helpers/user_helper')
 const User = require('../User/User.model');
 const Section = require('../Section/Section.model');
 
@@ -63,16 +64,24 @@ if(process.env.NODE_ENV === "production") {
         return done(null, false, {user_id: login});
       }
       user.attributes = profile.attributes;
-      return done(null, user);
+      return done(null, user, {user_id: login});
     });
   }));
 }
 //Passport setup END
 
-authRoutes.route('/onboard_user').post(async function (req, res, next) {
+authRoutes.route('/onboard_user/:optional_invited_section_id/:optional_invite_code')
+.post(async function (req, res, next) {
+  const section_id = req.params.optional_invited_section_id
+  const invite_code = req.params.optional_invite_code
+  const inviting_student = section_id !== "null"
   const new_user = new User(req.body.user);
   try {
     const saved_user = await new_user.save()
+    if(inviting_student){
+      await acceptSectionInvite(section_id, saved_user._id, 
+        saved_user.user_id, invite_code)
+    }
     res.json(saved_user)
   } catch(error) {
     console.log("<ERROR> saving user",new_user)
@@ -156,16 +165,13 @@ authRoutes.route('/set_permanent_pasword').post(function (req, res) {
 });
 
 authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next) => {
-  console.log("Reached login cas. Optinal Meeting ID:",req.params.optional_meeting_id)
   let optional_meeting_id = req.params.optional_meeting_id
   let optional_code = req.params.optional_code
   passport.authenticate('cas', function (err, user, info) {
-    console.log("Authenticated", err, user, info)
     if (err) {
       console.log("<ERROR> (auth/loginCAS) authenticating", err)
       return next(err);
     } else if (!user) {
-      console.log("No User")
       req.session.messages = info.message;
       if(process.env.NODE_ENV === "production") {
         return res.redirect('https://venue-attend.herokuapp.com');
@@ -173,9 +179,7 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next)
         return res.redirect('http://localhost:8080');
       }
     } else {
-      console.log("In else")
       req.logIn(user, function (err) {
-        console.log("In req.login")
         if (err) {
           console.log("<ERROR> (auth/loginCAS) logging in", err)
           return next(err);
@@ -227,59 +231,60 @@ authRoutes.get("/signup", (req, res, next) => {
       let user_id = info.user_id
       console.log("User did not already exist", user_id)
       if(process.env.NODE_ENV === "production")
-        res.redirect(`https://venue-attend.herokuapp.com/#/create_user/${user_id}`);
+        res.redirect(`https://venue-attend.herokuapp.com/#/create_user/`
+          + `${user_id}/null/null`);
       else
-        res.redirect(`http://localhost:8080/#/create_user/${user_id}`);
+        res.redirect(`http://localhost:8080/#/create_user/${user_id}`
+          + `/null/null`);
     }
   })(req, res, next);
 });
 
 authRoutes.get("/invite_student-:section_id-:student_id-:invite_code",
   (req, res, next) => {
-  console.log("In invite_student route")
   const section_id = req.params.section_id
   const student_id = req.params.student_id
   const invite_code = req.params.invite_code
-  console.log("section_id", section_id)
-  console.log("student_id", student_id)
-  console.log("invite_code", invite_code)
   passport.authenticate('cas', async function (err, user, info) {
-    console.log("Authenticated cas")
     if (err) {
       console.log("<ERROR> (auth/invite_student) authenticating", err)
       next(err);
-    } else if (user) { //user exitst in the database
-      if(user.user_id === student_id) {
-        try {
-          const section_invited_student = await sectionInvitedStudent(
-            section_id, student_id, invite_code)
-          if(section_invited_student == null)
-            throw "<ERROR> (auth/invite_student)"
-          if(section_invited_student) {
-
-          } else {
-            res.json("Invalid invite url. Invite may have been cancelled"
-              + " please contact your instructor for more information.")
-          }
-        } catch(error) {
-          next(error)
-        }
-
-        // if(sectionInvitedStudent(section_id, student_id, invite_code)) {
-
-        // }
-        res.json("This is your link")
-      } else {
-        res.json("Authentication failed: you have accessed an invite link"
-          + " for another user.")
-      }
+    } else if(info.user_id !== student_id) { //user clicked a link that was not theirs
+      res.json("Authentication failed: you have accessed an invite link"
+        + " for another user.")
     } else {
-      let user_id = info.user_id
-      console.log("User did not already exist", user_id)
-      if(process.env.NODE_ENV === "production")
-        res.redirect(`https://venue-attend.herokuapp.com/#/create_user/${user_id}`);
-      else
-        res.redirect(`http://localhost:8080/#/create_user/${user_id}`);
+      try {
+        // Check if this student was actually invited to the section
+        const section_invited_student = await sectionInvitedStudent(
+          section_id, student_id, invite_code)
+        if(section_invited_student == null)
+          throw "<ERROR> (auth/invite_student)"
+        if(!section_invited_student) {
+          res.json("Invalid invite url. Invite may have been cancelled"
+            + " please contact your instructor for more information.")
+        } else {
+          if(user) { //user exists in the database
+            await acceptSectionInvite(section_id, user._id, student_id,
+              invite_code)
+            console.log("<SUCCESS> (auth/invite_student)")
+            if(process.env.NODE_ENV === "production") {
+              res.redirect(`https://byakugan.herokuapp.com/#/successful_invite`);
+            } else {
+              res.redirect(`http://localhost:8080/#/successful_invite`);
+            }
+          } else { //user does not exist in the database
+            let user_id = info.user_id
+            if(process.env.NODE_ENV === "production")
+              res.redirect(`https://byakugan.herokuapp.com/#/create_user/`
+                + `${user_id}/${section_id}/${invite_code}`);
+            else
+              res.redirect(`http://localhost:8080/#/create_user/${user_id}/`
+                + `${section_id}/${invite_code}`);
+          }
+        }
+      } catch(error) {
+        next(error)
+      }
     }
   })(req, res, next);
 });
@@ -336,8 +341,6 @@ authRoutes.get('/user_with_updated_auth_headers', function (req, res) {
 });
 
 async function sectionInvitedStudent(section_id, student_id, invite_code) {
-  console.log("In func")
-  // let promise = new Promise((resolve, reject) => {
   try {
     let section_promise = new Promise((resolve,reject) => {
       Section.findById(section_id,
@@ -347,7 +350,7 @@ async function sectionInvitedStudent(section_id, student_id, invite_code) {
             reject(error)
           } else if (section == null) {
             resolve(false)
-          } {
+          } else {
             const section_invited_student = section.invited_students.get(
               student_id) != null
             resolve(section_invited_student)
@@ -361,6 +364,29 @@ async function sectionInvitedStudent(section_id, student_id, invite_code) {
     console.log(`<ERROR> sectionInvitedStudent ${section_id}`
       + `${student_id} ${invite_code}`, error)
     return null
+  }
+}
+
+async function acceptSectionInvite(section_id, student_id,
+  student_user_id, invite_code) {
+  try {
+    // add the student to the section
+    let updated_section = await SectionHelper.updateSection(
+      section_id, "add_student", student_id)
+    if(updated_section == null)
+      throw "<ERROR> acceptSectionInvite"
+    const updated_student = await UserHelper.updateStudent(
+      student_id, "add_student_section", updated_section)
+    if(updated_student == null)
+      throw "<ERROR> acceptSectionInvite"
+    updated_section = await SectionHelper.handleInvitedStudent(
+      section_id, student_user_id, "remove", invite_code)
+    if(updated_section == null)
+      throw "<ERROR> acceptSectionInvite"
+    // remove the student from the invited students map
+  } catch(error) {
+    console.log(`<ERROR> acceptSectionInvite section_id: ${section_id},`
+      + ` student_id: ${student_id}`, error)
   }
 }
 
