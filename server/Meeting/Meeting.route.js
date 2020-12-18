@@ -195,7 +195,7 @@ meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
         (error,course) => {
           if(error || course == null) {
             console.log("<ERROR> (meetings/add) Updating course with id",
-              course_id, err)
+              course_id, error)
             res.json(error);
           } else {
             User.findByIdAndUpdate(course.instructor,

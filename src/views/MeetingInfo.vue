@@ -23,7 +23,21 @@
       <div class="page-info-area">
         <!-- Page Info -->
         <div class="left-side">
+            <div v-if="!editing_meeting_name">
             <h2 class="inline-block">{{ meeting == null ? '' : meeting.title }}</h2>
+              <sui-button id="edit-meeting-name-btn"><sui-icon name="edit" class="meeting-tab-icon" @click="editMeetingName"/></sui-button>
+            </div>
+            <InputField2 ref="meetingNameInput" 
+              v-if="editing_meeting_name"
+              v-model="meeting.title"
+              :validate="{
+                mustBeFilled: (x) => [x.length > 0, 'Field cannot be left empty.']
+              }"
+              :config="{
+                  label: 'Meeting name',
+                  onenter: onEditMeetingNameEnter
+                }"
+            />
             <div class="details-area">
               <sui-label v-if="for_course" :style="{marginBottom: '5px'}">
                 Course
@@ -187,6 +201,7 @@
 </template>
 
 <script>
+import InputField2 from "@/components/InputField2.vue";
 import MeetingInfoScheduleSlider from '@/components/MeetingInfoScheduleSlider.vue'
 import FullScreenQRCodeModal from '@/components/FullScreenQRCodeModal.vue';
 import QRScanningWindow from '@/components/QRScanningWindow.vue';
@@ -223,8 +238,9 @@ export default {
     QRSuccessAnimation,
     EditRecordingModal,
     VenueChart,
+    InputField2,
   },
-  data () {
+  data() {
     return {
       task_focus: null,
       focused_task: {},
@@ -249,8 +265,9 @@ export default {
       chartData: {},
       chartOptions: {},
       present_attendees: [],
-      absent_attendees: []
-    }
+      absent_attendees: [],
+      editing_meeting_name: false,
+    };
   },
   async created () {
     this.current_user = this.$store.state.user.current_user
@@ -267,6 +284,15 @@ export default {
     this.separateAttendees()
     this.initMeetingStats()
     this.meeting_has_loaded = true
+  },
+  updated() {
+    if (this.editing_meeting_name && !this.$refs.meetingNameInput.input_focused) {
+      this.$refs.meetingNameInput.focus();
+      this.$refs.meetingNameInput.$refs.inputArea.value = this.meeting.title;
+      this.$refs.meetingNameInput.updateInputValue(this.meeting.title);
+      this.$refs.meetingNameInput.$refs.inputArea.select();
+      console.log(this.$refs.meetingNameInput.value);
+    }
   },
   methods: {
     getNotificationPermissionStatus() {
@@ -731,6 +757,10 @@ export default {
 #delete-btn {
   display: block;
   margin-top: 3rem;
+}
+
+#edit-meeting-name-btn {
+  background-color: #ffffff00;
 }
 
 .meeting-info {
