@@ -29,7 +29,7 @@
             </div>
             <InputField2 ref="meetingNameInput" 
               v-if="editing_meeting_name"
-              v-model="meeting.title"
+              v-model="temp_meeting_title"
               :validate="{
                 mustBeFilled: (x) => [x.length > 0, 'Field cannot be left empty.']
               }"
@@ -267,6 +267,7 @@ export default {
       present_attendees: [],
       absent_attendees: [],
       editing_meeting_name: false,
+      temp_meeting_title: "",
     };
   },
   async created () {
@@ -287,6 +288,7 @@ export default {
   },
   updated() {
     if (this.editing_meeting_name && !this.$refs.meetingNameInput.input_focused) {
+      this.temp_meeting_title = this.meeting.title;
       this.$refs.meetingNameInput.focus();
       this.$refs.meetingNameInput.$refs.inputArea.value = this.meeting.title;
       this.$refs.meetingNameInput.updateInputValue(this.meeting.title);
@@ -500,9 +502,11 @@ export default {
     },
     async updateMeetingName(){
       this.editing_meeting_name = false;
-      await MeetingAPI.updateMeeting(this.meeting._id, this.meeting);
-      this.$router.go();
-      console.log(this.meeting.title);
+      if(this.temp_meeting_title.length >0){
+        this.meeting.title = this.temp_meeting_title;
+        await MeetingAPI.updateMeeting(this.meeting._id, this.meeting);
+        this.$router.go();
+      }
     },
 
     getActiveTasksForMeeting () {
