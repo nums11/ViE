@@ -15,6 +15,21 @@
       </div>
     </div>
 
+    <div class="metric-averages-container">
+      <div class="metric-average-container">
+        <h3 class="metric-average-header">Avg. Overall Attendance %</h3>
+        <p class="metric-average">{{ overall_avg }}%</p>
+      </div>
+      <div class="metric-average-container">
+        <h3 class="metric-average-header">Avg. Live Attendance %</h3>
+        <p class="metric-average">{{ live_avg }}%</p>
+      </div>
+      <div class="metric-average-container">
+        <h3 class="metric-average-header">Avg. Async Attendance %</h3>
+        <p class="metric-average">{{ async_avg }}%</p>
+      </div>
+    </div>
+
     <div class="table">
       <sui-table celled padded>
         <sui-table-header>
@@ -85,7 +100,10 @@ export default {
   data () {
     return {
       meeting_submission_ids: [],
-      students_with_metrics: []
+      students_with_metrics: [],
+      overall_avg: 0,
+      live_avg: 0,
+      async_avg: 0
     }
   },
   created () {
@@ -97,6 +115,7 @@ export default {
     this.sorting_orientation = "least_to_greatest"
     this.getSubmissionIDSForAllMeetings()
     this.calculateMetricsForEachStudent()
+    this.calculateAverageMetrics()
   },
   methods: {
     getSubmissionIDSForAllMeetings() {
@@ -212,6 +231,21 @@ export default {
         this.sorting_orientation = "greatest_to_least"
       else
         this.sorting_orientation = "least_to_greatest"
+    },
+    calculateAverageMetrics() {
+      const num_students = this.course.students.length
+      if(num_students === 0)
+        return
+      let overall_total = 0, live_total = 0,
+        async_total = 0;
+      this.students_with_metrics.forEach(student => {
+        overall_total += student.overall_percent
+        live_total += student.live_percent
+        async_total += student.async_percent
+      })
+      this.overall_avg = overall_total / num_students
+      this.live_avg = live_total / num_students
+      this.async_avg = async_total / num_students
     }
   }
 }
@@ -241,6 +275,28 @@ export default {
   margin-left: 0.5rem;
   color: #595757;
   margin-top: 0;
+}
+
+.metric-averages-container {
+  height: 10rem;
+}
+
+.metric-average-container {
+  height: 100%;
+  width: 33%;
+  display: inline-block;
+  vertical-align: top;
+  text-align: center;
+  padding-top: 1rem;
+}
+
+.metric-average-header {
+  margin-bottom: 0;
+}
+
+.metric-average {
+  font-size: 5rem;
+  color: #595757;
 }
 
 .table {
