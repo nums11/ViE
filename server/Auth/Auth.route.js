@@ -4,7 +4,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-let User = require('../User/User.model');
+const User = require('../User/User.model');
+const Section = require('../Section/Section.model');
 
 const alnums = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -55,7 +56,6 @@ if(process.env.NODE_ENV === "production") {
   }, function(profile, done) {
     var login = profile.user.toLowerCase();
     User.findOne({user_id: login}, function (err, user) {
-      console.log("In the findOne")
       if (err) {
         return done(err);
       }
@@ -79,18 +79,6 @@ authRoutes.route('/onboard_user').post(async function (req, res, next) {
     next(error)
   }
 });
-
-// authRoutes.route('/signup').post(function (req, res) {
-//   let user = new User(req.body.user)
-//   user.save()
-//     .then(() => {
-//       const token = jwt.sign({ user }, process.env.AUTH_KEY)
-//       res.status(200).json({token, user});
-//     })
-//     .catch(() => {
-//       res.status(400).send("unable to save user to database");
-//     });
-// });
 
 authRoutes.route('/login').post(function (req, res) {
   let user = req.body.user
@@ -229,7 +217,7 @@ authRoutes.get("/signup", (req, res, next) => {
   passport.authenticate('cas', function (err, user, info) {
     console.log("Authenticated cas")
     if (err) {
-      console.log("<ERROR> (auth/loginCAS) authenticating", err)
+      console.log("<ERROR> (auth/signup) authenticating", err)
       next(err);
     } else if (user) {
       // Could actually redirect to an error page
@@ -246,6 +234,55 @@ authRoutes.get("/signup", (req, res, next) => {
   })(req, res, next);
 });
 
+authRoutes.get("/invite_student-:section_id-:student_id-:invite_code",
+  (req, res, next) => {
+  console.log("In invite_student route")
+  const section_id = req.params.section_id
+  const student_id = req.params.student_id
+  const invite_code = req.params.invite_code
+  console.log("section_id", section_id)
+  console.log("student_id", student_id)
+  console.log("invite_code", invite_code)
+  passport.authenticate('cas', async function (err, user, info) {
+    console.log("Authenticated cas")
+    if (err) {
+      console.log("<ERROR> (auth/invite_student) authenticating", err)
+      next(err);
+    } else if (user) { //user exitst in the database
+      if(user.user_id === student_id) {
+        try {
+          const section_invited_student = await sectionInvitedStudent(
+            section_id, student_id, invite_code)
+          if(section_invited_student == null)
+            throw "<ERROR> (auth/invite_student)"
+          if(section_invited_student) {
+
+          } else {
+            res.json("Invalid invite url. Invite may have been cancelled"
+              + " please contact your instructor for more information.")
+          }
+        } catch(error) {
+          next(error)
+        }
+
+        // if(sectionInvitedStudent(section_id, student_id, invite_code)) {
+
+        // }
+        res.json("This is your link")
+      } else {
+        res.json("Authentication failed: you have accessed an invite link"
+          + " for another user.")
+      }
+    } else {
+      let user_id = info.user_id
+      console.log("User did not already exist", user_id)
+      if(process.env.NODE_ENV === "production")
+        res.redirect(`https://venue-attend.herokuapp.com/#/create_user/${user_id}`);
+      else
+        res.redirect(`http://localhost:8080/#/create_user/${user_id}`);
+    }
+  })(req, res, next);
+});
 
 authRoutes.get("/loginStatus", function(req, res) {
   User.findOne({connect_sid: req.cookies["connect_sid"]}, function (err, current_user) {
@@ -297,5 +334,34 @@ authRoutes.get('/user_with_updated_auth_headers', function (req, res) {
       }
     })
 });
+
+async function sectionInvitedStudent(section_id, student_id, invite_code) {
+  console.log("In func")
+  // let promise = new Promise((resolve, reject) => {
+  try {
+    let section_promise = new Promise((resolve,reject) => {
+      Section.findById(section_id,
+        (error, section) => {
+          if(error) {
+            console.log("<ERROR> finding section by id", section_id)
+            reject(error)
+          } else if (section == null) {
+            resolve(false)
+          } {
+            const section_invited_student = section.invited_students.get(
+              student_id) != null
+            resolve(section_invited_student)
+          }
+        }
+      )
+    })
+    const section_invited_student = await Promise.resolve(section_promise)
+    return section_invited_student
+  } catch(error) {
+    console.log(`<ERROR> sectionInvitedStudent ${section_id}`
+      + `${student_id} ${invite_code}`, error)
+    return null
+  }
+}
 
 module.exports = authRoutes;

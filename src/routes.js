@@ -54,6 +54,7 @@ import AddRecording from './views/AddRecording.vue';
 import RegisterCourse from './views/RegisterCourse.vue'
 import CreateUser from './views/CreateUser.vue'
 import JoinCourse from './views/JoinCourse.vue'
+import InviteStudentRedirect from './views/InviteStudentRedirect.vue'
 
 Vue.use(VueRouter);
 
@@ -548,6 +549,11 @@ const router = new VueRouter({
         requiresAuth: true,
         requireAdmin: false,
       }
+    },
+    {
+      name: 'invite_student_redirect',
+      path: '/invite/:section_id/:student_id/:invite_code',
+      component: InviteStudentRedirect,
     }
   ]
 })

@@ -356,6 +356,7 @@ sectionRoutes.post('/invite_student/:section_id/:student_id',
     if(email_info == null)
       throw "<ERROR> (sections/invite_student)"
     res.json(updated_section)
+    console.log("<SUCCESS> (sections/invite_student)")
   } catch(error) {
     next(error)
   }
@@ -482,9 +483,6 @@ async function addInvitedStudentToSection(section_id, student_id, invite_code) {
     const key = `invited_students.${student_id}`
     const update_block = {}
     update_block[key] = invite_code
-    console.log("update_block", update_block)
-    // update_block["invited_students"] = {}
-    // update_block["invited_students"][student_id] = invite_code
     let update_promise = new Promise((resolve, reject) => {
       Section.findByIdAndUpdate(section_id,
         {$set: update_block},
