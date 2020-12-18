@@ -495,6 +495,15 @@ export default {
       this.meeting = response.data
       this.for_course = this.meeting.for_course
     },
+    editMeetingName() {
+      this.editing_meeting_name = true;
+    },
+    async onEditMeetingNameEnter(){
+      this.editing_meeting_name = false;
+      await MeetingAPI.updateMeeting(this.meeting._id, this.meeting);
+      this.$router.go();
+      console.log(this.meeting.title);
+    },
     getActiveTasksForMeeting () {
       let current_time = new Date ();
       if (this.meeting.has_live_attendance) {
@@ -519,9 +528,6 @@ export default {
         })
       }
     },
-    
-    
-    
     getMeetingAttendees() {
       if(this.for_course)
         this.attendees = this.meeting.course.students
