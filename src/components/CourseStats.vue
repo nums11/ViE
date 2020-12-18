@@ -239,13 +239,16 @@ export default {
       let overall_total = 0, live_total = 0,
         async_total = 0;
       this.students_with_metrics.forEach(student => {
-        overall_total += student.overall_percent
-        live_total += student.live_percent
-        async_total += student.async_percent
+        overall_total += parseInt(student.overall_percent, 10)
+        live_total += parseInt(student.live_percent, 10)
+        async_total += parseInt(student.async_percent, 10)
       })
       this.overall_avg = overall_total / num_students
+      this.overall_avg = this.overall_avg.toFixed(1)
       this.live_avg = live_total / num_students
+      this.live_avg = this.live_avg.toFixed(1)
       this.async_avg = async_total / num_students
+      this.async_avg = this.async_avg.toFixed(1)
     }
   }
 }
@@ -288,6 +291,7 @@ export default {
   vertical-align: top;
   text-align: center;
   padding-top: 1rem;
+  margin-top: 1rem;
 }
 
 .metric-average-header {
@@ -302,7 +306,7 @@ export default {
 .table {
   /*border: blue solid;*/
   padding: 3px;
-  margin-top: 2rem;
+  margin-top: 3rem;
   height: 30rem;
   overflow-y: scroll;
 }
