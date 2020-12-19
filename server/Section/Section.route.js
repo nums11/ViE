@@ -355,7 +355,6 @@ sectionRoutes.post('/invite_student/:section_id/:student_id',
     const email_info = await sendInviteEmail(
       `${student_id}@rpi.edu`, invite_url, course_name,
       instructor_name, updated_section.section_number)
-    console.log("invite_url", invite_url)
     if(email_info == null)
       throw "<ERROR> (sections/invite_student)"
     res.json(updated_section)
@@ -364,6 +363,26 @@ sectionRoutes.post('/invite_student/:section_id/:student_id',
     next(error)
   }
 })
+
+sectionRoutes.post('/cancel_invite/:section_id/:student_user_id/:invite_code',
+  async (req, res, next) => {
+  const section_id = req.params.section_id
+  const student_user_id = req.params.student_user_id
+  const invite_code = req.params.invite_code
+  try {
+    const updated_section = await SectionHelper.handleInvitedStudent(
+      section_id, student_user_id, "remove", invite_code)
+    if(updated_section == null){
+      throw `<ERROR> (sections/cancel_invite) section_id: ${section_id},`
+        + `student_user_id: ${student_user_id}, invite_code: ${invite_code}`
+    }
+    console.log("<SUCCESS> (sections/cancel_invite)")
+    res.json(updated_section)
+  } catch(error) {
+    next(error)
+  }
+})
+
 
 function generateRandomString() {
   let length = 10,

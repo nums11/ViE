@@ -53,13 +53,11 @@ async function handleInvitedStudent(section_id, student_id, operation,
   try {
     let set_block = {}
     let unset_block = {}
+    const key = `invited_students.${student_id}`
     if(operation === "add") {
-      const key = `invited_students.${student_id}`
       set_block[key] = invite_code
     } else if(operation === "remove") {
-      const key = `invited_students.${student_id}`
       unset_block[key] = invite_code
-      console.log("unset_block", unset_block)
     }
 
     let update_promise = new Promise((resolve, reject) => {
