@@ -769,7 +769,7 @@ export default {
         width: 50px;
         height: 50px;
         display: inline-block;
-        background-image: url('~@/assets/venue-logo.svg');
+        background-image: url('~@/assets/logo.svg');
         background-size: 100%;
         margin-bottom: 15px;
       }

@@ -1,107 +1,128 @@
 <template>
-      <button 
-        @click="handleButtonClick" 
-        v-bind:class="{hidden:fade_out, visible:fade_in}" 
-        type="button" class="btn button shadow venue-btn" 
-        tabindex="0"
-
-        :style="{
-          fontSize: getFontSize ()
-        }"
-      >
-        <!-- <div v-if="show_login_text">Login</div> -->
-        <!-- <div v-else>Get Started</div> -->
-        <div>{{ text }}</div>
-      </button>
+  <div class="signup-button">
+    <router-link :to="{name: 'signup'}">
+      <div :class="'signup-button-container ' +
+      (size === 'small' ? 'small ' : 'large ') +
+      (wide ? 'wide ' : '') +
+      (color === 'blue' ? 'blue ' : '') +
+      (color === 'pink' ? 'pink ' : '') +
+      (invert_colors ? 'invert-colors ' : '')">
+        {{ text }}
+      </div>
+    </router-link>
+  </div>
 </template>
 
 <script>
-  export default {
-    name: 'Button',
-    props: {
-      // btn_str: String
-      href: String,
-      text: String,
-      onClick: Function,
-      config: Object
+export default {
+  name: 'SignupButton',
+  props: {
+    text: {
+      type: String,
+      required: true
     },
-    data() {
-      return {
-        show_login_text: false,
-        fade_out: false,
-        fade_in: false
-      }
+    size: {
+      type: String,
+      required: true
     },
-    created() {
+    color: {
+      type: String,
+      required: true
     },
-    methods: {
-      getFontSize () {
-        if (this.config && this.config.fontSize) return this.config.fontSize
-        return '1rem'
-      },
-      handleButtonClick () {
-
-        if (this.href != null && this.href != "") {
-          window.location.href = this.href
-        }
-
-        else if (this.onClick) {
-          this.onClick ()
-        }
-      },
-      toggleBtnText() {
-        this.show_login_text = !this.show_login_text
-      },
-      fadeOut() {
-        this.fade_out = true
-      },
-      fadeIn() {
-        this.fade_in = true
-      }
+    invert_colors: {
+      type: Boolean,
+      default: false
+    },
+    wide: {
+      type: Boolean,
+      default: false
+    },
+  },
+  data(){
+    return {
     }
+  },
+  created() {
+    console.log("Wide", this.wide)
+  },
+  methods: {
+
   }
+}
 </script>
 
-<style lang="scss" scoped>
-
-.venue-btn {
-  padding: 10px 20px;
-  font-weight: 600;
-  border: 4px solid #47C4FC;
-  cursor: pointer;
-  transition: background-color 0.25s;
-
-  &:hover {
-    background-color: #47C4FC;
-  }
+<style lang="css" scoped>
+.signup-button {
+  display: inline-block;
 }
 
-.dark-mode {
-
-  .venue-btn {
-    background-color: #121419;
-    // color: white;
-    color: #47C4FC;
-
-    &:hover {
-      background-color: #47C4FC;
-      color: white;
-    }
-  }
+.signup-button-container {
+  border-radius: 3px;
+  text-align: center;
+  -webkit-transition: background-color 0.15s, color 0.15s linear;
+  -ms-transition: background-color 0.15s, color 0.15s linear;
+  transition: background-color 0.15s, color 0.15s linear;
 }
 
-.light-mode {
-
-  .venue-btn {
-    background-color: white;
-    // color: black;
-    color: #46b0e0;
-
-    &:hover {
-      background-color: #47C4FC;
-      color: white;
-    }
-  }
+.blue {
+  border: #00B3FF solid;
+  color: #00B3FF;
 }
 
+.blue.invert-colors {
+  background-color: #00B3FF;
+  color: white;
+}
+
+.pink {
+  border: #e83e8c solid;
+  color: #e83e8c;
+}
+
+.pink.invert-colors {
+  background-color: #e83e8c;
+  color: white;
+}
+
+.small {
+  height: 2.15rem;
+  width: 6rem;
+  font-size: 1.25rem;
+  padding-top: 0.25rem;
+}
+
+.large {
+  height: 3.5rem;
+  width: 9rem;
+  font-size: 2rem;
+  padding-top: 0.8rem;
+}
+
+.wide {
+  width: 14rem;
+}
+
+.signup-button-container:hover {
+  color: white;
+}
+
+.signup-button-container.blue:hover {
+  background-color: #00B3FF;
+}
+
+.signup-button-container.pink:hover {
+  background-color: #e83e8c;
+}
+
+.signup-button-container.invert-colors:hover {
+  background-color: white;
+}
+
+.signup-button-container.blue.invert-colors:hover {
+  color: #00B3FF;
+}
+
+.signup-button-container.pink.invert-colors:hover {
+  color: #e83e8c;
+}
 </style>

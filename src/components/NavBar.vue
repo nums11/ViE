@@ -5,7 +5,7 @@
 
         <hide-at breakpoint="small">
           <div class="logo-area">
-            <router-link to="/dashboard"><img src="@/assets/venue-logo.svg" class="image-logo" /></router-link>
+            <router-link to="/dashboard"><img src="@/assets/logo.svg" class="image-logo" /></router-link>
           </div>
         </hide-at>
 
@@ -68,7 +68,7 @@
               <sui-icon name="bars" />
             </div>
             <div class="logo-area-mobile">
-              <router-link to="/dashboard"><img src="@/assets/venue-logo.svg" width="100%" height="100%" class="image-logo" /></router-link>
+              <router-link to="/dashboard"><img src="@/assets/logo.svg" width="100%" height="100%" class="image-logo" /></router-link>
             </div>
           </div>
         </show-at>

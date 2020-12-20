@@ -7,11 +7,8 @@
       class="main_navbar" 
       v-if="!isNavbarlessView() && this.$route.name != 'set_permanent_password' && current_user"
     />
-    <div class="venue-body">
-      <transition
-          name="fade"
-          mode="out-in"
-        >
+    <div>
+      <transition name="fade" mode="out-in">
         <router-view :key="$route.fullPath" />
       </transition>
     </div>
@@ -207,28 +204,46 @@ export default {
 </script>
 
 <style lang="css">
+@font-face {
+  font-family: Exo;
+  src: url(assets/fonts/Exo/Exo-Regular.ttf);
+}
+
+@font-face {
+  font-family: Exo;
+  src: url(assets/fonts/Exo/Exo-Bold.ttf);
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: Exo;
+  src: url(assets/fonts/Exo/Exo-Light.ttf);
+  font-weight: lighter;
+}
+
+
 #app {
-  padding-left: 20px;
-  padding-right: 20px;
-  font-family: "Avenir", Helvetica, Arial, sans-serif;
+  font-family: Exo, "Avenir", Helvetica, Arial, sans-serif;
+  /*font-family: Exo "Avenir", Helvetica, Arial, sans-serif;*/
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* min-height: 100%; */
   /*border-right: 1px solid #00FFFF;
   border-left: 1px solid #00FFFF;*/
 }
-/*
-.venue-body {
-  margin-left: 70px;
+
+.blue-text {
+  color: #00B3FF;
 }
-*/
-/*
-@media only screen and (max-width: 900px) {
-  .venue-body {
-    margin-left: 0px;
-  }
+
+.pink-text {
+  color: #e83e8c;
 }
-*/
+
+.bold {
+  font-weight: bold;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition-duration: 0.3s;
@@ -240,32 +255,21 @@ export default {
   opacity: 0;
 }
 
-.inline-block {
-  display: inline-block;
-}
-
-.float-right {
-  float: right;
-}
-/*
-
 @font-face {
   font-family: Oxygen;
-  src: url(../fonts/Oxygen/Oxygen-Regular.ttf);
+  src: url(assets/fonts/Oxygen/Oxygen-Regular.ttf);
 }
 
 @font-face {
   font-family: Oxygen;
-  src: url(../fonts/Oxygen/Oxygen-Bold.ttf);
+  src: url(assets/fonts/Oxygen/Oxygen-Bold.ttf);
   font-weight: bold;
 }
 
 @font-face {
   font-family: Oxygen;
-  src: url(../fonts/Oxygen/Oxygen-Light.ttf);
+  src: url(assets/fonts/Oxygen/Oxygen-Light.ttf);
   font-weight: lighter;
 }
-
-*/
 
 </style>

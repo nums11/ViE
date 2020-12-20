@@ -10,7 +10,7 @@
       
       <div class="login-form-center">
         <div class="logo-area">
-          <!-- <img :src="require('@/assets/venue-logo.svg')" width="100%" height="100%" /> -->
+          <!-- <img :src="require('@/assets/logo.svg')" width="100%" height="100%" /> -->
         </div>
         <div :class="`form-input-slider ${password_stage ? 'password-stage' : 'username-stage'}`">
 
@@ -264,7 +264,7 @@ export default {
         height: 80px;
         width: 80px;
         margin: 0 auto;
-        background-image: url('~@/assets/venue-logo.svg');
+        background-image: url('~@/assets/logo.svg');
         background-size: 100%;
         margin-bottom: 20px;
       }
