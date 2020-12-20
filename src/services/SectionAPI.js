@@ -73,5 +73,9 @@ export default {
       course_name: course_name,
       instructor_name: instructor_name
     })
+  },
+  cancelInvite(section_id, student_user_id, invite_code) {
+    return API().post(`sections/cancel_invite/${section_id}/`
+      + `${student_user_id}/${invite_code}`, {})
   }
 }

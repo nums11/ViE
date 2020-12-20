@@ -55,6 +55,7 @@ import RegisterCourse from './views/RegisterCourse.vue'
 import CreateUser from './views/CreateUser.vue'
 import JoinCourse from './views/JoinCourse.vue'
 import InviteStudentRedirect from './views/InviteStudentRedirect.vue'
+import SuccessfulInviteRedirect from './views/SuccessfulInviteRedirect.vue'
 
 Vue.use(VueRouter);
 
@@ -311,7 +312,8 @@ const router = new VueRouter({
     },
     {
       name: 'create_user',
-      path: '/create_user/:user_id',
+      path: '/create_user/:user_id/:optional_invited_section_id'
+      + '/:optional_invite_code',
       component: CreateUser,
       meta: {
         requiresNoAuth: true,
@@ -326,15 +328,6 @@ const router = new VueRouter({
         requiresAuth: true
       }
     },
-    // {
-    //   name: 'user_courses',
-    //   path: '/user_courses',
-    //   component: CourseList,
-    //   meta: {
-    //     title: "Venue - Courses",
-    //     requiresAuth: true
-    //   }
-    // },
     {
       name: 'course_info',
       path: '/course_info/:id',
@@ -554,6 +547,11 @@ const router = new VueRouter({
       name: 'invite_student_redirect',
       path: '/invite/:section_id/:student_id/:invite_code',
       component: InviteStudentRedirect,
+    },
+    {
+      name: 'successful_invite_redirect',
+      path: '/successful_invite',
+      component: SuccessfulInviteRedirect,
     }
   ]
 })

@@ -5,8 +5,10 @@
     <form @submit.prevent="onboardUser">
       <input type="text" placeholder="First Name" v-model="user.first_name">
       <input type="text" placeholder="Last Name" v-model="user.last_name">
-      <label for="is_instructor">Are you an instructor?</label>
-      <input type="checkbox" v-model="user.is_instructor" name="is_instructor">
+      <div v-if="!inviting_student">
+        <label for="is_instructor">Are you an instructor?</label>
+        <input type="checkbox" v-model="user.is_instructor" name="is_instructor">
+      </div>
       <div>
         <button>Sign Up</button>
       </div>
@@ -25,15 +27,20 @@ export default {
     data () {
       return {
         user: {},
+        inviting_student: false
       }
     },
     created () {
       this.user.user_id = this.$route.params.user_id
+      this.section_id = this.$route.params.optional_invited_section_id
+      this.invite_code = this.$route.params.optional_invite_code
+      if(this.section_id !== "null")
+        this.inviting_student = true
     },
     methods: {
       async onboardUser() {
         try {
-          await AuthAPI.onboardUser(this.user);
+          await AuthAPI.onboardUser(this.user, this.section_id, this.invite_code);
           window.location.href = process.env.NODE_ENV === 'production' ?
           "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fvenue-attend.herokuapp.com%2Fauth%2FloginCAS%-null-null":
           "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS-null-null"

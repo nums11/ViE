@@ -17,9 +17,6 @@ Vue.use(PortalVue)
 Vue.use(VueAxios, axios);
 
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
-import '@/assets/css/venue-2.scss';
-import '@/assets/css/venue.css';
-import '@/assets/css/venue-core.css';
 import 'semantic-ui-css/semantic.min.css';
 import '@/assets/css/icomoon2.css';
 import '@/assets/css/icomoon3.css';

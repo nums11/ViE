@@ -45,7 +45,7 @@
             <div class="last-name-area">{{ student.last_name }}</div>
             <div class="email-area">{{ student.user_id }}</div>
             <div class="remove-btn-area">
-              <sui-button @click="removeStudent(section, student)" size="tiny"
+              <sui-button @click="removeStudent(student)" size="tiny"
               color="red" content="remove" style="margin-left:1rem;" />
             </div>
           </div>
@@ -61,9 +61,9 @@
             <div class="first-name-area">{{ student.first_name }}</div>
             <div class="last-name-area">{{ student.last_name }}</div>
             <div class="email-area">{{ student.user_id }}</div>
-            <sui-button @click="approveStudent(section, student)" size="tiny" 
+            <sui-button @click="approveStudent(student)" size="tiny" 
             color="blue" content="approve" style="margin-left:2rem;" />
-            <sui-button @click="denyStudent(section, student)" size="tiny"
+            <sui-button @click="denyStudent(student)" size="tiny"
             color="red" content="deny" style="margin-left:1rem;" />
           </div>
       </div>
@@ -75,7 +75,7 @@
           <div v-for="student_id in Object.keys(section.invited_students)"
           :key="student_id" class="student-row">
             <div class="first-name-area">{{ student_id }}</div>
-            <sui-button @click="denyStudent(section, student)" size="tiny"
+            <sui-button @click="cancelInvite(student_id)" size="tiny"
             color="grey" content="cancel" style="margin-left:1rem;" />
           </div>
       </div>
@@ -106,30 +106,30 @@ export default {
   created() {
   },
   methods: {
-    async approveStudent(section, student) {
+    async approveStudent(student) {
       let confirmation = confirm(`Are you sure you want to approve` +
         ` ${student.user_id}?`)
       if(confirmation) {
         await SectionAPI.approveStudentIntoSection(
-          section._id, student._id)
+          this.section._id, student._id)
         this.$router.go()
       }
     },
-    async denyStudent(section, student) {
+    async denyStudent(student) {
       let confirmation = confirm(`Are you sure you want to deny` +
         ` approval for ${student.user_id}?`)
       if(confirmation) {
         await SectionAPI.denyStudentApprovalIntoSection(
-          section._id, student._id)
+          this.section._id, student._id)
       this.$router.go()
       }
     },
-    async removeStudent(section, student) {
+    async removeStudent(student) {
       let confirmation = confirm(`Are you sure you want to remove` +
         ` ${student.user_id} from this section?`)
       if(confirmation) {
         await SectionAPI.removeStudentFromSection(
-          section._id, student._id)
+          this.section._id, student._id)
         this.$router.go()
       }
     },
@@ -203,6 +203,18 @@ export default {
     studentHasAlreadyBeenInvited() {
       let keys = Object.keys(this.section.invited_students)
       return keys.includes(this.invite_student_id)
+    },
+    async cancelInvite(student_user_id) {
+      try {
+        const response = await SectionAPI.cancelInvite(
+          this.section._id, student_user_id,
+          this.section.invited_students[student_user_id])
+        const updated_section = response.data
+        this.section.invited_students = updated_section.invited_students
+      } catch(error) {
+        console.log(error)
+        alert("Sorry. Something went wrong")
+      }
     }
   }
 }

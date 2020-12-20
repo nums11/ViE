@@ -25,7 +25,6 @@ import NavBar from "./components/NavBar.vue";
 import Footer from "./components/Footer.vue";
 import LectureAPI from './services/LectureAPI';
 import {getLiveLectures,getUpcomingLectures,getPastLectures} from './services/GlobalFunctions.js'
-import '@/assets/css/venue.css';
 import axios from 'axios';
 import io from 'socket.io-client';
 import Cookie from 'cookie';
@@ -207,14 +206,14 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="css">
 #app {
   padding-left: 20px;
   padding-right: 20px;
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  // min-height: 100%;
+  /* min-height: 100%; */
   /*border-right: 1px solid #00FFFF;
   border-left: 1px solid #00FFFF;*/
 }
@@ -248,5 +247,25 @@ export default {
 .float-right {
   float: right;
 }
+/*
+
+@font-face {
+  font-family: Oxygen;
+  src: url(../fonts/Oxygen/Oxygen-Regular.ttf);
+}
+
+@font-face {
+  font-family: Oxygen;
+  src: url(../fonts/Oxygen/Oxygen-Bold.ttf);
+  font-weight: bold;
+}
+
+@font-face {
+  font-family: Oxygen;
+  src: url(../fonts/Oxygen/Oxygen-Light.ttf);
+  font-weight: lighter;
+}
+
+*/
 
 </style>
