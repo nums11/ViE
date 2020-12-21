@@ -10,10 +10,18 @@
           <span class="pink-text">engaging</span>
         </p>
       </div>
-      <div id="sub-text">
-        <p>Use QR Codes, video tracking, and polls to engage</p>
-        <p> your students in real time and asynchronously</p>
-      </div>
+      <hide-at breakpoint="mediumAndBelow">
+        <div id="sub-text">
+          <p>Use QR Codes, video tracking, and polls to engage</p>
+          <p> your students in real time and asynchronously</p>
+        </div>
+      </hide-at>
+      <show-at breakpoint="mediumAndBelow">
+        <div id="sub-text">
+          <p>Use QR Codes, video tracking, and polls to engage 
+          your students in real time and asynchronously</p>
+        </div>
+      </show-at>
       <div id="signupbutton-container">
         <Button text="Sign up" color="blue" size="large" invert_colors/>
       </div>
@@ -307,5 +315,56 @@ export default {
   margin: auto;
   margin-top: 1.5rem;
   font-size: 1.25rem;
+}
+
+@media (max-width: 1128px) {
+  #main {
+    margin-top: 4rem;
+  }
+  #attention-grabber {
+    font-size: 4rem;
+  }
+  #sub-text {
+    font-size: 1.5rem;
+    margin-top: 4rem;
+  }
+  #answer-container {
+    width: 70%;
+  }
+  #answer {
+    font-size: 3rem;
+  }
+}
+
+/* Phones */
+@media (max-width: 744px) {
+  #main {
+    margin-top: 3rem;
+  }
+  #attention-grabber {
+    font-size: 3rem;
+  }
+  #sub-text {
+    font-size: 1.25rem;
+    margin-top: 3rem;
+  }
+  #video-img-container, #filter {
+    width: 100%;
+  }
+  #watch-video-btn {
+    margin-left: 25%;
+    margin-top: 25%;
+  }
+  #question {
+    font-size: 4rem;
+  }
+  #answer-container {
+    border: blue solid;
+    padding: 0;
+    width: 100%;
+  }
+  #answer {
+    font-size: 2rem;
+  }
 }
 </style>
