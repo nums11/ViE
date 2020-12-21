@@ -1,12 +1,6 @@
 <template>
-  <div id="external-navbar">
-    <hide-at breakpoint="mediumAndBelow">
-      <DesktopNavbar />
-    </hide-at>
-    <show-at breakpoint="mediumAndBelow">
-      <MobileNavbar />
-    </show-at>
-<!--     <div id="logo-container">
+  <div class="navbar" id="desktop-navbar">
+    <div id="logo-container">
       <router-link :to="{path: '/'}">
         <img src="@/assets/logo.svg" id="logo" />
         <div id="app-name">ViE</div>
@@ -25,21 +19,17 @@
         Log in
       </router-link>
       <Button text="Sign up" color="blue" size="small" />
-    </div> -->
+    </div>
   </div>
 </template>
 
 <script>
 import Button from '@/components/Button'
-import DesktopNavbar from '@/components/DesktopNavbar'
-import MobileNavbar from '@/components/MobileNavbar'
 
 export default {
-  name: 'ExternalNavbar',
+  name: 'DesktopNavbar',
   components: {
-    Button,
-    DesktopNavbar,
-    MobileNavbar
+    Button
   },
   data(){
     return {
@@ -55,33 +45,36 @@ export default {
 </script>
 
 <style lang="css" scoped>
-/deep/ .navbar {
-  padding-bottom: 0.5rem;
-  padding-top: 1rem;
-  border-bottom: #dedede solid thin;
+#desktop-navbar {
+  padding-left: 5rem;
+  padding-right: 5rem;
 }
 
-/deep/ #logo-container {
+#nav-buttons-container {
   display: inline-block;
   vertical-align: top;
+  height: 3rem;
+  margin-left: 37.5%;
+  padding-top: 1rem;
+}
+
+.nav-link {
+  display: inline-block;
+  font-size: 1.25rem;
   cursor: pointer;
+  color: black;
+  /*font-weight: bold;*/
 }
 
-
-/deep/ #logo {
-  height: 3rem;
-  display: inline-block;
-  vertical-align: top;
+.nav-link:first-child {
+  margin-right: 2rem;
 }
 
-/deep/ #app-name {
+#login-signup-buttons-container {
   display: inline-block;
   vertical-align: top;
-  margin-left: 0.5rem;
-  font-size: 2.5rem;
-  color: #2c3e50;
-  font-weight: 500;
   height: 3rem;
-  padding-top: 1rem;
+  padding-top:0.7rem;
+  float: right;
 }
 </style>

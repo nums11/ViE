@@ -10,6 +10,9 @@ import VueCtkDateTimePicker from 'vue-ctk-date-time-picker';
 import PortalVue from "portal-vue"
 import SuiVue from "semantic-ui-vue"
 import moment from 'vue-moment'
+import {showAt, hideAt} from 'vue-breakpoints'
+Vue.component('showAt', showAt)
+Vue.component('hideAt', hideAt)
 Vue.component('VueCtkDateTimePicker', VueCtkDateTimePicker);
 Vue.use(moment)
 Vue.use(SuiVue)
