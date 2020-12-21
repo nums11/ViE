@@ -365,6 +365,8 @@ export default {
   }
   #answer {
     font-size: 2rem;
+    border: blue solid;
+    width: 100%;
   }
 }
 </style>
