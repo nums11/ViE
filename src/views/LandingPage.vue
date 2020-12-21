@@ -33,7 +33,7 @@
         <h1 id="question">What is ViE?</h1>
         <div id="answer-container">
           <p id="answer">
-            <span class="blue-text mr-2">Vi - virtually </span>
+            <span class="blue-text mr-2">Vi - virtual </span>
             <span class="pink-text">E - engage</span>
           </p>
           <p id="catchphrase">It's as easy as 1, 2, 3</p>
@@ -77,18 +77,40 @@
         </div>
       </div>
     </div>
+    <div id="testimonials-container">
+      <h1 id="built-for-instructors">Built For Instructors</h1>
+      <TestimonialCard instructor_name="Omar El-Shafee"
+      instructor_dept="Engineering"
+      testimonial="After switching to online teaching. One of the challenges was to find a reliable way to take attendance in my classes. ViE provided an easy to implement and efficient way of taking attendance during live lectures. More important, the asynchronous attendance done via watching the lecture recording during a specified time window conquered the time zone difference issue and made my students less stressed about missing my live lecture for some reason. All in all I recommend ViE given my great experience using it, and as I know the ViE team is working on adding more features to the application for the upcoming semesters."
+      class="float-left" />
+      <TestimonialCard instructor_name="Charles Martin"
+      instructor_dept="Astronomy"
+      testimonial="After switching to online teaching. One of the challenges was to find a reliable way to take attendance in my classes. ViE provided an easy to implement and efficient way of taking attendance during live lectures. More important, the asynchronous attendance done via watching the lecture recording during a specified time window conquered the time zone difference issue and made my students less stressed about missing my live lecture for some reason. All in all I recommend ViE given my great experience using it, and as I know the ViE team is working on adding more features to the application for the upcoming semesters."
+      class="float-right" />
+    </div>
+    <div id="bottom-container">
+      <h1 id="bottom-container-header">Make your course more engaging today</h1>
+      <div id="second-signup-button">
+        <Button text="Sign up" color="blue" size="large" invert_colors/>
+        <div id="or">Or</div>
+        <p id="contact">Contact us at <span class="bold">viengagecontact@gmail.com</span>
+         for more information or to schedule a demo</p>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import ExternalNavbar from '@/components/ExternalNavbar'
 import Button from '@/components/Button'
+import TestimonialCard from '@/components/TestimonialCard'
 
 export default {
   name: 'LandingPage',
   components: {
     ExternalNavbar,
-    Button
+    Button,
+    TestimonialCard
   },
   data(){
     return {
@@ -104,10 +126,6 @@ export default {
 </script>
 
 <style scoped>
-#landing-page {
-  padding-bottom: 5rem;
-}
-
 #main {
   text-align: center;
   margin: auto;
@@ -177,7 +195,7 @@ export default {
   background-color: black;
   color: white;
   padding-top: 3rem;
-  padding-bottom: 3rem;
+  padding-bottom: 4rem;
 }
 
 #question {
@@ -249,4 +267,45 @@ export default {
   margin-top: 4rem;
 }
 
+#testimonials-container {
+  margin: auto;
+  margin-top: 5rem;
+  padding-left: 18rem;
+  padding-right: 18rem;
+  background-color: #f0f2f5;
+  overflow: auto;
+  text-align: center;
+  padding-top: 3rem;
+  padding-bottom: 4rem;
+}
+
+#built-for-instructors {
+  font-size: 3rem;
+}
+
+#bottom-container {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+  text-align: center;
+}
+
+#bottom-container-header {
+  font-size: 2.5rem;
+}
+
+#second-signup-button {
+  margin-top: 2rem;
+}
+
+#or {
+  margin-top: 2rem;
+  font-size: 1.25rem;
+}
+
+#contact {
+  width: 100%;
+  margin: auto;
+  margin-top: 1.5rem;
+  font-size: 1.25rem;
+}
 </style>

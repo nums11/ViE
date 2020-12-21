@@ -12,6 +12,7 @@
         <router-view :key="$route.fullPath" />
       </transition>
     </div>
+    <!-- <ExternalFooter /> -->
     <NewVersionMessage v-if="new_app_version_exists" />
   </div>
 </template>
@@ -27,6 +28,7 @@ import io from 'socket.io-client';
 import Cookie from 'cookie';
 import NewVersionMessage from '@/components/NewVersionMessage'
 import UserAPI from '@/services/UserAPI';
+import ExternalFooter from '@/components/ExternalFooter'
 
 export default {
   watch: {
@@ -39,7 +41,8 @@ export default {
   components: {
     NavBar,
     Footer,
-    NewVersionMessage
+    NewVersionMessage,
+    ExternalFooter
   },
   data() {
     return {
@@ -221,7 +224,6 @@ export default {
   font-weight: lighter;
 }
 
-
 #app {
   font-family: Exo, "Avenir", Helvetica, Arial, sans-serif;
   /*font-family: Exo "Avenir", Helvetica, Arial, sans-serif;*/
@@ -230,6 +232,11 @@ export default {
   /* min-height: 100%; */
   /*border-right: 1px solid #00FFFF;
   border-left: 1px solid #00FFFF;*/
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
 }
 
 .blue-text {
@@ -242,6 +249,14 @@ export default {
 
 .bold {
   font-weight: bold;
+}
+
+.float-left {
+  float: left;
+}
+
+.float-right {
+  float: right;
 }
 
 .fade-enter-active,
