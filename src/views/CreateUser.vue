@@ -1,5 +1,15 @@
 <template>
-  <div class="create-user">
+  <div id="main">
+    <div id="logo-container">
+      <router-link :to="{path: '/'}">
+        <img src="@/assets/logo.svg" id="logo" />
+        <div id="app-name">ViE</div>
+      </router-link>      
+    </div>
+    <h1 id="main-header">
+      Log in to your ViE account
+    </h1>
+
     <h1>{{ user.user_id }}</h1>
     <h3>Finish creating your account by inputting the rest of your information</h3>
     <form @submit.prevent="onboardUser">
@@ -53,6 +63,47 @@ export default {
 }
 </script>
 
-<style lang="css" scoped>
+<style scoped>
+#main {
+  width: 50%;
+  margin: auto;
+  margin-top: 4rem;
+  text-align: center;
+}
 
+#logo-container {
+  margin: auto;
+}
+
+#logo {
+  height: 5rem;
+  display: inline-block;
+  vertical-align: top;
+}
+
+#app-name {
+  display: inline-block;
+  vertical-align: top;
+  margin-left: 0.5rem;
+  font-size: 4rem;
+  color: #2c3e50;
+  font-weight: 500;
+  height: 5rem;
+  padding-top: 2rem;
+}
+
+
+/* Tablets */
+@media (max-width: 1128px) {
+  #main {
+    width: 70%;
+  }
+}
+
+/* Phones */
+@media (max-width: 744px) {
+  #main {
+    width: 90%;
+  }
+}
 </style>

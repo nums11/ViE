@@ -117,7 +117,6 @@ function start() {
 
   const origin_url = process.env.NODE_ENV === 'production' ?
   'https://venue-attend.herokuapp.com' : 'http://localhost:8080'
-  console.log("Origin url", origin_url)
   app.use(cors({
     origin: origin_url,
     methods:['GET','POST','DELETE','PUT'],

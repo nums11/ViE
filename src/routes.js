@@ -33,7 +33,7 @@ import Submissions from './components/admin/Submission/Submissions.vue';
 import AdminStudentInvite from './components/admin/Course/StudentInvite.vue';
 import LandingPage from './views/LandingPage.vue';
 import SetPermanentPassword from './views/SetPermanentPassword.vue';
-import LoginSignup from './views/LoginSignup.vue';
+import LoginSignupCreate from './views/LoginSignupCreate.vue';
 import Dashboard from './views/Dashboard.vue';
 import CourseList from './components/CourseList.vue';
 import CourseOrgInfo from './views/CourseOrgInfo.vue';
@@ -307,8 +307,8 @@ const router = new VueRouter({
     },
     {
       name: 'signup',
-      path: '/signup',
-      component: LoginSignup,
+      path: '/signup/:user_exists?',
+      component: LoginSignupCreate,
       meta: {
         title: 'ViE - Sign up',
         requiresNoAuth: true,
@@ -316,8 +316,8 @@ const router = new VueRouter({
     },
     {
       name: 'login',
-      path: '/login',
-      component: LoginSignup,
+      path: '/login/:user_does_not_exist?',
+      component: LoginSignupCreate,
       meta: {
         title: 'ViE - Log in',
         requiresNoAuth: true,
@@ -327,7 +327,7 @@ const router = new VueRouter({
       name: 'create_user',
       path: '/create_user/:user_id/:optional_invited_section_id'
       + '/:optional_invite_code',
-      component: CreateUser,
+      component: LoginSignupCreate,
       meta: {
         requiresNoAuth: true,
       }

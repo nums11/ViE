@@ -100,6 +100,7 @@ export default {
   }
 }
 
+/* Phones */
 @media (max-width: 744px) {
   .testimonial-card {
     width: 90%;

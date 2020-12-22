@@ -25,7 +25,7 @@ export default {
     let cas_url;
     if(process.env.NODE_ENV === "production") {
       cas_url = `https://cas-auth.rpi.edu/cas/`
-      + `login?service=https%3A%2F%2Fbyakugan.herokuapp.com`
+      + `login?service=https%3A%2F%2Fvenue-attend.herokuapp.com`
       + `%2Fauth%2Finvite_student-${section_id}-${student_id}-${invite_code}`
     } else {
       cas_url = `https://cas-auth.rpi.edu/cas/`

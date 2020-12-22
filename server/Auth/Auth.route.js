@@ -9,6 +9,7 @@ const User = require('../User/User.model');
 const Section = require('../Section/Section.model');
 
 const alnums = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const base_url = getBaseURL()
 
 async function generateSID() {
   let venueSID = ""
@@ -172,12 +173,7 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next)
       console.log("<ERROR> (auth/loginCAS) authenticating", err)
       return next(err);
     } else if (!user) {
-      req.session.messages = info.message;
-      if(process.env.NODE_ENV === "production") {
-        return res.redirect('https://venue-attend.herokuapp.com');
-      } else {
-        return res.redirect('http://localhost:8080');
-      }
+      res.redirect(`${base_url}/login/true`)
     } else {
       req.logIn(user, function (err) {
         if (err) {
@@ -196,13 +192,7 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next)
                 } else {
                   res.header("Set-Cookie","connect_sid="+resolvedSID)
                   console.log("<SUCCESS> (auth/loginCAS) updating user and setting cookie.")
-                  if(process.env.NODE_ENV === "production") {
-                    return res.redirect(`https://venue-attend.herokuapp.com/#/redirectCASLogin/`
-                      + `${optional_meeting_id}/${optional_code}`);
-                  } else {
-                    return res.redirect(`http://localhost:8080/#/redirectCASLogin/`
-                      + `${optional_meeting_id}/${optional_code}`);
-                  }
+                  res.redirect(`${base_url}/redirectCASLogin/${optional_meeting_id}/${optional_code}`)
                 }
               })
             } else {
@@ -224,9 +214,8 @@ authRoutes.get("/signup", (req, res, next) => {
       console.log("<ERROR> (auth/signup) authenticating", err)
       next(err);
     } else if (user) {
-      // Could actually redirect to an error page
       console.log("User already exists")
-      res.status(409).send("User with this user_id already exists")
+      res.redirect(`${base_url}/signup/true`)
     } else {
       let user_id = info.user_id
       console.log("User did not already exist", user_id)
@@ -267,19 +256,11 @@ authRoutes.get("/invite_student-:section_id-:student_id-:invite_code",
             await acceptSectionInvite(section_id, user._id, student_id,
               invite_code)
             console.log("<SUCCESS> (auth/invite_student)")
-            if(process.env.NODE_ENV === "production") {
-              res.redirect(`https://byakugan.herokuapp.com/#/successful_invite`);
-            } else {
-              res.redirect(`http://localhost:8080/#/successful_invite`);
-            }
+            res.redirect(`${base_url}/successful_invite`)
           } else { //user does not exist in the database
             let user_id = info.user_id
-            if(process.env.NODE_ENV === "production")
-              res.redirect(`https://byakugan.herokuapp.com/#/create_user/`
-                + `${user_id}/${section_id}/${invite_code}`);
-            else
-              res.redirect(`http://localhost:8080/#/create_user/${user_id}/`
-                + `${section_id}/${invite_code}`);
+            res.redirect(`${base_url}/create_user/${user_id}/${section_id}`
+              + `/${invite_code}`)
           }
         }
       } catch(error) {
@@ -388,6 +369,13 @@ async function acceptSectionInvite(section_id, student_id,
     console.log(`<ERROR> acceptSectionInvite section_id: ${section_id},`
       + ` student_id: ${student_id}`, error)
   }
+}
+
+function getBaseURL() {
+  if(process.env.NODE_ENV === "production")
+    return "https://venue-attend.herokuapp.com/#"
+  else
+    return "http://localhost:8080/#"
 }
 
 module.exports = authRoutes;

@@ -26,6 +26,7 @@
         invert_colors />
       </div>
     </div>
+    <p v-if="error_msg != null" id="error-msg">{{ error_msg }}</p>
     <p v-if="is_login_view" id="question" >Don't have an account? 
       <router-link :to="{name : 'signup'}">Sign up</router-link>
     </p>
@@ -52,7 +53,8 @@ export default {
           "Lincoln University",
           "University of North Texas"
         ],
-        is_login_view: false
+        is_login_view: false,
+        error_msg: null
       }
     },
     computed: {
@@ -61,9 +63,24 @@ export default {
       }
     },
     created () {
-      this.is_login_view = this.$route.name === "login"
+      this.setIsLoginView()
+      this.checkForError()
     },
     methods: {
+      setIsLoginView() {
+        this.is_login_view = this.$route.name === "login"
+      },
+      checkForError() {
+        if(this.is_login_view &&
+          this.$route.params.user_does_not_exist === "true") {
+          this.error_msg = "No account found. "
+            + "Are you sure you didn't mean to sign up?"
+        } else if(!this.is_login_view &&
+          this.$route.params.user_exists === "true"){
+          this.error_msg = "An account already exists. "
+            + "Are you sure you didn't mean to log in?"
+        }
+      },
       redirectToUniversityLogin() {
         let cas_url;
         if(this.is_login_view)
@@ -157,9 +174,23 @@ export default {
   display: inline-block;
 }
 
+#error-msg {
+  background-color: #FF00001A;
+  border: #FF00001A solid;
+  color: #FF0000;
+  font-weight: bold;
+  height: 3rem;
+  width: 72.5%;
+  margin: auto;
+  margin-top: 3rem;
+  padding-top: 0.75rem;
+  border-radius: 5px;
+}
+
 #question {
   margin: auto;
   margin-top: 3rem;
+  font-weight: bold;
 }
 
 /* Tablets */
@@ -167,12 +198,20 @@ export default {
   #main {
     width: 70%;
   }
+  #error-msg {
+    width: 85%;
+  }
 }
 
 /* Phones */
 @media (max-width: 744px) {
   #main {
     width: 90%;
+  }
+  #error-msg {
+    padding-top: 0.5rem;
+    width: 100%;
+    height: 4rem;
   }
 }
 </style>
