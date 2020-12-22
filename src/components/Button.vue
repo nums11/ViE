@@ -1,6 +1,6 @@
 <template>
   <div class="signup-button">
-    <router-link :to="{name: 'signup'}">
+    <router-link :to="{name: route_name}">
       <div :class="'signup-button-container ' +
       (size === 'small' ? 'small ' : 'large ') +
       (wide ? 'wide ' : '') +
@@ -17,6 +17,10 @@
 export default {
   name: 'SignupButton',
   props: {
+    route_name:{
+     type: String,
+     default: ''
+    },
     text: {
       type: String,
       required: true
@@ -43,7 +47,6 @@ export default {
     }
   },
   created() {
-    console.log("Wide", this.wide)
   },
   methods: {
 

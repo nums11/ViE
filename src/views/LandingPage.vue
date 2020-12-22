@@ -23,15 +23,16 @@
         </div>
       </show-at>
       <div id="signupbutton-container">
-        <Button text="Sign up" color="blue" size="large" invert_colors/>
+        <Button route_name="signup" text="Sign up" color="blue"
+        size="large" invert_colors/>
       </div>
     </div>
     <div id="video">
       <div id="video-img-container">
         <div id="filter"></div>
         <div id="watch-video-btn">
-          <Button text="Watch video" color="pink" size="large"
-          invert_colors wide/>
+          <Button route_name="signup" text="Watch video" color="pink"
+          size="large" invert_colors wide/>
         </div>
         <img src="@/assets/venue_video_img.png" id="video-img" />
       </div>
@@ -99,7 +100,8 @@
     <div id="bottom-container">
       <h1 id="bottom-container-header">Make your course more engaging today</h1>
       <div id="second-signup-button">
-        <Button text="Sign up" color="blue" size="large" invert_colors/>
+        <Button route_name="signup" text="Sign up" color="blue"
+        size="large" invert_colors/>
         <div id="or">Or</div>
         <p id="contact">Contact us at <span class="bold">viengagecontact@gmail.com</span>
          for more information or to schedule a demo</p>

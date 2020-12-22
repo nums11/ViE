@@ -18,7 +18,8 @@
       <router-link class="nav-link" :to="{name: 'login'}">
         Log in
       </router-link>
-      <Button text="Sign up" color="blue" size="small" />
+      <Button route_name="signup" text="Sign up" color="blue"
+      size="small" />
     </div>
   </div>
 </template>

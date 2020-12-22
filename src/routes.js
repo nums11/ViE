@@ -33,7 +33,7 @@ import Submissions from './components/admin/Submission/Submissions.vue';
 import AdminStudentInvite from './components/admin/Course/StudentInvite.vue';
 import LandingPage from './views/LandingPage.vue';
 import SetPermanentPassword from './views/SetPermanentPassword.vue';
-import Signup from './views/Signup.vue';
+import LoginSignup from './views/LoginSignup.vue';
 import Dashboard from './views/Dashboard.vue';
 import CourseList from './components/CourseList.vue';
 import CourseOrgInfo from './views/CourseOrgInfo.vue';
@@ -62,20 +62,23 @@ Vue.use(VueRouter);
 const router = new VueRouter({
   // mode: 'history',
   routes: [
-    {
-      name: 'login',
-      path: '/login',
-      component: LoginView,
-      meta: {
-        title: 'Venue - Login',
-        requiresNoLogin: true
-      }
-    },
+    // {
+    //   name: 'login',
+    //   path: '/login',
+    //   component: LoginView,
+    //   meta: {
+    //     title: 'Venue - Login',
+    //     requiresNoLogin: true
+    //   }
+    // },
     {
       name: 'landing_page',
       path: '/',
       component: LandingPage,
-      meta: { requiresNoLogin: true }
+      meta: {
+        title: 'ViE',
+        requiresNoLogin: true
+      }
     },
     {
       name: 'settings',
@@ -305,8 +308,9 @@ const router = new VueRouter({
     {
       name: 'signup',
       path: '/signup',
-      component: Signup,
+      component: LoginSignup,
       meta: {
+        title: 'ViE - Sign up',
         requiresNoAuth: true,
       }
     },

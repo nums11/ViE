@@ -6,26 +6,6 @@
     <show-at breakpoint="mediumAndBelow">
       <MobileNavbar />
     </show-at>
-<!--     <div id="logo-container">
-      <router-link :to="{path: '/'}">
-        <img src="@/assets/logo.svg" id="logo" />
-        <div id="app-name">ViE</div>
-      </router-link>
-    </div>
-    <div id="nav-buttons-container">
-      <router-link class="nav-link" :to="{name: 'features'}">
-        Features
-      </router-link>
-      <router-link class="nav-link" :to="{name: 'blog'}">
-        Blog
-      </router-link>
-    </div>
-    <div id="login-signup-buttons-container">
-      <router-link class="nav-link" :to="{name: 'login'}">
-        Log in
-      </router-link>
-      <Button text="Sign up" color="blue" size="small" />
-    </div> -->
   </div>
 </template>
 
