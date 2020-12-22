@@ -90,11 +90,11 @@
       <TestimonialCard instructor_name="Omar El-Shafee"
       instructor_dept="Engineering"
       testimonial="After switching to online teaching. One of the challenges was to find a reliable way to take attendance in my classes. ViE provided an easy to implement and efficient way of taking attendance during live lectures. More important, the asynchronous attendance done via watching the lecture recording during a specified time window conquered the time zone difference issue and made my students less stressed about missing my live lecture for some reason. All in all I recommend ViE given my great experience using it, and as I know the ViE team is working on adding more features to the application for the upcoming semesters."
-      class="float-left" />
-      <TestimonialCard instructor_name="Charles Martin"
+      class="testimonial-card float-left" />
+      <TestimonialCard instructor_name="Omar El-Shafee"
       instructor_dept="Astronomy"
       testimonial="After switching to online teaching. One of the challenges was to find a reliable way to take attendance in my classes. ViE provided an easy to implement and efficient way of taking attendance during live lectures. More important, the asynchronous attendance done via watching the lecture recording during a specified time window conquered the time zone difference issue and made my students less stressed about missing my live lecture for some reason. All in all I recommend ViE given my great experience using it, and as I know the ViE team is working on adding more features to the application for the upcoming semesters."
-      class="float-right" />
+      class="testimonial-card float-right" />
     </div>
     <div id="bottom-container">
       <h1 id="bottom-container-header">Make your course more engaging today</h1>
@@ -278,8 +278,8 @@ export default {
 #testimonials-container {
   margin: auto;
   margin-top: 5rem;
-  padding-left: 18rem;
-  padding-right: 18rem;
+  padding-left: 10rem;
+  padding-right: 10rem;
   background-color: #f0f2f5;
   overflow: auto;
   text-align: center;
@@ -317,6 +317,7 @@ export default {
   font-size: 1.25rem;
 }
 
+/* Tablets */
 @media (max-width: 1128px) {
   #main {
     margin-top: 4rem;
@@ -333,6 +334,16 @@ export default {
   }
   #answer {
     font-size: 3rem;
+  }
+  #testimonials-container {
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .testimonial-card {
+    float: none;
+    display: block;
+    margin: auto;
+    margin-top: 4rem;
   }
 }
 
@@ -355,18 +366,44 @@ export default {
     margin-left: 25%;
     margin-top: 25%;
   }
+  #qa-container {
+    padding-left: 0;
+  }
   #question {
     font-size: 4rem;
   }
   #answer-container {
-    border: blue solid;
-    padding: 0;
+    margin-top: 1rem;
+    text-align: center;
     width: 100%;
   }
   #answer {
-    font-size: 2rem;
-    border: blue solid;
+    font-size: 1.6rem;
+    width: 10000px;
+    margin: auto;
+  }
+  #catchphrase {
+    margin: auto;
+    margin-top: 1rem;
+  }
+  .step-container {
     width: 100%;
+    display: block;
+  }
+  .step-container:not(:first-child) {
+    margin-top: 2rem;
+  }
+  #engage-img {
+    width: 90%;
+  }
+  .step-explanation {
+    font-size: 1.25rem;
+  }
+  #built-for-instructors {
+    font-size: 2.5rem;
+  }
+  #bottom-container-header {
+    font-size: 2rem;
   }
 }
 </style>

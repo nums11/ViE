@@ -83,4 +83,28 @@ export default {
   margin: auto;
   margin-top: 1.5rem;
 }
+
+/* Tablets */
+@media (max-width: 1128px) {
+  .testimonial-card {
+    width: 80%;
+  }
+  #name {
+    font-size: 1.5rem;
+  }
+  #dept {
+    font-size: 1.25rem;
+  }
+  .testimonial {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 744px) {
+  .testimonial-card {
+    width: 90%;
+    height: 45rem;
+  }
+}
+
 </style>
