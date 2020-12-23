@@ -81,14 +81,16 @@ export default {
       this.last_name_input_clicked = true
     },
     async onboardUser() {
-      try {
-        await AuthAPI.onboardUser(this.user, this.section_id, this.invite_code);
-        window.location.href = process.env.NODE_ENV === 'production' ?
-        "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fvenue-attend.herokuapp.com%2Fauth%2FloginCAS%-null-null":
-        "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS-null-null"
-      } catch(error) {
-        alert("Something went wrong. Please try again.")
-        console.log("Error creating user", error)
+      if(this.formComplete) {
+        try {
+          await AuthAPI.onboardUser(this.user, this.section_id, this.invite_code);
+          window.location.href = process.env.NODE_ENV === 'production' ?
+          "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fvenue-attend.herokuapp.com%2Fauth%2FloginCAS%-null-null":
+          "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS-null-null"
+        } catch(error) {
+          alert("Something went wrong. Please try again.")
+          console.log("Error creating user", error)
+        }
       }
     },
     getIDsFromRoute() {
@@ -117,6 +119,10 @@ export default {
 .form-label {
   padding-left: 0.5rem;
   text-align: left;
+}
+
+#button-container {
+  margin-bottom: 2rem;
 }
 
 /*#choose-university-header {

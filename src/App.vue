@@ -1,12 +1,13 @@
 <template>
   <div id="app" :class="dark_mode ? 'dark-mode' : 'light-mode'">
     <portal-target name="semantic-ui-vue" />
-    <NavBar 
+    <InternalNavbar v-if="isInternalRoute"/>
+<!--     <NavBar 
       :setDarkModeValue="setDarkModeValue"
       :initialDarkModeValue="dark_mode"
       class="main_navbar" 
       v-if="!isNavbarlessView() && this.$route.name != 'set_permanent_password' && current_user"
-    />
+    /> -->
     <div>
       <transition name="fade" mode="out-in">
         <router-view :key="$route.fullPath" />
@@ -20,6 +21,7 @@
 <script>
 
 import NavBar from "./components/NavBar.vue";
+import InternalNavbar from "./components/InternalNavbar.vue";
 import Footer from "./components/Footer.vue";
 import LectureAPI from './services/LectureAPI';
 import {getLiveLectures,getUpcomingLectures,getPastLectures} from './services/GlobalFunctions.js'
@@ -40,6 +42,7 @@ export default {
   },
   components: {
     NavBar,
+    InternalNavbar,
     Footer,
     NewVersionMessage,
     ExternalFooter
@@ -48,10 +51,22 @@ export default {
     return {
       current_user: null,
       dark_mode: false,
-      new_app_version_exists: false
+      new_app_version_exists: false,
+      external_route_names: [
+        'landing_page',
+        'login',
+        'signup',
+        'create_user'
+      ]
+    }
+  },
+  computed: {
+    isInternalRoute() {
+      return !this.external_route_names.includes(this.$route.name)
     }
   },
   created() {
+    console.log("Route name", this.$route.name)
     console.log("env", process.env)
     axios.defaults.headers.common['Access-Control-Allow-Methods'] = ["GET, POST, DELETE"]
 

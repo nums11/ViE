@@ -52,7 +52,6 @@ import AttendChecker from './views/AttendChecker.vue';
 import LoginView from './views/LoginView.vue';
 import AddRecording from './views/AddRecording.vue';
 import RegisterCourse from './views/RegisterCourse.vue'
-import CreateUser from './views/CreateUser.vue'
 import JoinCourse from './views/JoinCourse.vue'
 import InviteStudentRedirect from './views/InviteStudentRedirect.vue'
 import SuccessfulInviteRedirect from './views/SuccessfulInviteRedirect.vue'

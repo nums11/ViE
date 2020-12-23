@@ -321,7 +321,7 @@
   }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .register-course-btn {
   margin-top: 1rem;
 }
