@@ -325,8 +325,8 @@ const router = new VueRouter({
     },
     {
       name: 'create_user',
-      path: '/create_user/:user_id/:optional_invited_section_id'
-      + '/:optional_invite_code',
+      path: '/create_user/:user_id/:optional_invited_section_id?'
+      + '/:optional_invite_code?',
       component: LoginSignupCreate,
       meta: {
         requiresNoAuth: true,

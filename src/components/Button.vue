@@ -1,12 +1,14 @@
 <template>
   <div class="signup-button">
-    <router-link :to="{name: route_name}">
+    <router-link :to="{name: route_name}"
+    :style="disabled ? 'cursor:auto' : ''">
       <div :class="'signup-button-container ' +
       (size === 'small' ? 'small ' : 'large ') +
       (wide ? 'wide ' : '') +
       (color === 'blue' ? 'blue ' : '') +
       (color === 'pink' ? 'pink ' : '') +
-      (invert_colors ? 'invert-colors ' : '')">
+      (invert_colors ? 'invert-colors ' : '') +
+      (disabled ? 'disabled ' : '')">
         {{ text }}
       </div>
     </router-link>
@@ -41,6 +43,10 @@ export default {
       type: Boolean,
       default: false
     },
+    disabled: {
+      type: Boolean,
+      default: false
+    }
   },
   data(){
     return {
@@ -105,6 +111,8 @@ export default {
   width: 14rem;
 }
 
+
+
 .signup-button-container:hover {
   color: white;
 }
@@ -128,4 +136,15 @@ export default {
 .signup-button-container.pink.invert-colors:hover {
   color: #e83e8c;
 }
+
+.signup-button-container.disabled,
+.signup-button-container.disabled.blue.invert-colors:hover {
+  background-color: #dbdbdb;
+  border: #dbdbdb solid;
+  color: white;
+}
+
+/*.signup-button-container.disabled:hover {
+  bac
+}*/
 </style>

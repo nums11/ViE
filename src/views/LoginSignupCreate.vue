@@ -6,44 +6,22 @@
         <div id="app-name">ViE</div>
       </router-link>      
     </div>
-    <h1 v-if="is_login_view" id="main-header">
-      Log in to your ViE account
-    </h1>
-    <h1 v-else id="main-header">Create an account</h1>
-    <h3 id="choose-university-header">Choose your university</h3>
-    <div id="university-select-container">
-      <select v-model="university_index" id="university-select">
-        <option v-for="(name,index) in university_names"
-        :value="index">{{ name }}</option>
-      </select>
-    </div>
-    <div v-if="universitySelected" id="verify-container">
-      <p v-if="!is_login_view" id="verify-message">Verify that you are a member of 
-      <span v-if="university_index === 2">the </span> 
-      {{ university_names[university_index] }}</p>
-      <div id="verify-button-container" @click="redirectToUniversityLogin">
-        <Button :text="is_login_view ? 'Log in' : 'Verify'" color="blue" size="large"
-        invert_colors />
-      </div>
-    </div>
-    <p v-if="error_msg != null" id="error-msg">{{ error_msg }}</p>
-    <p v-if="is_login_view" id="question" >Don't have an account? 
-      <router-link :to="{name : 'signup'}">Sign up</router-link>
-    </p>
-    <p v-else id="question">Already have an account? 
-      <router-link :to="{name : 'login'}">Log in</router-link>
-    </p>
+    <LoginSignup v-if="$route.name === 'login' || 
+    $route.name === 'signup'"
+    :is_login_view="$route.name === 'login'" />
+    <CreateUser v-else />
   </div>
 </template>
 
 <script>
-import AuthAPI from '@/services/AuthAPI.js'
-import Button from '@/components/Button'
+import LoginSignup from '@/components/LoginSignup'
+import CreateUser from '@/components/CreateUser'
 
 export default {
-    name: 'Signup',
+    name: 'LoginSignupCreate',
     components: {
-      Button
+      LoginSignup,
+      CreateUser
     },
     data () {
       return {
@@ -134,63 +112,14 @@ export default {
   padding-top: 2rem;
 }
 
-#main-header {
+/deep/ #main-header {
   margin-top: 3rem;
   font-size: 3rem;
 }
 
-#choose-university-header {
-  margin-top: 4rem;
-}
-
-#university-select-container {
-  margin-top: 2rem;
-}
-
-#university-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  width: 20rem;
-  height: 3rem;
-  border-radius: 3px;
-  background-color: white;
-  padding-left: 0.5rem;
-  text-align-last: center;
-  cursor: pointer;
-  margin: auto;
-}
-
-#verify-container {
-  margin-top: 3rem;
-}
-
-#verify-message {
-  margin: auto;
-}
-
-#verify-button-container {
+/deep/ #button-container {
   margin-top: 2rem;
   display: inline-block;
-}
-
-#error-msg {
-  background-color: #FF00001A;
-  border: #FF00001A solid;
-  color: #FF0000;
-  font-weight: bold;
-  height: 3rem;
-  width: 72.5%;
-  margin: auto;
-  margin-top: 3rem;
-  padding-top: 0.75rem;
-  border-radius: 5px;
-}
-
-#question {
-  margin: auto;
-  margin-top: 3rem;
-  font-weight: bold;
 }
 
 /* Tablets */
@@ -198,20 +127,12 @@ export default {
   #main {
     width: 70%;
   }
-  #error-msg {
-    width: 85%;
-  }
 }
 
 /* Phones */
 @media (max-width: 744px) {
   #main {
     width: 90%;
-  }
-  #error-msg {
-    padding-top: 0.5rem;
-    width: 100%;
-    height: 4rem;
   }
 }
 </style>
