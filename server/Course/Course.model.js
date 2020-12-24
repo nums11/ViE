@@ -11,6 +11,7 @@ let Course = new Schema({
 		type: String,
 		required: true
 	},
+	// Change to subject code
 	dept: {
 		type: String,
 		required: true

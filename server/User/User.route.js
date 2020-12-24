@@ -65,7 +65,31 @@ userRoutes.get('/', (req, res) => {
   })
 })
 
-userRoutes.route('/get/:id').get(function (req, res) {
+userRoutes.route('/get/:id/:with_meetings?').get(function (req, res) {
+  let meeting_population = null
+  if(req.params.with_meetings === "true"){
+    meeting_population = {
+      path: 'meetings',
+      populate: [{
+        path: 'sections',
+        populate: {
+          path: 'course'
+        }
+      }, {
+        path: 'org'
+      }, {
+        path: 'live_attendance',
+      }, {
+        path: 'async_attendance',
+        populate: {
+          path: 'recordings'
+        }
+      }]
+    }
+  }
+
+  console.log("Meeting population", meeting_population)
+
   let id = req.params.id;
   User.findById(id).
   populate('instructor_courses').
@@ -76,24 +100,7 @@ userRoutes.route('/get/:id').get(function (req, res) {
     }
   }).
   populate('user_orgs').
-  populate({
-    path: 'meetings',
-    populate: [{
-      path: 'sections',
-      populate: {
-        path: 'course'
-      }
-    }, {
-      path: 'org'
-    }, {
-      path: 'live_attendance',
-    }, {
-      path: 'async_attendance',
-      populate: {
-        path: 'recordings'
-      }
-    }]
-  }).
+  populate(meeting_population).
   populate('live_submissions').
   populate('async_submissions').
   populate({

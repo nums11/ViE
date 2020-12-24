@@ -32,7 +32,10 @@ export default {
     })
   },
   getUser(id) {
-    return API().get('users/get/' + id)
+    return API().get(`users/get/${id}`)
+  },
+  getUserWithMeetings(id) {
+    return API().get(`users/get/${id}/true`)
   },
   updateUser(id, user){
     return API().post('users/update/' + id, {

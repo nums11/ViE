@@ -27,6 +27,7 @@ let Meeting = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Organization'
   },
+  // Change below to has_live_tasks and has_async_tasks
   has_live_attendance: {type: Boolean, default: false},
   has_async_attendance: {type: Boolean, default: false},
   live_attendance: {

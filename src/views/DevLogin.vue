@@ -53,7 +53,7 @@
   }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
   .fade_out {
     visibility: hidden;
     opacity: 0;

@@ -106,7 +106,6 @@ export default {
   padding-left: 3rem;
   padding-right: 3rem;
   padding-top: 1rem;
-  margin-bottom: 3rem;
 }
 
 #logo-container {
