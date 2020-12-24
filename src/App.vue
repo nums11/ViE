@@ -1,13 +1,12 @@
 <template>
   <div id="app" :class="dark_mode ? 'dark-mode' : 'light-mode'">
     <portal-target name="semantic-ui-vue" />
-    <InternalNavbar v-if="isInternalRoute && !isNavbarlessView"/>
-<!--     <NavBar 
-      :setDarkModeValue="setDarkModeValue"
-      :initialDarkModeValue="dark_mode"
-      class="main_navbar" 
-      v-if="!isNavbarlessView() && this.$route.name != 'set_permanent_password' && current_user"
-    /> -->
+    <MobileNavSlider v-if="show_mobile_nav_slider"
+    :user="navbar_user" :user_courses="navbar_user_courses"
+    :is_instructor="navbar_is_instructor"
+    v-on:hide-mobile-nav-slider="hideMobileNavSlider" />
+    <InternalNavbar v-if="isInternalRoute && !isNavbarlessView"
+    v-on:show-mobile-nav-slider="showMobileNavSlider" />
     <div>
       <transition name="fade" mode="out-in">
         <router-view :key="$route.fullPath" />
@@ -31,6 +30,7 @@ import Cookie from 'cookie';
 import NewVersionMessage from '@/components/NewVersionMessage'
 import UserAPI from '@/services/UserAPI';
 import ExternalFooter from '@/components/ExternalFooter'
+import MobileNavSlider from '@/components/MobileNavSlider'
 
 export default {
   watch: {
@@ -45,13 +45,15 @@ export default {
     InternalNavbar,
     Footer,
     NewVersionMessage,
-    ExternalFooter
+    ExternalFooter,
+    MobileNavSlider
   },
   data() {
     return {
       current_user: null,
       dark_mode: false,
       new_app_version_exists: false,
+      show_mobile_nav_slider: false,
       external_route_names: [
         'landing_page',
         'login',
@@ -65,7 +67,10 @@ export default {
         'course_new_meeting',
         'org_new_meeting',
         'add_recording'
-      ]
+      ],
+      navbar_user: null,
+      navbar_user_courses: null,
+      navbar_is_instructor: Boolean
     }
   },
   computed: {
@@ -77,8 +82,6 @@ export default {
     },
   },
   created() {
-    console.log("Route name", this.$route.name)
-    console.log("env", process.env)
     axios.defaults.headers.common['Access-Control-Allow-Methods'] = ["GET, POST, DELETE"]
 
     if(this.$store.state.user) {
@@ -162,6 +165,15 @@ export default {
       }
       return outputArray;
     },
+    showMobileNavSlider(user, user_courses) {
+      this.navbar_user = user
+      this.navbar_user_courses = user_courses
+      this.navbar_is_instructor = user.is_instructor
+      this.show_mobile_nav_slider = true
+    },
+    hideMobileNavSlider() {
+      this.show_mobile_nav_slider = false
+    },
     setDarkModeValue (new_value) {
       this.dark_mode = new_value;
       // update the cookie preferences also.\
@@ -172,58 +184,8 @@ export default {
       // the heirarchy for us to update through Vue.
       let body = document.getElementsByTagName("body")[0]
       body.style.backgroundColor = this.dark_mode ? "#121419" : "white"
-    },
-    afterUser() {
-      if(this.current_user.is_instructor) {
-        LectureAPI.getLecturesForUser(this.current_user._id, "none") 
-          .then(res => {
-            let liveAndUpcoming = getLiveLectures(res.data).concat(getUpcomingLectures(res.data))
-            if (!("Notification" in window)) {
-              alert("This browser does not support desktop notification");
-            } else if (Notification.permission === "granted") {
-              this.processNotifications(liveAndUpcoming)
-            } else if (Notification.permission !== "denied") {
-              Notification.requestPermission().then(function (permission) {
-                if (permission === "granted") {
-                  this.processNotifications(liveAndUpcoming)
-                }
-              });
-            }
-            this.processInstructorEmails(getPastLectures(res.data))
-          })
-      } else {
-        
-      }
-    },
-    processNotifications(lectures) {
-      for(let i=0;i<lectures.length;i++) {
-        for(let j=0;j<lectures[i].checkins.length;j++) {
-          let timeuntil = Date.parse(lectures[i].checkins[j].start_time) - Date.now()
-          if(timeuntil > -1000) { //If the page loads within one second of checkin-time
-            let self = this
-            setTimeout(function() {
-              self.attendanceNotification(lectures[i]._id)
-            },timeuntil)
-          }
-        }
-      }
-    },
-    attendanceNotification(lectureid) {
-      var notification = new Notification("Time to take attendance!");
-      notification.onclick = function(event) {
-        event.preventDefault(); // prevent the browser from focusing the Notification's tab
-        if(process.env.NODE_ENV === "production") {
-          window.open('https://venue-attend.herokuapp.com/#/lecture_info/'+lectureid, '_blank');
-        } else {
-          window.open('http://localhost:8080/#/lecture_info/'+lectureid, '_blank');
-        }
-      }
-    },
-    processInstructorEmails(lectures) {
-      LectureAPI.processEmailsForLectures(lectures,this.current_user.email)
     }
   }
-  //initially displayNav is false because the first page loaded is the homepage
 }
 </script>
 
