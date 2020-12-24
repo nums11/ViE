@@ -36,7 +36,7 @@
 <script>
 
 export default {
-  name: 'MobileNavbar',
+  name: 'ExternalMobileNavbar',
   components: {
   },
   data(){

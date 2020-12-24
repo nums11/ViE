@@ -1,7 +1,7 @@
 <template>
   <div id="app" :class="dark_mode ? 'dark-mode' : 'light-mode'">
     <portal-target name="semantic-ui-vue" />
-    <InternalNavbar v-if="isInternalRoute"/>
+    <InternalNavbar v-if="isInternalRoute && !isNavbarlessView"/>
 <!--     <NavBar 
       :setDarkModeValue="setDarkModeValue"
       :initialDarkModeValue="dark_mode"
@@ -57,13 +57,24 @@ export default {
         'login',
         'signup',
         'create_user'
+      ],
+      navbarless_view_names: [
+        'landing_page',
+        'login',
+        'attend_checker',
+        'course_new_meeting',
+        'org_new_meeting',
+        'add_recording'
       ]
     }
   },
   computed: {
     isInternalRoute() {
       return !this.external_route_names.includes(this.$route.name)
-    }
+    },
+    isNavbarlessView () {
+      return this.navbarless_view_names.includes(this.$route.name)
+    },
   },
   created() {
     console.log("Route name", this.$route.name)
@@ -150,11 +161,6 @@ export default {
         outputArray[i] = rawData.charCodeAt(i);
       }
       return outputArray;
-    },
-    isNavbarlessView () {
-      let exclude = ['landing_page', 'login', 'attend_checker', 'course_new_meeting',
-      'org_new_meeting', 'add_recording']
-      return exclude.includes(this.$route.name)
     },
     setDarkModeValue (new_value) {
       this.dark_mode = new_value;

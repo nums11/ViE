@@ -1,25 +1,25 @@
 <template>
   <div id="external-navbar">
     <hide-at breakpoint="mediumAndBelow">
-      <DesktopNavbar />
+      <ExternalDesktopNavbar />
     </hide-at>
     <show-at breakpoint="mediumAndBelow">
-      <MobileNavbar />
+      <ExternalMobileNavbar />
     </show-at>
   </div>
 </template>
 
 <script>
 import Button from '@/components/Button'
-import DesktopNavbar from '@/components/DesktopNavbar'
-import MobileNavbar from '@/components/MobileNavbar'
+import ExternalDesktopNavbar from '@/components/ExternalDesktopNavbar'
+import ExternalMobileNavbar from '@/components/ExternalMobileNavbar'
 
 export default {
   name: 'ExternalNavbar',
   components: {
     Button,
-    DesktopNavbar,
-    MobileNavbar
+    ExternalDesktopNavbar,
+    ExternalMobileNavbar
   },
   data(){
     return {

@@ -55,6 +55,7 @@ import RegisterCourse from './views/RegisterCourse.vue'
 import JoinCourse from './views/JoinCourse.vue'
 import InviteStudentRedirect from './views/InviteStudentRedirect.vue'
 import SuccessfulInviteRedirect from './views/SuccessfulInviteRedirect.vue'
+import DevLogin from './views/DevLogin.vue'
 
 Vue.use(VueRouter);
 
@@ -564,6 +565,11 @@ const router = new VueRouter({
       name: 'successful_invite_redirect',
       path: '/successful_invite',
       component: SuccessfulInviteRedirect,
+    },
+    {
+      name: 'dev_login',
+      path: '/dev_login',
+      component: DevLogin,
     }
   ]
 })

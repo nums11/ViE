@@ -28,7 +28,7 @@
 import Button from '@/components/Button'
 
 export default {
-  name: 'DesktopNavbar',
+  name: 'ExternalDesktopNavbar',
   components: {
     Button
   },
