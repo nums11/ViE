@@ -39,6 +39,11 @@ let Meeting = new Schema({
     ref: 'AsyncAttendance',
     required: true
   }, 
+  course: {type: mongoose.Schema.Types.ObjectId,
+    ref: 'Course'},
+  recurring_id:{
+    type: String,
+  },
 });
 
 module.exports = mongoose.model('Meeting', Meeting);
