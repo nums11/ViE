@@ -4,33 +4,33 @@
     <sui-icon @click="$emit('hide-mobile-nav-slider')"
     name="x icon" size="big" inverted id="x-icon" />
     <div class="nav-link-container">
-      <router-link class="nav-link" :to="{name: 'dashboard'}">
+      <div @click="changeRoute('dashboard')" class="nav-link">
         Dashboard
-      </router-link>
+      </div>
     </div>
     <div class="nav-link-container">
       <div class="nav-link">Courses</div>
       <div v-for="course in user_courses" :key="course._id"
       class="course-link-container">
-        <div @click="routeToCourseInfo(course._id)" class="course-link">
+        <div @click="changeRoute('course_info', {id: course._id})" class="course-link">
           {{ course.name }}
         </div>
       </div>
     </div>
     <div class="nav-link-container">
-      <router-link v-if="is_instructor" class="nav-link"
-      :to="{name: 'register_course'}">
+      <div v-if="is_instructor" @click="changeRoute('register_course')"
+      class="nav-link">
         Register Course
-      </router-link>
-      <router-link v-else class="nav-link"
-      :to="{name: 'join_course'}">
+      </div>
+      <div v-else @click="changeRoute('join_course')"
+      class="nav-link">
         Join Course
-      </router-link>
+      </div>
     </div>
     <div class="nav-link-container">
-      <router-link class="nav-link" :to="{name: 'settings'}">
+      <div class="nav-link" @click="changeRoute('register_course')">
         Settings
-      </router-link>
+      </div>
     </div>
     <div id="user-name">
       {{ user.first_name }} {{ user.last_name }} ({{ user.user_id }})
@@ -73,8 +73,8 @@ export default {
   created() {
   },
   methods: {
-    routeToCourseInfo(id) {
-      this.$router.push({name: 'course_info', params: {id: id}})
+    changeRoute(route_name, params) {
+      this.$router.push({name: route_name, params: params})
       this.$emit('hide-mobile-nav-slider')
     },
     async logOut() {

@@ -1,10 +1,12 @@
 <template>
   <div id="app" :class="dark_mode ? 'dark-mode' : 'light-mode'">
     <portal-target name="semantic-ui-vue" />
-    <MobileNavSlider v-if="show_mobile_nav_slider"
-    :user="navbar_user" :user_courses="navbar_user_courses"
-    :is_instructor="navbar_is_instructor"
-    v-on:hide-mobile-nav-slider="hideMobileNavSlider" />
+    <transition name="slide">
+      <MobileNavSlider v-if="show_mobile_nav_slider"
+      :user="navbar_user" :user_courses="navbar_user_courses"
+      :is_instructor="navbar_is_instructor"
+      v-on:hide-mobile-nav-slider="hideMobileNavSlider" />
+    </transition>
     <InternalNavbar v-if="isInternalRoute && !isNavbarlessView"
     v-on:show-mobile-nav-slider="showMobileNavSlider" />
     <div>
@@ -251,6 +253,17 @@ html, body {
 .fade-enter,
 .fade-leave-active {
   opacity: 0;
+}
+
+.slide-leave-active,
+.slide-enter-active {
+  transition: 0.5s;
+}
+.slide-enter {
+  transform: translate(100%, 0);
+}
+.slide-leave-to {
+  transform: translate(100%, 0);
 }
 
 @font-face {
