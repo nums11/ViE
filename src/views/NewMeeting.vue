@@ -300,7 +300,7 @@ export default {
       }
 
       if(this.repeat_selection != 0 && (this.repeat_end_date == null || 
-      Date.parse(this.repeat_end_date) < Date.parse(document.getElementById("meeting_end").value))){
+      moment(this.repeat_end_date) < moment(document.getElementById("meeting_end").value))){
         return false;
       }
       if(this.repeat_selection == 3 && this.repeat_days_selection.length == 0){

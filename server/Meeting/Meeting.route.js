@@ -1,4 +1,5 @@
 const express = require('express');
+const moment = require("moment");
 const meetingRoutes = express.Router();
 
 let Meeting = require('./Meeting.model');
@@ -114,19 +115,17 @@ meetingRoutes.post('/add', async (req, res) => {
   let qr_checkins = meeting.qr_checkins;
   let days = req.body.days;
   let first = await addMeeting(res, meeting);
-  let d = new Date();
-  d.setTime(first.start_time.getTime()+day);
+  let d = moment(first.start_time).add(1, 'days');
   if(recurring_end != null && days != null){
-    for (var i = day; d <= recurring_end; i += day, d.setTime(first.start_time.getTime() + i)) {
-      if (days.includes(d.getDay())){
-        meeting.start_time = new Date(d);
-        meeting.end_time = new Date();
-        meeting.end_time.setTime(first.end_time.getTime() + i);
+    for (var i = 1; d <= recurring_end; i++, d.add(1, 'days')) {
+      if (days.includes(d.day())){
+        meeting.start_time = moment(d);
+        meeting.end_time = moment(first.end_time).add(i, 'days');
         meeting.qr_checkins = [];
         qr_checkins.forEach(checkin => {
           let new_checkin = new QRCheckin();
-          new_checkin.qr_checkin_start_time = checkin.qr_checkin_start_time + i;
-          new_checkin.qr_checkin_end_time = checkin.qr_checkin_end_time + i;
+          new_checkin.qr_checkin_start_time = checkin.qr_checkin_start_time + day * i;
+          new_checkin.qr_checkin_end_time = checkin.qr_checkin_end_time + day * i;
           new_checkin.code = generateRandomCode();
           meeting.qr_checkins.push(new_checkin);
         });

@@ -2,7 +2,7 @@
   <div class="meeting-attendance-pill">
     <router-link :to="{name: 'meeting_info', params: { meeting_id: meeting._id }}">
       <div class="pill-container">
-        <div class="left-side">{{ meeting.title }}</div>
+        <div class="left-side">{{ meeting.title }} <template v-if="meeting.recurring_id != null">{{formatTime(meeting.start_time)}}</template></div>
         <div class="right-side">
           <div v-if="meeting.has_live_attendance && meeting.live_attendance.qr_checkins.length > 0" class="icon-area"><img src="@/assets/icons/001-qr-code.svg" width="100%" height="100%"/></div>
           <div v-if="meeting.has_live_attendance && meeting.live_attendance.live_polls.length > 0" class="icon-area"><img src="@/assets/icons/001-ballot.svg" width="100%" height="100%"/></div>
@@ -16,6 +16,7 @@
 </template>
 
 <script>
+import moment from 'moment'
 export default {
     name: 'MeetingAttendancePill',
     props: {
@@ -31,6 +32,9 @@ export default {
     created () {
     },
     methods: {
+        formatTime(time){
+            return moment(time).format("MM/DD/YYYY h:mm A");
+        }
     }
 }
 </script>
