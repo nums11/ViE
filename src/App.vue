@@ -4,7 +4,6 @@
     <transition name="slide">
       <MobileNavSlider v-if="show_mobile_nav_slider"
       :user="navbar_user" :user_courses="navbar_user_courses"
-      :is_instructor="navbar_is_instructor"
       v-on:hide-mobile-nav-slider="hideMobileNavSlider" />
     </transition>
     <InternalNavbar v-if="isInternalRoute && !isNavbarlessView"
@@ -72,7 +71,6 @@ export default {
       ],
       navbar_user: null,
       navbar_user_courses: null,
-      navbar_is_instructor: Boolean
     }
   },
   computed: {
@@ -170,7 +168,6 @@ export default {
     showMobileNavSlider(user, user_courses) {
       this.navbar_user = user
       this.navbar_user_courses = user_courses
-      this.navbar_is_instructor = user.is_instructor
       this.show_mobile_nav_slider = true
     },
     hideMobileNavSlider() {
@@ -242,6 +239,12 @@ html, body {
 
 .float-right {
   float: right;
+}
+
+.wrap-text {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .fade-enter-active,

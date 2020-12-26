@@ -4,15 +4,14 @@
       <sui-popup :content="popup_text" position="bottom center" inverted basic>
         <div slot="trigger">
           {{ section_header }} 
-          <span class="meeting-count">({{ meetings.length}})</span>
+          <span class="count">({{ meetings.length}})</span>
         </div>
       </sui-popup>
     </h2>
     <div class="meeting-list-container">
       <div v-if="meetings.length > 0">
         <DashboardMeetingCard v-for="meeting in meetings"
-        :key="meeting._id" :meeting="meeting"
-        v-on:change-route="changeRoute" />
+        :key="meeting._id" :meeting="meeting" />
       </div>
       <p v-else class="no-meetings">{{ no_meetings_text }}</p>
     </div>
@@ -65,9 +64,6 @@ export default {
         this.no_meetings_text = "No meetings with ongoing asynchronous" +
         " tasks."
       }
-    },
-    changeRoute(route_name, params) {
-      this.$router.push({name: route_name, params: params})
     }
   }
 }
@@ -80,16 +76,6 @@ export default {
   vertical-align: top;
   width: 33.3%;
   text-align: center;
-}
-
-.meeting-section-header {
-/*border: black solid;*/
-}
-
-.meeting-count {
-  font-weight: normal;
-  font-size: 1.5rem;
-  margin-left: 0.25rem;
 }
 
 .meeting-list-container {

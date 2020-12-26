@@ -67,10 +67,6 @@ export default {
     user_courses: {
       type: Array,
       required: true
-    },
-    is_instructor: {
-      type: Boolean,
-      required: true
     }
   },
   components: {

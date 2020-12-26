@@ -16,7 +16,6 @@ export default {
   name: 'InternalMobileNavBar',
   data(){
     return {
-
     }
   },
   created() {

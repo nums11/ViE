@@ -1,25 +1,24 @@
 <template>
   <div class="dashboard-meeting-card">
-    <div class="meeting-name">{{ meeting.title }}</div>
+    <div class="meeting-name wrap-text">{{ meeting.title }}</div>
     <div class="meeting-course-info">
-      <div class="course-info-container">{{ course_name }}</div>
-      <div class="course-info-container">
+      <div class="course-info-container wrap-text">{{ course_name }}</div>
+      <div class="course-info-container wrap-text">
       {{ course_subject_code }} {{ course_number }}</div>
     </div>
     <div class="divider"></div>
     <div class="view-meeting-btn-container">
-      <sui-button
-      @click="$emit('change-route','meeting_info',
-      {meeting_id: meeting._id})" animated size="small"
-      style="background-color:#00B3FF; color:white;">
-          <sui-button-content visible>View</sui-button-content>
-          <sui-button-content hidden>
-              <sui-icon name="arrow right" />
-          </sui-button-content>
-      </sui-button>
+      <router-link :to="{name: 'meeting_info', params: {meeting_id: meeting._id}}">
+        <sui-button animated size="small"
+        style="background-color:#00B3FF; color:white;">
+            <sui-button-content visible>View</sui-button-content>
+            <sui-button-content hidden>
+                <sui-icon name="arrow right" />
+            </sui-button-content>
+        </sui-button>
+      </router-link>
     </div>
   </div>
-  </sui-card>
 </template>
 
 <script>
@@ -71,9 +70,6 @@ export default {
   width: 35%;
   padding-top: 1.2rem;
   font-size: 1.15rem;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
   padding-left: 1rem;
   padding-right: 0.5rem;
   text-align: left;
@@ -92,9 +88,6 @@ export default {
 .course-info-container {
   margin-top: 0.35rem;
   text-align: right;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
   width: 100%;
 }
 
@@ -108,10 +101,6 @@ export default {
   float: left;
   margin-left: 1rem;
   margin-top: 0.25rem;
-}
-
-.view-meeting-btn {
-  color: #00B3FF;
 }
 
 .view-meeting-btn-container {

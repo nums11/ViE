@@ -88,8 +88,6 @@ userRoutes.route('/get/:id/:with_meetings?').get(function (req, res) {
     }
   }
 
-  console.log("Meeting population", meeting_population)
-
   let id = req.params.id;
   User.findById(id).
   populate('instructor_courses').

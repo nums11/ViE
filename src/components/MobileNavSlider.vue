@@ -52,10 +52,6 @@ export default {
       type: Object,
       required: true
     },
-    is_instructor: {
-      type: Boolean,
-      required: true
-    },
     user_courses: {
       type: Array,
       required: true
