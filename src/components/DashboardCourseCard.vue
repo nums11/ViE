@@ -1,12 +1,13 @@
 <template>
-  <div class="dashboard-course-card">
-    <div class="card-section" id="left">
+  <div :class="'dashboard-course-card ' +
+  (is_instructor ? '' : 'student-card')">
+    <div class="card-section" :id="is_instructor ? 'left' : 'left-large'">
       <div class="wrap-text" id="course-name">{{ course.name }}</div>
       <div class="wrap-text" id="course-info">
         {{ course.dept }} {{ course.course_number }}
       </div>
     </div>
-    <div class="card-section" id="right">
+    <div class="card-section" :id="is_instructor ? 'right' : 'right-small'">
       <div class="course-card-btn-container">
         <router-link :to="{name: 'course_info', params: {id: course._id}}">
           <show-at breakpoint="mediumAndAbove">
@@ -29,10 +30,9 @@
           </hide-at>
         </router-link>
       </div>
-      <div class="divider"></div>
+      <div class="divider" v-if="is_instructor"></div>
       <div class="course-card-btn-container"
-      id="schedule-meeting-container">
-      <!-- Show check stats button for student instead of schedule meeting -->
+      id="schedule-meeting-container" v-if="is_instructor">
         <router-link :to="{name: 'course_new_meeting',
         params: {course_id: course._id}}">
           <show-at breakpoint="mediumAndAbove">
@@ -57,7 +57,7 @@
                 </sui-button-content>
             </sui-button>
           </hide-at>
-        </router-link>        
+        </router-link>
       </div>
     </div>
   </div>
@@ -97,6 +97,10 @@ export default {
   vertical-align: top;
 }
 
+.student-card {
+  width: 20rem;
+}
+
 .dashboard-course-card:not(:first-child) {
   margin-left: 2rem;
 }
@@ -114,8 +118,16 @@ export default {
   width: 40%;
 }
 
+#left-large {
+  width: 70%;
+}
+
 #right {
   width: 60%;
+}
+
+#right-small {
+  border: 30%;
 }
 
 #course-name {
