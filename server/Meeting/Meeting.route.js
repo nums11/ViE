@@ -1,4 +1,5 @@
 const express = require('express');
+const moment = require("moment");
 const meetingRoutes = express.Router();
 
 let Meeting = require('./Meeting.model');
@@ -18,7 +19,8 @@ const {Storage} = require("@google-cloud/storage")
 const path = require('path');
 // var multer = require("multer")
 // var upload = multer({ storage: multer.memoryStorage() })
-var multiparty = require('multiparty')
+var multiparty = require('multiparty');
+const { start } = require('repl');
 
 // GCS Specific
 
@@ -105,120 +107,34 @@ meetingRoutes.post('/save_new_recording/:recording_name', (req, res) => {
 // )
 
 // TODO: Update the secondary instructor's meetings as well
-meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
+meetingRoutes.post('/add', async (req, res) => {
+  const day = 86400000;
   let meeting = req.body.meeting;
-  let for_course = false
-  let course_id = ""
-  let org_id = ""
-  if(req.params.for_course === "true"){
-    for_course = true
-    course_id = req.params.course_or_org_id
-    console.log("Was for course", course_id)
-  } else {
-    org_id = req.params.course_or_org_id
-    console.log("Was for org", org_id)
-  }
-
-  let new_meeting = new Meeting(meeting)
-  let live_attendance = new LiveAttendance()
-  let async_attendance = new AsyncAttendance()
-
-  if(new_meeting.has_live_attendance) {
-    // Create the QR Checkins
-    let qr_promises = []
-    meeting.qr_checkins.forEach(qr_checkin => {
-      qr_promises.push(new Promise(async (resolve,reject) => {
-        let new_qr_checkin = new QRCheckin(qr_checkin)
-        try {
-          let saved_qr_checkin = await new_qr_checkin.save()
-          resolve(saved_qr_checkin)
-        } catch (error) {
-          console.log("<ERROR> (meetings/add) saving qr_checkin:",new_qr_checkin,error)
-          res.json(error)
-        }
-      }))
-    })
-    // Attach live attendance to the meeting
-    try{
-      let saved_qr_checkins = await Promise.all(qr_promises)
-      live_attendance.qr_checkins = saved_qr_checkins
-      // let live_attendance = new LiveAttendance({
-      //   qr_checkins: saved_qr_checkins
-      // })
-      // let saved_live_attendance = await live_attendance.save()
-      // new_meeting.live_attendance = saved_live_attendance
-    } catch(error) {
-      console.log("<ERROR> (meetings/add) saving live attendance:",error)
-      res.json(error)
+  let recurring_end = new Date(req.body.recurring_end);
+  recurring_end.setTime(recurring_end.getTime() + day);
+  let qr_checkins = meeting.qr_checkins;
+  let days = req.body.days;
+  let first = await addMeeting(res, meeting);
+  let d = moment(first.start_time).add(1, 'days');
+  if(recurring_end != null && days != null){
+    for (let i = 1; d <= recurring_end; i++, d.add(1, 'days')) {
+      if (days.includes(d.day())){
+        meeting.start_time = moment(d);
+        meeting.end_time = moment(first.end_time).add(i, 'days');
+        meeting.qr_checkins = [];
+        qr_checkins.forEach(checkin => {
+          let new_checkin = new QRCheckin();
+          new_checkin.qr_checkin_start_time = checkin.qr_checkin_start_time + day * i;
+          new_checkin.qr_checkin_end_time = checkin.qr_checkin_end_time + day * i;
+          new_checkin.code = generateRandomCode();
+          meeting.qr_checkins.push(new_checkin);
+        });
+        meeting.recurring_id = first._id;
+        addMeeting(res, meeting);
+      }
     }
   }
-
-  if(new_meeting.has_async_attendance) {
-    //Create the recordings
-    let recording_promises = []
-    meeting.recordings.forEach(recording => {
-      recording_promises.push(new Promise(async (resolve,reject) => {
-        let new_recording = new Recording(recording)
-        try {
-          let saved_recording = await new_recording.save()
-          console.log("Saved recording", saved_recording)
-          resolve(saved_recording)
-        } catch (error) {
-          console.log("<ERROR> (meetings/add) saving recording:",new_recording,error)
-          res.json(error)
-        }
-      }))
-    })
-    // Attach async attendance to the meeting
-    try{
-      let saved_recordings = await Promise.all(recording_promises)
-      async_attendance.recordings = saved_recordings
-      // let async_attendance = new AsyncAttendance({
-      //   recordings: saved_recordings
-      // })
-      // let saved_async_attendance = await async_attendance.save()
-      // new_meeting.async_attendance = saved_async_attendance
-    } catch(error) {
-      console.log("<ERROR> (meetings/add) saving async attendance:",error)
-      res.json(error)
-    }
-  }
-
-  try {
-    new_meeting.live_attendance = await live_attendance.save()
-    new_meeting.async_attendance = await async_attendance.save()
-    let saved_meeting = await new_meeting.save()
-    if(for_course) {
-
-      let updated_sections = await addMeetingToObjects(
-        saved_meeting.sections, "section", saved_meeting._id)
-      if(updated_sections == null)
-        throw "Error in addMeetingToObjects updating sections"
-
-      let student_ids = getAllStudentsFromSections(updated_sections)
-      let updated_students = await addMeetingToObjects(
-        student_ids, "user", saved_meeting._id)
-      if(updated_students == null)
-        throw "Error in addMeetingToObjects updating students"
-
-      let instructor_id = await getInstructorFromCourse(
-        updated_sections[0].course)
-      let updated_instructor = await addMeetingToObjects(
-        [instructor_id], "user", saved_meeting._id)
-      if(updated_instructor == null)
-        throw "Error in addMeetingToObjects updating instructor"
-
-      res.json(saved_meeting)
-    } else {
-
-      //Update the Org and it's board & general members
-
-    }
-  } catch(error) {
-    console.log("<ERROR> (meetings/add) saving meeting:",error)
-    res.json(error)
-  }
-
+  res.json(first);
 });
 
 meetingRoutes.route('/all').get(function (req, res) {
@@ -747,6 +663,119 @@ meetingRoutes.route('/upcoming').get(function (req, res) {
     }
   })
 });
+
+async function addMeeting(res, meeting){
+  let new_meeting = new Meeting(meeting)
+  let live_attendance = new LiveAttendance()
+  let async_attendance = new AsyncAttendance()
+  meeting.for_course ?  console.log("Was for course", meeting.course._id) : console.log("Was for org", meeting.org._id);
+  if(new_meeting.has_live_attendance) {
+    // Create the QR Checkins
+    let qr_promises = []
+    meeting.qr_checkins.forEach(qr_checkin => {
+      qr_promises.push(new Promise(async (resolve,reject) => {
+        let new_qr_checkin = new QRCheckin(qr_checkin)
+        try {
+          let saved_qr_checkin = await new_qr_checkin.save()
+          resolve(saved_qr_checkin)
+        } catch (error) {
+          console.log("<ERROR> (meetings/add) saving qr_checkin:",new_qr_checkin,error)
+          res.json(error)
+        }
+      }))
+    })
+    // Attach live attendance to the meeting
+    try{
+      let saved_qr_checkins = await Promise.all(qr_promises)
+      live_attendance.qr_checkins = saved_qr_checkins
+      // let live_attendance = new LiveAttendance({
+      //   qr_checkins: saved_qr_checkins
+      // })
+      // let saved_live_attendance = await live_attendance.save()
+      // new_meeting.live_attendance = saved_live_attendance
+    } catch(error) {
+      console.log("<ERROR> (meetings/add) saving live attendance:",error)
+      res.json(error)
+    }
+  }
+
+  if(new_meeting.has_async_attendance) {
+    //Create the recordings
+    let recording_promises = []
+    meeting.recordings.forEach(recording => {
+      recording_promises.push(new Promise(async (resolve,reject) => {
+        let new_recording = new Recording(recording)
+        try {
+          let saved_recording = await new_recording.save()
+          console.log("Saved recording", saved_recording)
+          resolve(saved_recording)
+        } catch (error) {
+          console.log("<ERROR> (meetings/add) saving recording:",new_recording,error)
+          res.json(error)
+        }
+      }))
+    })
+    // Attach async attendance to the meeting
+    try{
+      let saved_recordings = await Promise.all(recording_promises)
+      async_attendance.recordings = saved_recordings
+      // let async_attendance = new AsyncAttendance({
+      //   recordings: saved_recordings
+      // })
+      // let saved_async_attendance = await async_attendance.save()
+      // new_meeting.async_attendance = saved_async_attendance
+    } catch(error) {
+      console.log("<ERROR> (meetings/add) saving async attendance:",error)
+      res.json(error)
+    }
+  }
+
+  try {
+    new_meeting.live_attendance = await live_attendance.save()
+    new_meeting.async_attendance = await async_attendance.save()
+    let saved_meeting = await new_meeting.save()
+    if(new_meeting.for_course) {
+
+      let updated_sections = await addMeetingToObjects(
+        saved_meeting.sections, "section", saved_meeting._id)
+      if(updated_sections == null)
+        throw "Error in addMeetingToObjects updating sections"
+
+      let student_ids = getAllStudentsFromSections(updated_sections)
+      let updated_students = await addMeetingToObjects(
+        student_ids, "user", saved_meeting._id)
+      if(updated_students == null)
+        throw "Error in addMeetingToObjects updating students"
+
+      let instructor_id = await getInstructorFromCourse(
+        updated_sections[0].course)
+      let updated_instructor = await addMeetingToObjects(
+        [instructor_id], "user", saved_meeting._id)
+      if(updated_instructor == null)
+        throw "Error in addMeetingToObjects updating instructor"
+        new_meeting = saved_meeting;
+    } else {
+
+      //Update the Org and it's board & general members
+
+    }
+  } catch(error) {
+    console.log("<ERROR> (meetings/add) saving meeting:",error)
+    res.json(error)
+  }
+  return new_meeting;
+}
+
+// Duplicate from MeetingInfo.vue
+// TODO(FreckledNin): Make into a global utility function
+ function generateRandomCode() {
+  const alnums = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let result = "";
+  for (let i = 100; i > 0; --i) {
+    result += alnums[Math.floor(Math.random() * alnums.length)];
+  }
+  return result;
+}
 
 async function addMeetingToObjects(object_ids, object_type, meeting_id) {
   try {

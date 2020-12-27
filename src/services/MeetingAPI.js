@@ -30,10 +30,11 @@ export default {
   //     }
   //   )
   // },
-  addMeeting(meeting, for_course, course_or_org_id) {
-    return API().post('meetings/add' + '/' + for_course
-      + '/' + course_or_org_id, {
-        meeting: meeting
+  addMeeting(meeting, recurring_end, days) {
+    return API().post('meetings/add', {
+        meeting: meeting,
+        recurring_end: recurring_end,
+        days: days,
     })
   },
   addRecordingToMeeting(meeting_id, recording) {

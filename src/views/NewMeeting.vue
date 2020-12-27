@@ -72,6 +72,24 @@
                   id="meeting_end" aria-labelledby="end_time_label" type="datetime-local"
                   :disabled="!meetingHasStartTime"/>
                 </div>
+                <div :style="{marginTop: '30px',}"> 
+                  <sui-dropdown
+                    selection
+                    v-model="repeat_selection"
+                    :options="repeat_options"/>
+                </div>
+                <div v-if="repeat_selection == 3" :style="{marginTop: '10px',}">
+                  <sui-dropdown
+                    multiple
+                    selection
+                    v-model="repeat_days_selection"
+                    :options="repeat_days"
+                    placeholder="Select days to repeat on"/>
+                </div>
+                <div v-if="repeat_selection != 0" :style="{marginTop: '10px',}">
+                  <input required class="new-meeting-datetime-picker" placeholder="Select end date"
+                  id="repeat_end" aria-labelledby="start_time_label" type="date" v-model="repeat_end_date"/>
+                </div>
 
                 <div class="meeting-time-picker-area" :style="{width: '60%', marginTop: '30px'}">
                   <h4>QR Checkin Times</h4>
@@ -229,7 +247,25 @@ export default {
       async_tasks: [],
       meeting_data: {},
       course_org_info: null,
-      notification_permission_status: ""
+      notification_permission_status: "",
+      repeat_options: [
+        {value: 0, text: "Does not repeat"}, 
+        {value: 1, text: "Daily"}, 
+        {value: 2, text: "Weekly"},
+        {value: 3, text: "Custom Weekly"},
+      ],
+      repeat_selection: 0,
+      repeat_days: [
+        {value: 0, text: "Sunday"},
+        {value: 1, text: "Monday"},
+        {value: 2, text: "Tuesday"},
+        {value: 3, text: "Wednesday"},
+        {value: 4, text: "Thursday"},
+        {value: 5, text: "Friday"},
+        {value: 6, text: "Saturday"},
+      ],
+      repeat_days_selection: [],
+      repeat_end_date: null,
     }
   },
   computed: {
@@ -262,6 +298,14 @@ export default {
           this.recording.recording_submission_end_time == null)
           return false
       }
+
+      if(this.repeat_selection != 0 && (this.repeat_end_date == null || 
+      moment(this.repeat_end_date) < moment(document.getElementById("meeting_end").value))){
+        return false;
+      }
+      if(this.repeat_selection == 3 && this.repeat_days_selection.length == 0){
+        return false;
+      }
       return true
     }
   },
@@ -286,7 +330,7 @@ export default {
         const response = await CourseAPI.getCourse(this.course_id)
         this.course = response.data
         this.meeting.for_course = true
-        // this.meeting.course = this.course._id
+        this.meeting.course = this.course
       } else {
         this.org_id = this.$route.params.org_id;
         const response = await OrgAPI.getOrg(this.org_id)
@@ -524,13 +568,19 @@ export default {
      this.meeting.recordings = this.recordings
    },
    async saveMeetingToCourseOrOrg() {
+     if(this.repeat_selection == 1){
+       this.repeat_days_selection = [0, 1, 2, 3, 4, 5, 6];
+     } else if (this.repeat_selection == 2){
+       let date = new Date(document.getElementById("meeting_end").value);
+       this.repeat_days_selection = [date.getDay()];
+       console.log(this.repeat_days_selection);
+      }
      console.log("saving meeting",this.meeting);
      let response = null
-     if(this.for_course){
-       response = await MeetingAPI.addMeeting(this.meeting,true,this.course_id)
-     }else{
-       response = await MeetingAPI.addMeeting(this.meeting,false,this.org_id)
-     }
+     response = await MeetingAPI.addMeeting(
+       this.meeting, 
+       this.repeat_end_date, 
+       this.repeat_days_selection);
      return response.data
    },
    getConfirmationString() {
