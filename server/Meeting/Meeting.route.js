@@ -117,7 +117,7 @@ meetingRoutes.post('/add', async (req, res) => {
   let first = await addMeeting(res, meeting);
   let d = moment(first.start_time).add(1, 'days');
   if(recurring_end != null && days != null){
-    for (var i = 1; d <= recurring_end; i++, d.add(1, 'days')) {
+    for (let i = 1; d <= recurring_end; i++, d.add(1, 'days')) {
       if (days.includes(d.day())){
         meeting.start_time = moment(d);
         meeting.end_time = moment(first.end_time).add(i, 'days');
