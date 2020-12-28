@@ -337,7 +337,7 @@ const router = new VueRouter({
       path: '/dashboard',
       component: Dashboard,
       meta: {
-        title: "Venue - Dashboard",
+        title: "ViE - Dashboard",
         requiresAuth: true
       }
     },
