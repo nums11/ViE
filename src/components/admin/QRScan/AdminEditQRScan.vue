@@ -1,16 +1,16 @@
 <template>
   <div>
-    <h2>Edit QRCheckin</h2>
-    <div class="spinner-border" role="status" v-if="!qr_checkin_has_loaded">
+    <h2>Edit QRScan</h2>
+    <div class="spinner-border" role="status" v-if="!qr_scan_has_loaded">
       <span class="sr-only">Loading...</span>
     </div>
     <div v-else>
-      <form @submit.prevent="updateQRCheckin">
+      <form @submit.prevent="updateQRScan">
         <div class="row">
           <div class="col-md-6">
             <div class="form-group">
               <label>Code: </label>
-              <input type="text" class="form-control" v-model="qr_checkin.code" disabled>
+              <input type="text" class="form-control" v-model="qr_scan.code" disabled>
             </div>
           </div>
           </div>
@@ -19,13 +19,13 @@
               <div class="form-group">
                 <label>Start</label>
                 <input class="datetime-picker" placeholder="Select date & time"
-                id="qr_checkin-submission-start"
-                v-model="qr_checkin.qr_checkin_start_time"
+                id="qr_scan-submission-start"
+                v-model="qr_scan.qr_scan_start_time"
                 type="datetime-local"/>
                 <label>End</label>
                 <input class="datetime-picker" placeholder="Select date & time"
-                id="qr_checkin-submission-start"
-                v-model="qr_checkin.qr_checkin_end_time"
+                id="qr_scan-submission-start"
+                v-model="qr_scan.qr_scan_end_time"
                 type="datetime-local"/>
               </div>
             </div>
@@ -36,8 +36,8 @@
       </form>
 
       <div class="container">
-        <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">QRCheckin Submissions</h3>
-        <div class="attendance-container" v-for="submission in qr_checkin.qr_checkin_submissions">
+        <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">QRScan Submissions</h3>
+        <div class="attendance-container" v-for="submission in qr_scan.submissions">
           <h4>First Name: {{ submission.submitter.first_name }}</h4>
           <h4>Last Name: {{ submission.submitter.last_name }}</h4>
           <h4>User ID: {{ submission.submitter.user_id }}</h4>
@@ -50,37 +50,37 @@
 </template>
 
 <script>
-  import QRCheckinAPI from '@/services/QRCheckinAPI.js';
+  import QRScanAPI from '@/services/QRScanAPI.js';
 
   export default {
-    name: 'AdminEditQRCheckin',
+    name: 'AdminEditQRScan',
     components: {
     },
     data() {
       return {
-        qr_checkin: {},
-        qr_checkin_has_loaded: false,
+        qr_scan: {},
+        qr_scan_has_loaded: false,
       }
     },
     created() {
-      this.qr_checkin_id = this.$route.params.qr_checkin_id
-      this.getQRCheckin()
+      this.qr_scan_id = this.$route.params.qr_scan_id
+      this.getQRScan()
     },
     methods: {
-      async getQRCheckin() {
-        const response = await QRCheckinAPI.getQRCheckin(this.qr_checkin_id)
-        this.qr_checkin = response.data
-        console.log("Got qr_checkin", this.qr_checkin)
-        this.qr_checkin_has_loaded = true
+      async getQRScan() {
+        const response = await QRScanAPI.getQRScan(this.qr_scan_id)
+        this.qr_scan = response.data
+        console.log("Got qr_scan", this.qr_scan)
+        this.qr_scan_has_loaded = true
       },
-      async updateQRCheckin() {
-        let confirmation = confirm("Are you sure you want to update this qr_checkin?")
+      async updateQRScan() {
+        let confirmation = confirm("Are you sure you want to update this qr_scan?")
         if(confirmation){
-          let updated_qr_checkin = {
-            qr_checkin_start_time: new Date(this.qr_checkin.qr_checkin_start_time),
-            qr_checkin_end_time: new Date(this.qr_checkin.qr_checkin_end_time),
+          let updated_qr_scan = {
+            qr_scan_start_time: new Date(this.qr_scan.qr_scan_start_time),
+            qr_scan_end_time: new Date(this.qr_scan.qr_scan_end_time),
           }
-          const response = await QRCheckinAPI.updateQRCheckin(this.qr_checkin_id, updated_qr_checkin)
+          const response = await QRScanAPI.updateQRScan(this.qr_scan_id, updated_qr_scan)
           this.$router.go()
         }
       },

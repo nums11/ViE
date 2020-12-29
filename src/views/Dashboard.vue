@@ -85,7 +85,7 @@ export default {
       })
     },
     meetingIsRealTime(meeting, now) {
-      if(!meeting.has_live_attendance)
+      if(!meeting.has_real_time_portion)
         return false
       return moment(now).isBetween(meeting.start_time, meeting.end_time)
     },

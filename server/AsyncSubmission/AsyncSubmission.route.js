@@ -3,7 +3,6 @@ const asyncSubmissionRoutes = express.Router();
 
 let AsyncSubmission = require('./AsyncSubmission.model');
 let Recording = require('../Recording/Recording.model');
-let Poll = require('../Poll/Poll.model');
 
 asyncSubmissionRoutes.route('/add').post(async function (req, res) {
   let async_submission = new AsyncSubmission(req.body.async_submission);

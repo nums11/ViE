@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-let Poll = require('../Poll/Poll.model');
+// let Poll = require('../Poll/Poll.model');
 let AsyncSubmission = require('../AsyncSubmission/AsyncSubmission.model');
 
 //Define collection and schema for User
@@ -10,10 +10,10 @@ let Recording = new Schema({
 		type: String,
 		required: true
 	},
-	recording_polls: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Poll'
-	},
+	// recording_polls: {
+	// 	type: mongoose.Schema.Types.ObjectId,
+	// 	ref: 'Poll'
+	// },
 	// TODO: default this to false and allow instructors to upload
 	// recordings that don't count for submissions
 	allow_recording_submissions: { type: Boolean, default: true },

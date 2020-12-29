@@ -86,13 +86,13 @@ export default {
   methods: {
     getSubmissionIDSForAllMeetings() {
       this.section.meetings.forEach(meeting => {
-        if(meeting.has_live_attendance)
+        if(meeting.has_real_time_portion)
           this.num_live_meetings++
         if(meeting.has_async_attendance)
           this.num_async_meetings++
-        let [live_submission_ids, async_submission_ids] = this.getMeetingSubmissionIDs(meeting)
+        let [submission_ids, async_submission_ids] = this.getMeetingSubmissionIDs(meeting)
         this.meeting_submission_ids.push({
-          live_submission_ids: live_submission_ids,
+          submission_ids: submission_ids,
           async_submission_ids: async_submission_ids
         })
       })
@@ -104,7 +104,7 @@ export default {
         let total_num_attended = 0
         this.meeting_submission_ids.forEach(meeting => {
           let attended = false
-          if(meeting.live_submission_ids.has(student.user_id)) {
+          if(meeting.submission_ids.has(student.user_id)) {
             num_live_attended++
             attended = true
           }
@@ -131,10 +131,10 @@ export default {
       })
     },
     getMeetingSubmissionIDs(meeting) {
-      let live_submission_ids = new Set()
-      meeting.live_attendance.qr_checkins.forEach(qr_checkin =>{
-        qr_checkin.qr_checkin_submissions.forEach(submission => {
-          live_submission_ids.add(submission.submitter.user_id)
+      let submission_ids = new Set()
+      meeting.real_time_portion.qr_scans.forEach(qr_scan =>{
+        qr_scan.submissions.forEach(submission => {
+          submission_ids.add(submission.submitter.user_id)
         })
       })
       let async_submission_ids = new Set()
@@ -143,7 +143,7 @@ export default {
           async_submission_ids.add(submission.submitter.user_id)
         })
       })
-      return [live_submission_ids, async_submission_ids]
+      return [submission_ids, async_submission_ids]
     },
     sortTable(property) {
       if(this.table_sorting_property === property)

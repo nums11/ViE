@@ -7,7 +7,7 @@
         <th>title</th>
         <th>for_course</th>
         <th>course_or_org</th>
-        <th>has_live_attendance</th>
+        <th>has_real_time_portion</th>
         <th>has_async_attendance</th>
       </tr>
       </thead>
@@ -17,7 +17,7 @@
           <td>{{ meeting.for_course }}</td>
           <td v-if="meeting.for_course">{{ meeting.course.name }}</td>
           <td v-else>{{ meeting.org.name }}</td>
-          <td>{{ meeting.has_live_attendance }}</td>
+          <td>{{ meeting.has_real_time_portion }}</td>
           <td>{{ meeting.has_async_attendance }}</td>
           <td>
             <router-link :to="{name: 'admin_edit_meeting', params: { meeting_id: meeting._id }}" class="btn btn-primary">Edit</router-link>

@@ -95,8 +95,8 @@ export default {
       },
       getSubmissionIds() {
         let submission_ids = new Set()
-        this.meeting.live_attendance.qr_checkins.forEach(qr_checkin => {
-          let submissions = qr_checkin.qr_checkin_submissions
+        this.meeting.real_time_portion.qr_scans.forEach(qr_scan => {
+          let submissions = qr_scan.submissions
           submissions.forEach(submission => {
             submission_ids.add(submission.submitter.user_id)
           })

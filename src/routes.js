@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router';
-import Home from './components/Home.vue';
 import AdminUsers from './components/admin/User/AdminUsers.vue';
 import AdminEditUser from './components/admin/User/AdminEditUser.vue';
 import AdminInstructors from './components/admin/User/AdminInstructors.vue';
@@ -15,21 +14,13 @@ import AdminEditSection from './components/admin/Section/AdminEditSection.vue';
 import AdminNewSection from './components/admin/Section/AdminNewSection.vue';
 import AdminNewUser from './components/admin/User/AdminNewUser.vue';
 import AdminEditRecording from './components/admin/Recording/AdminEditRecording.vue';
-import AdminEditQRCheckin from './components/admin/QRCheckin/AdminEditQRCheckin.vue';
+import AdminEditQRScan from './components/admin/QRScan/AdminEditQRScan.vue';
 import OnboardUser from './views/OnboardUser.vue';
-import AdminNewOrg from './components/admin/Organization/AdminNewOrg.vue';
-import AdminOrgs from './components/admin/Organization/AdminOrgs.vue';
-import AdminEditOrg from './components/admin/Organization/AdminEditOrg.vue';
 import AdminEditMeeting from './components/admin/Meeting/AdminEditMeeting.vue';
 import NewMeeting from './views/NewMeeting.vue';
-import AdminNewEvent from './components/admin/Event/AdminNewEvent.vue';
-import AdminEvents from './components/admin/Event/AdminEvents.vue';
-import AdminEditEvent from './components/admin/Event/AdminEditEvent.vue';
 import AdminGlobalCommands from './views/AdminGlobalCommands.vue';
 import AdminNotificationJobs from './components/admin/Notification/AdminNotificationJobs.vue';
 import AdminUpdatedAuthHeaders from './components/admin/User/AdminUpdatedAuthHeaders.vue';
-import NewSubmission from './components/admin/Submission/NewSubmission.vue';
-import Submissions from './components/admin/Submission/Submissions.vue';
 import AdminStudentInvite from './components/admin/Course/StudentInvite.vue';
 import LandingPage from './views/LandingPage.vue';
 import SetPermanentPassword from './views/SetPermanentPassword.vue';
@@ -37,16 +28,10 @@ import LoginSignupCreate from './views/LoginSignupCreate.vue';
 import Dashboard from './views/Dashboard.vue';
 import CourseList from './components/CourseList.vue';
 import CourseOrgInfo from './views/CourseOrgInfo.vue';
-import NewEvent from './views/NewEvent.vue';
-import EventInfo from './views/EventInfo.vue';
-import LecturePlayback from './views/LecturePlayback.vue';
 import WebexTest from './views/WebexTest.vue';
-import NewLecture from './views/NewLecture.vue';
-import LectureInfo from './views/LectureInfo.vue';
 import MeetingInfo from './views/MeetingInfo.vue';
 import Settings from './views/Settings.vue';
 import RedirectCASLogin from './views/RedirectCASLogin.vue';
-import Statistics from './views/Statistics.vue';
 import WatchRecording from './views/WatchRecording.vue';
 import AttendChecker from './views/AttendChecker.vue';
 import LoginView from './views/LoginView.vue';
@@ -188,9 +173,9 @@ const router = new VueRouter({
       }
     },
     {
-      name: 'admin_edit_qr_checkin',
-      path: '/admin/edit_qr_checkin/:qr_checkin_id',
-      component: AdminEditQRCheckin,
+      name: 'admin_edit_qr_scan',
+      path: '/admin/edit_qr_scan/:qr_scan_id',
+      component: AdminEditQRScan,
       meta: {
         requiresAuth: true,
         requiresAdmin: true
@@ -233,33 +218,6 @@ const router = new VueRouter({
       }
     },
     {
-      name: 'admin_new_event',
-      path: '/admin/new_event',
-      component: AdminNewEvent,
-      meta: {
-        requiresAuth: true,
-        requiresAdmin: true
-      }
-    },
-    {
-      name: 'admin_events',
-      path: '/admin/events',
-      component: AdminEvents,
-      meta: {
-        requiresAuth: true,
-        requiresAdmin: true
-      }
-    },
-    {
-      name: 'admin_edit_event',
-      path: '/admin_edit_event/:id',
-      component: AdminEditEvent,
-      meta: {
-        requiresAuth: true,
-        requiresAdmin: true
-      }
-    },
-    {
       name: 'admin_notifiacation_jobs',
       path: '/admin/notification_jobs',
       component: AdminNotificationJobs,
@@ -272,24 +230,6 @@ const router = new VueRouter({
       name: 'admin_updated_auth_headers',
       path: '/admin/updated_auth_headers',
       component: AdminUpdatedAuthHeaders,
-      meta: {
-        requiresAuth: true,
-        requiresAdmin: true
-      }
-    },
-    {
-      name: 'new_submission',
-      path: '/new_submission',
-      component: NewSubmission,
-      meta: {
-        requiresAuth: true,
-        requiresAdmin: true
-      }
-    },
-    {
-      name: 'submissions',
-      path: '/admin/submissions',
-      component: Submissions,
       meta: {
         requiresAuth: true,
         requiresAdmin: true
@@ -350,33 +290,6 @@ const router = new VueRouter({
       }
     },
     {
-      name: 'org_info',
-      path: '/org_info/:id',
-      component: CourseOrgInfo,
-      meta: {
-        title: "Venue - Org Info",
-        requiresAuth: true
-      }
-    },
-    {
-      name: 'new_event',
-      path: '/new_event/:course_id',
-      component: NewEvent,
-      meta: {
-        requiresAuth: true,
-        requiresAdmin: true
-      }
-    },
-    {
-      name: 'event_info',
-      path: '/event_info/:event_id',
-      component: EventInfo,
-      meta: {
-        requiresAuth: true,
-        requiresAdmin: true
-      }
-    },
-    {
       name: 'webex_test',
       path: '/webex_test',
       component: WebexTest,
@@ -386,39 +299,11 @@ const router = new VueRouter({
       }
     },
     {
-      name: 'lecture_playback',
-      path: '/lecture_playback/:lecture_id',
-      component: LecturePlayback,
-      meta: {
-        title: "Venue - Lecture Playback",
-        requiresAuth: true,
-      }
-    },
-    {
       name: 'watch_recording',
       path: '/watch_recording/:recording_id',
       component: WatchRecording,
       meta: {
         title: "Venue - Watch Recording",
-        requiresAuth: true,
-      }
-    },
-    {
-      name: 'new_lecture',
-      path: '/new_lecture/:course_id',
-      component: NewLecture,
-      meta: {
-        title: "Venue - New Lecture",
-        requiresAuth: true,
-        requiresInstructor: true
-      }
-    },
-    {
-      name: 'lecture_info',
-      path: '/lecture_info/:lecture_id',
-      component: LectureInfo,
-      meta: {
-        title: "Venue - Lecture Info",
         requiresAuth: true,
       }
     },
@@ -449,43 +334,6 @@ const router = new VueRouter({
       }
     },
     {
-      name: 'statistics',
-      path: '/statistics',
-      component: Statistics,
-      meta: {
-        title: "Venue - Statistics",
-        requiresAuth: true,
-        requiresInstructor: true
-      }
-    },
-    {
-      name: 'admin_new_org',
-      path: '/admin/new_org',
-      component: AdminNewOrg,
-      meta: {
-        requiresAuth: true,
-        requireAdmin: true
-      }
-    },
-    {
-      name: 'admin_orgs',
-      path: '/admin/orgs',
-      component: AdminOrgs,
-      meta: {
-        requiresAuth: true,
-        requireAdmin: true
-      }
-    },
-    {
-      name: 'admin_edit_org',
-      path: '/admin/edit_org/:id',
-      component: AdminEditOrg,
-      meta: {
-        requiresAuth: true,
-        requireAdmin: true
-      }
-    },
-    {
       name: 'admin_edit_meeting',
       path: '/admin/edit_meeting/:meeting_id',
       component: AdminEditMeeting,
@@ -511,15 +359,6 @@ const router = new VueRouter({
         requiresAuth: true,
         requireAdmin: false,
         requiresInstructor: true
-      }
-    },
-    {
-      name: 'org_new_meeting',
-      path: '/org_new_meeting/:org_id',
-      component: NewMeeting,
-      meta: {
-        requiresAuth: true,
-        requiresAdmin: false
       }
     },
     {

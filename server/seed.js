@@ -1,15 +1,12 @@
 const seeder = require("mongoose-seed");
 const Course = require("./Course/Course.model")
-const Organization = require("./Organization/Organization.model")
-const LiveAttendance = require("./LiveAttendance/LiveAttendance.model")
+const RealTimePortion = require("./RealTimePortion/RealTimePortion.model")
 const AsyncAttendance = require("./AsyncAttendance/AsyncAttendance.model")
-const LiveSubmission = require("./LiveSubmission/LiveSubmission.model")
+const Submission = require("./Submission/Submission.model")
 const AsyncSubmission = require("./AsyncSubmission/AsyncSubmission.model")
-const QRCheckin = require("./QRCheckin/QRCheckin.model")
+const QRScan = require("./QRScan/QRScan.model")
 const Recording = require("./Recording/Recording.model")
 const User = require("./User/User.model")
-const Poll = require("./Poll/Poll.model")
-const Meeting = require("./Meeting/Meeting.model")
 const Section = require("./Section/Section.model")
 
 const db = "mongodb://localhost:27017/Venue2v2";
@@ -21,20 +18,18 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 	seeder.loadModels([
 		"./Course/Course.model",
 		"./User/User.model",
-		"./Poll/Poll.model",
-		"./Organization/Organization.model",
 		"./Meeting/Meeting.model",
-		"./LiveAttendance/LiveAttendance.model",
+		"./RealTimePortion/RealTimePortion.model",
 		"./AsyncAttendance/AsyncAttendance.model",
-		"./LiveSubmission/LiveSubmission.model",
+		"./Submission/Submission.model",
 		"./AsyncSubmission/AsyncSubmission.model",
-		"./QRCheckin/QRCheckin.model",
+		"./QRScan/QRScan.model",
 		"./Recording/Recording.model",
 		"./Section/Section.model"
 	]);
-	seeder.clearModels(['Course', 'User', 'Organization', 'Meeting',
-		'LiveAttendance', 'AsyncAttendance', 'LiveSubmission', 'AsyncSubmission',
-		'QRCheckin', 'Recording', 'Poll', 'Section'], function () {
+	seeder.clearModels(['Course', 'User', 'Meeting',
+		'RealTimePortion', 'AsyncAttendance', 'Submission', 'AsyncSubmission',
+		'QRScan', 'Recording', 'Section'], function () {
 
 		let users = []
 		let courses = []
@@ -56,7 +51,7 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 			pending_approval_sections: [],
 			users_orgs: [],
 			meetings: [],
-			live_submissions: [],
+			submissions: [],
 			async_submissions: [],
 		}))
 
@@ -73,7 +68,7 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 			pending_approval_sections: [],
 			users_orgs: [],
 			meetings: [],
-			live_submissions: [],
+			submissions: [],
 			async_submissions: [],
 		}))
 
@@ -92,7 +87,7 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 				pending_approval_sections: [],
 				users_orgs: [],
 				meetings: [],
-				live_submissions: [],
+				submissions: [],
 				async_submissions: [],
 			}))
 		}
@@ -110,7 +105,7 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 			pending_approval_sections: [],
 			users_orgs: [],
 			meetings: [],
-			live_submissions: [],
+			submissions: [],
 			async_submissions: [],
 		}))
 
@@ -228,9 +223,6 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 				}, {
 					"model": "Section",
 					"documents": sections
-				}, {
-					"model": "Organization",
-					"documents": organizations
 				}
 				]
 

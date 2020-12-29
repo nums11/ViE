@@ -1,10 +1,9 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-let LiveAttendance = require('../LiveAttendance/LiveAttendance.model');
+let RealTimePortion = require('../RealTimePortion/RealTimePortion.model');
 let AsyncAttendance = require('../AsyncAttendance/AsyncAttendance.model');
 let Course = require('../Course/Course.model');
-let Organization = require('../Organization/Organization.model');
 
 //Define collection and schema for User
 let Meeting = new Schema({
@@ -14,25 +13,19 @@ let Meeting = new Schema({
   },
   start_time: {
     type: Date,
+    required: true
   },
   end_time: {
     type: Date,
+    required: true
   },
-  for_course: {type: Boolean, default: false},
   sections: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Section'
   }],
-  org: {
+  real_time_portion: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Organization'
-  },
-  // Change below to has_live_tasks and has_async_tasks
-  has_live_attendance: {type: Boolean, default: false},
-  has_async_attendance: {type: Boolean, default: false},
-  live_attendance: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'LiveAttendance',
+    ref: 'RealTimePortion',
     required: true
   },
   async_attendance: {

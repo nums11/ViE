@@ -3,7 +3,7 @@
     <div>
       <div class="action-row">
         <div class="left-side">
-          <div v-if="is_qr" :style="{fontSize: '1.2rem'}">{{ task.qr_checkin_submissions.length }} Submission</div>
+          <div v-if="is_qr" :style="{fontSize: '1.2rem'}">{{ task.submissions.length }} Submission</div>
           <div v-else :style="{fontSize: '1.2rem'}">{{ task.recording_submissions.length }} Submission</div>
         </div>
       </div>
@@ -17,7 +17,7 @@
           <div class="email-area">User ID</div>
         </div>
           <div v-if="is_qr">
-            <div v-for="submission in task.qr_checkin_submissions" :key="submission._id" class="student-row">
+            <div v-for="submission in task.submissions" :key="submission._id" class="student-row">
               <div class="checkbox-area">
                   <sui-checkbox />
               </div>

@@ -1,4 +1,4 @@
-const QRCheckin = require('../QRCheckin/QRCheckin.model')
+const QRScan = require('../QRScan/QRScan.model')
 
 const has = (a, b) => { return Object.prototype.hasOwnProperty.call(a, b); }
 
@@ -13,7 +13,7 @@ const AttendanceFinder = {
         type:     String ('qr-code', 'poll', 'recording', ...)
     @desc
       Search for the task in the collection of the associated type
-      (qr-code => QRCheckin, poll => Poll, ...)
+      (qr-code => QRScan, poll => Poll, ...)
       for the document with _id = task_id.
       Return the submission array
   */
@@ -28,13 +28,13 @@ const AttendanceFinder = {
     // Get the QR Submission
     if (task_info.type == 'qr-code') {
 
-      return QRCheckin.findById(task_info.task_id)
-      .populate('qr_checkin_submissions')
+      return QRScan.findById(task_info.task_id)
+      .populate('submissions')
       .then(qr_doc => {
         
-        // submissions is an array of LiveSubmission ObjectIDs
-        let submissions = qr_doc.qr_checkin_submissions;
-        return qr_doc.qr_checkin_submissions;
+        // submissions is an array of Submission ObjectIDs
+        let submissions = qr_doc.submissions;
+        return qr_doc.submissions;
 
       })
       .catch(err => {

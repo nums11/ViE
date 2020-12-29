@@ -3,10 +3,9 @@ const qrCheckinRoutes = express.Router ();
 
 const Meeting = require('../Meeting/Meeting.model')
 const Course = require('../Course/Course.model')
-const Organization = require('../Organization/Organization.model')
-const QRCheckin = require('./QRCheckin.model')
-const LiveAttendance = require('../LiveAttendance/LiveAttendance.model')
-const LiveSubmission = require('../LiveSubmission/LiveSubmission.model')
+const QRScan = require('./QRScan.model')
+const RealTimePortion = require('../RealTimePortion/RealTimePortion.model')
+const Submission = require('../Submission/Submission.model')
 
 /*
 qrcheckin/attend
@@ -25,39 +24,39 @@ qrcheckin/attend
 
 qrCheckinRoutes.route('/get/:id').get(function (req, res) {
   let id = req.params.id;
-  QRCheckin.findById(id).
+  QRScan.findById(id).
   populate({
-    path: 'qr_checkin_submissions',
+    path: 'submissions',
     populate: {
       path: 'submitter'
     }
   }).
-  exec((error,qr_checkin) => {
-    if(error || qr_checkin == null){
-      console.log("<ERROR> (qr_checkins/get) Getting qr_checkin with ID:",id,error)
+  exec((error,qr_scan) => {
+    if(error || qr_scan == null){
+      console.log("<ERROR> (qr_scans/get) Getting qr_scan with ID:",id,error)
       res.json(error);
     } else {
-      console.log("<SUCCESS> (qr_checkins/get) Getting qr_checkin by ID:",id)
-      res.json(qr_checkin);
+      console.log("<SUCCESS> (qr_scans/get) Getting qr_scan by ID:",id)
+      res.json(qr_scan);
     }
   })
 });
 
 qrCheckinRoutes.route('/update/:id').post(function (req, res) {
   let id = req.params.id;
-  let updated_qr_checkin = req.body.updated_qr_checkin;
-  QRCheckin.findByIdAndUpdate(id,
+  let updated_qr_scan = req.body.updated_qr_scan;
+  QRScan.findByIdAndUpdate(id,
     {
-      qr_checkin_start_time: updated_qr_checkin.qr_checkin_start_time,
-      qr_checkin_end_time: updated_qr_checkin.qr_checkin_end_time,
+      qr_scan_start_time: updated_qr_scan.qr_scan_start_time,
+      qr_scan_end_time: updated_qr_scan.qr_scan_end_time,
     },
-    function (err, qr_checkin) {
-      if (err || qr_checkin == null) {
-        console.log("<ERROR> (qr_checkins/update) Updating qr_checkin by ID:",id,"with:",updated_qr_checkin)
-        res.status(404).send("qr_checkin not found");
+    function (err, qr_scan) {
+      if (err || qr_scan == null) {
+        console.log("<ERROR> (qr_scans/update) Updating qr_scan by ID:",id,"with:",updated_qr_scan)
+        res.status(404).send("qr_scan not found");
       } else {
-        console.log("<SUCCESS> (qr_checkins/update) Updating qr_checkin by ID:",id)
-        res.json(qr_checkin);
+        console.log("<SUCCESS> (qr_scans/update) Updating qr_scan by ID:",id)
+        res.json(qr_scan);
       }
     }
   );
@@ -107,7 +106,7 @@ qrCheckinRoutes.post('/attend', async (req, res) => {
         error: 'Meeting does not exist.'
       })
     }
-    else if (!meeting_doc.has_live_attendance) {
+    else if (!meeting_doc.has_real_time_portion) {
       console.log(`<ERROR> (qrcheckin/attend) meeting does not have a live attendance in order to submit a qr checkin.`)
       res.json({
         success: false,
@@ -120,12 +119,11 @@ qrCheckinRoutes.post('/attend', async (req, res) => {
 
       // checking if the user belongs to the course / org
       let course_org_response;
-      if (meeting_doc.for_course) course_org_response = await Course.findOne({ _id: course_or_org_id, students: user_id })
-      else                        course_org_response = await Organization.findOne({ _id: course_or_org_id, general_members: user_id })
+      course_org_response = await Course.findOne({ _id: course_or_org_id, students: user_id })
 
       // res.json(course_org_response)
       if (!course_org_response) {
-        console.log(`<ERROR> (qrcheckin/attend) no ${meeting_doc.for_course ? 'course':'organization'} found with id (${course_or_org_id}) where student (${user_id}) is part of.`)
+        console.log(`<ERROR> (qrcheckin/attend) no course: found with id (${course_or_org_id}) where student (${user_id}) is part of.`)
         res.json({
           success: false,
           error: 'No course/org found'
@@ -137,10 +135,10 @@ qrCheckinRoutes.post('/attend', async (req, res) => {
         // Check to make sure that the qr_code exists within a qr 
         // checkin document that is attached to the live attendance 
         // document for the associated meeting
-        let qr_checkin = await QRCheckin.findOne({ code: qr_code })
+        let qr_scan = await QRScan.findOne({ code: qr_code })
 
-        if (!qr_checkin) {
-          console.log(`<ERROR> (qrcheckin/attend) no QRCheckin for code ${qr_code} could be found.`)
+        if (!qr_scan) {
+          console.log(`<ERROR> (qrcheckin/attend) no QRScan for code ${qr_code} could be found.`)
           res.json({
             success: false,
             error: 'No qrcheckin found'
@@ -150,11 +148,11 @@ qrCheckinRoutes.post('/attend', async (req, res) => {
 
         else {
 
-          // check to see if the qr_checkin is for this meeting
-          // res.json(qr_checkin)
-          let live_attendance = await LiveAttendance.findOne({ _id: meeting_doc.live_attendance, qr_checkins: qr_checkin._id })
-          if (!live_attendance) {
-            console.log(`<ERROR> (qrcheckin/attend) invalid live attendance (${meeting_doc.live_attendance}) associated with meeting (${meeting_id}) for QRCheckin (${qr_checkin._id})`)
+          // check to see if the qr_scan is for this meeting
+          // res.json(qr_scan)
+          let real_time_portion = await RealTimePortion.findOne({ _id: meeting_doc.real_time_portion, qr_scans: qr_scan._id })
+          if (!real_time_portion) {
+            console.log(`<ERROR> (qrcheckin/attend) invalid live attendance (${meeting_doc.real_time_portion}) associated with meeting (${meeting_id}) for QRScan (${qr_scan._id})`)
             res.json({
               success: false,
               error: 'Invalid live attendance'
@@ -172,7 +170,7 @@ qrCheckinRoutes.post('/attend', async (req, res) => {
             */
             
             // Check to make sure there isnt already a submission in this qr
-            let existing_submission = await LiveSubmission.findOne({ _id: {$in: qr_checkin.qr_checkin_submissions}, submitter: user_id })
+            let existing_submission = await Submission.findOne({ _id: {$in: qr_scan.submissions}, submitter: user_id })
             if (existing_submission) {
               console.log(`<PROMPT> (qrcheckin/attend) User (${user_id}) already attended.`)
               res.json({
@@ -183,37 +181,37 @@ qrCheckinRoutes.post('/attend', async (req, res) => {
             else {
 
               // create the live submission
-              let new_live_submission = new LiveSubmission({
+              let new_submission = new Submission({
                 submitter: user_id,
-                live_submission_time: new Date(),
-                is_qr_checkin_submission: true,
-                qr_checkin: qr_checkin._id
+                submission_time: new Date(),
+                is_qr_scan_submission: true,
+                qr_scan: qr_scan._id
               })
 
               // add the live submission to the qr checkin submission array
 
               
-              let new_submission_doc = await new_live_submission.save ()
-              qr_checkin.qr_checkin_submissions.push(new_submission_doc._id)
-              let new_qr_checkin = await qr_checkin.save ()
-              await QRCheckin.populate(
-                new_qr_checkin,
+              let new_submission_doc = await new_submission.save ()
+              qr_scan.submissions.push(new_submission_doc._id)
+              let new_qr_scan = await qr_scan.save ()
+              await QRScan.populate(
+                new_qr_scan,
                 {
-                path: 'qr_checkin_submissions',
+                path: 'submissions',
                 populate: {
                   path: 'submitter'
                 }
               })
 
               // get the sockets !!
-              let responseSockets = socketQueue.getSockets(new_qr_checkin._id)
+              let responseSockets = socketQueue.getSockets(new_qr_scan._id)
               
-              console.log(new_qr_checkin)
+              console.log(new_qr_scan)
 
               Array.from(responseSockets).forEach(socket_id => {
 
                 io.to(socket_id).emit('attendance update', {
-                  data: new_qr_checkin.qr_checkin_submissions.map(submission => {
+                  data: new_qr_scan.submissions.map(submission => {
                     return submission.submitter
                   })
                 })
@@ -223,7 +221,7 @@ qrCheckinRoutes.post('/attend', async (req, res) => {
               res.json({
                 success: true,
                 data: {
-                  new_live_submission: new_submission_doc,
+                  new_submission: new_submission_doc,
                   meeting: meeting_doc
                 }
               })
@@ -233,7 +231,7 @@ qrCheckinRoutes.post('/attend', async (req, res) => {
           }
 
 
-        } // end of if(!qr_checkin)
+        } // end of if(!qr_scan)
 
       }
 

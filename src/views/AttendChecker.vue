@@ -5,9 +5,9 @@
 </template>
 
 <script>
-import QRCheckinAPI from '@/services/QRCheckinAPI.js'
+import QRScanAPI from '@/services/QRScanAPI.js'
 import MeetingAPI from '@/services/MeetingAPI.js';
-import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
+import SubmissionAPI from '@/services/SubmissionAPI.js';
 import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
 
 export default {
@@ -23,7 +23,7 @@ export default {
       window.location.href = this.cas_url;
     } else {
       await this.getMeeting()
-      this.attemptQRCheckinSubmission(this.$route.params.code)
+      this.attemptQRScanSubmission(this.$route.params.code)
     }
   },
   data () {
@@ -48,19 +48,19 @@ export default {
       const response = await MeetingAPI.getMeeting(this.meeting_id)
       this.meeting = response.data
     },
-    attemptQRCheckinSubmission(scanned_code) {
+    attemptQRScanSubmission(scanned_code) {
       if(!this.currentUserIsStudentForCourse()) {
         alert("Submission Failed: You are not a student for this course.")
         this.redirectToDashboard()
         return
       }
-      let open_checkin = this.getOpenQRCheckin()
+      let open_checkin = this.getOpenQRScan()
       if(this.isEmptyObj(open_checkin)){
         alert("Submission Failed: No Open QR Checkins.")
         this.redirectToDashboard()
         return
       }
-      if(this.studentSubmittedToQRCheckin(open_checkin)) {
+      if(this.studentSubmittedToQRScan(open_checkin)) {
         alert("Submission Failed: You have already submitted to this QR Checkin.")
         this.redirectToDashboard()
         return
@@ -70,7 +70,7 @@ export default {
         this.redirectToDashboard()
         return
       }
-      this.createLiveSubmission(open_checkin)
+      this.createSubmission(open_checkin)
     },
     currentUserIsStudentForCourse() {
       let meeting_students = this.meeting.course.students
@@ -83,8 +83,8 @@ export default {
       }
       return user_is_student
     },
-    studentSubmittedToQRCheckin(qr_checkin) {
-      let submissions = qr_checkin.qr_checkin_submissions
+    studentSubmittedToQRScan(qr_scan) {
+      let submissions = qr_scan.submissions
       let student_has_submitted = false
       for(let i = 0; i < submissions.length; i++) {
         if(submissions[i].submitter.user_id === this.current_user.user_id){
@@ -94,9 +94,9 @@ export default {
       }
       return student_has_submitted
     },
-    getOpenQRCheckin() {
+    getOpenQRScan() {
       let open_checkin = {}
-      let meeting_checkins = this.meeting.live_attendance.qr_checkins
+      let meeting_checkins = this.meeting.real_time_portion.qr_scans
       for(let i = 0; i < meeting_checkins.length; i++) {
         if(this.getWindowStatus(meeting_checkins[i], true) === "open"){
           open_checkin = meeting_checkins[i]
@@ -110,8 +110,8 @@ export default {
       let window_start = null
       let window_end = null
       if(is_qr) {
-        window_start = new Date(task.qr_checkin_start_time)
-        window_end = new Date(task.qr_checkin_end_time)
+        window_start = new Date(task.qr_scan_start_time)
+        window_end = new Date(task.qr_scan_end_time)
       } else {
         window_start = new Date(task.recording_submission_start_time)
         window_end = new Date(task.recording_submission_end_time)
@@ -134,14 +134,14 @@ export default {
     isEmptyObj(obj) {
       return Object.keys(obj).length === 0 && obj.constructor === Object
     },
-    async createLiveSubmission(open_checkin) {
-      let live_submission = {
+    async createSubmission(open_checkin) {
+      let submission = {
         submitter: this.$store.state.user.current_user._id,
-        is_qr_checkin_submission: true,
-        qr_checkin: open_checkin._id,
-        live_submission_time: new Date()
+        is_qr_scan_submission: true,
+        qr_scan: open_checkin._id,
+        submission_time: new Date()
       }
-      const response = await LiveSubmissionAPI.addLiveSubmission(live_submission)
+      const response = await SubmissionAPI.addSubmission(submission)
       this.show_qr_success_animation = true
       setTimeout(() => {
         this.show_qr_success_animation = false

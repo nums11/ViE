@@ -16,7 +16,7 @@
             <h4 v-else>Recording</h4>
           </div>
           <div v-if="is_qr" class="subtitle-area">
-            {{ new Date(task.qr_checkin_start_time) | moment("dddd, MMMM Do, h:mm a") }} - {{ new Date(task.qr_checkin_end_time) | moment("dddd, MMMM Do, h:mm a") }}
+            {{ new Date(task.qr_scan_start_time) | moment("dddd, MMMM Do, h:mm a") }} - {{ new Date(task.qr_scan_end_time) | moment("dddd, MMMM Do, h:mm a") }}
           </div>
           <div v-else class="subtitle-area">
             {{ new Date(task.recording_submission_start_time) | moment("dddd, MMMM Do, h:mm a") }} - {{ new Date(task.recording_submission_end_time) | moment("dddd, MMMM Do, h:mm a") }}
@@ -75,7 +75,7 @@
         <!-- TODO: If student submitted to QR show QR submission time. If student began recording show
         watch percentage -->
         <span class="float-right" v-if="is_qr && studentSubmittedToTask(task)">
-          Submitted on {{ new Date(student_task_submission.live_submission_time) | moment("dddd, MMMM Do YYYY, h:mm a") }}
+          Submitted on {{ new Date(student_task_submission.submission_time) | moment("dddd, MMMM Do YYYY, h:mm a") }}
         </span>
         <div  v-else-if="!is_qr">
           <sui-progress class="attendance-progress" progress
@@ -136,7 +136,7 @@ export default {
   },
   methods: {
     studentSubmittedToTask(task) {
-      let submissions = this.is_qr ? task.qr_checkin_submissions
+      let submissions = this.is_qr ? task.submissions
       : task.recording_submissions
       let student_has_submitted = false
       for(let i = 0; i < submissions.length; i++) {
@@ -160,7 +160,7 @@ export default {
     },
     getSubmissionIds() {
       let task_submissions = this.is_qr ? 
-      this.task.qr_checkin_submissions :
+      this.task.submissions :
       this.task.recording_submissions
       let submission_ids = new Set()
       task_submissions.forEach(submission => {
@@ -173,8 +173,8 @@ export default {
       let window_start = null
       let window_end = null
       if(is_qr) {
-        window_start = new Date(task.qr_checkin_start_time)
-        window_end = new Date(task.qr_checkin_end_time)
+        window_start = new Date(task.qr_scan_start_time)
+        window_end = new Date(task.qr_scan_end_time)
       } else {
         window_start = new Date(task.recording_submission_start_time)
         window_end = new Date(task.recording_submission_end_time)

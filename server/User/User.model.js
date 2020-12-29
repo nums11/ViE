@@ -3,9 +3,8 @@ const Schema = mongoose.Schema;
 
 let Course = require('../Course/Course.model');
 let Section = require('../Section/Section.model');
-let Organization = require('../Organization/Organization.model');
 let Meeting = require('../Meeting/Meeting.model');
-let LiveSubmission = require('../LiveSubmission/LiveSubmission.model');
+let Submission = require('../Submission/Submission.model');
 let AsyncSubmission = require('../AsyncSubmission/AsyncSubmission.model');
 
 //Define collection and schema for User
@@ -37,17 +36,13 @@ let User = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Section'
 	}],
-	user_orgs: [{
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Organization'
-	}],
 	meetings: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Meeting'
 	}],
-	live_submissions: [{
+	submissions: [{
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'LiveSubmission'
+		ref: 'Submission'
 	}],
 	async_submissions: [{
 		type: mongoose.Schema.Types.ObjectId,

@@ -1,12 +1,12 @@
 import API from '@/services/API'
 
 export default {
-	getQRCheckin(id) {
+	getQRScan(id) {
 	  return API().get('qrcheckins/get/' + id)
 	},
-	updateQRCheckin(id, qr_checkin){
+	updateQRScan(id, qr_scan){
 	  return API().post('qrcheckins/update/' + id, {
-	    updated_qr_checkin: qr_checkin
+	    updated_qr_scan: qr_scan
 	  })
 	},
   attendQR (user_id, meeting_id, qr_code) {

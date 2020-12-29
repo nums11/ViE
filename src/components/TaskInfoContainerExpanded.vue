@@ -93,8 +93,8 @@ export default {
         let start_ = null
         let end_ = null
         if(this.is_qr) {
-          start_ = new Date(this.task.qr_checkin_start_time)
-          end_ = new Date(this.task.qr_checkin_end_time)
+          start_ = new Date(this.task.qr_scan_start_time)
+          end_ = new Date(this.task.qr_scan_end_time)
         } else {
           start_ = new Date(this.task.recording_submission_start_time)
           end_ = new Date(this.task.recording_submission_end_time)

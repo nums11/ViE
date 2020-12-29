@@ -6,7 +6,7 @@
     <div class="inline-block active-task-container" v-for="task in active_tasks"
     :key="task._id">
       <!-- Recording Button -->
-      <router-link v-if="task.qr_checkin_start_time == null"
+      <router-link v-if="task.qr_scan_start_time == null"
       :to="{name: 'watch_recording', params: {recording_id: task._id}}"
       @click="$emit('show-fullscreen-code',task.code)">
         <sui-button content="Watch Recording" icon="play circle"

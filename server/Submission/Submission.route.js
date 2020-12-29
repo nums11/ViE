@@ -1,204 +1,76 @@
 const express = require('express');
 const submissionRoutes = express.Router();
-const ObjectID = require(`mongoose`).Types.ObjectId
 
 let Submission = require('./Submission.model');
-let Event = require('../Event/Event.model');
+let QRScan = require('../QRScan/QRScan.model');
+const { response } = require('express');
 
-submissionRoutes.route('/add').post(function (req, res) {
+submissionRoutes.route('/add').post(async function (req, res) {
+  let io = req.socketIO
+  let socketQueue = req.socketQueue
   let submission = new Submission(req.body.submission);
-  Event.findById(submission.event, function (err, event) {
-    if (err) {
-      res.json(err);
-    } else if (event.code == "") {
-      res.status(400).send("attendance is not open for this event");
-    } else if (submission.code == event.code) {
-      submission.save()
-        .then(() => {
-          res.status(200).json(submission);
-        })
-        .catch(() => {
-          res.status(400).send("unable to save submission to database");
-        });
-    } else {
-      res.status(400).send("invalid attendance code");
-    }
-  })
-});
 
-submissionRoutes.route('/').get(function (req, res) {
-  Submission.find(function (err, submissions) {
-    if (err)
-      res.json(err);
-    res.json(submissions);
-  });
-});
+  try {
+    let saved_submission = await submission.save()
+    if(saved_submission.is_qr_scan_submission) {
+      QRScan.findByIdAndUpdate(saved_submission.qr_scan,
+        {$push: {submissions: saved_submission._id}},
+        {new: true},
+        async (error, qr_scan) => {
+          if(error || qr_scan == null) {
+            console.log("<ERROR> (submissions/add) Updating QR checkin with id:",
+              saved_submission.qr_scan,error)
+            res.json(error);
+          } else {
+            console.log("<SUCCESS> (submissions/add) Adding live submission for QR checkin")
 
-submissionRoutes.route('/edit/:id').get(function (req, res) {
-  let id = req.params.id;
-  Submission.findById(id, function (err, submission) {
-    if (err)
-      res.json(err);
-    res.json(submission);
-  });
-});
+            // populating
+            await QRScan.populate(
+              qr_scan,
+              {
+              path: 'submissions',
+              populate: {
+                path: 'submitter'
+              }
+            })
 
-submissionRoutes.route('/update/:id').post(function (req, res) {
-  let id = req.params.id;
-  let updated_submission = req.body.updated_submission;
-  Submission.findByIdAndUpdate(id,
-    {
-      event: updated_submission.event,
-      submitter: updated_submission.submitter,
-      time: updated_submission.time,
-      location: updated_submission.location
-    },
-    function (err, submission) {
-      if (!submission)
-        res.status(404).send("submission not found");
-      res.json(submission);
-    }
-  );
-});
+            // TODO Add to QR live update socket
+            let responseSockets = socketQueue.getSockets(qr_scan._id)
+            Array.from(responseSockets).forEach(socket_id => {
 
-submissionRoutes.route('/delete/:id').delete(function (req, res) {
-  Submission.findByIdAndRemove({ _id: req.params.id }, function (err) {
-    if (err) res.json(err);
-    else res.json('Successfully removed');
-  });
-});
+              let socket_data = qr_scan.submissions.map(submission => {
+                return submission.submitter
+              })
 
-submissionRoutes.route(`/section_submissions/:section_id`).get((req, res) => {
-  // retrieve all submissions for a section, grouped by the event
-  // associated with the submission
+              io.to(socket_id).emit('attendance update', {
+                data: socket_data
+              })
 
-  let section_id = req.params.section_id
+              console.log(`<LIVE SUBMISSION/SOCKET> Sent data to ${socket_id}`)
+            })
 
-  if (!ObjectID.isValid(section_id)) {
-    res.json({
-      success: false,
-      error: "Invalid object id provided"
-    })
-    return
-  }
-
-  // 1. find the events where section == section_id
-  // 2. find the submissions where event is in the previous events
-
-  Event.find({ section: section_id }, (err, events) => {
-    if (err || events == null) {
-      res.json(err ? err : 'Problem finding events')
-    }
-    else {
-
-      let submission_promises = []
-      events.forEach(evt => {
-        submission_promises.push(new Promise((resolve, reject) => {
-          Submission.find({ event: evt._id }, (err, submissions) => {
-            if (err || submissions == null) resolve(null)
-            else resolve(submissions)
-          })
-        }))
-
-      })
-
-      // wait for the promises to finish
-      Promise.all(submission_promises).then(submission_data => {
-
-        let submission_by_event = {}
-        events.map((evt, i) => {
-          let submission_for_event = submission_data[i]
-          if (submission_for_event != null) {
-
-            submission_by_event[ evt._id ] = {
-              submissions: submission_for_event,
-              date: evt.start_time
-            }
-
+            res.json(saved_submission);
           }
         })
-
-        // return the submission by event
-        res.json(submission_by_event)
-
-      })
-
+    } else {
+      // Poll.findByIdAndUpdate(saved_submission.poll,
+      //   {$push: {poll_submissions: saved_submission._id}},
+      //   (error, poll) => {
+      //     if(error || poll == null) {
+      //       console.log("<ERROR> (submissions/add) Updating QR checkin with id:",
+      //         saved_submission.poll,error)
+      //       res.json(error);
+      //     } else {
+      //       console.log("<SUCCESS> (submissions/add) Adding live submission for poll")
+      //       res.json(saved_submission);
+      //     }
+      //   })
     }
-  })
-
-})
-
-submissionRoutes.route('/user_submissions_for_section/:user_id/:section_id').get((req, res) => {
-  let user_id = req.params.user_id
-  let section_id = req.params.section_id
-
-  if (!ObjectID.isValid(user_id) || !ObjectID.isValid(section_id)) {
-    res.json({
-      success: false,
-      error: "Invalid object id provided"
-    })
-    return;
+  } catch(error) {
+    console.log("<ERROR> (submissions/add) Adding Live Submission:",
+      submission,error)
+    res.json(error);
   }
-
-  // (1) find the submissions that are for the user
-  Submission.find({submitter: user_id}, (err, user_submissions) => {
-    if (err || user_submissions == null) {
-      res.json({
-        success: false,
-        error: "problem finding submissions"
-      })
-    }
-    else {
-
-      submission_promises = []
-
-      user_submissions.forEach(_submission_ => {
-        submission_promises.push(new Promise( (resolve, reject) => {
-          // find the event associated with the submission and check that section_id == the event's section id
-          Event.findOne({ id: _submission_.event }, (err, event_doc) => {
-            if (err || event_doc == null) {
-              resolve(null)
-            }
-            else if (event_doc.section.toString() == section_id) {
-              resolve(event_doc)
-            }
-            else resolve(null)
-          })
-        } ))
-      })
-
-      // wait for the promises to finish
-      Promise.all(submission_promises).then(resolved_submissions => {
-
-        let user_section_submissions = user_submissions.filter((_submission_, i) => resolved_submissions[i] != null)
-        res.json(user_section_submissions)
-
-      })
-
-    }
-  })
-})
-
-submissionRoutes.route('/event_submissions/:event_id').get(function (req, res) {
-  console.log("I'm here!!!!");
-  let event_id = req.params.event_id;
-
-  if(!ObjectID.isValid(event_id)) {
-    res.json({
-      success: false,
-      error: "Invalid object id provided."
-    })
-    return;
-  }
-
-  Submission.find({ event: event_id }, function (err, submissions) {
-    if (err) {
-      console.log(err);
-      res.json(err);
-    }
-
-    res.json(submissions)
-  });
 });
 
 module.exports = submissionRoutes;

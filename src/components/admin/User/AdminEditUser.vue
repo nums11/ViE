@@ -53,7 +53,7 @@
       <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">Meetings</h3>
       <h4 v-for="meeting in user.meetings">{{ meeting.title }}</h4>
       <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">Live Submissions</h3>
-      <h4 v-for="submission in user.live_submissions">{{ new Date(submission.live_submission_time) }}</h4>
+      <h4 v-for="submission in user.submissions">{{ new Date(submission.submission_time) }}</h4>
       <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">Async Submisions</h3>
       <h4 v-for="submission in user.async_submissions">Async sub</h4>
       <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">Service Worker Subscriptions 

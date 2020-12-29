@@ -38,8 +38,8 @@
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
-                <label>has_live_attendance</label>
-                  <input type="checkbox" class="form-control" v-model="meeting.has_live_attendance" rows="5" disabled>
+                <label>has_real_time_portion</label>
+                  <input type="checkbox" class="form-control" v-model="meeting.has_real_time_portion" rows="5" disabled>
               </div>
               <div class="form-group">
                 <label>has_async_attendance</label>
@@ -47,19 +47,19 @@
               </div>
             </div>
           </div>
-          <div v-if="meeting.has_live_attendance" class="row">
+          <div v-if="meeting.has_real_time_portion" class="row">
             <p>Start: {{ new Date(meeting.start_time) }}</p>
             <p>End: {{ new Date(meeting.end_time) }}</p>
             <div class="col-md-6">
               <div class="form-group">
                 <label>Start</label>
                 <input class="datetime-picker" placeholder="Select date & time"
-                id="qr_checkin-submission-start"
+                id="qr_scan-submission-start"
                 v-model="meeting.start_time"
                 type="datetime-local"/>
                 <label>End</label>
                 <input class="datetime-picker" placeholder="Select date & time"
-                id="qr_checkin-submission-start"
+                id="qr_scan-submission-start"
                 v-model="meeting.end_time"
                 type="datetime-local"/>
               </div>
@@ -71,13 +71,13 @@
       </form>
 
       <div class="container">
-        <div v-if="meeting.live_attendance != null">
+        <div v-if="meeting.real_time_portion != null">
           <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">Live Attendance</h3>
-          <div class="attendance-container" v-for="qr_checkin in meeting.live_attendance.qr_checkins">
-            <h4>Start Time: {{ new Date(qr_checkin.qr_checkin_start_time) }}</h4>
-            <h4>End Time: {{ new Date(qr_checkin.qr_checkin_end_time) }}</h4>
-            <h4>Code: {{ qr_checkin.code }}</h4>
-            <router-link :to="{name: 'admin_edit_qr_checkin', params: { qr_checkin_id: qr_checkin._id }}" class="btn btn-primary">Edit</router-link>
+          <div class="attendance-container" v-for="qr_scan in meeting.real_time_portion.qr_scans">
+            <h4>Start Time: {{ new Date(qr_scan.qr_scan_start_time) }}</h4>
+            <h4>End Time: {{ new Date(qr_scan.qr_scan_end_time) }}</h4>
+            <h4>Code: {{ qr_scan.code }}</h4>
+            <router-link :to="{name: 'admin_edit_qr_scan', params: { qr_scan_id: qr_scan._id }}" class="btn btn-primary">Edit</router-link>
           </div>
         </div>
         <div class="attendance-container" v-if="meeting.async_attendance != null">

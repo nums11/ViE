@@ -63,7 +63,7 @@
 <script>
 
 import ProgressBar from "@/components/ProgressBar.vue";
-import LiveSubmissionAPI from '@/services/LiveSubmissionAPI.js';
+import SubmissionAPI from '@/services/SubmissionAPI.js';
 
 export default {
     name: 'TaskAttendanceList',
@@ -112,7 +112,7 @@ export default {
       },
       getSubmissionIds() {
         let task_submissions = this.is_qr ? 
-        this.task.qr_checkin_submissions :
+        this.task.submissions :
         this.task.recording_submissions
         console.log("is_qr", this.is_qr)
         console.log("Task", this.task)
@@ -135,17 +135,17 @@ export default {
           }
         }
         this.present_attendees.push(present_user)
-        await this.createLiveSubmission(present_user)
+        await this.createSubmission(present_user)
         this.$router.go()
       },
-      async createLiveSubmission(user) {
-        let live_submission = {
+      async createSubmission(user) {
+        let submission = {
           submitter: user._id,
-          is_qr_checkin_submission: true,
-          qr_checkin: this.task._id,
-          live_submission_time: new Date()
+          is_qr_scan_submission: true,
+          qr_scan: this.task._id,
+          submission_time: new Date()
         }
-        const response = await LiveSubmissionAPI.addLiveSubmission(live_submission)
+        const response = await SubmissionAPI.addSubmission(submission)
       },
     }
 }

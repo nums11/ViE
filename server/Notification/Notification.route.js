@@ -9,17 +9,17 @@ notificationRoutes.post('/schedule_show_qr/:primary_instructor_id/:secondary_ins
   let primary_instructor_id = req.params.primary_instructor_id
   let secondary_instructor_id = req.params.secondary_instructor_id
   let meeting_id = req.params.meeting_id
-  let qr_checkin_start_time = new Date(req.body.qr_checkin_start_time)
+  let qr_scan_start_time = new Date(req.body.qr_scan_start_time)
 
   const notification_job = new NotificationJob({
-    scheduled_time: qr_checkin_start_time,
+    scheduled_time: qr_scan_start_time,
     primary_instructor_id: primary_instructor_id,
     secondary_instructor_id: secondary_instructor_id,
     meeting_id: meeting_id
   })
   const saved_notification_job = await notification_job.save()
 
-  let job = schedule.scheduleJob(qr_checkin_start_time, function(){
+  let job = schedule.scheduleJob(qr_scan_start_time, function(){
     saved_notification_job.sendScheduledShowQRNotificationsToInstructors()
     NotificationJob.findByIdAndRemove(saved_notification_job._id, (error) => {
       if (error) {

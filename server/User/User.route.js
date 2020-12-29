@@ -6,7 +6,6 @@ const saltRounds = 10;
 let User = require('./User.model');
 let Course = require('../Course/Course.model');
 let Section = require('../Section/Section.model');
-let Lecture = require('../Lecture/Lecture.model');
 
 userRoutes.route('/add').post(function (req, res) {
   let user = new User(req.body.user);
@@ -76,9 +75,7 @@ userRoutes.route('/get/:id/:with_meetings?').get(function (req, res) {
           path: 'course'
         }
       }, {
-        path: 'org'
-      }, {
-        path: 'live_attendance',
+        path: 'real_time_portion',
       }, {
         path: 'async_attendance',
         populate: {
@@ -97,9 +94,8 @@ userRoutes.route('/get/:id/:with_meetings?').get(function (req, res) {
       path: 'course'
     }
   }).
-  populate('user_orgs').
   populate(meeting_population).
-  populate('live_submissions').
+  populate('submissions').
   populate('async_submissions').
   populate({
     path: 'pending_approval_sections',
@@ -280,57 +276,6 @@ userRoutes.route('/students_for_course/:course_id').get(function (req, res) {
         })
         console.log("<SUCCESS> Getting students for course with ID:",course_id)
         res.json(ret)
-      })
-    }
-  })
-});
-
-userRoutes.route('/students_for_lecture/:lecture_id').get(function (req, res) {
-  let lecture_id = req.params.lecture_id;
-  Lecture.findById(lecture_id,function(err,lecture){
-    if(err || lecture == null) {
-      console.log("<ERROR> Getting lecture with ID:",lecture_id)
-    } else {
-      let sections = lecture.sections;
-      let sect_itr = 0;
-      let students = [];
-      sections.forEach(sect => {
-        Section.findById(sect, function (err, section) {
-          if(err || section == null) {
-            console.log("<ERROR> Getting section with ID:",id)
-            res.json(err);
-          } else {
-            let student_ids = section.students;
-            let num_iterations = 0;
-            student_ids.forEach(student_id => {
-              User.findById(student_id, function(err, student) {
-                if(err || student == null){
-                  console.log("<ERROR> Getting user with ID:",student_id)
-                  res.json(err);
-                } else {
-                  let found = false;
-                  for(let i = 0; i < students.length; i++) {
-                    if (students[i]._id.equals(student._id)) {
-                      found = true;
-                      break;
-                    }
-                  }
-                  if(!found) {
-                    students.push(student);
-                  }
-                  num_iterations++;
-                  if(num_iterations === student_ids.length) {
-                    sect_itr++
-                    if(sect_itr == sections.length) {
-                      console.log("<SUCCESS> Getting students for lecture with ID:",lecture_id)
-                      res.json(students);
-                    }
-                  }
-                }
-              })
-            })
-          }
-        })
       })
     }
   })

@@ -55,7 +55,7 @@ export default {
         upcoming_meetings.forEach(meeting => {
           NotificationAPI.scheduleShowQRNotificationForInstructors(
             meeting.course.instructor, meeting.course.secondary_instructor, meeting._id,
-            meeting.live_attendance.qr_checkins[0].qr_checkin_start_time)
+            meeting.real_time_portion.qr_scans[0].qr_scan_start_time)
         })
         alert("Scheduled jobs for all upcoming_meetings")
       }

@@ -60,9 +60,6 @@ export default {
   getStudentsForCourse(course_id) {
     return API().get('users/students_for_course/' + course_id)
   },
-  getStudentsForLecture(lecture_id) {
-    return API().get('users/students_for_lecture/' + lecture_id)
-  },
   addServiceWorkerSubscriptionForUser(user_id, subscription) {
     return API().post(`users/add_service_worker_subscription/${user_id}`, {
       subscription: subscription

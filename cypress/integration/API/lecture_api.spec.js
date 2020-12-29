@@ -30,7 +30,7 @@ describe('API - Lecture Accessors',function() {
 				}).then(res2 => {
 					expect(lecture.title).to.equal(res2.body.title)
 					expect(lecture.sections).to.deep.equal(res2.body.sections)
-					expect(lecture.allow_live_submissions).to.equal(res2.body.allow_live_submissions)
+					expect(lecture.allow_submissions).to.equal(res2.body.allow_submissions)
 					expect(lecture.allow_playback_submissions).to.equal(res2.body.allow_playback_submissions)
 					expect(lecture.start_time).to.equal(res2.body.start_time)
 					expect(lecture.end_time).to.equal(res2.body.end_time)

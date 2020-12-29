@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div id="lecture-upload-modal">
     <button type="button" class="btn btn-primary" @click="handleShowModal" :tabindex="(modal_open ? '-1' : '0')">Upload Lecture Video...</button>
     <div id="lecture_modal_viewable" class="hiddenModal">
@@ -20,17 +20,14 @@
             </div>
             <div class="row">
               <div class="col-4">
-                <!-- <label for="hour">Hour:</label> -->
                   <label id="hour_label">Hour</label>
                   <input type="number" id="hour" min="0" max="5" aria-labelledby="hour_label"/>
               </div>
               <div class="col-4">
-                <!-- <label for="min">Minute:</label> -->
                   <label id="minute_label">Min</label>
                   <input type="number" id="min" min="0" max="59" aria-labelledby="minute_label"/>
               </div>
               <div class="col-4">
-                <!-- <label for="sec">Second:</label> -->
                   <label id="seconds_label">Sec</label>
                   <input type="number" id="sec" min="0" max="59" aria-labelledby="seconds_label"/>
               </div>
@@ -43,7 +40,6 @@
             </div>
             <ol class="row possible_answer">
               <li v-for="(current_answer,i) in current_answers" v-bind:key="i">
-                <!-- <p class="answernumber">{{i + 1}}</p> -->
                 <input class="answerfield" type="text" v-model.lazy="current_answers[i]" aria-labelledby="a_label"/>
                 <input class="iscorrectfield" type="checkbox" v-model.lazy="current_is_correct[i]" aria-labelledby="correct_label"/>
                 <button type="button" class="btn btn-danger removeanswer" @click="current_answers.splice(i,1);current_is_correct.splice(i,1)" :aria-label="'Remove Answer '+(i+1)">X</button>
@@ -180,7 +176,7 @@ export default {
       }
     },
     setLectureSubmissionVariables() {
-      this.lecture.allow_live_submissions = false
+      this.lecture.allow_submissions = false
       this.lecture.allow_playback_submissions = true
     },
     handleShowModal() {
@@ -512,4 +508,4 @@ p {
 .vjs-tech {
 	position:unset;
 }
-</style>
+</style> -->

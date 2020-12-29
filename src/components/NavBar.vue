@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div>
     <div class="venue-navbar">
       <div class="left-area">
@@ -100,9 +100,6 @@
                     />
                   </hide-at>
                 </div>
-                  <!-- <span v-on:click="toggleUserView" :style="{cursor: 'pointer'}">
-                    {{ current_user.first_name }} {{ current_user.last_name }}
-                    </span> -->
                   <transition 
                       name="fade"
                       mode="out-in">
@@ -146,7 +143,6 @@
   </div>
   <div class="navbar-spacer"></div>
 
-  <!-- SLIDE MENU -->
   <show-at breakpoint="small" v-if="showMobileMenu">
     <transition name="fade" mode="out-in">
       <div class="off-canvas-menu-back" @click="showMobileMenu = false">
@@ -173,7 +169,6 @@
       </div>
     </transition>
   </show-at>
-  <!-- MOBILE SETTINGS SLIDE MENU -->
   <show-at breakpoint="small" v-if="showMobileUserAction">
     <transition name="fade" mode="out-in">
       <div class="off-canvas-menu-back" @click="showMobileUserAction = false">
@@ -257,7 +252,6 @@
         this.focusDropdown = ""
       },
       handleUserModal (e) {
-        // console.log(`Window: clicked`)
         let modal_ = document.getElementById('user-action-modal')
         let userActionControl = document.getElementById('user-action-toggle-button')
         if (!userActionControl) userActionControl = document.getElementById('user-action-toggle-button-min')
@@ -269,7 +263,6 @@
         }
       },
       withinSource (focus, target) {
-        // check whether target == focus, or if any of focus's parents == target
         if (focus == document) return false;
         if (target == focus) return true;
         return this.withinSource (focus.parentNode, target);
@@ -278,7 +271,6 @@
         this.$forceUpdate()
       },
       isPage (page_val) {
-        // console.log(this.$route.name)
         return this.$route.name == page_val
       },
       logoutUser() {
@@ -748,4 +740,4 @@
 .dark-mode .bottom-bar-mobile  {
   background-color: #121419;
 }
-</style>
+</style> -->

@@ -23,7 +23,7 @@ describe('API - LectureSubmission Accessors and Modifiers',function() {
 			let subs = res.body
 			submission = subs[0]
 			expect(subs.length).to.equal(1)
-			expect(subs[0].is_live_submission).to.equal(true)
+			expect(subs[0].is_submission).to.equal(true)
 			cy.request({
 				method: 'POST',
 				url: 'http://localhost:4000/lecturesubmissions/get_or_make',
@@ -38,7 +38,7 @@ describe('API - LectureSubmission Accessors and Modifiers',function() {
 			}).then(res2 => {
 				let sub = res2.body
 				expect(sub._id).to.not.equal(subs[0]._id)
-				expect(sub.is_live_submission).to.equal(false)
+				expect(sub.is_submission).to.equal(false)
 				cy.request({
 					method: 'POST',
 					url: 'http://localhost:4000/lecturesubmissions/get_or_make',
@@ -53,7 +53,7 @@ describe('API - LectureSubmission Accessors and Modifiers',function() {
 				}).then(res3 => {
 					let sub2 = res3.body
 					expect(sub._id).to.equal(sub2._id)
-					expect(sub2.is_live_submission).to.equal(false)
+					expect(sub2.is_submission).to.equal(false)
 					cy.request({
 						method: 'GET',
 						url: 'http://localhost:4000/lecturesubmissions',
@@ -95,7 +95,7 @@ describe('API - LectureSubmission Accessors and Modifiers',function() {
 			expect(subs.length).to.equal(2)
 		})
 	})
-	it('can addLiveSubmissionByRCS()',function() {
+	it('can addSubmissionByRCS()',function() {
 		cy.request({
 			method: 'POST',
 			url: 'http://localhost:4000/lecturesubmissions/add_by_rcs',
@@ -150,7 +150,7 @@ describe('API - LectureSubmission Accessors and Modifiers',function() {
 					code: "abc",
 					video_progress: 5,
 					video_percent: 0.35,
-					is_live_submission: false,
+					is_submission: false,
 					playback_submission_time: new Date(),
 				}
 			}

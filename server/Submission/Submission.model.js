@@ -1,31 +1,35 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-let Event = require('../Event/Event.model');
-let Section = require('../Section/Section.model');
+let User = require('../User/User.model');
+let QRScan = require('../QRScan/QRScan.model');
+// let Poll = require('../Poll/Poll.model');
+// let PollAnswers = require('../PollAnswers/PollAnswers.model');
 
-//Define collection and schema for User
 let Submission = new Schema({
-	event: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Event'
-	},
 	submitter: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'User'
+		ref: 'User',
+		required: true
 	},
-	time: Date,
-	location: {},
-	code: {
-		type: String,
-		default: ""
+	submission_time: {
+		type: Date,
+		required: true
 	},
-	//implement location
-	//implement image
-	is_verified: {
-		type: Boolean,
-		default: false
-	}
+	is_qr_scan_submission: { type: Boolean, default: false },
+	qr_scan: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'QRScan',
+		required: true
+	},
+	// poll: {
+	// 	type: mongoose.Schema.Types.ObjectId,
+	// 	ref: 'Poll'
+	// },
+	// poll_answers: {
+	// 	type: mongoose.Schema.Types.ObjectId,
+	// 	ref: 'PollAnswers'
+	// }
 });
 
 module.exports = mongoose.model('Submission', Submission);

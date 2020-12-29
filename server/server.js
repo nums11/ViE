@@ -49,8 +49,6 @@ function start() {
   // get environment variabless when not in production
   if (process.env.NODE_ENV !== 'production')
     require('dotenv').config({ path: path.resolve(__dirname, '../variables.env') })
-  sendMail()
-
 
   // ensure auth key is available in environment
   if(!process.env.AUTH_KEY){
@@ -62,12 +60,11 @@ function start() {
   const userRouter = require('./User/User.route')
   const courseRouter = require('./Course/Course.route')
   const sectionRouter = require('./Section/Section.route')
-  const orgRouter = require('./Organization/Organization.route')
   const meetingRouter = require('./Meeting/Meeting.route')
-  const liveSubmissionRouter = require('./LiveSubmission/LiveSubmission.route')
+  const submissionRouter = require('./Submission/Submission.route')
   const recordingRouter = require('./Recording/Recording.route')
   const asyncSubmissionRouter = require('./AsyncSubmission/AsyncSubmission.route')
-  const qrCheckinRouter = require('./QRCheckin/QRCheckin.route')
+  const qrScanRouter = require('./QRScan/QRScan.route')
   const notificationRouter = require('./Notification/Notification.route')
   const AttendanceFinder = require('./socket/AttendanceFinder')
 
@@ -152,13 +149,12 @@ function start() {
   app.use('/users', jwtVerify, userRouter);
   app.use('/courses', jwtVerify, courseRouter);
   app.use('/sections', jwtVerify, sectionRouter);
-  app.use('/orgs', jwtVerify, orgRouter);
   app.use('/meetings', jwtVerify, meetingRouter);
-  app.use('/livesubmissions', liveSubmissionRouter);
+  app.use('/livesubmissions', submissionRouter);
   app.use('/auth', authRouter);
   app.use('/recordings', recordingRouter);
   app.use('/asyncsubmissions', asyncSubmissionRouter);
-  app.use('/qrcheckins', qrCheckinRouter);
+  app.use('/qrcheckins', qrScanRouter);
   app.use('/notifications', notificationRouter);
 
   rescheduleAllNotificationJobs()
@@ -212,30 +208,4 @@ function rescheduleAllNotificationJobs() {
       }
     }
   })
-}
-
-function sendMail() {
-  // console.log("Email pass", process.env.EMAIL_PASS)
-  // let transporter = nodemailer.createTransport({
-  //  service: 'gmail',
-  //  auth: {
-  //    user: 'vie.do.not.reply@gmail.com',
-  //    pass: process.env.EMAIL_PASS
-  //  }
-  // });
-
-  // let html = '<h1>Testing new mail server</h1><p>This is some Mail!</p>'
-  // let mailOptions = {
-  //  from: 'vie.do.not.reply@gmail.com',
-  //  to: 'numsmt2@gmail.com',
-  //  subject: 'ViE Email',
-  //  html: html
-  // };
-  // transporter.sendMail(mailOptions, function(error, info){
-  //   if (error || info == null) {
-  //     console.log("Error sending mail", error);
-  //   } else {
-  //     console.log(`Email Sent. ${info.response}`);
-  //   }
-  // });
 }

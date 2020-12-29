@@ -83,13 +83,13 @@ export default {
     calculateMetrics() {
       this.num_meetings = this.course.meetings.length
       this.course.meetings.forEach(meeting => {
-        if(meeting.has_live_attendance)
+        if(meeting.has_real_time_portion)
           this.num_live_meetings++
         if(meeting.has_async_attendance)
           this.num_async_meetings++
-        let [live_submission_ids, async_submission_ids] = this.getMeetingSubmissionIDs(meeting)
+        let [submission_ids, async_submission_ids] = this.getMeetingSubmissionIDs(meeting)
         let attended = false
-        if(live_submission_ids.has(this.student.user_id)) {
+        if(submission_ids.has(this.student.user_id)) {
           this.num_live_meetings_attended++
           attended = true
         }
@@ -108,10 +108,10 @@ export default {
         this.async_percent = ((this.num_async_meetings_attended / this.num_async_meetings) * 100).toFixed(1)
     },
     getMeetingSubmissionIDs(meeting) {
-      let live_submission_ids = new Set()
-      meeting.live_attendance.qr_checkins.forEach(qr_checkin =>{
-        qr_checkin.qr_checkin_submissions.forEach(submission => {
-          live_submission_ids.add(submission.submitter.user_id)
+      let submission_ids = new Set()
+      meeting.real_time_portion.qr_scans.forEach(qr_scan =>{
+        qr_scan.submissions.forEach(submission => {
+          submission_ids.add(submission.submitter.user_id)
         })
       })
       let async_submission_ids = new Set()
@@ -120,7 +120,7 @@ export default {
           async_submission_ids.add(submission.submitter.user_id)
         })
       })
-      return [live_submission_ids, async_submission_ids]
+      return [submission_ids, async_submission_ids]
     }
   }
 }

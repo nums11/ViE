@@ -56,7 +56,7 @@ export default {
   },
   methods: {
     getInitialAttended () {
-      this.task.qr_checkin_submissions.forEach(submission_ => {
+      this.task.submissions.forEach(submission_ => {
         this.attended.add(submission_._id)
       })
     },

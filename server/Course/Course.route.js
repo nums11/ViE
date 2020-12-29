@@ -392,11 +392,11 @@ courseRoutes.route('/get/:id/:with_meetings').get(function (req, res) {
       populate: [{
         path: 'meetings',
         populate: [{
-          path: 'live_attendance',
+          path: 'real_time_portion',
           populate: {
-            path: 'qr_checkins',
+            path: 'qr_scans',
             populate: {
-              path: 'qr_checkin_submissions',
+              path: 'submissions',
               populate: {
                 path: 'submitter'
               }

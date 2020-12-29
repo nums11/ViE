@@ -72,8 +72,8 @@ export default {
       let window_start = null
       let window_end = null
       if(is_qr) {
-        window_start = new Date(task.qr_checkin_start_time)
-        window_end = new Date(task.qr_checkin_end_time)
+        window_start = new Date(task.qr_scan_start_time)
+        window_end = new Date(task.qr_scan_end_time)
       } else {
         window_start = new Date(task.recording_submission_start_time)
         window_end = new Date(task.recording_submission_end_time)

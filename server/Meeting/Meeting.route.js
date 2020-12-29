@@ -2,15 +2,14 @@ const express = require('express');
 const meetingRoutes = express.Router();
 
 let Meeting = require('./Meeting.model');
-let LiveAttendance = require('../LiveAttendance/LiveAttendance.model');
+let RealTimePortion = require('../RealTimePortion/RealTimePortion.model');
 let AsyncAttendance = require('../AsyncAttendance/AsyncAttendance.model');
-let LiveSubmission = require('../LiveSubmission/LiveSubmission.model');
+let Submission = require('../Submission/Submission.model');
 let AsyncSubmission = require('../AsyncSubmission/AsyncSubmission.model');
-let QRCheckin = require('../QRCheckin/QRCheckin.model');
+let QRScan = require('../QRScan/QRScan.model');
 let Recording = require('../Recording/Recording.model');
 let Course = require('../Course/Course.model');
-let Org = require('../Organization/Organization.model');
-let Poll = require('../Poll/Poll.model');
+// let Poll = require('../Poll/Poll.model');
 let User = require('../User/User.model');
 let Section = require('../Section/Section.model');
 const NotificationJob = require('../Notification/NotificationJob.model');
@@ -120,33 +119,33 @@ meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
   }
 
   let new_meeting = new Meeting(meeting)
-  let live_attendance = new LiveAttendance()
+  let real_time_portion = new RealTimePortion()
   let async_attendance = new AsyncAttendance()
 
-  if(new_meeting.has_live_attendance) {
+  if(new_meeting.has_real_time_portion) {
     // Create the QR Checkins
     let qr_promises = []
-    meeting.qr_checkins.forEach(qr_checkin => {
+    meeting.qr_scans.forEach(qr_scan => {
       qr_promises.push(new Promise(async (resolve,reject) => {
-        let new_qr_checkin = new QRCheckin(qr_checkin)
+        let new_qr_scan = new QRScan(qr_scan)
         try {
-          let saved_qr_checkin = await new_qr_checkin.save()
-          resolve(saved_qr_checkin)
+          let saved_qr_scan = await new_qr_scan.save()
+          resolve(saved_qr_scan)
         } catch (error) {
-          console.log("<ERROR> (meetings/add) saving qr_checkin:",new_qr_checkin,error)
+          console.log("<ERROR> (meetings/add) saving qr_scan:",new_qr_scan,error)
           res.json(error)
         }
       }))
     })
     // Attach live attendance to the meeting
     try{
-      let saved_qr_checkins = await Promise.all(qr_promises)
-      live_attendance.qr_checkins = saved_qr_checkins
-      // let live_attendance = new LiveAttendance({
-      //   qr_checkins: saved_qr_checkins
+      let saved_qr_scans = await Promise.all(qr_promises)
+      real_time_portion.qr_scans = saved_qr_scans
+      // let real_time_portion = new RealTimePortion({
+      //   qr_scans: saved_qr_scans
       // })
-      // let saved_live_attendance = await live_attendance.save()
-      // new_meeting.live_attendance = saved_live_attendance
+      // let saved_real_time_portion = await real_time_portion.save()
+      // new_meeting.real_time_portion = saved_real_time_portion
     } catch(error) {
       console.log("<ERROR> (meetings/add) saving live attendance:",error)
       res.json(error)
@@ -185,7 +184,7 @@ meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
   }
 
   try {
-    new_meeting.live_attendance = await live_attendance.save()
+    new_meeting.real_time_portion = await real_time_portion.save()
     new_meeting.async_attendance = await async_attendance.save()
     let saved_meeting = await new_meeting.save()
     if(for_course) {
@@ -211,7 +210,6 @@ meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
       res.json(saved_meeting)
     } else {
 
-      //Update the Org and it's board & general members
 
     }
   } catch(error) {
@@ -227,14 +225,11 @@ meetingRoutes.route('/all').get(function (req, res) {
     path: 'course'
   }).
   populate({
-    path: 'org'
-  }).
-  populate({
-    path: 'live_attendance',
+    path: 'real_time_portion',
     populate: [{
-      path: 'qr_checkins',
+      path: 'qr_scans',
       populate: {
-        path: 'qr_checkin_submissions'
+        path: 'submissions'
       }
     }, {
       path: 'live_polls'
@@ -275,19 +270,11 @@ meetingRoutes.route('/get/:id').get(function (req, res) {
     }]
   }).
   populate({
-    path: 'org',
+    path: 'real_time_portion',
     populate: [{
-      path: 'general_members'
-    }, {
-      path: 'board_members'
-    }]
-  }).
-  populate({
-    path: 'live_attendance',
-    populate: [{
-      path: 'qr_checkins',
+      path: 'qr_scans',
       populate: {
-        path: 'qr_checkin_submissions',
+        path: 'submissions',
         populate: {
           path: 'submitter'
         }
@@ -340,7 +327,7 @@ meetingRoutes.route('/update/:id').post(function (req, res) {
   );
 });
 
-// TODO: Remove reliance on the has_live_attendance and has_async_attendance
+// TODO: Remove reliance on the has_real_time_portion and has_async_attendance
 // booleans
 meetingRoutes.route('/add_recording/:meeting_id').post(async (req, res) => {
   let meeting_id = req.params.meeting_id
@@ -465,18 +452,18 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
   let meeting_id = req.params.meeting_id
   let meeting = req.body.meeting
 
-  let meeting_live_attendance = meeting.live_attendance
+  let meeting_real_time_portion = meeting.real_time_portion
   let qr_submission_promises = []
   let qr_promises = []
   let notification_job_promises = []
   // Delete live attendance
-  if(meeting.has_live_attendance) {
-    meeting_live_attendance.qr_checkins.forEach(qr_checkin => {
+  if(meeting.has_real_time_portion) {
+    meeting_real_time_portion.qr_scans.forEach(qr_scan => {
       // Delete qr checkin submissions
-      qr_checkin.qr_checkin_submissions.forEach(submission => {
+      qr_scan.submissions.forEach(submission => {
         let submission_id = submission._id
         qr_submission_promises.push(new Promise((resolve,reject) => {
-          LiveSubmission.findByIdAndRemove(submission_id, (error) => {
+          Submission.findByIdAndRemove(submission_id, (error) => {
             if (error) {
               console.log("<ERROR (meetings/delete)> deleting QR checkin submission with ID:",
                 submission_id, error)
@@ -489,11 +476,11 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
         }))
       })
       // Delete qr checkin
-      let qr_checkin_id = qr_checkin._id
+      let qr_scan_id = qr_scan._id
       qr_promises.push(new Promise((resolve,reject) => {
-        QRCheckin.findByIdAndRemove(qr_checkin_id, (error) => {
+        QRScan.findByIdAndRemove(qr_scan_id, (error) => {
           if (error) {
-            console.log("<ERROR (meetings/delete)> deleting QR checkin with ID:", qr_checkin_id,
+            console.log("<ERROR (meetings/delete)> deleting QR checkin with ID:", qr_scan_id,
               error)
             reject(false)
             res.json(error);
@@ -540,9 +527,9 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
     await Promise.all(qr_submission_promises)
     await Promise.all(qr_promises)
     await Promise.all(notification_job_promises)
-    LiveAttendance.findByIdAndRemove(meeting_live_attendance._id, (err) => {
+    RealTimePortion.findByIdAndRemove(meeting_real_time_portion._id, (err) => {
       if (err) {
-        console.log("<ERROR> (meetings/delete)> deleting live attendance with ID:", meeting_live_attendance._id)
+        console.log("<ERROR> (meetings/delete)> deleting live attendance with ID:", meeting_real_time_portion._id)
         res.json(err);
       }
     });
@@ -666,7 +653,6 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
 
   } else {
 
-    // Fill in for orgs later
 
   }
 
@@ -726,9 +712,9 @@ meetingRoutes.route('/upcoming').get(function (req, res) {
     path: 'course'
   }).
   populate({
-    path: 'live_attendance',
+    path: 'real_time_portion',
     populate: {
-      path: 'qr_checkins'
+      path: 'qr_scans'
     }
   }).
   exec((error,meetings) => {
@@ -738,7 +724,7 @@ meetingRoutes.route('/upcoming').get(function (req, res) {
     } else {
       let upcoming_meetings = []
       meetings.forEach(meeting => {
-        if(meeting.has_live_attendance && new Date(meeting.start_time) > new Date()) {
+        if(meeting.has_real_time_portion && new Date(meeting.start_time) > new Date()) {
           upcoming_meetings.push(meeting)
         }
       })

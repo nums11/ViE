@@ -147,7 +147,6 @@ import MeetingAttendancePill from "@/components/MeetingAttendancePill"
 import ManageCourse from "@/components/ManageCourse.vue"
 import CourseStatistics from "@/components/CourseStatistics.vue"
 import CourseAPI from "@/services/CourseAPI"
-import OrgAPI from "@/services/OrgAPI"
 import CourseStudentList from "@/components/CourseStudentList"
 import StudentStats from "@/components/StudentStats"
 import CourseStats from "@/components/CourseStats"
@@ -203,8 +202,9 @@ export default {
             this.getStudentSection()
         } else {
           this.org_id = this.$route.params.id;
-          const response = await OrgAPI.getOrg(this.org_id)
-          this.org = response.data
+          // const response = await OrgAPI.getOrg(this.org_id)
+          // this.org = response.data
+          this.org = {}
         }
         this.course_or_org_has_loaded = true
       },

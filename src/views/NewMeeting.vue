@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div v-if="notification_permission_status === 'default' && meeting.has_live_attendance"
+    <div v-if="notification_permission_status === 'default' && meeting.has_real_time_portion"
     class="notification-message">You currently do not have notifications enabled for Venue, so you will not be able to receive a notification for any QR Codes that become available. To enable notifications click <span @click="requestNotificationPermission">here</span>.</div>
-    <div v-else-if="notification_permission_status === 'blocked' && meeting.has_live_attendance"
+    <div v-else-if="notification_permission_status === 'blocked' && meeting.has_real_time_portion"
     class="notification-message">You currently have notifications blocked for Venue, so you will not be able to receive a notification for any QR Codes that become available. To enable notifications click on the icon in the top left of your search bar and set notifications to "Allow".</div>
     <div class="new-meeting-form">
       <div class="form-center">
@@ -57,7 +57,7 @@
               </div>
             </div>
             <transition name="fade" mode="out-in">
-              <div v-if="meeting.has_live_attendance">
+              <div v-if="meeting.has_real_time_portion">
 
                 <div class="meeting-time-picker-area" :style="{width: '60%'}">
                   <h4 style="margin-top:1rem;">Meeting Times</h4>
@@ -82,11 +82,11 @@
                   </div>
                   <div class="date-label">START TIME</div>
                   <input class="new-meeting-datetime-picker" placeholder="Select date & time"
-                  id="qr_checkin_start" aria-labelledby="qr_start_time_label" type="datetime-local"
+                  id="qr_scan_start" aria-labelledby="qr_start_time_label" type="datetime-local"
                   :disabled="!meetingHasStartAndEndTime"/>
                   <div class="date-label" :style="{marginTop: '20px'}">END TIME</div>
                   <input class="new-meeting-datetime-picker" placeholder="Select date & time"
-                  id="qr_checkin_end" aria-labelledby="qr_end_time_label" type="datetime-local"
+                  id="qr_scan_end" aria-labelledby="qr_end_time_label" type="datetime-local"
                   :disabled="!meetingHasStartAndEndTime || !qrCheckinHasStartTime"/>
                 </div>
 
@@ -177,7 +177,6 @@ import InputField2 from '@/components/InputField2.vue'
 import Button2 from '@/components/Button2.vue'
 import MeetingAPI from '@/services/MeetingAPI'
 import CourseAPI from '@/services/CourseAPI'
-import OrgAPI from '@/services/OrgAPI'
 import NotificationAPI from '@/services/NotificationAPI'
 import {NewMeetingTransform} from '@/modules/MeetingTransform.module'
 import VueLottiePlayer from 'vue-lottie-player'
@@ -196,7 +195,7 @@ export default {
     return {
       meeting: {
         title: "",
-        has_live_attendance: false,
+        has_real_time_portion: false,
         has_async_attendance: false,
         start_time: null,
         end_time: null,
@@ -204,16 +203,16 @@ export default {
       },
       // TODO: Remove these and use the arrays to
       // allow for multiple qr checkins and recordings
-      qr_checkin: {
-        qr_checkin_start_time: null,
-        qr_checkin_end_time: null
+      qr_scan: {
+        qr_scan_start_time: null,
+        qr_scan_end_time: null
       },
       recording: {
         video: null,
         recording_submission_start_time: null,
         recording_submission_end_time: null
       },
-      qr_checkins: [],
+      qr_scans: [],
       recordings: [],
       for_course: false,
       meeting_saving: false,
@@ -240,7 +239,7 @@ export default {
       return this.meeting.start_time != null && this.meeting.end_time != null
     },
     qrCheckinHasStartTime() {
-      return this.qr_checkin.qr_checkin_start_time != null
+      return this.qr_scan.qr_scan_start_time != null
     },
     recordingHasStartTime() {
       return this.recording.recording_submission_start_time != null
@@ -248,13 +247,13 @@ export default {
     meetingCanBeCreated() {
       if(this.meeting.title === "") return false;
       if(this.meeting.sections.length === 0) return false;
-      if(!(this.meeting.has_live_attendance || this.meeting.has_async_attendance))
+      if(!(this.meeting.has_real_time_portion || this.meeting.has_async_attendance))
         return false
-      if(this.meeting.has_live_attendance){
+      if(this.meeting.has_real_time_portion){
         if(this.meeting.start_time == null ||
           this.meeting.end_time == null ||
-          this.qr_checkin.qr_checkin_start_time == null ||
-          this.qr_checkin.qr_checkin_end_time == null)
+          this.qr_scan.qr_scan_start_time == null ||
+          this.qr_scan.qr_scan_end_time == null)
           return false
       }
       if(this.meeting.has_async_attendance){
@@ -289,15 +288,15 @@ export default {
         // this.meeting.course = this.course._id
       } else {
         this.org_id = this.$route.params.org_id;
-        const response = await OrgAPI.getOrg(this.org_id)
-        this.org = response.data
+        // this.org = response.data
+        this.org = {}
         this.meeting.for_course = false
         this.meeting.org = this.org
       }
     },
     toggleLiveInputs() {
-      this.meeting.has_live_attendance = !this.meeting.has_live_attendance
-      if(this.meeting.has_live_attendance)
+      this.meeting.has_real_time_portion = !this.meeting.has_real_time_portion
+      if(this.meeting.has_real_time_portion)
         this.initLiveDateInputs()
       else
         this.resetLiveDateInputs()
@@ -313,8 +312,8 @@ export default {
       this.$nextTick(() => {
         this.initMeetingStartInput(this)
         this.initMeetingEndInput(this)
-        this.initQRCheckinStartInput(this)
-        this.initQRCheckinEndInput(this)
+        this.initQRScanStartInput(this)
+        this.initQRScanEndInput(this)
       })
     },
     initAsyncDateInputs() {
@@ -365,41 +364,41 @@ export default {
     },
     // QR Checkin start time and end time have to be at least 5 minutes apart
     // and there should also 
-    initQRCheckinStartInput(self) {
-      self.qr_start_time_picker = flatpickr(document.getElementById("qr_checkin_start"),{
+    initQRScanStartInput(self) {
+      self.qr_start_time_picker = flatpickr(document.getElementById("qr_scan_start"),{
         enableTime: true,
         dateFormat: "M d Y, h:i K",
         minDate: Date.now(),
         minuteIncrement: 1,
         onChange: function(selectedDates, dateStr, instance) {
-          self.qr_checkin.qr_checkin_start_time = Date.parse(dateStr)
+          self.qr_scan.qr_scan_start_time = Date.parse(dateStr)
           // Set the new min qr end time to 5 minutes after the new start time
-          let new_min_qr_end_time = new Date(self.qr_checkin.qr_checkin_start_time)
+          let new_min_qr_end_time = new Date(self.qr_scan.qr_scan_start_time)
           new_min_qr_end_time.setMinutes(new_min_qr_end_time.getMinutes() + 5)
           self.qr_end_time_picker.set("minDate",new_min_qr_end_time)
           // Update qr end time if invalid
           let five_mins = 60 * 5 * 1000
-          if(self.qr_checkin.qr_checkin_start_time > self.qr_checkin.qr_checkin_end_time
-            || self.qr_checkin.qr_checkin_end_time == null) {
-            self.qr_checkin.qr_checkin_end_time = self.qr_checkin.qr_checkin_start_time + five_mins
-            self.qr_end_time_picker.setDate(self.qr_checkin.qr_checkin_start_time + five_mins)
+          if(self.qr_scan.qr_scan_start_time > self.qr_scan.qr_scan_end_time
+            || self.qr_scan.qr_scan_end_time == null) {
+            self.qr_scan.qr_scan_end_time = self.qr_scan.qr_scan_start_time + five_mins
+            self.qr_end_time_picker.setDate(self.qr_scan.qr_scan_start_time + five_mins)
           }
           // Keep the qr start and end time 5 minutes apart
-          if((self.qr_checkin.qr_checkin_start_time + five_mins) > self.qr_checkin.qr_checkin_end_time) {
-            self.qr_checkin.qr_checkin_end_time = self.qr_checkin.qr_checkin_start_time + five_mins
-            self.qr_end_time_picker.setDate(self.qr_checkin.qr_checkin_start_time + five_mins)
+          if((self.qr_scan.qr_scan_start_time + five_mins) > self.qr_scan.qr_scan_end_time) {
+            self.qr_scan.qr_scan_end_time = self.qr_scan.qr_scan_start_time + five_mins
+            self.qr_end_time_picker.setDate(self.qr_scan.qr_scan_start_time + five_mins)
           }
         }
       })
     },
-    initQRCheckinEndInput(self) {
-      self.qr_end_time_picker = flatpickr(document.getElementById("qr_checkin_end"),{
+    initQRScanEndInput(self) {
+      self.qr_end_time_picker = flatpickr(document.getElementById("qr_scan_end"),{
         enableTime: true,
         dateFormat: "M d Y, h:i K",
         minDate: Date.now(),
         minuteIncrement: 1,
         onChange: function(selectedDates, dateStr, instance) {
-          self.qr_checkin.qr_checkin_end_time = Date.parse(dateStr)
+          self.qr_scan.qr_scan_end_time = Date.parse(dateStr)
         }
       })
     },
@@ -448,8 +447,8 @@ export default {
       this.qr_end_time_picker = null
       this.meeting.start_time = null
       this.meeting.end_time = null
-      this.qr_checkin.qr_checkin_start_time = null
-      this.qr_checkin.qr_checkin_end_time = null
+      this.qr_scan.qr_scan_start_time = null
+      this.qr_scan.qr_scan_end_time = null
     },
     resetAsyncDateInputs() {
       this.recording_start_time_picker = null
@@ -460,11 +459,11 @@ export default {
     clearQRDateInputs(self) {
       self.qr_start_time_picker.set("minDate",self.meeting.start_time)
       self.qr_start_time_picker.set("maxDate", self.meeting.end_time)
-      self.qr_checkin.qr_checkin_start_time = null
+      self.qr_scan.qr_scan_start_time = null
       self.qr_start_time_picker.setDate(null)
       self.qr_end_time_picker.set("minDate",self.meeting.start_time)
       self.qr_end_time_picker.set("maxDate", self.meeting.end_time)
-      self.qr_checkin.qr_checkin_end_time = null
+      self.qr_scan.qr_scan_end_time = null
       self.qr_end_time_picker.setDate(null)
     },
     cancelForm () {
@@ -484,23 +483,23 @@ export default {
      this.recording.video = null
    },
    qrCheckinHasStartAndEndTime() {
-     return this.qr_checkin.qr_checkin_start_time != null
+     return this.qr_scan.qr_scan_start_time != null
    },
-    // Todo: Revert this allowing for multiple qr_checkins and recordings
+    // Todo: Revert this allowing for multiple qr_scans and recordings
    async createMeeting() {
     let confirmation = confirm(this.getConfirmationString())
     if(confirmation){
       this.meeting_saving = true
-      if(this.meeting.has_live_attendance) {
-        this.qr_checkin.code = this.generateRandomCode()
-        this.meeting.qr_checkins = [this.qr_checkin]
+      if(this.meeting.has_real_time_portion) {
+        this.qr_scan.code = this.generateRandomCode()
+        this.meeting.qr_scans = [this.qr_scan]
       }
       if(this.meeting.has_async_attendance) 
        await this.saveRecordingVideoToGCS()
       let meeting = await this.saveMeetingToCourseOrOrg()
       this.meeting_saving = false
       if(meeting != null){
-        if(meeting.has_live_attendance )
+        if(meeting.has_real_time_portion )
           this.scheduleShowQRNotificationsForInstructors(meeting)
         this.$router.push({name: 'meeting_info', params: {meeting_id: meeting._id}})
       }
@@ -535,14 +534,14 @@ export default {
    },
    getConfirmationString() {
      let confirmation_string = `Are you sure you want to create this meeting?\n\n`
-     if(this.meeting.has_live_attendance) {
+     if(this.meeting.has_real_time_portion) {
       confirmation_string += `Time Window:\n`
        + `${moment(this.meeting.start_time).format("MMM Do YYYY, h:mm A")}`
        + ` - ${moment(this.meeting.end_time).format("MMM Do YYYY, h:mm A")}\n\n`
-      confirmation_string += `QRCheckin\n`
+      confirmation_string += `QRScan\n`
         + `Submission Window:\n`
-        + `${moment(this.qr_checkin.qr_checkin_start_time).format("MMM Do YYYY, h:mm A")}`
-        + ` - ${moment(this.qr_checkin.qr_checkin_end_time).format("MMM Do YYYY, h:mm A")}\n\n`
+        + `${moment(this.qr_scan.qr_scan_start_time).format("MMM Do YYYY, h:mm A")}`
+        + ` - ${moment(this.qr_scan.qr_scan_end_time).format("MMM Do YYYY, h:mm A")}\n\n`
      }
      if(this.meeting.has_async_attendance) {
       confirmation_string += `Recording\n`
@@ -616,7 +615,7 @@ export default {
     this.course.secondary_instructor._id : null
     NotificationAPI.scheduleShowQRNotificationForInstructors(
       primary_instructor_id, secondary_instructor_id, meeting._id,
-      this.qr_checkin.qr_checkin_start_time)
+      this.qr_scan.qr_scan_start_time)
    },
    selectSection(section) {
     let [meeting_has_section, index] = this.meetingHasSection(section)

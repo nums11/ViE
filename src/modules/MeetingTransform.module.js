@@ -53,13 +53,13 @@
     for_course: Boolean                 -- Whether the meeting is for a course or not
     course: ID                          -- The id of the course this meeting is for
     org: ID                             -- The id of the organization this meeting is for
-    has_live_attendance: Boolean        -- Whether or not there is a live portion for this meeting
+    has_real_time_portion: Boolean        -- Whether or not there is a live portion for this meeting
     has_async_attendance: Boolean       -- Whether or not there is an async portion for this meeting
-    qr_checkins: [QRCode: Object]       -- List of QR code objects that describe a QR code entry
+    qr_scans: [QRCode: Object]       -- List of QR code objects that describe a QR code entry
         QRCode
             code: String                -- The string for the QR code
-            qr_checkin_start_time: Date -- The datetime for the start of the QR code task
-            qr_checkin_end_time: Date   -- The datetime for the end of the QR code task
+            qr_scan_start_time: Date -- The datetime for the start of the QR code task
+            qr_scan_end_time: Date   -- The datetime for the end of the QR code task
     recordings: [Recording: Object]     -- List of recording objects
         Recording
             video_url: String           -- url of the video redording
@@ -83,12 +83,12 @@ const NewMeetingTransform = async (new_meeting, has_live, has_async) => {
         meeting_.org = new_meeting.meta.org;
     }
     if (has_live) {
-        meeting_.has_live_attendance = true
-        meeting_.qr_checkins = []
-        meeting_.qr_checkins.push({
+        meeting_.has_real_time_portion = true
+        meeting_.qr_scans = []
+        meeting_.qr_scans.push({
             code: generateRandomCode (),
-            qr_checkin_start_time: new_meeting.live.qr_checkin.start_time,
-            qr_checkin_end_time: new_meeting.live.qr_checkin.end_time
+            qr_scan_start_time: new_meeting.live.qr_scan.start_time,
+            qr_scan_end_time: new_meeting.live.qr_scan.end_time
         })
     }
     if (has_async) {
@@ -148,14 +148,14 @@ const MeetingTransform = async (new_meeting) => {
         meeting_.start_time = qr_code_tasks[ qr_code_keys[0] ].start_time
         meeting_.end_time = qr_code_tasks[ qr_code_keys[0] ].end_time
 
-        meeting_.has_live_attendance = true
-        // qr_checkins = [QRCodeObj (new_meeting.live[qr_code_index])]
-        let qr_checkins = []
+        meeting_.has_real_time_portion = true
+        // qr_scans = [QRCodeObj (new_meeting.live[qr_code_index])]
+        let qr_scans = []
         qr_code_keys.forEach(qr_key => {
-            qr_checkins.push( QRCodeObj( qr_code_tasks[qr_key] ) )
+            qr_scans.push( QRCodeObj( qr_code_tasks[qr_key] ) )
         })
 
-        meeting_.qr_checkins = qr_checkins
+        meeting_.qr_scans = qr_scans
         
     }
 
@@ -203,8 +203,8 @@ const MeetingTransform = async (new_meeting) => {
 const QRCodeObj = (qr_obj) => {
     return {
         code: generateRandomCode(),
-        qr_checkin_start_time: qr_obj.qr_start_time,
-        qr_checkin_end_time: qr_obj.end_time
+        qr_scan_start_time: qr_obj.qr_start_time,
+        qr_scan_end_time: qr_obj.end_time
     }
 }
 
