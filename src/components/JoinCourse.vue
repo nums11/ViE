@@ -1,13 +1,16 @@
 <template>
   <div>
-    <h2>Input Join Code for course section</h2>
-    <form @submit.prevent="joinCourseSection">
-       <input v-model="join_code" type="text" />
-       <button>Join</button>
-    </form>
-    <div v-if="current_user_has_loaded">
-      <h1 v-if="current_user.pending_approval_sections.length > 0">Pending approval</h1>
-      <p v-for="section in current_user.pending_approval_sections">
+    <p id="join-paragraph">Input Join Code for course section</p>
+    <sui-form class="form">
+       <input v-model="join_code" type="text" placeholder="ABC123" />
+       <div id="btn-container" @click="joinCourseSection">
+         <Button text="Join" color="blue" 
+         size="large" invert_colors :disabled="!formComplete" />
+       </div>
+    </sui-form>
+    <div v-if="user_has_loaded">
+      <h1 v-if="user.pending_approval_sections.length > 0">Pending approval</h1>
+      <p v-for="section in user.pending_approval_sections">
         {{ section.course.name }} ({{ section.course.dept }}) 
         {{ section.course.course_number }} Section {{ section.section_number }}
       </p>
@@ -18,25 +21,33 @@
 <script>
 import SectionAPI from '@/services/SectionAPI'
 import UserAPI from '@/services/UserAPI'
+import Button from '@/components/Button'
 
 export default {
   name: 'JoinCourse',
+  components: {
+    Button
+  },
   data(){
     return {
       join_code: "",
-      current_user: {},
-      current_user_has_loaded: false
+      user: {},
+      user_has_loaded: false
+    }
+  },
+  computed: {
+    formComplete() {
+      return this.join_code !== ''
     }
   },
   created() {
-    this.getCurrentUser()
+    this.getUser()
   },
   methods: {
-    async getCurrentUser() {
-      const response = await UserAPI.getUser(this.$store.state.user.current_user._id)
-      this.current_user = response.data
-      this.current_user_has_loaded = true
-      console.log("current_user", this.current_user)
+    async getUser() {
+      const response = await UserAPI.getUser(this.state_user._id)
+      this.user = response.data
+      this.user_has_loaded = true
     },
     async joinCourseSection() {
       try {
@@ -50,7 +61,7 @@ export default {
             + `${section.course.name} (${section.course.dept} `
             + `${section.course.course_number}) Section ${section.section_number}?`)
           if(confirmation) {
-            await SectionAPI.addStudentToSection(section._id, this.current_user._id,
+            await SectionAPI.addStudentToSection(section._id, this.user._id,
               section.has_open_enrollment)
             if(section.has_open_enrollment) {
               alert("Section successfully joined")
@@ -77,7 +88,7 @@ export default {
         let section = course.sections[i]
         for (let j = 0; j < section.students.length; j++) {
           let student = section.students[j]
-          if(student.user_id === this.current_user.user_id) {
+          if(student.user_id === this.user.user_id) {
             is_student = true
             break
           }
@@ -91,6 +102,10 @@ export default {
 }
 </script>
 
-<style lang="css">
-
+<style>
+#join-paragraph {
+  margin: auto;
+  margin-top: 2rem;
+  font-size: 1.2rem;
+}
 </style>

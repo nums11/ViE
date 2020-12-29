@@ -88,10 +88,9 @@ export default {
 
 <style scoped>
 #mobile-nav-slider {
-  position: absolute;
+  position: fixed;
   width: 100%;
   height: 100%;
-  /*margin-top: -3rem;*/
   background-color: #e83e8c;
   padding-top: 1rem;
   padding-left: 2rem;

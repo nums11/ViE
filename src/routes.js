@@ -51,8 +51,7 @@ import WatchRecording from './views/WatchRecording.vue';
 import AttendChecker from './views/AttendChecker.vue';
 import LoginView from './views/LoginView.vue';
 import AddRecording from './views/AddRecording.vue';
-import RegisterCourse from './views/RegisterCourse.vue'
-import JoinCourse from './views/JoinCourse.vue'
+import RegisterJoinCourse from './views/RegisterJoinCourse.vue'
 import InviteStudentRedirect from './views/InviteStudentRedirect.vue'
 import SuccessfulInviteRedirect from './views/SuccessfulInviteRedirect.vue'
 import DevLogin from './views/DevLogin.vue'
@@ -540,17 +539,16 @@ const router = new VueRouter({
     {
       name: 'register_course',
       path: '/register_course',
-      component: RegisterCourse,
+      component: RegisterJoinCourse,
       meta: {
         requiresAuth: true,
-        requireAdmin: false,
         requiresInstructor: true
       }
     },
     {
       name: 'join_course',
       path: '/join_course',
-      component: JoinCourse,
+      component: RegisterJoinCourse,
       meta: {
         requiresAuth: true,
         requireAdmin: false,

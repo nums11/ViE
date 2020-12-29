@@ -1,59 +1,56 @@
 <template>
-  <div id="main">
-    <h1 class="form-header">Register Course</h1>
-    <sui-form class="form">
-      <div class="form-field">
-        <sui-form-field required :error="showNameInputError">
-          <label class="form-label">Name</label>
-          <input v-model="course.name" @blur="setNameInputClicked"
-          placeholder="Intro to Vie">
+  <sui-form class="form">
+    <div class="form-field">
+      <sui-form-field required :error="showNameInputError">
+        <label class="form-label">Name</label>
+        <input v-model="course.name" @blur="setNameInputClicked"
+        placeholder="Intro to Vie">
+      </sui-form-field>
+    </div>
+    <div class="form-field">
+      <sui-form-field required :error="showSubjectCodeInputError">
+        <label class="form-label">Subject Code</label>
+        <input v-model="course.dept" @blur="setSubjectCodeInputClicked"
+        placeholder="VIE">
+      </sui-form-field>
+    </div>
+    <div class="form-field">
+      <sui-form-field required :error="showCourseNumberInputError">
+        <label class="form-label">Course Number</label>
+        <input v-model="course.course_number" @blur="setCourseNumberInputClicked"
+        type="number"
+        placeholder="4200">
+      </sui-form-field>
+    </div>
+    <div class="form-field">
+      <h3>Add Sections</h3>
+      <p>Additional sections can be added after your course is registered</p>
+      <sui-form-field>
+        <label class="form-label">Section Number</label>
+        <input v-model="section.section_number" type="number"
+        placeholder="1">
+      </sui-form-field>
+      <sui-popup content="Sections with open enrollment allow their students
+     to join without instructor approval" position="top center" inverted basic>
+        <sui-form-field inline slot="trigger">
+          <sui-checkbox v-model="section.has_open_enrollment" />
+          <label id="enrollment-label">Has Open Enrollment</label>
         </sui-form-field>
+      </sui-popup>
+      <sui-button @click.prevent="addSection" size="small"
+      style="background-color:#00b80c; color: white;"
+      content="Add Section" :disabled="!sectionHasNumber" />
+      <div id="section-pill-container">
+        <SectionPill v-for="section in sections"
+        :key="section.section_number" :section="section"
+        v-on:remove-section="removeSection" />
       </div>
-      <div class="form-field">
-        <sui-form-field required :error="showSubjectCodeInputError">
-          <label class="form-label">Subject Code</label>
-          <input v-model="course.dept" @blur="setSubjectCodeInputClicked"
-          placeholder="VIE">
-        </sui-form-field>
+      <div id="btn-container" @click="registerCourse">
+        <Button text="Register" color="blue" 
+        size="large" invert_colors :disabled="!formComplete" />
       </div>
-      <div class="form-field">
-        <sui-form-field required :error="showCourseNumberInputError">
-          <label class="form-label">Course Number</label>
-          <input v-model="course.course_number" @blur="setCourseNumberInputClicked"
-          type="number"
-          placeholder="4200">
-        </sui-form-field>
-      </div>
-      <div class="form-field">
-        <h3>Add Sections</h3>
-        <p>Additional sections can be added after your course is registered</p>
-        <sui-form-field>
-          <label class="form-label">Section Number</label>
-          <input v-model="section.section_number" type="number"
-          placeholder="1">
-        </sui-form-field>
-        <sui-popup content="Sections with open enrollment allow their students
-       to join without instructor approval" position="top center" inverted basic>
-          <sui-form-field inline slot="trigger">
-            <sui-checkbox v-model="section.has_open_enrollment" />
-            <label id="enrollment-label">Has Open Enrollment</label>
-          </sui-form-field>
-        </sui-popup>
-        <sui-button @click.prevent="addSection" size="small"
-        style="background-color:#00b80c; color: white;"
-        content="Add Section" :disabled="!sectionHasNumber" />
-        <div id="section-pill-container">
-          <SectionPill v-for="section in sections"
-          :key="section.section_number" :section="section"
-          v-on:remove-section="removeSection" />
-        </div>
-        <div id="btn-container" @click="registerCourse">
-          <Button text="Register" color="blue" 
-          size="large" invert_colors :disabled="!formComplete" />
-        </div>
-      </div>
-    </sui-form>
-  </div>
+    </div>
+  </sui-form>
 </template>
 
 <script>
@@ -168,15 +165,6 @@ export default {
 </script>
 
 <style scoped>
-#main {
-  width: 50%;
-  margin: auto;
-  margin-top: 3rem;
-  text-align: center;
-  overflow-y: auto;
-  padding-bottom: 5rem;
-}
-
 #enrollment-label {
   margin-top: -1rem;
   border: white solid;
@@ -185,10 +173,6 @@ export default {
 
 #section-pill-container {
   margin-top: 2rem;
-}
-
-#btn-container {
-  margin-top: 4rem;
 }
 
 /* Tablets */
