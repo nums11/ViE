@@ -1,26 +1,26 @@
 <template>
   <div>
-    <h1 id="main-header">Finish creating your account</h1>
-    <sui-form id="account-form">
-      <div class="account-field">
+    <h1 class="form-header">Finish creating your account</h1>
+    <sui-form class="form">
+      <div class="form-field">
         <sui-form-field>
           <label class="form-label">User Id</label>
           <input v-model="user.user_id" readonly>
         </sui-form-field>
       </div>
-      <div class="account-field">
+      <div class="form-field">
         <sui-form-field required :error="showFirstNameInputError">
           <label class="form-label">First Name</label>
           <input @blur="setFirstNameInputClicked" v-model="user.first_name">
         </sui-form-field>
       </div>
-      <div class="account-field">
+      <div class="form-field">
         <sui-form-field required :error="showLastNameInputError">
           <label class="form-label">Last Name</label>
           <input @blur="setLastNameInputClicked" v-model="user.last_name">
         </sui-form-field>
       </div>
-      <div v-if="!inviting_student" class="account-field">
+      <div v-if="!inviting_student" class="form-field">
         <sui-form-field>
           <sui-checkbox label="Are you an instructor?"
           v-model="user.is_instructor"/>
@@ -56,7 +56,7 @@ export default {
     }
   },
   computed: {
-    showFirstNameInputError: function() {
+    showFirstNameInputError() {
       return this.first_name_input_clicked &&
       this.user.first_name === ''
     },
@@ -111,73 +111,7 @@ export default {
   margin-top: 3rem;
 }
 
-.account-field:not(:first-child) {
-  /*border: blue solid;*/
-  margin-top: 3rem;
-}
-
-.form-label {
-  padding-left: 0.5rem;
-  text-align: left;
-}
-
 #button-container {
   margin-bottom: 2rem;
 }
-
-/*#choose-university-header {
-  margin-top: 4rem;
-}
-
-#university-select-container {
-  margin-top: 2rem;
-}
-
-#university-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  width: 20rem;
-  height: 3rem;
-  border-radius: 3px;
-  background-color: white;
-  padding-left: 0.5rem;
-  text-align-last: center;
-  cursor: pointer;
-  margin: auto;
-}
-
-#verify-container {
-  margin-top: 3rem;
-}
-
-#verify-message {
-  margin: auto;
-}
-
-#verify-button-container {
-  margin-top: 2rem;
-  display: inline-block;
-}
-
-#error-msg {
-  background-color: #FF00001A;
-  border: #FF00001A solid;
-  color: #FF0000;
-  font-weight: bold;
-  height: 3rem;
-  width: 72.5%;
-  margin: auto;
-  margin-top: 3rem;
-  padding-top: 0.75rem;
-  border-radius: 5px;
-}
-
-#question {
-  margin: auto;
-  margin-top: 3rem;
-  font-weight: bold;
-}
-
-*/
 </style>

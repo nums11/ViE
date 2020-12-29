@@ -247,6 +247,27 @@ html, body {
   white-space: nowrap;
 }
 
+.form-header {
+  margin-top: 3rem;
+  font-size: 3rem;
+}
+
+.form {
+  width: 70%;
+  margin: auto;
+  margin-top: 3rem;
+}
+
+.form-field:not(:first-child) {
+  margin-top: 3rem;
+}
+
+
+.form-label {
+  padding-left: 0.5rem;
+  text-align: left;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition-duration: 0.3s;

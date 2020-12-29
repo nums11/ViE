@@ -112,11 +112,6 @@ export default {
   padding-top: 2rem;
 }
 
-/deep/ #main-header {
-  margin-top: 3rem;
-  font-size: 3rem;
-}
-
 /deep/ #button-container {
   margin-top: 2rem;
   display: inline-block;

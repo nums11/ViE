@@ -1,9 +1,9 @@
 <template>
   <div>
-    <h1 v-if="is_login_view" id="main-header">
+    <h1 v-if="is_login_view" class="form-header">
       Log in to your ViE account
     </h1>
-    <h1 v-else id="main-header">Create an account</h1>
+    <h1 v-else class="form-header">Create an account</h1>
     <h3 id="choose-university-header">Choose your university</h3>
     <div id="university-select-container">
       <select v-model="university_index" id="university-select">

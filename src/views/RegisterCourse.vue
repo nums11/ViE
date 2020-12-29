@@ -1,87 +1,128 @@
 <template>
-  <div class="course-creation">
-    <h1>Register Course</h1>
-    <form @submit.prevent="registerCourse">
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>name:</label>
-            <input v-model="course.name" type="text" class="form-control"
-            placeholder="e.g. Intro to Science">
-          </div>
+  <div id="main">
+    <h1 class="form-header">Register Course</h1>
+    <sui-form class="form">
+      <div class="form-field">
+        <sui-form-field required :error="showNameInputError">
+          <label class="form-label">Name</label>
+          <input v-model="course.name" @blur="setNameInputClicked"
+          placeholder="Intro to Vie">
+        </sui-form-field>
+      </div>
+      <div class="form-field">
+        <sui-form-field required :error="showSubjectCodeInputError">
+          <label class="form-label">Subject Code</label>
+          <input v-model="course.dept" @blur="setSubjectCodeInputClicked"
+          placeholder="VIE">
+        </sui-form-field>
+      </div>
+      <div class="form-field">
+        <sui-form-field required :error="showCourseNumberInputError">
+          <label class="form-label">Course Number</label>
+          <input v-model="course.course_number" @blur="setCourseNumberInputClicked"
+          type="number"
+          placeholder="4200">
+        </sui-form-field>
+      </div>
+      <div class="form-field">
+        <h3>Add Sections</h3>
+        <p>Additional sections can be added after your course is registered</p>
+        <sui-form-field>
+          <label class="form-label">Section Number</label>
+          <input v-model="section.section_number" type="number"
+          placeholder="1">
+        </sui-form-field>
+        <sui-popup content="Sections with open enrollment allow their students
+       to join without instructor approval" position="top center" inverted basic>
+          <sui-form-field inline slot="trigger">
+            <sui-checkbox v-model="section.has_open_enrollment" />
+            <label id="enrollment-label">Has Open Enrollment</label>
+          </sui-form-field>
+        </sui-popup>
+        <sui-button @click.prevent="addSection" size="small"
+        style="background-color:#00b80c; color: white;"
+        content="Add Section" :disabled="!sectionHasNumber" />
+        <div id="section-pill-container">
+          <SectionPill v-for="section in sections"
+          :key="section.section_number" :section="section"
+          v-on:remove-section="removeSection" />
+        </div>
+        <div id="btn-container" @click="registerCourse">
+          <Button text="Register" color="blue" 
+          size="large" invert_colors :disabled="!formComplete" />
         </div>
       </div>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>subject code:</label>
-            <input v-model="course.dept" type="text" class="form-control"
-            placeholder="e.g. ARTS">
-          </div>
-        </div>
-      </div><br />
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label>course_number:</label>
-            <input v-model="course.course_number" type="number" class="form-control"
-            placeholder="e.g. 2130">
-          </div>
-        </div>
-      </div>
-      <h4>Add sections</h4>
-      <div class="row section-row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <div>
-              <label for="section-number">section number:</label>
-              <input type="number" class="form-control" name="section-number"
-              v-model="section.section_number">
-            </div>
-            <div>
-              <label for="open-enrollment">has_open_enrollment</label>
-              <input type="checkbox" class="form-control" name="open-enrollment"
-              v-model="section.has_open_enrollment">
-            </div>
-            <button @click.prevent="addSection">Add section</button>
-          </div>
-        </div>
-      </div>
-      <h3>Sections</h3>
-      <div v-for="section in sections" class="section-container">
-        <p>Section Number: {{ section.section_number }}</p>
-        <p>has_open_enrollment: {{ section.has_open_enrollment }}</p>
-      </div>
-      <div class="form-group">
-        <button class="btn btn-primary">Create</button>
-      </div>
-    </form>
+    </sui-form>
   </div>
 </template>
 
 <script>
 import CourseAPI from '@/services/CourseAPI.js';
-
+import SectionPill from '@/components/SectionPill';
+import Button from '@/components/Button';
 
 export default {
     name: 'RegisterCourse',
     components: {
+      SectionPill,
+      Button
     },
     data () {
       return {
-        course: {},
+        course: {
+          name: "",
+          subject_code: "",
+          course_number: null
+        },
         sections: [],
         section: {
-          has_open_enrollment: false
+          has_open_enrollment: false,
         },
+        name_input_clicked: false,
+        subject_code_input_clicked: false,
+        course_number_input_clicked: false,
+      }
+    },
+    computed: {
+      showNameInputError() {
+        return this.name_input_clicked &&
+        this.course.name === ''
+      },
+      showSubjectCodeInputError() {
+        return this.subject_code_input_clicked &&
+        this.course.dept === ''
+      },
+      showCourseNumberInputError() {
+        return this.course_number_input_clicked &&
+        this.course.course_number == null ||
+        this.course.course_number === ""
+      },
+      sectionHasNumber() {
+        return this.section.section_number != null &&
+        this.section.section_number !== ""
+      },
+      formComplete() {
+        return this.course.name !== "" &&
+          this.course.dept !== "" &&
+          this.course.course_number != null &&
+          this.course.course_number !== "" &&
+          this.sections.length > 0
       }
     },
     created () {
-      this.current_user = this.$store.state.user.current_user
     },
     methods: {
+      setNameInputClicked() {
+        this.name_input_clicked = true
+      },
+      setSubjectCodeInputClicked() {
+        this.subject_code_input_clicked = true
+      },
+      setCourseNumberInputClicked() {
+        this.course_number_input_clicked = true
+      },
       async registerCourse(){
-        this.course.instructor = this.current_user._id
+        this.course.instructor = this.state_user._id
         const response = await CourseAPI.addCourse(this.course, this.sections);
         const new_course = response.data
         console.log("Receied new course", new_course)
@@ -89,16 +130,72 @@ export default {
           params: {id: new_course._id, reload_page: true}});
       },
       addSection() {
-        this.sections.push(this.section)
-        this.section = { has_open_enrollment: false }
-        console.log("Sections", this.sections)
+        if(this.sectionWithSectionNumberAlreadyAdded()) {
+          alert("Already added a section with this section number")
+        } else {
+          this.sections.push(this.section)
+          this.sections.sort(this.compare)
+
+          this.section = { has_open_enrollment: false }
+        }
+      },
+      sectionWithSectionNumberAlreadyAdded() {
+        let section_found = false
+        for(let i = 0; i < this.sections.length; i++) {
+          if(this.sections[i].section_number === this.section.section_number) {
+            section_found = true
+            break
+          }
+        }
+        return section_found
+      },
+      compare( a, b ) {
+        if ( a.section_number < b.section_number ){
+          return -1;
+        }
+        if ( a.section_number > b.section_number ){
+          return 1;
+        }
+        return 0;
+      },
+      removeSection(section_number) {
+        this.sections = this.sections.filter((section) => {
+          return section.section_number !== section_number
+        })
       }
     }
 }
 </script>
 
-<style lang="css" scoped>
-.section-container {
-  border: black solid;
+<style scoped>
+#main {
+  width: 50%;
+  margin: auto;
+  margin-top: 3rem;
+  text-align: center;
+  overflow-y: auto;
+  padding-bottom: 5rem;
 }
+
+#enrollment-label {
+  margin-top: -1rem;
+  border: white solid;
+  vertical-align: bottom;
+}
+
+#section-pill-container {
+  margin-top: 2rem;
+}
+
+#btn-container {
+  margin-top: 4rem;
+}
+
+/* Tablets */
+@media (max-width: 1128px) {
+  #main {
+    width: 95%;
+  }
+}
+
 </style>
