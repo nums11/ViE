@@ -70,7 +70,7 @@
                   <div class="date-label" :style="{marginTop: '20px'}">END TIME</div>
                   <input class="new-meeting-datetime-picker" placeholder="Select date & time"
                   id="real_time_end" aria-labelledby="end_time_label" type="datetime-local"
-                  :disabled="!meetingHasStartTime"/>
+                  :disabled="!meetingHasRealTimeStart"/>
                 </div>
 
                 <div class="meeting-time-picker-area" :style="{width: '60%', marginTop: '30px'}">
@@ -233,7 +233,8 @@ export default {
     }
   },
   computed: {
-    meetingHasStartTime() {
+    meetingHasRealTimeStart() {
+      console.log("start", this.meeting.real_time_portion.real_time_start)
       return this.meeting.real_time_portion.real_time_start != null
     },
     meetingHasStartAndEndTime() {
@@ -266,7 +267,6 @@ export default {
     }
   },
   created () {
-    this.current_user = this.$store.state.user.current_user
     this.getNotificationPermissionStatus()
     this.getCourseOrOrg()
   },
@@ -595,7 +595,7 @@ export default {
     });
     console.log("Push Registered...", subscription);
     const response = await UserAPI.addServiceWorkerSubscriptionForUser(
-      this.current_user._id,subscription)
+      this.state_user._id,subscription)
     console.log("Added subscription to user", response.data)
    },
    urlBase64ToUint8Array(base64String) {
