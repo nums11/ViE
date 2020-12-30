@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div v-if="notification_permission_status === 'default' && meeting.has_real_time_portion"
+    <div v-if="notification_permission_status === 'default' && meeting.real_time_portion != null"
     class="notification-message">You currently do not have notifications enabled for Venue, so you will not be able to receive a notification for any QR Codes that become available. To enable notifications click <span @click="requestNotificationPermission">here</span>.</div>
-    <div v-else-if="notification_permission_status === 'blocked' && meeting.has_real_time_portion"
+    <div v-else-if="notification_permission_status === 'blocked' && meeting.real_time_portion != null"
     class="notification-message">You currently have notifications blocked for Venue, so you will not be able to receive a notification for any QR Codes that become available. To enable notifications click on the icon in the top left of your search bar and set notifications to "Allow".</div>
     <div class="new-meeting-form">
       <div class="form-center">
@@ -10,7 +10,7 @@
           <div class="logo-area"></div>
           <div class="tasks-list">
             <div class="section-header">LIVE TASKS</div>
-            <div class="empty-area">No live tasks</div>
+            <div class="empty-area">No real_time tasks</div>
           </div>
           <div class="tasks-list">
             <div class="section-header">ASYNCHRONOUS TASKS</div>
@@ -49,27 +49,27 @@
             </div>
           </div>
 
-          <div class="live-meeting-portion">
+          <div class="real_time-meeting-portion">
             <div>
               <div class="checkbox">
-                <input type="checkbox" @click="toggleLiveInputs" />
-                <label>Include QR Code Checkin</label>
+                <input type="checkbox" @click="toggleRealTimeInputs" />
+                <label>Add real-time tasks</label>
               </div>
             </div>
             <transition name="fade" mode="out-in">
-              <div v-if="meeting.has_real_time_portion">
+              <div v-if="show_real_time_inputs">
 
                 <div class="meeting-time-picker-area" :style="{width: '60%'}">
                   <h4 style="margin-top:1rem;">Meeting Times</h4>
                   <div class="info-area">
-                    Choose the start and end times for the live portion of your meeting.
+                    Choose the start and end times for the real-time portion of your meeting.
                   </div>
                   <div class="date-label">START TIME</div>
                   <input class="new-meeting-datetime-picker" placeholder="Select date & time"
-                  id="meeting_start" aria-labelledby="start_time_label" type="datetime-local"/>
+                  id="real_time_start" aria-labelledby="start_time_label" type="datetime-local"/>
                   <div class="date-label" :style="{marginTop: '20px'}">END TIME</div>
                   <input class="new-meeting-datetime-picker" placeholder="Select date & time"
-                  id="meeting_end" aria-labelledby="end_time_label" type="datetime-local"
+                  id="real_time_end" aria-labelledby="end_time_label" type="datetime-local"
                   :disabled="!meetingHasStartTime"/>
                 </div>
 
@@ -77,7 +77,7 @@
                   <h4>QR Checkin Times</h4>
                   <div class="info-area" >
                     Choose the time window for which students will be able to scan a QR code for
-                    attendance during the live portion of your meeting. You will receive a notification to
+                    attendance during the real_time portion of your meeting. You will receive a notification to
                     show the QR Code to your students at the start time.
                   </div>
                   <div class="date-label">START TIME</div>
@@ -94,11 +94,11 @@
             </transition>
           </div>
 
-          <div class="live-meeting-portion">
+          <div class="real_time-meeting-portion">
             <div>
               <div class="checkbox">
                 <input type="checkbox" @click="toggleAsyncInputs" />
-                <label>Include recording</label>
+                <label>Add asynchronous tasks</label>
               </div>
             </div>
             <transition name="fade" mode="out-in">
@@ -132,7 +132,7 @@
             </transition>
           </div>
 
-          <div class="live-meeting-portion">
+          <div class="real_time-meeting-portion">
             <Button2 
               :style="{marginBottom: '20px', marginRight: '2%'}"
               :onClick="cancelForm"
@@ -195,12 +195,13 @@ export default {
     return {
       meeting: {
         title: "",
-        has_real_time_portion: false,
+        real_time_portion: null,
         has_async_attendance: false,
         start_time: null,
         end_time: null,
         sections: []
       },
+      show_real_time_inputs: false,
       // TODO: Remove these and use the arrays to
       // allow for multiple qr checkins and recordings
       qr_scan: {
@@ -224,7 +225,7 @@ export default {
       qr_end_time_picker: null,
       recording_start_time_picker: null,
       recording_end_time_picker: null,
-      live_tasks: [],
+      real_time_tasks: [],
       async_tasks: [],
       meeting_data: {},
       course_org_info: null,
@@ -233,10 +234,10 @@ export default {
   },
   computed: {
     meetingHasStartTime() {
-      return this.meeting.start_time != null
+      return this.meeting.real_time_portion.real_time_start != null
     },
     meetingHasStartAndEndTime() {
-      return this.meeting.start_time != null && this.meeting.end_time != null
+      return this.meeting.real_time_portion.real_time_start != null && this.meeting.real_time_portion.real_time_end != null
     },
     qrCheckinHasStartTime() {
       return this.qr_scan.qr_scan_start_time != null
@@ -250,8 +251,8 @@ export default {
       if(!(this.meeting.has_real_time_portion || this.meeting.has_async_attendance))
         return false
       if(this.meeting.has_real_time_portion){
-        if(this.meeting.start_time == null ||
-          this.meeting.end_time == null ||
+        if(this.meeting.real_time_portion.real_time_start == null ||
+          this.meeting.real_time_portion.real_time_end == null ||
           this.qr_scan.qr_scan_start_time == null ||
           this.qr_scan.qr_scan_end_time == null)
           return false
@@ -294,12 +295,14 @@ export default {
         this.meeting.org = this.org
       }
     },
-    toggleLiveInputs() {
-      this.meeting.has_real_time_portion = !this.meeting.has_real_time_portion
-      if(this.meeting.has_real_time_portion)
-        this.initLiveDateInputs()
+    toggleRealTimeInputs() {
+      this.show_real_time_inputs = !this.show_real_time_inputs
+      if(this.show_real_time_inputs){
+        this.meeting.real_time_portion = {}
+        this.initRealTimeDateInputs()
+      }
       else
-        this.resetLiveDateInputs()
+        this.resetRealTimeDateInputs()
     },
     toggleAsyncInputs() {
       this.meeting.has_async_attendance = !this.meeting.has_async_attendance
@@ -308,10 +311,10 @@ export default {
       else
         this.resetAsyncDateInputs()
     },
-    initLiveDateInputs() {
+    initRealTimeDateInputs() {
       this.$nextTick(() => {
-        this.initMeetingStartInput(this)
-        this.initMeetingEndInput(this)
+        this.initRealTimeStartInput(this)
+        this.initRealTimeEndInput(this)
         this.initQRScanStartInput(this)
         this.initQRScanEndInput(this)
       })
@@ -322,42 +325,42 @@ export default {
         this.initRecordingSubmissionEndInput(this)
       })
     },
-    initMeetingStartInput(self) {
-      self.start_time_picker = flatpickr(document.getElementById("meeting_start"),{
+    initRealTimeStartInput(self) {
+      self.start_time_picker = flatpickr(document.getElementById("real_time_start"),{
         enableTime: true,
         dateFormat: "M d Y, h:i K",
         minDate: Date.now(),
         minuteIncrement: 1,
         onChange: function(selectedDates, dateStr, instance) {
-          self.meeting.start_time = Date.parse(dateStr)
+          self.meeting.real_time_portion.real_time_start = Date.parse(dateStr)
           // Set the new min end time to 15 minutes after the new start time
-          let new_min_end_time = new Date(self.meeting.start_time)
+          let new_min_end_time = new Date(self.meeting.real_time_portion.real_time_start)
           new_min_end_time.setMinutes(new_min_end_time.getMinutes() + 15)
           self.end_time_picker.set("minDate",new_min_end_time)
           // Update meeting end time if invalid
           let fifteen_mins = 60 * 15 * 1000
-          if(self.meeting.start_time > self.meeting.end_time ||
-            self.meeting.end_time == null) {
-            self.meeting.end_time = self.meeting.start_time + fifteen_mins
-            self.end_time_picker.setDate(self.meeting.start_time + fifteen_mins)
+          if(self.meeting.real_time_portion.real_time_start > self.meeting.real_time_portion.real_time_end ||
+            self.meeting.real_time_portion.real_time_end == null) {
+            self.meeting.real_time_portion.real_time_end = self.meeting.real_time_portion.real_time_start + fifteen_mins
+            self.end_time_picker.setDate(self.meeting.real_time_portion.real_time_start + fifteen_mins)
           }
           // Keep the start and end time 15 minutes apart
-          if((self.meeting.start_time + fifteen_mins) > self.meeting.end_time) {
-            self.meeting.end_time = self.meeting.start_time + fifteen_mins
-            self.end_time_picker.setDate(self.meeting.start_time + fifteen_mins)
+          if((self.meeting.real_time_portion.real_time_start + fifteen_mins) > self.meeting.real_time_portion.real_time_end) {
+            self.meeting.real_time_portion.real_time_end = self.meeting.real_time_portion.real_time_start + fifteen_mins
+            self.end_time_picker.setDate(self.meeting.real_time_portion.real_time_start + fifteen_mins)
           }
           self.clearQRDateInputs(self)
         }
       })
     },
-    initMeetingEndInput(self) {
-      self.end_time_picker = flatpickr(document.getElementById("meeting_end"),{
+    initRealTimeEndInput(self) {
+      self.end_time_picker = flatpickr(document.getElementById("real_time_end"),{
         enableTime: true,
         dateFormat: "M d Y, h:i K",
         minDate: Date.now(),
         minuteIncrement: 1,
         onChange: function(selectedDates, dateStr, instance) {
-          self.meeting.end_time = Date.parse(dateStr)
+          self.meeting.real_time_portion.real_time_end = Date.parse(dateStr)
           self.clearQRDateInputs(self)
         }
       })
@@ -440,13 +443,13 @@ export default {
         }
       })
     },
-    resetLiveDateInputs() {
+    resetRealTimeDateInputs() {
       this.start_time_picker = null
       this.end_time_picker = null
       this.qr_start_time_picker = null
       this.qr_end_time_picker = null
-      this.meeting.start_time = null
-      this.meeting.end_time = null
+      this.meeting.real_time_portion.real_time_start = null
+      this.meeting.real_time_portion.real_time_end = null
       this.qr_scan.qr_scan_start_time = null
       this.qr_scan.qr_scan_end_time = null
     },
@@ -457,12 +460,12 @@ export default {
       this.recording.recording_submission_end_time = null
     },
     clearQRDateInputs(self) {
-      self.qr_start_time_picker.set("minDate",self.meeting.start_time)
-      self.qr_start_time_picker.set("maxDate", self.meeting.end_time)
+      self.qr_start_time_picker.set("minDate",self.meeting.real_time_portion.real_time_start)
+      self.qr_start_time_picker.set("maxDate", self.meeting.real_time_portion.real_time_end)
       self.qr_scan.qr_scan_start_time = null
       self.qr_start_time_picker.setDate(null)
-      self.qr_end_time_picker.set("minDate",self.meeting.start_time)
-      self.qr_end_time_picker.set("maxDate", self.meeting.end_time)
+      self.qr_end_time_picker.set("minDate",self.meeting.real_time_portion.real_time_start)
+      self.qr_end_time_picker.set("maxDate", self.meeting.real_time_portion.real_time_end)
       self.qr_scan.qr_scan_end_time = null
       self.qr_end_time_picker.setDate(null)
     },
@@ -536,8 +539,8 @@ export default {
      let confirmation_string = `Are you sure you want to create this meeting?\n\n`
      if(this.meeting.has_real_time_portion) {
       confirmation_string += `Time Window:\n`
-       + `${moment(this.meeting.start_time).format("MMM Do YYYY, h:mm A")}`
-       + ` - ${moment(this.meeting.end_time).format("MMM Do YYYY, h:mm A")}\n\n`
+       + `${moment(this.meeting.real_time_portion.real_time_start).format("MMM Do YYYY, h:mm A")}`
+       + ` - ${moment(this.meeting.real_time_portion.real_time_end).format("MMM Do YYYY, h:mm A")}\n\n`
       confirmation_string += `QRScan\n`
         + `Submission Window:\n`
         + `${moment(this.qr_scan.qr_scan_start_time).format("MMM Do YYYY, h:mm A")}`
@@ -813,7 +816,7 @@ export default {
         }
       }
 
-      .live-meeting-portion {
+      .real_time-meeting-portion {
         margin-top: 30px;
         margin-bottom: 30px;
 

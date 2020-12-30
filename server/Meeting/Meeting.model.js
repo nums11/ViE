@@ -11,14 +11,6 @@ let Meeting = new Schema({
     type: String,
     required: true
   },
-  start_time: {
-    type: Date,
-    required: true
-  },
-  end_time: {
-    type: Date,
-    required: true
-  },
   sections: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Section'
@@ -26,13 +18,15 @@ let Meeting = new Schema({
   real_time_portion: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'RealTimePortion',
-    required: true
   },
   async_attendance: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'AsyncAttendance',
-    required: true
   }, 
 });
+
+// Todo - add pre validator that makes sure either real_time_portion or 
+// async_portion is defined
+// 
 
 module.exports = mongoose.model('Meeting', Meeting);
