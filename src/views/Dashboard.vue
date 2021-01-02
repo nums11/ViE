@@ -87,7 +87,8 @@ export default {
     meetingIsRealTime(meeting, now) {
       if(meeting.real_time_portion == null)
         return false
-      return moment(now).isBetween(meeting.start_time, meeting.end_time)
+      return moment(now).isBetween(meeting.real_time_portion.real_time_start,
+        meeting.real_time_portion.real_time_end)
     },
     meetingWasRecentlyRealTime(meeting, now) {
       const twenty_four_hours_ago = moment().subtract(24, 'hours')

@@ -86,7 +86,6 @@ export default {
         this.real_time_portion_status = "open"
     },
     showFullScreenQRCodeModal(code) {
-      console.log("Showing code", code)
       this.full_screen_code = code
       this.show_qr_code_modal = true
     },
