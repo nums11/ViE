@@ -43,7 +43,7 @@ export default {
       required: true
     },
     task: Object,
-    students: Array
+    // students: Array
   },
   data () {
     return {
@@ -51,8 +51,9 @@ export default {
     }
   },
   created () {
-    this.getInitialAttended ()
-    this.initializeAttendanceRealTimeUpdate ()
+    // this.getInitialAttended ()
+    // this.initializeAttendanceRealTimeUpdate ()
+    this.students = []
   },
   methods: {
     getInitialAttended () {

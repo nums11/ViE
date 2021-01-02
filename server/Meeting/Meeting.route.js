@@ -86,7 +86,7 @@ meetingRoutes.post('/add', async (req, res, next) => {
 
   try {
     // Create the meeting and the necessary objects
-    let new_real_time_portion = null, new_async_portion = null
+    let saved_real_time_portion = null, saved_async_portion = null
     if(real_time_portion != null) {
       // Is this running twice
       const saved_qr_scans = await createQRScans(num_qr_scans)
@@ -97,6 +97,7 @@ meetingRoutes.post('/add', async (req, res, next) => {
         real_time_end: real_time_portion.real_time_end,
         qr_scans: saved_qr_scans
       })
+      saved_real_time_portion = await new_real_time_portion.save()
     }
     const new_meeting = new Meeting({
       title: title,
@@ -114,7 +115,6 @@ meetingRoutes.post('/add', async (req, res, next) => {
     const student_ids = getAllStudentsFromSections(updated_sections)
     const updated_students = await addMeetingToObjects(
       student_ids, "user", saved_meeting._id)
-    console.log("updated_students",updated_students)
     if(updated_students == null)
       throw "<ERROR> meetings/add"
     const instructor_id = await getInstructorFromCourse(

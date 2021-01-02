@@ -32,7 +32,6 @@ export default {
   // },
   addMeeting(title, real_time_portion, num_qr_scans, async_portion,
     sections) {
-    console.log("In the API")
     return API().post(`meetings/add`, {
         title: title,
         real_time_portion: real_time_portion,

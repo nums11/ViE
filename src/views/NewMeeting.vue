@@ -71,9 +71,14 @@ export default {
   },
   methods: {
     async getCourse() {
-      this.course_id = this.$route.params.course_id;
-      const response = await CourseAPI.getCourse(this.course_id)
-      this.course = response.data
+      try {
+        this.course_id = this.$route.params.course_id;
+        const response = await CourseAPI.getCourse(this.course_id)
+        this.course = response.data
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
     },
     selectSection(section) {
      let [meeting_has_section, index] = this.meetingHasSection(section)
@@ -115,9 +120,11 @@ export default {
     async createMeeting() {
       this.creating_meeting = true
       try {
-        await MeetingAPI.addMeeting(this.title, this.real_time_portion,
+        const response = await MeetingAPI.addMeeting(this.title, this.real_time_portion,
           this.num_qr_scans, null, this.sections)
-        this.creating_meeting = false
+        const saved_meeting = response.data
+        this.$router.push({name: 'meeting_info', params: {meeting_id:
+          saved_meeting._id}})        
       } catch(error) {
         console.log(error)
         alert("Sorry, something went wrong creating your meeting")
