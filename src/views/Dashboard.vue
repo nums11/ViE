@@ -85,7 +85,7 @@ export default {
       })
     },
     meetingIsRealTime(meeting, now) {
-      if(!meeting.has_real_time_portion)
+      if(meeting.real_time_portion == null)
         return false
       return moment(now).isBetween(meeting.start_time, meeting.end_time)
     },
@@ -94,6 +94,9 @@ export default {
       return moment(meeting.end_time).isBetween(twenty_four_hours_ago, now)
     },
     meetingIsAsync(meeting, now) {
+      if(meeting.async_portion == null)
+        return false
+
       let is_async = false
       for(let i = 0; i < meeting.async_portion.videos.length;
         i++) {
