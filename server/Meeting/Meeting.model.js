@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 let RealTimePortion = require('../RealTimePortion/RealTimePortion.model');
-let AsyncAttendance = require('../AsyncAttendance/AsyncAttendance.model');
+let AsyncPortion = require('../AsyncPortion/AsyncPortion.model');
 let Course = require('../Course/Course.model');
 
 //Define collection and schema for User
@@ -19,9 +19,9 @@ let Meeting = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'RealTimePortion',
   },
-  async_attendance: {
+  async_portion: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'AsyncAttendance',
+    ref: 'AsyncPortion',
   }, 
 });
 

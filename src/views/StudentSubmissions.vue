@@ -4,7 +4,7 @@
       <div class="action-row">
         <div class="left-side">
           <div v-if="is_qr" :style="{fontSize: '1.2rem'}">{{ task.submissions.length }} Submission</div>
-          <div v-else :style="{fontSize: '1.2rem'}">{{ task.recording_submissions.length }} Submission</div>
+          <div v-else :style="{fontSize: '1.2rem'}">{{ task.video_submissions.length }} Submission</div>
         </div>
       </div>
       <div class="student-list">
@@ -27,7 +27,7 @@
             </div>
           </div>
           <div v-else>
-            <div v-for="submission in task.recording_submissions" :key="submission._id" class="student-row">
+            <div v-for="submission in task.video_submissions" :key="submission._id" class="student-row">
               <div class="checkbox-area">
                   <sui-checkbox />
               </div>

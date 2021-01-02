@@ -95,11 +95,11 @@ export default {
     },
     meetingIsAsync(meeting, now) {
       let is_async = false
-      for(let i = 0; i < meeting.async_attendance.recordings.length;
+      for(let i = 0; i < meeting.async_portion.videos.length;
         i++) {
-        const recording = meeting.async_attendance.recordings[i]
-        if(moment(now).isBetween(recording.recording_submission_start_time,
-          recording.recording_submission_end_time)) {
+        const video = meeting.async_portion.videos[i]
+        if(moment(now).isBetween(video.video_submission_start_time,
+          video.video_submission_end_time)) {
           is_async = true
           break
         }

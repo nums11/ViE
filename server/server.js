@@ -62,8 +62,7 @@ function start() {
   const sectionRouter = require('./Section/Section.route')
   const meetingRouter = require('./Meeting/Meeting.route')
   const submissionRouter = require('./Submission/Submission.route')
-  const recordingRouter = require('./Recording/Recording.route')
-  const asyncSubmissionRouter = require('./AsyncSubmission/AsyncSubmission.route')
+  const videoRouter = require('./Video/Video.route')
   const qrScanRouter = require('./QRScan/QRScan.route')
   const notificationRouter = require('./Notification/Notification.route')
   const AttendanceFinder = require('./socket/AttendanceFinder')
@@ -152,8 +151,7 @@ function start() {
   app.use('/meetings', jwtVerify, meetingRouter);
   app.use('/livesubmissions', submissionRouter);
   app.use('/auth', authRouter);
-  app.use('/recordings', recordingRouter);
-  app.use('/asyncsubmissions', asyncSubmissionRouter);
+  app.use('/videos', videoRouter);
   app.use('/qrcheckins', qrScanRouter);
   app.use('/notifications', notificationRouter);
 

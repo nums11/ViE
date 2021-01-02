@@ -54,18 +54,18 @@
     course: ID                          -- The id of the course this meeting is for
     org: ID                             -- The id of the organization this meeting is for
     has_real_time_portion: Boolean        -- Whether or not there is a live portion for this meeting
-    has_async_attendance: Boolean       -- Whether or not there is an async portion for this meeting
+    has_async_portion: Boolean       -- Whether or not there is an async portion for this meeting
     qr_scans: [QRCode: Object]       -- List of QR code objects that describe a QR code entry
         QRCode
             code: String                -- The string for the QR code
             qr_scan_start_time: Date -- The datetime for the start of the QR code task
             qr_scan_end_time: Date   -- The datetime for the end of the QR code task
-    recordings: [Recording: Object]     -- List of recording objects
-        Recording
+    videos: [Video: Object]     -- List of video objects
+        Video
             video_url: String           -- url of the video redording
-            recording_polls: ID         -- id of the polls for the recording
-            recording_submission_start_time -- allowed start time for the recording
-            recording_submission_end_time   -- allowed end time for the recording
+            video_polls: ID         -- id of the polls for the video
+            video_submission_start_time -- allowed start time for the video
+            video_submission_end_time   -- allowed end time for the video
 */
 
 import MeetingAPI from "@/services/MeetingAPI"
@@ -92,27 +92,27 @@ const NewMeetingTransform = async (new_meeting, has_live, has_async) => {
         })
     }
     if (has_async) {
-        meeting_.has_async_attendance = true
-        meeting_.recordings = []
+        meeting_.has_async_portion = true
+        meeting_.videos = []
 
-        // upload recording
+        // upload video
         let queue_ = [{
-            video: new_meeting.async.recording.file,
-            start_time: new_meeting.async.recording.start_time,
-            end_time: new_meeting.async.recording.end_time
+            video: new_meeting.async.video.file,
+            start_time: new_meeting.async.video.start_time,
+            end_time: new_meeting.async.video.end_time
         }]
-        let upload_response = await MeetingAPI.saveRecordingVideoToGCS(new_meeting.async.recording.file)
-        meeting_.recordings.push({
+        let upload_response = await MeetingAPI.saveVideoVideoToGCS(new_meeting.async.video.file)
+        meeting_.videos.push({
             video_url: upload_response.data,
-            recording_submission_start_time: queue_[0].start_time,
-            recording_submission_end_time: queue_[0].end_time
+            video_submission_start_time: queue_[0].start_time,
+            video_submission_end_time: queue_[0].end_time
         })
         // upload_response.data.forEach((upload_url, q) => {
 
-        //     meeting_.recordings.push({
+        //     meeting_.videos.push({
         //         video_url: upload_url,
-        //         recording_submission_start_time: queue_[q].start_time,
-        //         recording_submission_end_time: queue_[q].end_time
+        //         video_submission_start_time: queue_[q].start_time,
+        //         video_submission_end_time: queue_[q].end_time
         //     })
         // })
     }
@@ -161,18 +161,18 @@ const MeetingTransform = async (new_meeting) => {
 
     if (hasProperty( new_meeting, 'async' )) {
 
-        meeting_.has_async_attendance = true;
+        meeting_.has_async_portion = true;
 
         // Loop through each task and handle based on its type
-        let recording_upload_queue = []
+        let video_upload_queue = []
         Object.keys(new_meeting.async).forEach(task_id => {
 
             let task = new_meeting.async[task_id]
             console.log(task)
-            if (task.type == 'recording') {
+            if (task.type == 'video') {
 
                 // upload to GC
-                recording_upload_queue.push({
+                video_upload_queue.push({
                     video: task.video_blob,
                     start_time: task.start_time,
                     end_time: task.end_time
@@ -182,15 +182,15 @@ const MeetingTransform = async (new_meeting) => {
         })
 
         // upload all the videos from the upload queue to google cloud!
-        if (recording_upload_queue.length > 0) meeting_.recordings = []
-        let upload_response = await MeetingAPI.saveRecordingVideosToGCS(recording_upload_queue)
+        if (video_upload_queue.length > 0) meeting_.videos = []
+        let upload_response = await MeetingAPI.saveVideoVideosToGCS(video_upload_queue)
         console.log('upload response', upload_response)
         upload_response.data.forEach((upload_url, q) => {
 
-            meeting_.recordings.push({
+            meeting_.videos.push({
                 video_url: upload_url,
-                recording_submission_start_time: recording_upload_queue[q].start_time,
-                recording_submission_end_time: recording_upload_queue[q].end_time
+                video_submission_start_time: video_upload_queue[q].start_time,
+                video_submission_end_time: video_upload_queue[q].end_time
             })
         })
         
@@ -208,19 +208,19 @@ const QRCodeObj = (qr_obj) => {
     }
 }
 
-const RecordingObjQueue = (recording_obj)  => {
+const VideoObjQueue = (video_obj)  => {
     return {
-        recording_file: recording_obj.video_blob,
-        start: recording_obj.start_time,
-        end: recording_obj.end_time
+        video_file: video_obj.video_blob,
+        start: video_obj.start_time,
+        end: video_obj.end_time
     }
 }
 
-const RecordingObj = (recording_obj, new_url)  => {
+const VideoObj = (video_obj, new_url)  => {
     return {
         video_url: new_url,
-        recording_submission_start_time: recording_obj.start_time,
-        recording_submission_end_time: recording_obj.end_time
+        video_submission_start_time: video_obj.start_time,
+        video_submission_end_time: video_obj.end_time
     }
 }
 

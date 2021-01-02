@@ -12,7 +12,7 @@
       :students="attendees"
     />
     <!-- Edit Modal -->
-    <EditRecordingModal ref="EditRecordingModal" />
+    <EditVideoModal ref="EditVideoModal" />
     <QRSuccessAnimation v-if="show_qr_success_animation" />
 
     <!-- Header -->
@@ -69,8 +69,8 @@
 
       <!-- TODO: Make this work for org board members -->
       <div v-if="current_user.is_instructor">
-        <router-link :to="{name: 'add_recording', params: {meeting_id: meeting._id}}">
-          <sui-button class="venue-blue">Add Recording</sui-button>
+        <router-link :to="{name: 'add_video', params: {meeting_id: meeting._id}}">
+          <sui-button class="venue-blue">Add Video</sui-button>
         </router-link>
         <sui-button id="delete-btn" color="red" @click="deleteMeeting">Delete Meeting</sui-button>
       </div>
@@ -127,25 +127,25 @@
                   v-on:show-qr-scanning-window="showQRScanningWindow"
                   v-on:show-task-attendance="showTaskAttendance"
                   v-on:show-fullscreen-code="showFullScreenQRCodeModal"
-                  v-on:remove-recording="removeRecording" />
+                  v-on:remove-video="removeVideo" />
                 </div>
-                <div style="margin-top:3rem;" v-if="meeting.has_async_attendance">
+                <div style="margin-top:3rem;" v-if="meeting.has_async_portion">
                   <div class="title">
                     <h3 v-if="is_instructor">
-                      ({{ meeting.async_attendance.recordings.length }}) 
+                      ({{ meeting.async_portion.videos.length }}) 
                       Asynchronous Tasks
                     </h3>
                     <h3 v-else>Asynchronous Tasks</h3>
                   </div>
                   <MeetingTaskList
-                  :tasks="meeting.async_attendance.recordings"
+                  :tasks="meeting.async_portion.videos"
                   :is_live="false"
                   :attendees="attendees"
                   :for_course="for_course"
                   :is_board_member="is_board_member"
                   v-on:show-task-attendance="showTaskAttendance"
-                  v-on:remove-recording="removeRecording"
-                  v-on:show-edit-recording-modal="showEditRecordingModal" />
+                  v-on:remove-video="removeVideo"
+                  v-on:show-edit-video-modal="showEditVideoModal" />
                 </div>
               </div>
               <div key="2" v-else>
@@ -204,7 +204,7 @@ import MeetingAPI from '@/services/MeetingAPI.js';
 import qrcode from '@chenfengyuan/vue-qrcode';
 import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
 import UserAPI from '@/services/UserAPI';
-import EditRecordingModal from '@/components/EditRecordingModal.vue'
+import EditVideoModal from '@/components/EditVideoModal.vue'
 import  VenueChart  from "@/components/VenueChart.vue"
 
 export default {
@@ -221,7 +221,7 @@ export default {
     MeetingTaskList,
     MeetingAttendanceList,
     QRSuccessAnimation,
-    EditRecordingModal,
+    EditVideoModal,
     VenueChart,
   },
   data () {
@@ -391,9 +391,9 @@ export default {
           })
         })
       }
-      if(this.meeting.async_attendance){
-        this.meeting.async_attendance.recordings.forEach(recording => {
-          let submissions = recording.recording_submissions
+      if(this.meeting.async_portion){
+        this.meeting.async_portion.videos.forEach(video => {
+          let submissions = video.video_submissions
           submissions.forEach(submission => {
             submission_ids.add(submission.submitter.user_id)
           })
@@ -484,12 +484,12 @@ export default {
           }
         })
       }
-      if(this.meeting.has_async_attendance) {
-        this.meeting.async_attendance.recordings
-        .forEach(recording => {
-          if(this.isBetweenTimes(current_time, new Date(recording.recording_submission_start_time),
-            new Date(recording.recording_submission_end_time))) {
-            this.active_tasks.push(recording)
+      if(this.meeting.has_async_portion) {
+        this.meeting.async_portion.videos
+        .forEach(video => {
+          if(this.isBetweenTimes(current_time, new Date(video.video_submission_start_time),
+            new Date(video.video_submission_end_time))) {
+            this.active_tasks.push(video)
           }
         })
       }
@@ -516,8 +516,8 @@ export default {
         window_start = new Date(task.qr_scan_start_time)
         window_end = new Date(task.qr_scan_end_time)
       } else {
-        window_start = new Date(task.recording_submission_start_time)
-        window_end = new Date(task.recording_submission_end_time)
+        window_start = new Date(task.video_submission_start_time)
+        window_end = new Date(task.video_submission_end_time)
       }
       let window_status = ""
       if(current_time > window_end)
@@ -675,13 +675,13 @@ export default {
       }
       return outputArray;
     },
-    async removeRecording(recording_id) {
-      await MeetingAPI.removeRecordingFromMeeting(this.meeting._id,
-        this.meeting.async_attendance._id, recording_id)
+    async removeVideo(video_id) {
+      await MeetingAPI.removeVideoFromMeeting(this.meeting._id,
+        this.meeting.async_portion._id, video_id)
       this.$router.go()
     },
-    showEditRecordingModal(recording) {
-      this.$refs.EditRecordingModal.showModal(recording)
+    showEditVideoModal(video) {
+      this.$refs.EditVideoModal.showModal(video)
     }
   }
 }

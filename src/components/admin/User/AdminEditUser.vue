@@ -85,7 +85,7 @@ export default {
   methods: {
     async getCurrentUser() {
       let user_id = this.$route.params.id;
-      const response = await UserAPI.getUser(user_id);
+      const response = await UserAPI.getUserWithMeetings(user_id);
       this.user = response.data;
       this.user_has_loaded = true
     },

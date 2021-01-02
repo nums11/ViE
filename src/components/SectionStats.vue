@@ -88,7 +88,7 @@ export default {
       this.section.meetings.forEach(meeting => {
         if(meeting.has_real_time_portion)
           this.num_live_meetings++
-        if(meeting.has_async_attendance)
+        if(meeting.has_async_portion)
           this.num_async_meetings++
         let [submission_ids, async_submission_ids] = this.getMeetingSubmissionIDs(meeting)
         this.meeting_submission_ids.push({
@@ -138,8 +138,8 @@ export default {
         })
       })
       let async_submission_ids = new Set()
-      meeting.async_attendance.recordings.forEach(recording =>{
-        recording.recording_submissions.forEach(submission => {
+      meeting.async_portion.videos.forEach(video =>{
+        video.video_submissions.forEach(submission => {
           async_submission_ids.add(submission.submitter.user_id)
         })
       })

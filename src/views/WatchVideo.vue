@@ -1,25 +1,25 @@
-<template>
+<!-- <template>
   <div>
-    <div class="spinner-border" role="status" v-if="!recording_has_loaded">
+    <div class="spinner-border" role="status" v-if="!video_has_loaded">
         <span class="sr-only">Loading...</span>
     </div>
-    <video v-else id="video_player" class="video-js vjs-big-play-centered recording_video" data-setup='{"fluid": true}' controls>
-      <source v-bind:src="recording.video_url" type="">
+    <video v-else id="video_player" class="video-js vjs-big-play-centered video_video" data-setup='{"fluid": true}' controls>
+      <source v-bind:src="video.video_url" type="">
     </video>
   </div>
 </template>
 
 <script>
   import videojs from "video.js"
-  import RecordingAPI from '@/services/RecordingAPI.js';
+  import VideoAPI from '@/services/VideoAPI.js';
   import AsyncSubmissionAPI from '@/services/AsyncSubmissionAPI.js';
 
   export default {
-    name: "WatchRecording",
+    name: "WatchVideo",
     data() {
       return {
-        recording: {},
-        recording_has_loaded: false,
+        video: {},
+        video_has_loaded: false,
         submission: {}
       }
     },
@@ -27,11 +27,11 @@
 
     },
     async created() {
-      this.recording_id = this.$route.params.recording_id
+      this.video_id = this.$route.params.video_id
       this.current_user = this.$store.state.user.current_user
       this.is_instructor = this.current_user.is_instructor
-      await this.getRecording()
-      if(!this.is_instructor && this.getWindowStatus(this.recording, false) === "open"){
+      await this.getVideo()
+      if(!this.is_instructor && this.getWindowStatus(this.video, false) === "open"){
           await this.createOrRetrieveStudentSubmission()
           if(this.submission.video_percent_watched < 100)
             this.preventSeekingAndPeriodicallyUpdateSubmission()
@@ -40,10 +40,10 @@
     computed: {
     },
     methods: {
-      async getRecording() {
-        const response = await RecordingAPI.getRecording(this.recording_id)
-        this.recording = response.data
-        this.recording_has_loaded = true
+      async getVideo() {
+        const response = await VideoAPI.getVideo(this.video_id)
+        this.video = response.data
+        this.video_has_loaded = true
       },
       getWindowStatus(attendance, is_qr) {
         let current_time = new Date()
@@ -53,8 +53,8 @@
           window_start = new Date(attendance.qr_scan_start_time)
           window_end = new Date(attendance.qr_scan_end_time)
         } else {
-          window_start = new Date(attendance.recording_submission_start_time)
-          window_end = new Date(attendance.recording_submission_end_time)
+          window_start = new Date(attendance.video_submission_start_time)
+          window_end = new Date(attendance.video_submission_end_time)
         }
         let window_status = ""
         if(current_time > window_end)
@@ -74,8 +74,8 @@
         } else {
           let async_submission = {
             submitter: this.$store.state.user.current_user,
-            is_recording: true,
-            recording: this.recording
+            is_video: true,
+            video: this.video
           }
           const response = await AsyncSubmissionAPI.addAsyncSubmission(async_submission)
           this.submission = response.data
@@ -84,8 +84,8 @@
       submissionExistsForStudent() {
         let submission_exists = false
         let student_submission = null
-        for(let i=0; i < this.recording.recording_submissions.length; i++) {
-          let submission = this.recording.recording_submissions[i]
+        for(let i=0; i < this.video.video_submissions.length; i++) {
+          let submission = this.video.video_submissions[i]
           if(submission.submitter.user_id === this.current_user.user_id) {
             student_submission = submission
             submission_exists = true
@@ -147,8 +147,8 @@
 </script>
 
 <style scoped>
-.recording_video {
+.video_video {
   width: 100%;
   height: 80%;
 }
-</style>
+</style> -->

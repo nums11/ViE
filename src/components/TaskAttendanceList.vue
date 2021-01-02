@@ -4,7 +4,7 @@
       <div class="left-side">
         <div class="title-area">
           <h4 v-if="is_qr">QR Submission</h4>
-          <h4 v-else>Recording</h4>
+          <h4 v-else>Video</h4>
         </div>
       </div>
       <div class="right-side">
@@ -113,7 +113,7 @@ export default {
       getSubmissionIds() {
         let task_submissions = this.is_qr ? 
         this.task.submissions :
-        this.task.recording_submissions
+        this.task.video_submissions
         console.log("is_qr", this.is_qr)
         console.log("Task", this.task)
         console.log("Task Submissions", task_submissions)

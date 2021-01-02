@@ -101,8 +101,8 @@ export default {
             submission_ids.add(submission.submitter.user_id)
           })
         })
-        this.meeting.async_attendance.recordings.forEach(recording => {
-          let submissions = recording.recording_submissions
+        this.meeting.async_portion.videos.forEach(video => {
+          let submissions = video.video_submissions
           submissions.forEach(submission => {
             submission_ids.add(submission.submitter.user_id)
           })

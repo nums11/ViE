@@ -10,7 +10,7 @@ const AttendanceFinder = {
     @params task_info: Object
       @keys: 
         task_id:  String (ObjectID)
-        type:     String ('qr-code', 'poll', 'recording', ...)
+        type:     String ('qr-code', 'poll', 'video', ...)
     @desc
       Search for the task in the collection of the associated type
       (qr-code => QRScan, poll => Poll, ...)

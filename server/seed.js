@@ -1,11 +1,10 @@
 const seeder = require("mongoose-seed");
 const Course = require("./Course/Course.model")
 const RealTimePortion = require("./RealTimePortion/RealTimePortion.model")
-const AsyncAttendance = require("./AsyncAttendance/AsyncAttendance.model")
+const AsyncPortion = require("./AsyncPortion/AsyncPortion.model")
 const Submission = require("./Submission/Submission.model")
-const AsyncSubmission = require("./AsyncSubmission/AsyncSubmission.model")
 const QRScan = require("./QRScan/QRScan.model")
-const Recording = require("./Recording/Recording.model")
+const Video = require("./Video/Video.model")
 const User = require("./User/User.model")
 const Section = require("./Section/Section.model")
 
@@ -20,16 +19,15 @@ seeder.connect(process.env.MONGODB_URI || db, function () {
 		"./User/User.model",
 		"./Meeting/Meeting.model",
 		"./RealTimePortion/RealTimePortion.model",
-		"./AsyncAttendance/AsyncAttendance.model",
+		"./AsyncPortion/AsyncPortion.model",
 		"./Submission/Submission.model",
-		"./AsyncSubmission/AsyncSubmission.model",
 		"./QRScan/QRScan.model",
-		"./Recording/Recording.model",
+		"./Video/Video.model",
 		"./Section/Section.model"
 	]);
 	seeder.clearModels(['Course', 'User', 'Meeting',
-		'RealTimePortion', 'AsyncAttendance', 'Submission', 'AsyncSubmission',
-		'QRScan', 'Recording', 'Section'], function () {
+		'RealTimePortion', 'AsyncPortion', 'Submission',
+		'QRScan', 'Video', 'Section'], function () {
 
 		let users = []
 		let courses = []

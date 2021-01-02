@@ -3,11 +3,10 @@ const meetingRoutes = express.Router();
 
 let Meeting = require('./Meeting.model');
 let RealTimePortion = require('../RealTimePortion/RealTimePortion.model');
-let AsyncAttendance = require('../AsyncAttendance/AsyncAttendance.model');
+let AsyncPortion = require('../AsyncPortion/AsyncPortion.model');
 let Submission = require('../Submission/Submission.model');
-let AsyncSubmission = require('../AsyncSubmission/AsyncSubmission.model');
 let QRScan = require('../QRScan/QRScan.model');
-let Recording = require('../Recording/Recording.model');
+let Video = require('../Video/Video.model');
 let Course = require('../Course/Course.model');
 // let Poll = require('../Poll/Poll.model');
 let User = require('../User/User.model');
@@ -44,25 +43,25 @@ const uploadVideoToGCS = (file) => new Promise((resolve, reject) => {
   .end(buffer)
 })
 
-meetingRoutes.post('/save_new_recording/:recording_name', (req, res) => {
-  let recording_name = req.params.recording_name
-  const blob = bucket.file(recording_name.replace(/ /g, "_"))
+meetingRoutes.post('/save_new_video/:video_name', (req, res) => {
+  let video_name = req.params.video_name
+  const blob = bucket.file(video_name.replace(/ /g, "_"))
   console.log("Instantiated blob with name", blob.name)
   var form = new multiparty.Form()
 
   form.on('error', (err) => {
-    console.log("<ERROR> (meetings/save_new_recording) form error", err)
+    console.log("<ERROR> (meetings/save_new_video) form error", err)
     res.status(500).json(err)
   })
 
   form.on('close', () => {
-    console.log("<SUCCESS> (meetings/save_new_recording) saving video")
+    console.log("<SUCCESS> (meetings/save_new_video) saving video")
     const publicUrl = 'https://storage.googleapis.com/' + bucket.name + '/' + blob.name
     res.json(publicUrl)
   })
 
   form.on('part', function(part) {
-    console.log("(meetings/save_new_recording) received part of size", part.byteCount)
+    console.log("(meetings/save_new_video) received part of size", part.byteCount)
     part.pipe(
       blob.createWriteStream({
           resumable: false,
@@ -71,152 +70,64 @@ meetingRoutes.post('/save_new_recording/:recording_name', (req, res) => {
     )
     // part.resume()
     part.on('error', (err)=> {
-      console.log("<ERROR> (meetings/save_new_recording) part error", err)
+      console.log("<ERROR> (meetings/save_new_video) part error", err)
     })
   })
 
   form.parse(req)
 })
 
-// meetingRoutes.post('/save_to_gcs',
-//   upload.array('recording_videos'), async (req, res) => {
-//     let videos = req.files
-//     let video_promises = []
-//     videos.forEach(video => {
-//       video_promises.push(new Promise(async (resolve,reject) => {
-//         try {
-//           let video_gcs_url = await uploadVideoToGCS(video)
-//           resolve(video_gcs_url)
-//         } catch (error) {
-//           console.log("<ERROR> (meetings/save_to_gcs) saving video to GCS:",video,error)
-//           res.json(error)
-//         }
-//       }))
-//     })
-//     try{
-//       let saved_video_urls = await Promise.all(video_promises)
-//       res.json(saved_video_urls)
-//     } catch(error) {
-//       console.log("<ERROR> (meetings/save_to_gcs) saving videos to GCS:",error)
-//       res.json(error)
-//     }
-//   }
-// )
-
-// TODO: Update the secondary instructor's meetings as well
-meetingRoutes.post('/add/:for_course/:course_or_org_id', async (req, res) => {
-  let meeting = req.body.meeting;
-  let for_course = false
-  let course_id = ""
-  let org_id = ""
-  if(req.params.for_course === "true"){
-    for_course = true
-    course_id = req.params.course_or_org_id
-    console.log("Was for course", course_id)
-  } else {
-    org_id = req.params.course_or_org_id
-    console.log("Was for org", org_id)
-  }
-
-  let new_meeting = new Meeting(meeting)
-  let real_time_portion = new RealTimePortion()
-  let async_attendance = new AsyncAttendance()
-
-  if(new_meeting.has_real_time_portion) {
-    // Create the QR Checkins
-    let qr_promises = []
-    meeting.qr_scans.forEach(qr_scan => {
-      qr_promises.push(new Promise(async (resolve,reject) => {
-        let new_qr_scan = new QRScan(qr_scan)
-        try {
-          let saved_qr_scan = await new_qr_scan.save()
-          resolve(saved_qr_scan)
-        } catch (error) {
-          console.log("<ERROR> (meetings/add) saving qr_scan:",new_qr_scan,error)
-          res.json(error)
-        }
-      }))
-    })
-    // Attach live attendance to the meeting
-    try{
-      let saved_qr_scans = await Promise.all(qr_promises)
-      real_time_portion.qr_scans = saved_qr_scans
-      // let real_time_portion = new RealTimePortion({
-      //   qr_scans: saved_qr_scans
-      // })
-      // let saved_real_time_portion = await real_time_portion.save()
-      // new_meeting.real_time_portion = saved_real_time_portion
-    } catch(error) {
-      console.log("<ERROR> (meetings/add) saving live attendance:",error)
-      res.json(error)
-    }
-  }
-
-  if(new_meeting.has_async_attendance) {
-    //Create the recordings
-    let recording_promises = []
-    meeting.recordings.forEach(recording => {
-      recording_promises.push(new Promise(async (resolve,reject) => {
-        let new_recording = new Recording(recording)
-        try {
-          let saved_recording = await new_recording.save()
-          console.log("Saved recording", saved_recording)
-          resolve(saved_recording)
-        } catch (error) {
-          console.log("<ERROR> (meetings/add) saving recording:",new_recording,error)
-          res.json(error)
-        }
-      }))
-    })
-    // Attach async attendance to the meeting
-    try{
-      let saved_recordings = await Promise.all(recording_promises)
-      async_attendance.recordings = saved_recordings
-      // let async_attendance = new AsyncAttendance({
-      //   recordings: saved_recordings
-      // })
-      // let saved_async_attendance = await async_attendance.save()
-      // new_meeting.async_attendance = saved_async_attendance
-    } catch(error) {
-      console.log("<ERROR> (meetings/add) saving async attendance:",error)
-      res.json(error)
-    }
-  }
+meetingRoutes.post('/add', async (req, res, next) => {
+  const title = req.body.title
+  const real_time_portion = req.body.real_time_portion
+  const num_qr_scans = req.body.num_qr_scans
+  const async_portion = req.body.async_portion
+  const sections = req.body.sections
 
   try {
-    new_meeting.real_time_portion = await real_time_portion.save()
-    new_meeting.async_attendance = await async_attendance.save()
-    let saved_meeting = await new_meeting.save()
-    if(for_course) {
-
-      let updated_sections = await addMeetingToObjects(
-        saved_meeting.sections, "section", saved_meeting._id)
-      if(updated_sections == null)
-        throw "Error in addMeetingToObjects updating sections"
-
-      let student_ids = getAllStudentsFromSections(updated_sections)
-      let updated_students = await addMeetingToObjects(
-        student_ids, "user", saved_meeting._id)
-      if(updated_students == null)
-        throw "Error in addMeetingToObjects updating students"
-
-      let instructor_id = await getInstructorFromCourse(
-        updated_sections[0].course)
-      let updated_instructor = await addMeetingToObjects(
-        [instructor_id], "user", saved_meeting._id)
-      if(updated_instructor == null)
-        throw "Error in addMeetingToObjects updating instructor"
-
-      res.json(saved_meeting)
-    } else {
-
-
+    // Create the meeting and the necessary objects
+    let new_real_time_portion = null, new_async_portion = null
+    if(real_time_portion != null) {
+      // Is this running twice
+      const saved_qr_scans = await createQRScans(num_qr_scans)
+      if(saved_qr_scans == null)
+        throw "<ERROR> meetings/add saving qr scans"
+      new_real_time_portion = new RealTimePortion({
+        real_time_start: real_time_portion.real_time_start,
+        real_time_end: real_time_portion.real_time_end,
+        qr_scans: saved_qr_scans
+      })
     }
-  } catch(error) {
-    console.log("<ERROR> (meetings/add) saving meeting:",error)
-    res.json(error)
-  }
+    const new_meeting = new Meeting({
+      title: title,
+      sections: sections,
+      real_time_portion: new_real_time_portion,
+      async_portion: null
+    })
+    const saved_meeting = await new_meeting.save()
 
+    // Update the section, instructor, and students
+    const updated_sections = await addMeetingToObjects(
+      saved_meeting.sections, "section", saved_meeting._id)
+    if(updated_sections == null)
+      throw "<ERROR> meetings/add"
+    const student_ids = getAllStudentsFromSections(updated_sections)
+    const updated_students = await addMeetingToObjects(
+      student_ids, "user", saved_meeting._id)
+    console.log("updated_students",updated_students)
+    if(updated_students == null)
+      throw "<ERROR> meetings/add"
+    const instructor_id = await getInstructorFromCourse(
+      updated_sections[0].course)
+    const updated_instructor = await addMeetingToObjects(
+      [instructor_id], "user", saved_meeting._id)
+    if(updated_instructor == null)
+      throw "<ERROR> meetings/add"
+
+    res.json(saved_meeting)
+  } catch(error) {
+    next(error)
+  }
 });
 
 meetingRoutes.route('/all').get(function (req, res) {
@@ -236,11 +147,11 @@ meetingRoutes.route('/all').get(function (req, res) {
     }]
   }).
   populate({
-    path: 'async_attendance',
+    path: 'async_portion',
     populate: [{
-      path: 'recordings',
+      path: 'videos',
       populate: {
-        path: 'recording_submissions'
+        path: 'video_submissions'
       }
     }]
   }).
@@ -284,11 +195,11 @@ meetingRoutes.route('/get/:id').get(function (req, res) {
     }]
   }).
   populate({
-    path: 'async_attendance',
+    path: 'async_portion',
     populate: [{
-      path: 'recordings',
+      path: 'videos',
       populate: {
-        path: 'recording_submissions',
+        path: 'video_submissions',
         populate: {
           path: 'submitter'
         }
@@ -327,76 +238,76 @@ meetingRoutes.route('/update/:id').post(function (req, res) {
   );
 });
 
-// TODO: Remove reliance on the has_real_time_portion and has_async_attendance
+// TODO: Remove reliance on the has_real_time_portion and has_async_portion
 // booleans
-meetingRoutes.route('/add_recording/:meeting_id').post(async (req, res) => {
+meetingRoutes.route('/add_video/:meeting_id').post(async (req, res) => {
   let meeting_id = req.params.meeting_id
-  let recording = req.body.recording
+  let video = req.body.video
   
   Meeting.findByIdAndUpdate(meeting_id,
-    {has_async_attendance: true},
+    {has_async_portion: true},
     async (error,meeting) => {
     if(error || meeting == null){
-      console.log("<ERROR> (meetings/add_recording) Getting meeting with ID:",id,error)
+      console.log("<ERROR> (meetings/add_video) Getting meeting with ID:",id,error)
       res.json(error);
     } else {
       try {
-        let new_recording = new Recording(recording)
-        let saved_recording = await new_recording.save()
-        AsyncAttendance.findByIdAndUpdate(meeting.async_attendance,
-          {$push: {recordings: saved_recording._id}},
-          (error,async_attendance) => {
-            if(error || async_attendance == null){
-              console.log("<ERROR> (meetings/add_recording) Adding recording with ID:",
-                saved_recording._id, "to async_attendance with id",
-                meeting.async_attendance, error)
+        let new_video = new Video(video)
+        let saved_video = await new_video.save()
+        AsyncPortion.findByIdAndUpdate(meeting.async_portion,
+          {$push: {videos: saved_video._id}},
+          (error,async_portion) => {
+            if(error || async_portion == null){
+              console.log("<ERROR> (meetings/add_video) Adding video with ID:",
+                saved_video._id, "to async_portion with id",
+                meeting.async_portion, error)
               res.json(error);
             } else {
-              console.log("<SUCCESS> (meetings/add_recording) Adding recording with ID:",
-                saved_recording._id, "to async_attendance with id",
-                meeting.async_attendance)
-              res.json(saved_recording);
+              console.log("<SUCCESS> (meetings/add_video) Adding video with ID:",
+                saved_video._id, "to async_portion with id",
+                meeting.async_portion)
+              res.json(saved_video);
             }
           })
       } catch(error) {
-        console.log("<ERROR> (meetings/add_recording) saving recording",
-          new_recording,error)
+        console.log("<ERROR> (meetings/add_video) saving video",
+          new_video,error)
         res.json(error);
       }
     }
   })
 })
 
-// TODO: remove recording video from GCS
+// TODO: remove video video from GCS
 // Need to update has async attendance
 // For removing video from GCS would have to first ensure that all videos saved have unique names
 // (e.g. adding the timestamp)
-meetingRoutes.route('/remove_recording/:meeting_id/:async_attendance_id/:recording_id').
+meetingRoutes.route('/remove_video/:meeting_id/:async_portion_id/:video_id').
 delete(async function (req, res) {
   let meeting_id = req.params.meeting_id
-  let async_attendance_id = req.params.async_attendance_id
-  let recording_id = req.params.recording_id
-  AsyncAttendance.findByIdAndUpdate(async_attendance_id,
-    {$pull: {recordings: recording_id}},
+  let async_portion_id = req.params.async_portion_id
+  let video_id = req.params.video_id
+  AsyncPortion.findByIdAndUpdate(async_portion_id,
+    {$pull: {videos: video_id}},
     {new: true},
-    (error,async_attendance) => {
-      if(error || async_attendance == null) {
-        console.log("<ERROR (meetings/remove_recording)> removing recording with id",
-          recording_id, "from async_attendance with id", async_attendance_id, error)
+    (error,async_portion) => {
+      if(error || async_portion == null) {
+        console.log("<ERROR (meetings/remove_video)> removing video with id",
+          video_id, "from async_portion with id", async_portion_id, error)
         res.json(error)
       }
-      Recording.findById(recording_id, async (error, recording) => {
-        if(error || recording == null) {
-          console.log("<ERROR> (meetings/remove_recording)> Finding Recording with ID:", recording_id)
+      Video.findById(video_id, async (error, video) => {
+        if(error || video == null) {
+          console.log("<ERROR> (meetings/remove_video)> Finding Video with ID:", video_id)
         } else {
-          // Delete the recording submissions
-          let recording_submission_promises = []
-          recording.recording_submissions.forEach(submission => {
+          // Delete the video submissions
+          let video_submission_promises = []
+          video.video_submissions.forEach(submission => {
             let submission_id = submission._id
-            recording_submission_promises.push(new Promise((resolve,reject) => {
-              AsyncSubmission.findByIdAndRemove(submission_id, (error) => {
+            video_submission_promises.push(new Promise((resolve,reject) => {
+              Submission.findByIdAndRemove(submission_id, (error) => {
                 if (error) {
-                  console.log("<ERROR (meetings/remove_recording)> deleting recording submission with ID:",
+                  console.log("<ERROR (meetings/remove_video)> deleting video submission with ID:",
                     submission_id, error)
                   reject(false)
                   res.json(error);
@@ -408,37 +319,37 @@ delete(async function (req, res) {
           })
 
           try {
-            await Promise.all(recording_submission_promises)
-            Recording.findByIdAndRemove(recording_id, (err) => {
+            await Promise.all(video_submission_promises)
+            Video.findByIdAndRemove(video_id, (err) => {
               if (err) {
-                console.log("<ERROR (meetings/remove_recording)> Deleting Recording with ID:",
-                  recording_id, err)
+                console.log("<ERROR (meetings/remove_video)> Deleting Video with ID:",
+                  video_id, err)
                 res.json(err);
               } else {
-                // Update the meeting's has_async attendance boolean if this was the last recording
-                if(async_attendance.recordings.length === 0) {
+                // Update the meeting's has_async attendance boolean if this was the last video
+                if(async_portion.videos.length === 0) {
                   Meeting.findByIdAndUpdate(meeting_id,
-                    {has_async_attendance: false},
+                    {has_async_portion: false},
                     (error, meeting) => {
                       if(error || meeting == null) {
-                        console.log("<ERROR (meetings/remove_recording)> updating meeting with id",
+                        console.log("<ERROR (meetings/remove_video)> updating meeting with id",
                           meeting_id, error)
                         res.json(error)
                       } else {
-                        console.log("<SUCCESS> (meetings/remove_recording) Deleting recording with ID:",
-                          recording_id, "and updating async_attendance and meeting")
-                        res.json('Successfully removed recording from meeting');
+                        console.log("<SUCCESS> (meetings/remove_video) Deleting video with ID:",
+                          video_id, "and updating async_portion and meeting")
+                        res.json('Successfully removed video from meeting');
                       }
                     })
                 } else {
-                  console.log("<SUCCESS> (meetings/remove_recording) Deleting recording with ID:",
-                    recording_id, "and updating async_attendance")
-                  res.json('Successfully removed recording from meeting');
+                  console.log("<SUCCESS> (meetings/remove_video) Deleting video with ID:",
+                    video_id, "and updating async_portion")
+                  res.json('Successfully removed video from meeting');
                 }
               }
             });
           } catch (error) {
-            console.log("<ERROR> (meetings/remove_recording) awaiting recording submission promise deletion:",error)
+            console.log("<ERROR> (meetings/remove_video) awaiting video submission promise deletion:",error)
             res.json(error)
           }
         }
@@ -538,19 +449,19 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
     res.status(500).json(error)
   }
 
-  let meeting_async_attendance = meeting.async_attendance
-  let recording_submission_promises = []
-  let recording_promises = []
+  let meeting_async_portion = meeting.async_portion
+  let video_submission_promises = []
+  let video_promises = []
   // Delete async attendance
-  if(meeting.has_async_attendance) {
-    meeting_async_attendance.recordings.forEach(recording => {
-      // Delete recording submissions
-      recording.recording_submissions.forEach(submission => {
+  if(meeting.has_async_portion) {
+    meeting_async_portion.videos.forEach(video => {
+      // Delete video submissions
+      video.video_submissions.forEach(submission => {
         let submission_id = submission._id
-        recording_submission_promises.push(new Promise((resolve,reject) => {
-          AsyncSubmission.findByIdAndRemove(submission_id, (error) => {
+        video_submission_promises.push(new Promise((resolve,reject) => {
+          Submission.findByIdAndRemove(submission_id, (error) => {
             if (error) {
-              console.log("<ERROR (meetings/delete)> deleting recording submission with ID:",
+              console.log("<ERROR (meetings/delete)> deleting video submission with ID:",
                 submission_id, error)
               reject(false)
               res.json(error);
@@ -560,12 +471,12 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
           })
         }))
       })
-      // Delete recording
-      let recording_id = recording._id
-      recording_promises.push(new Promise((resolve,reject) => {
-        Recording.findByIdAndRemove(recording_id, (err) => {
+      // Delete video
+      let video_id = video._id
+      video_promises.push(new Promise((resolve,reject) => {
+        Video.findByIdAndRemove(video_id, (err) => {
           if (err) {
-            console.log("<ERROR (meetings/delete)> Deleting QR checkin with ID:", recording_id)
+            console.log("<ERROR (meetings/delete)> Deleting QR checkin with ID:", video_id)
             reject(false)
             res.json(err);
           } else {
@@ -577,11 +488,11 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
   }
   // Delete async attendance
   try {
-    await Promise.all(recording_submission_promises)
-    await Promise.all(recording_promises)
-    AsyncAttendance.findByIdAndRemove(meeting_async_attendance._id, (err) => {
+    await Promise.all(video_submission_promises)
+    await Promise.all(video_promises)
+    AsyncPortion.findByIdAndRemove(meeting_async_portion._id, (err) => {
       if (err) {
-        console.log("<ERROR (meetings/delete)> deleting aysnc attendance with ID:", meeting_async_attendance._id)
+        console.log("<ERROR (meetings/delete)> deleting aysnc attendance with ID:", meeting_async_portion._id)
         res.json(err);
       }
     });
@@ -668,24 +579,24 @@ meetingRoutes.route('/delete/:meeting_id').delete(async function (req, res) {
   });
 });
 
-meetingRoutes.post('/add_async_attendance', async (req, res) => {
+meetingRoutes.post('/add_async_portion', async (req, res) => {
   Meeting.find(async (error, meetings) => {
     if(error || meetings == null) {
-      console.log("<ERROR> (meetings/add_async_attendance) Getting all meetings", errror)
+      console.log("<ERROR> (meetings/add_async_portion) Getting all meetings", error)
       res.json(error)
     } else {
       let meeting_promises = []
       meetings.forEach(meeting => {
-        if(meeting.async_attendance == null) {
+        if(meeting.async_portion == null) {
           meeting_promises.push(new Promise(async (resolve,reject) => {
-            let new_async_attendance = new AsyncAttendance()
+            let new_async_portion = new AsyncPortion()
             try {
-              let saved_async_attendance = await new_async_attendance.save()
-              meeting.async_attendance = saved_async_attendance
+              let saved_async_portion = await new_async_portion.save()
+              meeting.async_portion = saved_async_portion
               let saved_meeting = await meeting.save()
               resolve(saved_meeting)
             } catch (error) {
-              console.log("<ERROR> (meetings/add_async_attendance) saving async_attendance and meeting:",
+              console.log("<ERROR> (meetings/add_async_portion) saving async_portion and meeting:",
                 error)
               res.json(error)
               reject(error)
@@ -696,10 +607,10 @@ meetingRoutes.post('/add_async_attendance', async (req, res) => {
       // Attach live attendance to the meeting
       try{
         let saved_meetings = await Promise.all(meeting_promises)
-        console.log("<SUCCESS> (meetings/add_async_attendance) updating all meetings")
+        console.log("<SUCCESS> (meetings/add_async_portion) updating all meetings")
         res.json(saved_meetings)
       } catch(error) {
-        console.log("<ERROR> (meetings/add_async_attendance) updating all meetings:",error)
+        console.log("<ERROR> (meetings/add_async_portion) updating all meetings:",error)
         res.json(error)
       }
     }
@@ -771,7 +682,7 @@ async function addMeetingToObjects(object_ids, object_type, meeting_id) {
     let updated_objects = await Promise.all(update_promises)
     return updated_objects
   } catch(error) {
-    console.log("<ERROR> (meetings/add) in addMeetingToObjects for object_ids",
+    console.log("<ERROR> in addMeetingToObjects for object_ids",
      object_ids,"with object type",object_type,"and meeting_id",meeting_id,error)
     return null
   }
@@ -806,6 +717,36 @@ async function getInstructorFromCourse(course_id) {
       course_id, error)
     return null
   }
+}
+
+async function createQRScans(num_qr_scans) {
+  try {
+    let qr_scan_promises = []
+    for(let i = 0; i < num_qr_scans; i++) {
+      qr_scan_promises.push(new Promise(async (resolve, reject) => {
+        const random_code = generateRandomCode() 
+        const qr_scan = new QRScan({
+          code: random_code
+        })
+        const saved_qr_scan = await qr_scan.save()
+        resolve(saved_qr_scan)
+      }))
+    }
+    const saved_qr_scans = await Promise.all(qr_scan_promises)
+    return saved_qr_scans
+  } catch(error) {
+    console.log(`<ERROR> createQRScans num_qr_scans: ${num_qr_scans}`, error)
+    return null
+  }
+}
+
+function generateRandomCode() {
+  const alnums = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let result = "";
+  for (let i = 100; i > 0; --i) {
+    result += alnums[Math.floor(Math.random() * alnums.length)];
+  }
+  return result;
 }
 
 module.exports = meetingRoutes;

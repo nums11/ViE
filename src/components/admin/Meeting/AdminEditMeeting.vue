@@ -42,8 +42,8 @@
                   <input type="checkbox" class="form-control" v-model="meeting.has_real_time_portion" rows="5" disabled>
               </div>
               <div class="form-group">
-                <label>has_async_attendance</label>
-                  <input type="checkbox" class="form-control" v-model="meeting.has_async_attendance" rows="5" disabled>
+                <label>has_async_portion</label>
+                  <input type="checkbox" class="form-control" v-model="meeting.has_async_portion" rows="5" disabled>
               </div>
             </div>
           </div>
@@ -80,13 +80,13 @@
             <router-link :to="{name: 'admin_edit_qr_scan', params: { qr_scan_id: qr_scan._id }}" class="btn btn-primary">Edit</router-link>
           </div>
         </div>
-        <div class="attendance-container" v-if="meeting.async_attendance != null">
+        <div class="attendance-container" v-if="meeting.async_portion != null">
           <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">Async Attendance</h3>
-          <div v-for="recording in meeting.async_attendance.recordings">
-            <h4>Start Time: {{ new Date(recording.recording_submission_start_time) }}</h4>
-            <h4>End Time: {{ new Date(recording.recording_submission_end_time) }}</h4>
-            <router-link :to="{name: 'admin_edit_recording', params: { recording_id: recording._id }}" class="btn btn-primary">Edit</router-link>
-            <button class="btn btn-danger" @click.prevent="removeRecordingFromMeeting(recording._id)">Delete</button>
+          <div v-for="video in meeting.async_portion.videos">
+            <h4>Start Time: {{ new Date(video.video_submission_start_time) }}</h4>
+            <h4>End Time: {{ new Date(video.video_submission_end_time) }}</h4>
+            <router-link :to="{name: 'admin_edit_video', params: { video_id: video._id }}" class="btn btn-primary">Edit</router-link>
+            <button class="btn btn-danger" @click.prevent="removeVideoFromMeeting(video._id)">Delete</button>
           </div>
         </div>
       </div>
@@ -130,11 +130,11 @@
           this.$router.go()
         }
       },
-      async removeRecordingFromMeeting(recording_id) {
-        let confirmation = confirm("Are you sure you want to remove this recording?")
+      async removeVideoFromMeeting(video_id) {
+        let confirmation = confirm("Are you sure you want to remove this video?")
         if(confirmation){
-          await MeetingAPI.removeRecordingFromMeeting(this.meeting_id,
-            this.meeting.async_attendance._id, recording_id)
+          await MeetingAPI.removeVideoFromMeeting(this.meeting_id,
+            this.meeting.async_portion._id, video_id)
           this.$router.go()
         }
       }

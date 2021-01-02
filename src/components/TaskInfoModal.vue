@@ -16,7 +16,7 @@
             <div v-else class="button-area">
                 <sui-button v-if="!isActive()" disabled>Inactive</sui-button>
                 <sui-button v-else-if="isActive() && isPoll()" @click="focusThisTask" class="venue-blue">Answer the Poll</sui-button>
-                <sui-button v-else-if="isActive() && isRecording()" @click="focusThisTask" class="venue-green">Play Recording</sui-button>
+                <sui-button v-else-if="isActive() && isVideo()" @click="focusThisTask" class="venue-green">Play Video</sui-button>
                 <sui-button v-else-if="isActive() && isLink()" @click="focusThisTask" class="venue-blue">Access Link</sui-button>
                 <sui-button v-else-if="isActive() && isFileDownload()" @click="focusThisTask" class="venue-orange">Download</sui-button>
             </div>
@@ -50,8 +50,8 @@ export default {
         isPoll () {
             return this.taskInfo.taskType == 'poll'
         },
-        isRecording () {
-            return this.taskInfo.taskType == 'recording'
+        isVideo () {
+            return this.taskInfo.taskType == 'video'
         },
         isLink () {
             return this.taskInfo.taskType == 'link'

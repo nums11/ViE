@@ -4,7 +4,7 @@
       <div class="left-side">
         <div class="title-area">
           <h4 v-if="is_qr">QR Submission </h4>
-          <h4 v-else>Recording</h4>
+          <h4 v-else>Video</h4>
         </div>
         <div class="subtitle-area">{{ getTaskDateTime () }}</div>
       </div>
@@ -96,8 +96,8 @@ export default {
           start_ = new Date(this.task.qr_scan_start_time)
           end_ = new Date(this.task.qr_scan_end_time)
         } else {
-          start_ = new Date(this.task.recording_submission_start_time)
-          end_ = new Date(this.task.recording_submission_end_time)
+          start_ = new Date(this.task.video_submission_start_time)
+          end_ = new Date(this.task.video_submission_end_time)
         }
 
         return `${this.DAY_OF_WEEK[start_.getDay()]}. ${this.MONTHS[start_.getMonth()]} ${start_.getDate()}, ${this.getHourMinute(start_)}-${this.getHourMinute(end_)}`

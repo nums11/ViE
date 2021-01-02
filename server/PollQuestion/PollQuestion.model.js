@@ -5,7 +5,7 @@ let PollQuestion = new Schema({
 	question: String,
 	answer_choices: [String],
 	correct_answers: [String],
-	recording_timestamp: {
+	video_timestamp: {
 		type: Number,
 		default: 0
 	},

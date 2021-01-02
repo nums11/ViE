@@ -113,8 +113,8 @@ export default {
         window_start = new Date(task.qr_scan_start_time)
         window_end = new Date(task.qr_scan_end_time)
       } else {
-        window_start = new Date(task.recording_submission_start_time)
-        window_end = new Date(task.recording_submission_end_time)
+        window_start = new Date(task.video_submission_start_time)
+        window_end = new Date(task.video_submission_end_time)
       }
       let window_status = ""
       if(current_time > window_end)

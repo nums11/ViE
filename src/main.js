@@ -36,11 +36,13 @@ Vue.mixin({
   },
   methods: {
     getUserFromState() {
-      if(this.$store.state.user == null){
-        setTimeout(this.getUserFromState, 250)
-      } else {
-        this.state_user = this.$store.state.user.current_user
-        this.is_instructor = this.state_user.is_instructor
+      if(this.$store != null) {
+        if(this.$store.state.user == null){
+          setTimeout(this.getUserFromState, 250)
+        } else {
+          this.state_user = this.$store.state.user.current_user
+          this.is_instructor = this.state_user.is_instructor
+        }
       }
     }
   }

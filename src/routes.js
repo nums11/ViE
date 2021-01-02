@@ -13,7 +13,7 @@ import AdminSections from './components/admin/Section/AdminSections.vue';
 import AdminEditSection from './components/admin/Section/AdminEditSection.vue';
 import AdminNewSection from './components/admin/Section/AdminNewSection.vue';
 import AdminNewUser from './components/admin/User/AdminNewUser.vue';
-import AdminEditRecording from './components/admin/Recording/AdminEditRecording.vue';
+import AdminEditVideo from './components/admin/Video/AdminEditVideo.vue';
 import AdminEditQRScan from './components/admin/QRScan/AdminEditQRScan.vue';
 import OnboardUser from './views/OnboardUser.vue';
 import AdminEditMeeting from './components/admin/Meeting/AdminEditMeeting.vue';
@@ -32,10 +32,10 @@ import WebexTest from './views/WebexTest.vue';
 import MeetingInfo from './views/MeetingInfo.vue';
 import Settings from './views/Settings.vue';
 import RedirectCASLogin from './views/RedirectCASLogin.vue';
-import WatchRecording from './views/WatchRecording.vue';
+import WatchVideo from './views/WatchVideo.vue';
 import AttendChecker from './views/AttendChecker.vue';
 import LoginView from './views/LoginView.vue';
-import AddRecording from './views/AddRecording.vue';
+import AddVideo from './views/AddVideo.vue';
 import RegisterJoinCourse from './views/RegisterJoinCourse.vue'
 import InviteStudentRedirect from './views/InviteStudentRedirect.vue'
 import SuccessfulInviteRedirect from './views/SuccessfulInviteRedirect.vue'
@@ -164,9 +164,9 @@ const router = new VueRouter({
       }
     },
     {
-      name: 'admin_edit_recording',
-      path: '/admin/edit_recording/:recording_id',
-      component: AdminEditRecording,
+      name: 'admin_edit_video',
+      path: '/admin/edit_video/:video_id',
+      component: AdminEditVideo,
       meta: {
         requiresAuth: true,
         requiresAdmin: true
@@ -299,11 +299,11 @@ const router = new VueRouter({
       }
     },
     {
-      name: 'watch_recording',
-      path: '/watch_recording/:recording_id',
-      component: WatchRecording,
+      name: 'watch_video',
+      path: '/watch_video/:video_id',
+      component: WatchVideo,
       meta: {
-        title: "Venue - Watch Recording",
+        title: "Venue - Watch Video",
         requiresAuth: true,
       }
     },
@@ -362,9 +362,9 @@ const router = new VueRouter({
       }
     },
     {
-      name: 'add_recording',
-      path: '/add_recording/:meeting_id',
-      component: AddRecording,
+      name: 'add_video',
+      path: '/add_video/:meeting_id',
+      component: AddVideo,
       meta: {
         requiresAuth: true,
         requireAdmin: false

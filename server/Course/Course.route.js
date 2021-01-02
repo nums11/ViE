@@ -404,11 +404,11 @@ courseRoutes.route('/get/:id/:with_meetings').get(function (req, res) {
           }
         }, 
         {
-          path: 'async_attendance',
+          path: 'async_portion',
           populate: {
-            path: 'recordings',
+            path: 'videos',
             populate: {
-              path: 'recording_submissions',
+              path: 'video_submissions',
               populate: {
                 path: 'submitter'
               }

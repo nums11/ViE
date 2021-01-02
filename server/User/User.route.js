@@ -77,9 +77,9 @@ userRoutes.route('/get/:id/:with_meetings?').get(function (req, res) {
       }, {
         path: 'real_time_portion',
       }, {
-        path: 'async_attendance',
+        path: 'async_portion',
         populate: {
-          path: 'recordings'
+          path: 'videos'
         }
       }]
     }

@@ -1,14 +1,12 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-
-let Course = require('../Course/Course.model');
-let Section = require('../Section/Section.model');
-let Meeting = require('../Meeting/Meeting.model');
-let Submission = require('../Submission/Submission.model');
-let AsyncSubmission = require('../AsyncSubmission/AsyncSubmission.model');
+const Course = require('../Course/Course.model');
+const Section = require('../Section/Section.model');
+const Meeting = require('../Meeting/Meeting.model');
+const Submission = require('../Submission/Submission.model');
 
 //Define collection and schema for User
-let User = new Schema({
+const User = new Schema({
 	first_name: {
 		type: String,
 		required: true
@@ -43,10 +41,6 @@ let User = new Schema({
 	submissions: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Submission'
-	}],
-	async_submissions: [{
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'AsyncSubmission'
 	}],
 	connect_sid: {
 		type: String,

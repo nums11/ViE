@@ -1,16 +1,16 @@
 <template>
   <div>
-    <h2>Edit Recording</h2>
-    <div class="spinner-border" role="status" v-if="!recording_has_loaded">
+    <h2>Edit Video</h2>
+    <div class="spinner-border" role="status" v-if="!video_has_loaded">
       <span class="sr-only">Loading...</span>
     </div>
     <div v-else>
-      <form @submit.prevent="updateRecording">
+      <form @submit.prevent="updateVideo">
         <div class="row">
           <div class="col-md-6">
             <div class="form-group">
               <label>Video URL: </label>
-              <input type="text" class="form-control" v-model="recording.video_url" disabled>
+              <input type="text" class="form-control" v-model="video.video_url" disabled>
             </div>
           </div>
           </div>
@@ -19,13 +19,13 @@
               <div class="form-group">
                 <label>Start</label>
                 <input class="datetime-picker" placeholder="Select date & time"
-                id="recording-submission-start"
-                v-model="recording.recording_submission_start_time"
+                id="video-submission-start"
+                v-model="video.video_submission_start_time"
                 type="datetime-local"/>
                 <label>End</label>
                 <input class="datetime-picker" placeholder="Select date & time"
-                id="recording-submission-start"
-                v-model="recording.recording_submission_end_time"
+                id="video-submission-start"
+                v-model="video.video_submission_end_time"
                 type="datetime-local"/>
               </div>
             </div>
@@ -37,8 +37,8 @@
 
       <div class="container">
         <div class="attendance-container">
-          <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">Recording Submissions</h3>
-          <div v-for="submission in recording.recording_submissions">
+          <h3 style="text-decoration:underline; margin-top:2rem; font-weight:bold;">Video Submissions</h3>
+          <div v-for="submission in video.video_submissions">
             <h4>First Name: {{ submission.submitter.first_name }}</h4>
             <h4>Last Name: {{ submission.submitter.last_name }}</h4>
             <h4>User ID: {{ submission.submitter.user_id }}</h4>
@@ -52,37 +52,37 @@
 </template>
 
 <script>
-  import RecordingAPI from '@/services/RecordingAPI.js';
+  import VideoAPI from '@/services/VideoAPI.js';
 
   export default {
-    name: 'AdminEditRecording',
+    name: 'AdminEditVideo',
     components: {
     },
     data() {
       return {
-        recording: {},
-        recording_has_loaded: false,
+        video: {},
+        video_has_loaded: false,
       }
     },
     created() {
-      this.recording_id = this.$route.params.recording_id
-      this.getRecording()
+      this.video_id = this.$route.params.video_id
+      this.getVideo()
     },
     methods: {
-      async getRecording() {
-        const response = await RecordingAPI.getRecording(this.recording_id)
-        this.recording = response.data
-        console.log("Got recording", this.recording)
-        this.recording_has_loaded = true
+      async getVideo() {
+        const response = await VideoAPI.getVideo(this.video_id)
+        this.video = response.data
+        console.log("Got video", this.video)
+        this.video_has_loaded = true
       },
-      async updateRecording() {
-        let confirmation = confirm("Are you sure you want to update this recording?")
+      async updateVideo() {
+        let confirmation = confirm("Are you sure you want to update this video?")
         if(confirmation){
-          let updated_recording = {
-            recording_submission_start_time: new Date(this.recording.recording_submission_start_time),
-            recording_submission_end_time: new Date(this.recording.recording_submission_end_time),
+          let updated_video = {
+            video_submission_start_time: new Date(this.video.video_submission_start_time),
+            video_submission_end_time: new Date(this.video.video_submission_end_time),
           }
-          const response = await RecordingAPI.updateRecording(this.recording_id, updated_recording)
+          const response = await VideoAPI.updateVideo(this.video_id, updated_video)
           this.$router.go()
         }
       },

@@ -59,7 +59,7 @@ import moment from 'moment'
 import 'flatpickr/dist/themes/material_blue.css';
 
 export default {
-  name: 'AddRecording',
+  name: 'AddVideo',
   components: {
     Button2,
     UploadSuccessAnimation,

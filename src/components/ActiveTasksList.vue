@@ -5,11 +5,11 @@
     <h3 v-else class="inline-block active-tasks-header lighter">No Active Tasks</h3>
     <div class="inline-block active-task-container" v-for="task in active_tasks"
     :key="task._id">
-      <!-- Recording Button -->
+      <!-- Video Button -->
       <router-link v-if="task.qr_scan_start_time == null"
-      :to="{name: 'watch_recording', params: {recording_id: task._id}}"
+      :to="{name: 'watch_video', params: {video_id: task._id}}"
       @click="$emit('show-fullscreen-code',task.code)">
-        <sui-button content="Watch Recording" icon="play circle"
+        <sui-button content="Watch Video" icon="play circle"
         label-position="right" color="violet" />
       </router-link>
       <!-- QR Button -->

@@ -5,21 +5,21 @@
       <div v-if="is_priveleged_user && !is_qr" class="hover-content">
         <div class="hover-background"></div>
         <div class="task-buttons-container">
-<!--           <sui-button @click="$emit('show-edit-recording-modal',task)"
+<!--           <sui-button @click="$emit('show-edit-video-modal',task)"
           class="venue-blue task-edit-btn" content="Edit" /> -->
-          <sui-button class="task-edit-btn" @click="removeRecording" color="red" content="Delete" />
+          <sui-button class="task-edit-btn" @click="removeVideo" color="red" content="Delete" />
         </div>
       </div>
       <div class="left-side">
           <div class="title-area">
             <h4 v-if="is_qr">QR Submission</h4>
-            <h4 v-else>Recording</h4>
+            <h4 v-else>Video</h4>
           </div>
           <div v-if="is_qr" class="subtitle-area">
             {{ new Date(task.qr_scan_start_time) | moment("dddd, MMMM Do, h:mm a") }} - {{ new Date(task.qr_scan_end_time) | moment("dddd, MMMM Do, h:mm a") }}
           </div>
           <div v-else class="subtitle-area">
-            {{ new Date(task.recording_submission_start_time) | moment("dddd, MMMM Do, h:mm a") }} - {{ new Date(task.recording_submission_end_time) | moment("dddd, MMMM Do, h:mm a") }}
+            {{ new Date(task.video_submission_start_time) | moment("dddd, MMMM Do, h:mm a") }} - {{ new Date(task.video_submission_end_time) | moment("dddd, MMMM Do, h:mm a") }}
           </div>
       </div>
       <div class="right-side">
@@ -42,8 +42,8 @@
         content="Show QR Code" icon="qrcode" label-position="right" color="teal" />
         <router-link
         v-else-if="!is_qr"
-        :to="{name: 'watch_recording', params: {recording_id: task._id}}">
-          <sui-button content="Watch Recording" icon="play circle"
+        :to="{name: 'watch_video', params: {video_id: task._id}}">
+          <sui-button content="Watch Video" icon="play circle"
           label-position="right" color="violet" />
         </router-link>
       </div>
@@ -66,13 +66,13 @@
           </div>
         </div>
         <router-link v-else-if="task_window_status !== 'upcoming'"
-        :to="{name: 'watch_recording', params: {recording_id: task._id}}">
-          <sui-button content="Watch Recording" icon="play circle"
+        :to="{name: 'watch_video', params: {video_id: task._id}}">
+          <sui-button content="Watch Video" icon="play circle"
           label-position="right" color="violet" />
         </router-link>
       </div>
       <div class="right-side">
-        <!-- TODO: If student submitted to QR show QR submission time. If student began recording show
+        <!-- TODO: If student submitted to QR show QR submission time. If student began video show
         watch percentage -->
         <span class="float-right" v-if="is_qr && studentSubmittedToTask(task)">
           Submitted on {{ new Date(student_task_submission.submission_time) | moment("dddd, MMMM Do YYYY, h:mm a") }}
@@ -137,7 +137,7 @@ export default {
   methods: {
     studentSubmittedToTask(task) {
       let submissions = this.is_qr ? task.submissions
-      : task.recording_submissions
+      : task.video_submissions
       let student_has_submitted = false
       for(let i = 0; i < submissions.length; i++) {
         if(submissions[i].submitter.user_id === this.current_user.user_id){
@@ -161,7 +161,7 @@ export default {
     getSubmissionIds() {
       let task_submissions = this.is_qr ? 
       this.task.submissions :
-      this.task.recording_submissions
+      this.task.video_submissions
       let submission_ids = new Set()
       task_submissions.forEach(submission => {
         submission_ids.add(submission.submitter.user_id)
@@ -176,8 +176,8 @@ export default {
         window_start = new Date(task.qr_scan_start_time)
         window_end = new Date(task.qr_scan_end_time)
       } else {
-        window_start = new Date(task.recording_submission_start_time)
-        window_end = new Date(task.recording_submission_end_time)
+        window_start = new Date(task.video_submission_start_time)
+        window_end = new Date(task.video_submission_end_time)
       }
       let window_status = ""
       if(current_time > window_end)
@@ -192,10 +192,10 @@ export default {
       this.is_priveleged_user = (this.for_course && this.is_instructor) ||
       (!this.for_course && this.is_board_member)
     },
-    removeRecording() {
-      let confirmation = confirm("Are you sure you want to remove this recording?")
+    removeVideo() {
+      let confirmation = confirm("Are you sure you want to remove this video?")
       if(confirmation)
-        this.$emit('remove-recording',this.task._id)
+        this.$emit('remove-video',this.task._id)
     }
   }
 }
