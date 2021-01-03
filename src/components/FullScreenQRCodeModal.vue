@@ -33,9 +33,11 @@
 import ProgressBar from '@/components/ProgressBar.vue'
 import QRCode from '@chenfengyuan/vue-qrcode';
 import io from 'socket.io-client';
+import helpers from '@/helpers.js'
 
 export default {
   name: 'FullScreenQRCodeModal',
+  mixins: [helpers],
   components: {
     QRCode,
     ProgressBar
@@ -50,39 +52,38 @@ export default {
       required: true
     }
   },
-  data () {
+  data() {
     return {
       submissions: new Set()
     }
   },
-  created () {
+  created() {
     this.getExistingSubmissions()
-    this.startRealTimeQRScanUpdate ()
+    this.startRealTimeQRScan()
     this.students = []
   },
+  beforeDestroy() {
+    this.endRealTimeQRScan()
+  },
   methods: {
-    getExistingSubmissions () {
+    getExistingSubmissions() {
       this.qr_scan.submissions.forEach(submission => {
         this.addStudentSubmission(submission.user_id)
       })
     },
-    startRealTimeQRScanUpdate () {
-      let url = ""
-      if(process.env.NODE_ENV === "production") {
-        url = "https://byakugan.herokuapp.com/"
-      } else {
-        url = "http://localhost:4000/"
-      }
-      let client_io = io (url, {forceNew: true})
-      console.log("IO instance", client_io)
-      client_io.emit('startRealTimeQRScanUpdate',
-        this.qr_scan._id)
-      client_io.on('addStudentSubmission', (user_id) => {
+    startRealTimeQRScan() {
+      const url = this.getBaseURL()
+      this.client_io = io (url, {forceNew: true})
+      this.client_io.emit('startRealTimeQRScan', this.qr_scan._id)
+      this.client_io.on('addStudentSubmission', (user_id) => {
         console.log("Adding student submission", user_id)
         this.addStudentSubmission(user_id)
       })
     },
-    getUrlEncoded () {
+    endRealTimeQRScan() {
+      this.client_io.emit('endRealTimeQRScan', this.qr_scan._id)
+    },
+    getUrlEncoded() {
       let url = ""
       if(process.env.NODE_ENV === "production") {
         url = "https://venue-attend.herokuapp.com/"

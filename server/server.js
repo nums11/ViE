@@ -83,11 +83,16 @@ function start() {
       let real_time_qr_scan_ids = new Map()
       io = require('socket.io')(server);
       io.on('connection', (socket) => {
-        socket.on('startRealTimeQRScanUpdate', (qr_scan_id) => {
-          console.log("Starting real-time attendance update for qr scan",
-            qr_scan_id)
+        socket.on('startRealTimeQRScan', (qr_scan_id) => {
+          console.log(`Starting real-time qr scan for id ${qr_scan_id}`)
           real_time_qr_scan_ids.set(qr_scan_id, socket.id)
         })
+
+        socket.on('endRealTimeQRScan', (qr_scan_id) => {
+          console.log(`Ending real-time qr scan for id ${qr_scan_id}`)
+          real_time_qr_scan_ids.delete(qr_scan_id)
+        })
+
         socket.on('attemptQRScanSubmission', async (qr_scan_id, user_id,
           user_object_id, cb) => {
           console.log(`received submitToQRScan event for qr_scan_id ${qr_scan_id}`
