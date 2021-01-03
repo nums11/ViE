@@ -64,7 +64,8 @@ userRoutes.get('/', (req, res) => {
   })
 })
 
-userRoutes.route('/get/:id/:with_meetings?').get(function (req, res) {
+userRoutes.route('/get/:id/:with_meetings?').get(
+  function(req, res, next) {
   let meeting_population = null
   if(req.params.with_meetings === "true"){
     meeting_population = {
@@ -104,9 +105,12 @@ userRoutes.route('/get/:id/:with_meetings?').get(function (req, res) {
     }
   }).
   exec((error,user) => {
-    if(error || user == null){
-      console.log("<ERROR> (users/get) Getting user with ID:",id,error)
-      res.status(404).json(error);
+    if(error){
+      console.log(`<ERROR> (users/get) Getting user with ID ${id}`)
+      next(error)
+    } else if(user == null) {
+      console.log(`<ERROR> (users/get) could not find user with id ${id}`)
+      res.status(404).send(`User with id ${id} not found`)
     } else {
       console.log("<SUCCESS> (users/get) Getting user by ID:",id)
       res.json(user);
