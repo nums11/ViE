@@ -372,7 +372,7 @@ const router = new VueRouter({
     },
     {
       name: 'attend_checker',
-      path: '/attend/:meeting_id/:code',
+      path: '/attend/:meeting_id/:qr_scan_id/:code',
       component: AttendChecker,
     },
     {

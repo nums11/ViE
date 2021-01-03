@@ -11,8 +11,9 @@ const LOCAL_PORT = 4000;
 const passport = require('passport')
 const session = require('express-session')
 var cookieParser = require('cookie-parser');
-const RealTimeAttendanceQueue = require('./socket/RealTimeAttendanceQueue')
 const NotificationJob = require('./Notification/NotificationJob.model');
+const Submission = require('./Submission/Submission.model');
+const QRScan = require('./QRScan/QRScan.model');
 const schedule = require('node-schedule');
 const nodemailer = require("nodemailer");
 
@@ -26,8 +27,6 @@ throng({
 }, start);
 
 function start() {
-
-  let attendanceSocketQueue = new RealTimeAttendanceQueue ()
 
   function jwtVerify(req,res,next) {
     const bearerHeader = req.headers['authorization']
@@ -65,7 +64,6 @@ function start() {
   const videoRouter = require('./Video/Video.route')
   const qrScanRouter = require('./QRScan/QRScan.route')
   const notificationRouter = require('./Notification/Notification.route')
-  const AttendanceFinder = require('./socket/AttendanceFinder')
 
   let io;
 
@@ -81,31 +79,40 @@ function start() {
       server.headersTimeout = 0;
       var port = server.address().port;
       console.log("App is now running on port", port);
+      // Map between qr_scan ids and the instructor socket ids
+      let real_time_qr_scan_ids = new Map()
       io = require('socket.io')(server);
       io.on('connection', (socket) => {
         socket.on('startRealTimeQRScanUpdate', (qr_scan_id) => {
           console.log("Starting real-time attendance update for qr scan",
             qr_scan_id)
+          real_time_qr_scan_ids.set(qr_scan_id, socket.id)
         })
-        // socket.on('disconnect', () => {
-        //     attendanceSocketQueue.removeFromQueue(socket.id)
-        // });
-
-          // Handle attendance real time updates through websocket
-          // socket.on('start attendance update', (task_info) => {
-          //   console.log(`Attendance update initialized`)
-
-          //   console.log(attendanceSocketQueue.getQueue())
-          //   if (attendanceSocketQueue.addToQueue(socket.id, task_info.task_id)) {
-          //     console.log(`<SOCKETIO/start attendance update> Successfully added socket ${socket.id} to queue.`)
-          //     console.log(attendanceSocketQueue.getQueue())
-          //   }
-          //   else {
-          //     console.log(`<SOCKETIO/start attendance update> Problem occurred while adding socket to queue.`)
-          //   }
-          // })
+        socket.on('attemptQRScanSubmission', async (qr_scan_id, user_id,
+          user_object_id, cb) => {
+          console.log(`received submitToQRScan event for qr_scan_id ${qr_scan_id}`
+            + ` user_id ${user_id}`)
+          const instructor_socket_id = real_time_qr_scan_ids.get(qr_scan_id)
+          if(instructor_socket_id == null)
+            cb(false, null)
+          else {
+            const submission = {
+              submitter: user_object_id,
+              task_type:"QRScan"
+            }
+            const updated_qr_scan = await createSubmission(qr_scan_id, submission)
+            if(updated_qr_scan == null) {
+              cb(true, false)
+            } else {
+              cb(true, true)
+              io.to(instructor_socket_id).emit('addStudentSubmission',
+                user_id)
+            }
+          }
+        })
       })
-      // Forces a page refresh for all users so they can be on the updated version of the app
+      // Forces a page refresh for all users so they can
+      // be on the updated version of the app
       if (process.env.NODE_ENV === 'production'){
         setTimeout(function() {
           console.log("Emitting server update")
@@ -141,14 +148,6 @@ function start() {
 
   app.use(passport.initialize());
   app.use(passport.session());
-
-  // middleware for attendance tracker
-  app.use((req, res, next) => {
-    req.socketQueue = attendanceSocketQueue
-    req.socketIO = io
-    next()
-  })
-
   app.use('/users', jwtVerify, userRouter);
   app.use('/courses', jwtVerify, courseRouter);
   app.use('/sections', jwtVerify, sectionRouter);
@@ -211,3 +210,31 @@ function rescheduleAllNotificationJobs() {
     }
   })
 }
+
+async function createSubmission(qr_scan_id, submission) {
+  try {
+    const new_submission = new Submission(submission)
+    const saved_submission = await new_submission.save()
+    const update_promise = new Promise((resolve, reject) => {
+      QRScan.findByIdAndUpdate(qr_scan_id,
+        {$push: {submissions: saved_submission}},
+        {new: true},
+        async (error, qr_scan) => {
+          if(error || qr_scan == null) {
+            console.log("<ERROR> (createSubmission) updating qr_scan by id",
+              qr_scan_id, "with submission", submission, error)
+            reject(error)
+          } else {
+            resolve(qr_scan)
+          }
+        }
+      )
+    })
+    const updated_qr_scan = await Promise.resolve(update_promise)
+    return updated_qr_scan
+  } catch(error) {
+    console.log(`<ERROR> (createSubmission) qr_scan_id: ${qr_scan_id}`
+      + ` submission`, submission, error)
+    return null
+  }
+} 

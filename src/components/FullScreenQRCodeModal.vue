@@ -13,9 +13,12 @@
             />
           </div>
           <div class="progress-bar-area">
-            <div class="title-area">{{submissions.size}}/10 submissions</div>
-            <ProgressBar :value="submissions.size/10" />
-            <!-- <p>Refresh the page when done to see your attendance.</p> -->
+            <div class="title-area">
+              {{ submissions.size }}/{{ student_ids.size }} submissions
+            </div>
+            <ProgressBar
+            :value="student_ids.length === 0 ? 0 :
+            submissions.size / student_ids.size" />
           </div>
         </div>
         <div class="bottom-controls">
@@ -41,8 +44,11 @@ export default {
     qr_scan: {
       type: Object,
       required: true
+    },
+    student_ids: {
+      type: Set,
+      required: true
     }
-    // students: Array
   },
   data () {
     return {
@@ -57,11 +63,10 @@ export default {
   methods: {
     getExistingSubmissions () {
       this.qr_scan.submissions.forEach(submission => {
-        this.submissions.add(submission._id)
+        this.addStudentSubmission(submission.user_id)
       })
     },
     startRealTimeQRScanUpdate () {
-      console.log(`initializing socket`)
       let url = ""
       if(process.env.NODE_ENV === "production") {
         url = "https://byakugan.herokuapp.com/"
@@ -69,19 +74,14 @@ export default {
         url = "http://localhost:4000/"
       }
       let client_io = io (url, {forceNew: true})
+      console.log("IO instance", client_io)
       client_io.emit('startRealTimeQRScanUpdate',
         this.qr_scan._id)
-      // client_io.on('attendance update', (data) => {
-      //     console.log(`SOCKET UPDATED`)
-      //     console.log(data)
-      //     // the data should be an array of User objects
-      //     data.data.forEach(user => {
-      //         this.submissions.add(user._id)
-      //     })
-      //     this.$forceUpdate ()
-      // })
+      client_io.on('addStudentSubmission', (user_id) => {
+        console.log("Adding student submission", user_id)
+        this.addStudentSubmission(user_id)
+      })
     },
-    
     getUrlEncoded () {
       let url = ""
       if(process.env.NODE_ENV === "production") {
@@ -89,8 +89,12 @@ export default {
       } else {
         url = "http://localhost:8080/"
       }
-      return `${url}#/attend/${this.$route.params.meeting_id}/${this.code}`
+      return `${url}#/attend/${this.$route.params.meeting_id}/`
+        + `${this.qr_scan._id}/${this.qr_scan.code}`
     },
+    addStudentSubmission(user_id) {
+      this.submissions.add(user_id)
+    }
   }
 }
 </script>

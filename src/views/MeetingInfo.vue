@@ -5,7 +5,8 @@
     v-on:attempt-submission="attemptQRScanSubmission"/>
     <FullScreenQRCodeModal v-if="show_qr_code_modal"
       v-on:hide-modal="hideFullScreenQRCodeModal"
-      v-bind:qr_scan="full_screen_qr_scan" 
+      :qr_scan="full_screen_qr_scan"
+      :student_ids="meeting_student_ids"
     />
 
     <div v-if="!meeting_has_loaded">Loading...</div>
@@ -88,6 +89,7 @@ export default {
     return {
       meeting: {},
       meeting_course: {},
+      meeting_student_ids: [],
       meeting_has_loaded: false,
       real_time_portion_status: null,
       show_qr_code_modal: false,
@@ -111,6 +113,7 @@ export default {
         this.meeting = response.data
         console.log("Meeting", this.meeting)
         this.meeting_course = this.meeting.sections[0].course
+        this.meeting_student_ids = this.getMeetingStudentIDs(this.meeting)
         this.meeting_has_loaded = true
       } catch(error) {
         console.log(error)

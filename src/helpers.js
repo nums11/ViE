@@ -36,5 +36,22 @@ export default {
 		  }
 		  return student_has_submitted
 		},
+		getMeetingStudentIDs(meeting) {
+			let meeting_student_ids = new Set()
+			for(let i = 0; i < meeting.sections.length; i++) {
+				const section_students = meeting.sections[i].students
+				for(let j = 0; j < section_students.length; j++) {
+					meeting_student_ids.add(section_students[j].user_id)
+				}
+			}
+			return meeting_student_ids
+		},
+		getBaseURL() {
+			if(process.env.NODE_ENV === "production") {
+			  return "https://byakugan.herokuapp.com/"
+			} else {
+			  return "http://localhost:4000/"
+			}
+		}
 	}
 }

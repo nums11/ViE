@@ -166,7 +166,7 @@ meetingRoutes.route('/all').get(function (req, res) {
   });
 });
 
-meetingRoutes.route('/get/:id').get(function (req, res) {
+meetingRoutes.route('/get/:id').get(function (req, res, next) {
   let id = req.params.id;
   Meeting.findById(id).
   populate({
@@ -207,9 +207,12 @@ meetingRoutes.route('/get/:id').get(function (req, res) {
     }]
   }).
   exec((error,meeting) => {
-    if(error || meeting == null){
-      console.log("<ERROR> (meetings/get) Getting meeting with ID:",id,error)
-      res.json(error);
+    if(error){
+      next(error);
+    } else if(meeting == null) {
+      console.log("<ERROR> (meetings/get) Getting meeting by ID", id,
+        "meeting not found")
+      res.status(404).send(`Meeting with id ${id} not found`)
     } else {
       console.log("<SUCCESS> (meetings/get) Getting meeting by ID:",id)
       res.json(meeting);
