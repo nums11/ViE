@@ -13,7 +13,7 @@ const db = "mongodb://localhost:27017/Venue2v2";
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-seeder.connect(process.env.MONGODB_URI || db, function () {
+seeder.connect(process.env.DB_URI || db, function () {
 	seeder.loadModels([
 		"./Course/Course.model",
 		"./User/User.model",
