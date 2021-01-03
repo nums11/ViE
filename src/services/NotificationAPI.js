@@ -1,11 +1,11 @@
 import API from '@/services/API'
 
 export default {
-  scheduleShowQRNotificationForInstructors(primary_instructor_id,
-    secondary_instructor_id, meeting_id, qr_scan_start_time) {
+  scheduleShowQRNotificationsForInstructors(primary_instructor_id,
+    secondary_instructor_id, meeting_id, scheduled_qr_times) {
   	return API().post(`notifications/schedule_show_qr/${primary_instructor_id}` +
       `/${secondary_instructor_id}/${meeting_id}`, {
-      	qr_scan_start_time: qr_scan_start_time
+      	scheduled_qr_times: scheduled_qr_times
       })
   },
   getNotificationJobs() {

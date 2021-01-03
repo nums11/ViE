@@ -24,8 +24,8 @@ export default {
   created () {
   },
   methods: {
-    attemptSubmission(code){
-      this.$emit('attempt-submission',code)
+    attemptSubmission(url){
+      this.$emit('attempt-submission',url)
     }
   }
 }

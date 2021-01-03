@@ -40,7 +40,7 @@ NotificationJob.methods.sendScheduledShowQRNotificationsToInstructors =
 	  `https://venue-attend.herokuapp.com/#/meeting_info/${this.meeting_id}` :
 	  `http://localhost:8080/#/meeting_info/${this.meeting_id}`
 	  const payload = JSON.stringify({
-	    title: "Venue - It's time to show your QR Code!",
+	    title: "ViE - It's time to show your QR Code!",
 	    redirect_url: redirect_url
 	  });
 	  const route = "notifications/schedule_show_qr"

@@ -13,8 +13,8 @@
             />
           </div>
           <div class="progress-bar-area">
-            <div class="title-area">{{attended.size}}/{{students.length}} Attended</div>
-            <ProgressBar :value="attended.size/students.length" />
+            <div class="title-area">{{submissions.size}}/10 submissions</div>
+            <ProgressBar :value="submissions.size/10" />
             <!-- <p>Refresh the page when done to see your attendance.</p> -->
           </div>
         </div>
@@ -38,51 +38,48 @@ export default {
     ProgressBar
   },
   props: {
-    code: {
-      type: String,
+    qr_scan: {
+      type: Object,
       required: true
-    },
-    task: Object,
+    }
     // students: Array
   },
   data () {
     return {
-      attended: new Set()
+      submissions: new Set()
     }
   },
   created () {
-    // this.getInitialAttended ()
-    // this.initializeAttendanceRealTimeUpdate ()
+    this.getExistingSubmissions()
+    this.startRealTimeQRScanUpdate ()
     this.students = []
   },
   methods: {
-    getInitialAttended () {
-      this.task.submissions.forEach(submission_ => {
-        this.attended.add(submission_._id)
+    getExistingSubmissions () {
+      this.qr_scan.submissions.forEach(submission => {
+        this.submissions.add(submission._id)
       })
     },
-    initializeAttendanceRealTimeUpdate () {
+    startRealTimeQRScanUpdate () {
       console.log(`initializing socket`)
       let url = ""
       if(process.env.NODE_ENV === "production") {
-        url = "https://venue-attend.herokuapp.com/"
+        url = "https://byakugan.herokuapp.com/"
       } else {
         url = "http://localhost:4000/"
       }
       let client_io = io (url, {forceNew: true})
-      client_io.emit('start attendance update', {
-          task_id: this.task._id,
-          type: this.is_qr ? 'qr-code': 'unhandled type',
-      })
-      client_io.on('attendance update', (data) => {
-          console.log(`SOCKET UPDATED`)
-          console.log(data)
-          // the data should be an array of User objects
-          data.data.forEach(user => {
-              this.attended.add(user._id)
-          })
-          this.$forceUpdate ()
-      })
+      client_io.emit('startRealTimeQRScanUpdate',
+        this.qr_scan._id)
+      // client_io.on('attendance update', (data) => {
+      //     console.log(`SOCKET UPDATED`)
+      //     console.log(data)
+      //     // the data should be an array of User objects
+      //     data.data.forEach(user => {
+      //         this.submissions.add(user._id)
+      //     })
+      //     this.$forceUpdate ()
+      // })
     },
     
     getUrlEncoded () {

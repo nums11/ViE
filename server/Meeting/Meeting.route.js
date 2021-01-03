@@ -1,22 +1,22 @@
 const express = require('express');
 const meetingRoutes = express.Router();
 
-let Meeting = require('./Meeting.model');
-let RealTimePortion = require('../RealTimePortion/RealTimePortion.model');
-let AsyncPortion = require('../AsyncPortion/AsyncPortion.model');
-let Submission = require('../Submission/Submission.model');
-let QRScan = require('../QRScan/QRScan.model');
-let Video = require('../Video/Video.model');
-let Course = require('../Course/Course.model');
-// let Poll = require('../Poll/Poll.model');
-let User = require('../User/User.model');
-let Section = require('../Section/Section.model');
+const Meeting = require('./Meeting.model');
+const RealTimePortion = require('../RealTimePortion/RealTimePortion.model');
+const AsyncPortion = require('../AsyncPortion/AsyncPortion.model');
+const Submission = require('../Submission/Submission.model');
+const QRScan = require('../QRScan/QRScan.model');
+const Video = require('../Video/Video.model');
+const Course = require('../Course/Course.model');
+// const Poll = require('../Poll/Poll.model');
+const User = require('../User/User.model');
+const Section = require('../Section/Section.model');
 const NotificationJob = require('../Notification/NotificationJob.model');
 const {Storage} = require("@google-cloud/storage")
 const path = require('path');
 // var multer = require("multer")
 // var upload = multer({ storage: multer.memoryStorage() })
-var multiparty = require('multiparty')
+const multiparty = require('multiparty')
 
 // GCS Specific
 
@@ -705,7 +705,6 @@ async function getInstructorFromCourse(course_id) {
             course_id, error)
             reject(course)
         } else {
-          console.log("Returning")
           resolve(course.instructor)
         }
       })

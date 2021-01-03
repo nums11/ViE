@@ -17,7 +17,7 @@
           Section {{ section.section_number }}
         </div>
       </div>
-      <label>Add real-time portion</label>
+      <label>Add real-time tasks</label>
       <input v-model="show_real_time_inputs" type="checkbox" />
       <div v-if="show_real_time_inputs" class="mt-2">
         <label>START TIME</label>
@@ -25,9 +25,18 @@
         <label>End TIME</label>
         <input type="datetime-local" v-model="real_time_portion.real_time_end" />
         <div class="mt-2">
-          <button @click.prevent="addScan">Add QR Scan</button>
-          <button @click.prevent="removeScan">Remove QR Scan</button>
-          <p>Num QR SCans {{ num_qr_scans }}</p>
+          <label>Scheduled Time</label>
+          <input v-model="qr_scan.scheduled_time" type="datetime-local">
+          <button @click.prevent="addQRScan">Add QR Scan</button>
+        </div>
+        <div v-for="(qr_scan, index) in qr_scans" :key="index"
+        class="mt-2 qr-scan-container">
+          QR Scan {{ index }} 
+          <span v-if="qr_scan.scheduled_time != null">
+            Scheduled for {{ new Date(qr_scan.scheduled_time) }}
+          </span>
+          <span v-else>No Scheduled Time</span>
+          <button @click.prevent="removeQRScan(index)">Remove</button>
         </div>
       </div>
       <div class="mt-2">
@@ -40,6 +49,7 @@
 <script>
 import CourseAPI from '@/services/CourseAPI'
 import MeetingAPI from '@/services/MeetingAPI'
+import NotificationAPI from '@/services/NotificationAPI'
 import VueLottiePlayer from 'vue-lottie-player'
 
 export default {
@@ -57,7 +67,8 @@ export default {
       },
       course: {},
       show_real_time_inputs: false,
-      num_qr_scans: 0,
+      qr_scan: {},
+      qr_scans: [],
       creating_meeting: false
     }
   },
@@ -110,26 +121,52 @@ export default {
       this.sections.splice(index, 1);
       section_container.classList.remove("selected-section")
     },
-    addScan() {
-      this.num_qr_scans++
+    addQRScan() {
+      this.qr_scans.push(this.qr_scan)
+      this.qr_scan = {}
     },
-    removeScan() {
-      if(this.num_qr_scans > 0)
-        this.num_qr_scans--
+    removeQRScan(index) {
+      this.qr_scans.splice(index, 1)
     },
     async createMeeting() {
       this.creating_meeting = true
       try {
-        const response = await MeetingAPI.addMeeting(this.title, this.real_time_portion,
-          this.num_qr_scans, null, this.sections)
+        const response = await MeetingAPI.addMeeting(this.title,
+          this.real_time_portion, this.qr_scans.length, null,
+          this.sections)
         const saved_meeting = response.data
+        const scheduled_qr_times = this.getScheduledQRTimes()
+        if(scheduled_qr_times.length > 0){
+          await this.scheduleShowQRNotificationsForInstructors(
+            saved_meeting._id, scheduled_qr_times)
+        }
         this.$router.push({name: 'meeting_info', params: {meeting_id:
           saved_meeting._id}})        
       } catch(error) {
         console.log(error)
         alert("Sorry, something went wrong creating your meeting")
       }
-    }
+    },
+    getScheduledQRTimes() {
+      let scheduled_qr_times = []
+      this.qr_scans.forEach(qr_scan => {
+        const scheduled_time = qr_scan.scheduled_time
+        if(scheduled_time != null)
+          scheduled_qr_times.push(scheduled_time)
+      })
+      return scheduled_qr_times
+    },
+    async scheduleShowQRNotificationsForInstructors(meeting_id,
+      scheduled_qr_times) {
+      try {
+        await NotificationAPI.scheduleShowQRNotificationsForInstructors(
+          this.course.instructor._id, null, meeting_id,
+          scheduled_qr_times)
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong scheduling your notifications")
+      }
+    },
   }
 }
 </script>
@@ -171,5 +208,9 @@ export default {
 
 .mt-2 {
   margin-top: 2rem;
+}
+
+.qr-scan-container {
+  border: black solid;
 }
 </style>

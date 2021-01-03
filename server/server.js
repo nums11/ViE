@@ -83,24 +83,28 @@ function start() {
       console.log("App is now running on port", port);
       io = require('socket.io')(server);
       io.on('connection', (socket) => {
-          socket.on('disconnect', () => {
-              attendanceSocketQueue.removeFromQueue(socket.id)
-          });
+        socket.on('startRealTimeQRScanUpdate', (qr_scan_id) => {
+          console.log("Starting real-time attendance update for qr scan",
+            qr_scan_id)
+        })
+        // socket.on('disconnect', () => {
+        //     attendanceSocketQueue.removeFromQueue(socket.id)
+        // });
 
           // Handle attendance real time updates through websocket
-          socket.on('start attendance update', (task_info) => {
-            console.log(`Attendance update initialized`)
+          // socket.on('start attendance update', (task_info) => {
+          //   console.log(`Attendance update initialized`)
 
-            console.log(attendanceSocketQueue.getQueue())
-            if (attendanceSocketQueue.addToQueue(socket.id, task_info.task_id)) {
-              console.log(`<SOCKETIO/start attendance update> Successfully added socket ${socket.id} to queue.`)
-              console.log(attendanceSocketQueue.getQueue())
-            }
-            else {
-              console.log(`<SOCKETIO/start attendance update> Problem occurred while adding socket to queue.`)
-            }
-          })
-        })
+          //   console.log(attendanceSocketQueue.getQueue())
+          //   if (attendanceSocketQueue.addToQueue(socket.id, task_info.task_id)) {
+          //     console.log(`<SOCKETIO/start attendance update> Successfully added socket ${socket.id} to queue.`)
+          //     console.log(attendanceSocketQueue.getQueue())
+          //   }
+          //   else {
+          //     console.log(`<SOCKETIO/start attendance update> Problem occurred while adding socket to queue.`)
+          //   }
+          // })
+      })
       // Forces a page refresh for all users so they can be on the updated version of the app
       if (process.env.NODE_ENV === 'production'){
         setTimeout(function() {
@@ -149,7 +153,7 @@ function start() {
   app.use('/courses', jwtVerify, courseRouter);
   app.use('/sections', jwtVerify, sectionRouter);
   app.use('/meetings', jwtVerify, meetingRouter);
-  app.use('/livesubmissions', submissionRouter);
+  app.use('/submissions', submissionRouter);
   app.use('/auth', authRouter);
   app.use('/videos', videoRouter);
   app.use('/qrcheckins', qrScanRouter);

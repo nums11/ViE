@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 export default {
 	data() {
 		return {
@@ -13,6 +15,26 @@ export default {
 		      this.user_courses.push(section.course)
 		    })
 		  }
-		}
+		},
+		getRealTimePortionStatus(real_time_portion) {
+		  const current_time = new Date()
+		  if(moment(current_time).isBefore(real_time_portion.real_time_start))
+		    return "pending"
+		  else if(moment(current_time).isAfter(real_time_portion.real_time_end))
+		    return "closed"
+		  else
+		    return "open"
+		},
+		studentSubmittedToQRScan(student_user_id, qr_scan) {
+		  const submissions = qr_scan.submissions
+		  let student_has_submitted = false
+		  for(let i = 0; i < submissions.length; i++) {
+		    if(submissions[i].submitter.user_id === student_user_id){
+		      student_has_submitted = true
+		      break
+		    }
+		  }
+		  return student_has_submitted
+		},
 	}
 }

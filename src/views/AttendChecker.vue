@@ -9,9 +9,11 @@ import QRScanAPI from '@/services/QRScanAPI.js'
 import MeetingAPI from '@/services/MeetingAPI.js';
 import SubmissionAPI from '@/services/SubmissionAPI.js';
 import QRSuccessAnimation from '@/components/animations/QRSuccessAnimation.vue'
+import helpers from '@/helpers.js'
 
 export default {
   name: 'AttendChecker',
+  mixins: [helpers],
   async created () {
     if(!this.userIsLoggedIn()) {
       if(process.env.NODE_ENV === "production") {
@@ -49,31 +51,44 @@ export default {
       this.meeting = response.data
     },
     attemptQRScanSubmission(scanned_code) {
-      if(!this.currentUserIsStudentForCourse()) {
+      if(this.getRealTimePortionStatus(
+        this.meeting.real_time_portion) !== "open") {
+        alert("Submission Failed: This meeting does not have any ongoing "
+          + "real-time tasks.")
+        this.redirectToDashboard()
+        return
+      }
+      if(!this.userIsStudentForMeetingSection()) {
         alert("Submission Failed: You are not a student for this course.")
         this.redirectToDashboard()
         return
       }
-      let open_checkin = this.getOpenQRScan()
-      if(this.isEmptyObj(open_checkin)){
-        alert("Submission Failed: No Open QR Checkins.")
-        this.redirectToDashboard()
-        return
-      }
-      if(this.studentSubmittedToQRScan(open_checkin)) {
+      const open_qr_scan = this.getOpenQRScan(scanned_code)
+      // if(this.isEmptyObj(open_checkin)){
+      //   alert("Submission Failed: No Open QR Checkins.")
+      //   this.redirectToDashboard()
+      //   return
+      // }
+      // if(!this.scannedCodeIsValid(open_checkin, scanned_code)){
+      //   alert("Submission Failed: Scanned invalid code!")
+      //   this.redirectToDashboard()
+      //   return
+      // }
+      if(this.studentSubmittedToQRScan(this.current_user.user_id,
+        open_qr_scan)) {
         alert("Submission Failed: You have already submitted to this QR Checkin.")
         this.redirectToDashboard()
         return
       }
-      if(!this.scannedCodeIsValid(open_checkin, scanned_code)){
-        alert("Submission Failed: Scanned invalid code!")
-        this.redirectToDashboard()
-        return
-      }
-      this.createSubmission(open_checkin)
+      console.log("Calling createSubmission")
+      this.createSubmission(open_qr_scan)
     },
-    currentUserIsStudentForCourse() {
-      let meeting_students = this.meeting.course.students
+    userIsStudentForMeetingSection() {
+      let meeting_students = []
+      this.meeting.sections.forEach(section => {
+        meeting_students = meeting_students.concat(section.students)
+      })
+      console.log("Students", meeting_students)
       let user_is_student = false
       for(let i = 0; i < meeting_students.length; i++) {
         if(meeting_students[i].user_id === this.current_user.user_id) {
@@ -83,27 +98,16 @@ export default {
       }
       return user_is_student
     },
-    studentSubmittedToQRScan(qr_scan) {
-      let submissions = qr_scan.submissions
-      let student_has_submitted = false
-      for(let i = 0; i < submissions.length; i++) {
-        if(submissions[i].submitter.user_id === this.current_user.user_id){
-          student_has_submitted = true
+    getOpenQRScan(scanned_code) {
+      let open_qr_scan = null
+      const qr_scans = this.meeting.real_time_portion.qr_scans
+      for(let i = 0; i < qr_scans.length; i++) {
+        if(qr_scans[i].code === scanned_code) {
+          open_qr_scan = qr_scans[i]
           break
         }
       }
-      return student_has_submitted
-    },
-    getOpenQRScan() {
-      let open_checkin = {}
-      let meeting_checkins = this.meeting.real_time_portion.qr_scans
-      for(let i = 0; i < meeting_checkins.length; i++) {
-        if(this.getWindowStatus(meeting_checkins[i], true) === "open"){
-          open_checkin = meeting_checkins[i]
-          break
-        }
-      }
-      return open_checkin
+      return open_qr_scan
     },
     getWindowStatus(task, is_qr) {
       let current_time = new Date()
@@ -134,20 +138,27 @@ export default {
     isEmptyObj(obj) {
       return Object.keys(obj).length === 0 && obj.constructor === Object
     },
-    async createSubmission(open_checkin) {
-      let submission = {
-        submitter: this.$store.state.user.current_user._id,
-        is_qr_scan_submission: true,
-        qr_scan: open_checkin._id,
-        submission_time: new Date()
+    async createSubmission(open_qr_scan) {
+      try {
+        const submission = {
+          submitter: this.$store.state.user.current_user._id,
+          task_type:"QRScan"
+        }
+        console.log("Adding submission")
+        const response = await SubmissionAPI.addSubmission(submission,
+          open_qr_scan._id)
+        console.log("Added submission")
+        this.show_qr_success_animation = true
+        setTimeout(() => {
+          this.show_qr_success_animation = false
+          alert("Live Submisssion Recorded.")
+          this.$router.push({name: 'meeting_info',
+            params: {meeting_id: this.meeting_id}})
+        }, 2000)
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
       }
-      const response = await SubmissionAPI.addSubmission(submission)
-      this.show_qr_success_animation = true
-      setTimeout(() => {
-        this.show_qr_success_animation = false
-        alert("Live Submisssion Recorded.")
-        this.$router.push({name: 'meeting_info', params: {meeting_id: this.meeting_id}})
-      }, 2000)
     },
     animController (g, a) {
       console.log(`CONTROLLER CALLED`)
