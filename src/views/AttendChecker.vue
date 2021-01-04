@@ -136,40 +136,6 @@ export default {
         }
       )
     }
-    // async createSubmission() {
-    //   try {
-    //     const submission = {
-    //       submitter: this.$store.state.user.current_user._id,
-    //       task_type:"QRScan"
-    //     }
-    //     const response = await SubmissionAPI.addSubmission(submission,
-    //       this.open_qr_scan._id)
-    //     setTimeout(this.emitSubmissionEventAndRedirectToMeeting,
-    //       2000)
-    //   } catch(error) {
-    //     console.log(error)
-    //     alert("Sorry, something went wrong")
-    //   }
-    // },
-    // emitSubmissionEventAndRedirectToMeeting() {
-    //   console.log("In emitSubmissionEvent")
-    //   let url = ""
-    //   if(process.env.NODE_ENV === "production") {
-    //     url = "https://byakugan.herokuapp.com/"
-    //   } else {
-    //     url = "http://localhost:4000/"
-    //   }
-    //   const client_io = io (url, {forceNew: true})
-    //   console.log("just created client_io", client_io)
-    //   client_io.emit('submitToQRScan', this.open_qr_scan._id,
-    //     this.current_user.user_id, () => {
-    //       this.show_qr_success_animation = false
-    //       alert("Live Submisssion Recorded.")
-    //       this.$router.push({name: 'meeting_info',
-    //         params: {meeting_id: this.meeting_id}})
-    //     }
-    //   )
-    // }
   }
 }
 </script>

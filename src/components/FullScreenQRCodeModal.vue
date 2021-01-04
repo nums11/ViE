@@ -95,6 +95,7 @@ export default {
     },
     addStudentSubmission(user_id) {
       this.submissions.add(user_id)
+      this.$forceUpdate()
     }
   }
 }
