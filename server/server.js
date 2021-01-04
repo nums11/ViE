@@ -93,6 +93,28 @@ function start() {
           real_time_qr_scan_ids.delete(qr_scan_id)
         })
 
+        // Remove the qr_scan id if the instructor closes out of Vie
+        // before closing the qr scanning window
+        socket.on('disconnect', () => {
+          const iter = real_time_qr_scan_ids.entries()
+          let value_exists = true
+          let entry;
+          while(value_exists) {
+            entry = iter.next().value
+            if(entry == null){
+              value_exists = false
+            } else {
+              const qr_scan_id = entry[0]
+              const instructor_socket_id = entry[1]
+              if(instructor_socket_id === socket.id){
+                console.log("Removing socket from real_time_qr_scan_ids")
+                real_time_qr_scan_ids.delete(qr_scan_id)
+                value_exists = false
+              }
+            }
+          }
+        });
+
         socket.on('attemptQRScanSubmission', async (qr_scan_id, user_id,
           user_object_id, cb) => {
           console.log(`received submitToQRScan event for qr_scan_id ${qr_scan_id}`
