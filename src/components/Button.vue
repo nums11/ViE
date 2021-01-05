@@ -111,8 +111,6 @@ export default {
   width: 14rem;
 }
 
-
-
 .signup-button-container:hover {
   color: white;
 }

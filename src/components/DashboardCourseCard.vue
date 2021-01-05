@@ -1,5 +1,5 @@
 <template>
-  <div :class="'dashboard-course-card ' +
+  <div :class="'dashboard-course-card light-border-shadow ' +
   (is_instructor ? '' : 'student-card')">
     <div class="card-section" :id="is_instructor ? 'left' : 'left-large'">
       <div class="wrap-text" id="course-name">{{ course.name }}</div>
@@ -88,8 +88,6 @@ export default {
 
 <style scoped>
 .dashboard-course-card {
-  border: #c7c7c7 solid thin;
-  box-shadow: 0px 1px 1px #c7c7c7;
   border-radius: 3px;
   height: 4rem;
   width: 32.5rem;

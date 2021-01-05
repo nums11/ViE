@@ -28,6 +28,7 @@ import LoginSignupCreate from './views/LoginSignupCreate.vue';
 import Dashboard from './views/Dashboard.vue';
 import CourseList from './components/CourseList.vue';
 import CourseOrgInfo from './views/CourseOrgInfo.vue';
+import CourseInfo from './views/CourseInfo.vue';
 import WebexTest from './views/WebexTest.vue';
 import MeetingInfo from './views/MeetingInfo.vue';
 import Settings from './views/Settings.vue';
@@ -283,9 +284,9 @@ const router = new VueRouter({
     {
       name: 'course_info',
       path: '/course_info/:id',
-      component: CourseOrgInfo,
+      component: CourseInfo,
       meta: {
-        title: "Venue - Course Info",
+        title: "ViE - Course Info",
         requiresAuth: true
       }
     },

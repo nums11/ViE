@@ -24,20 +24,41 @@
         <input type="datetime-local" v-model="real_time_portion.real_time_start" />
         <label>End TIME</label>
         <input type="datetime-local" v-model="real_time_portion.real_time_end" />
+
         <div class="mt-2">
+          <h3>Add QR Scan</h3>
           <label>Scheduled Time</label>
           <input v-model="qr_scan.scheduled_time" type="datetime-local">
           <button @click.prevent="addQRScan">Add QR Scan</button>
         </div>
         <div v-for="(qr_scan, index) in qr_scans" :key="index"
         class="mt-2 qr-scan-container">
-          QR Scan {{ index }} 
+          QR Scan {{ index+1 }} 
           <span v-if="qr_scan.scheduled_time != null">
             Scheduled for {{ new Date(qr_scan.scheduled_time) }}
           </span>
           <span v-else>No Scheduled Time</span>
           <button @click.prevent="removeQRScan(index)">Remove</button>
         </div>
+
+        <div class="mt-2">
+          <h3>Add Quiz</h3>
+          <input v-model="quiz.name" placeholder="name" />
+          <h4>Add Question</h4>
+          <div>
+            <input v-model="quiz_question.question" placeholder="question" />
+          </div>
+          <div class="mt-1">
+            <input v-model="answer_choice" placeholder="answer choice" />
+            <button @click.prevent="addAnswerChoice">Add Answer Choice</button>
+          </div>
+        </div>
+        <div v-for="(choice, index) in quiz_question.answer_choices" :key="index"
+        class="qr-scan-container mt-2">
+          Choice {{ index+1 }}: {{ choice }}
+          <button @click.prevent="removeAnswerChoice(index)">Remove</button>
+        </div>
+
       </div>
       <div class="mt-2">
         <button>Create Meeting</button>
@@ -69,6 +90,12 @@ export default {
       show_real_time_inputs: false,
       qr_scan: {},
       qr_scans: [],
+      quizzes: [],
+      quiz: {},
+      quiz_question: {
+        answer_choices: []
+      },
+      answer_choice: "",
       creating_meeting: false
     }
   },
@@ -167,6 +194,13 @@ export default {
         alert("Sorry, something went wrong scheduling your notifications")
       }
     },
+    addAnswerChoice() {
+      this.quiz_question.answer_choices.push(this.answer_choice)
+      this.answer_choice = ""
+    },
+    removeAnswerChoice(index) {
+      this.quiz_question.answer_choices.splice(index, 1)
+    }
   }
 }
 </script>
@@ -204,6 +238,10 @@ export default {
   background-color: #47C4FC;
   border: #47C4FC solid;
   color: white;
+}
+
+.mt-1 {
+  margin-top: 1rem;
 }
 
 .mt-2 {

@@ -12,11 +12,7 @@ let QRScan = new Schema({
   submissions: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Submission'
-  }],
-  is_open: {
-  	type: Boolean,
-  	default: false
-  }
+  }]
 });
 
 module.exports = mongoose.model('QRScan', QRScan);

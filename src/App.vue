@@ -260,10 +260,19 @@ html, body {
   margin-top: 3rem;
 }
 
-
 .form-label {
   padding-left: 0.5rem;
   text-align: left;
+}
+
+.light-border-shadow {
+  border: #c7c7c7 solid thin;
+  box-shadow: 0px 1px 1px #c7c7c7;
+}
+
+.inline-block {
+  display: inline-block;
+  vertical-align: top;
 }
 
 .fade-enter-active,

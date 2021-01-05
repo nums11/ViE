@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-meeting-card">
+  <div class="dashboard-meeting-card light-border-shadow">
     <div class="meeting-name wrap-text">{{ meeting.title }}</div>
     <div class="meeting-course-info">
       <div class="course-info-container wrap-text">{{ course_name }}</div>
@@ -53,8 +53,6 @@ export default {
 
 <style scoped>
 .dashboard-meeting-card {
-  border: #c7c7c7 solid thin;
-  box-shadow: 0px 1px 1px #c7c7c7;
   border-radius: 3px;
   margin: auto;
   margin-top: 2rem;

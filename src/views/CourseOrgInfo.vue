@@ -292,7 +292,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .course-section-container {
   margin-top: 1rem;
 }
