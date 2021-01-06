@@ -3,7 +3,7 @@
     <router-link :to="{name: route_name}"
     :style="disabled ? 'cursor:auto' : ''">
       <div :class="'signup-button-container ' +
-      (size === 'small' ? 'small ' : 'large ') +
+      `${size} ` +
       (wide ? 'wide ' : '') +
       (color === 'blue' ? 'blue ' : '') +
       (color === 'pink' ? 'pink ' : '') +
@@ -91,6 +91,12 @@ export default {
 .pink.invert-colors {
   background-color: #e83e8c;
   color: white;
+}
+
+.extra-small {
+  width: 6rem;
+  font-size: 1rem;
+  height: 1.85rem;
 }
 
 .small {

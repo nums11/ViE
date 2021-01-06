@@ -206,12 +206,8 @@ export default {
 
 #app {
   font-family: Exo, "Avenir", Helvetica, Arial, sans-serif;
-  /*font-family: Exo "Avenir", Helvetica, Arial, sans-serif;*/
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* min-height: 100%; */
-  /*border-right: 1px solid #00FFFF;
-  border-left: 1px solid #00FFFF;*/
 }
 
 html, body {
@@ -273,6 +269,42 @@ html, body {
 .inline-block {
   display: inline-block;
   vertical-align: top;
+}
+
+.mt-1 {
+  margin-top: 1rem;
+}
+
+.mt-2 {
+  margin-top: 2rem;
+}
+
+.mt-3 {
+  margin-top: 3rem;
+}
+
+.ml-1 {
+  margin-left: 1rem;
+}
+
+.ml-2 {
+  margin-left: 2rem
+}
+
+.ml-3 {
+  margin-left: 3rem;
+}
+
+.mr-1 {
+  margin-right: 1rem;
+}
+
+.mr-2 {
+  margin-right: 2rem;
+}
+
+.mr-3 {
+  margin-right: 3rem;
 }
 
 .fade-enter-active,

@@ -42,7 +42,10 @@
       </div>
     </div>
 
-    <div class="course-info-container" id="main">
+    <div v-if="!course_has_loaded">
+      <sui-loader active name="Loading Course" />
+    </div>
+    <div v-else class="course-info-container" id="main">
       <transition name="fade" mode="out-in">
         <div v-if="active_section === 'meetings'" id="meetings-section">
           <div id="meetings-section-header-container">
@@ -73,6 +76,22 @@
           :meetings="meetings" />
         </div>
       </transition>
+      <transition name="fade" mode="">
+        <div v-if="active_section === 'statistics'"
+        id="roster-section">
+        <h1>Coming Soon...</h1>
+        </div>
+      </transition>
+      <transition name="fade" mode="out-in">
+        <div v-if="active_section === 'roster'"
+        id="roster-section">
+          <SectionInfoContainer :section="section1" />
+          <SectionInfoContainer :section="section2" />
+        </div>
+      </transition>
+      <transition name="fade" mode="out-in">
+        <h1>Coming Soon...</h1>
+      </transition>
     </div>
   </div>
 </template>
@@ -80,11 +99,14 @@
 <script>
 import CourseMeetingsForMonthContainer from
 '@/components/CourseMeetingsForMonthContainer'
+import SectionInfoContainer from
+'@/components/SectionInfoContainer'
 
 export default {
   name: 'CourseInfo',
   components: {
-    CourseMeetingsForMonthContainer
+    CourseMeetingsForMonthContainer,
+    SectionInfoContainer
   },
   data () {
     return {
@@ -104,13 +126,29 @@ export default {
         },
       ],
       selected_section: null,
-      meetings: []
+      meetings: [],
+      students: [],
+      section1: {
+        section_number: 1,
+        students: [],
+        invited_students: [],
+        pending_approval_students: []
+      },
+      section2: {
+        section_number: 2,
+        students: [],
+        invited_students: [],
+        pending_approval_students: []
+      },
+      course_has_loaded: false
     }
   },
   async created () {
     if(this.$route.params.reload_page)
       this.$router.go()
     this.setFakeMeetings()
+    this.setFakeStudents()
+    this.course_has_loaded = true
     // this.selected_section = this.section_selector_options[0].text
     // console.log("selected", this.selected_section)
   },
@@ -209,6 +247,27 @@ export default {
         },
         _id: "pqr"
       })
+    },
+    setFakeStudents() {
+      for(let i=0;i<26;i++) {  // 2-27 (a-z)
+        let chr = String.fromCharCode(97 + i);
+        this.students.push({
+          first_name: "Student",
+          last_name: chr,
+          user_id: "student" + chr,
+          email: "student"+chr+"@rpi.edu",
+          password: "password",
+        })
+      }
+      this.section1.students = this.section2.students
+        = this.students
+      this.section1.invited_students = this.students.slice(20)
+      this.section1.pending_approval_students =
+        this.students.slice(24)
+      this.section2.pending_approval_students =
+        this.students.slice(18)
+        console.log("Pending", this.section1.pending_approval_students)
+        console.log("Pending", this.section2.pending_approval_students)
 
     }
   },
@@ -219,9 +278,10 @@ export default {
 #course-info {
   margin-top: 3rem;
   /*border: blue solid;*/
-  height: 45rem;
+  min-height: 47rem;
   padding-left: 5rem;
   padding-right: 5rem;
+  padding-bottom: 2rem;
 }
 
 .course-info-container {
@@ -275,10 +335,6 @@ export default {
 .active-section {
   font-weight: bold;
   color: #2c3e50;
-}
-
-#meetings-section-header-container {
-  /*border: black solid;*/
 }
 
 #meetings-section-header {
