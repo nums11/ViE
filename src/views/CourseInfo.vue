@@ -56,7 +56,7 @@
               :options="section_selector_options"
               v-model="selected_section" />
               <router-link :to="{name: 'course_new_meeting',
-              params: {course_id: 'abcdefg'}}">
+              params: {course_id: course._id}}">
                 <sui-button animated size="small"
                   style="background-color:#00b80c; color:white;
                   float:right;">
@@ -101,6 +101,7 @@ import CourseMeetingsForMonthContainer from
 '@/components/CourseMeetingsForMonthContainer'
 import SectionInfoContainer from
 '@/components/SectionInfoContainer'
+import CourseAPI from '@/services/CourseAPI'
 
 export default {
   name: 'CourseInfo',
@@ -110,6 +111,7 @@ export default {
   },
   data () {
     return {
+      course: {},
       active_section: "",
       section_selector_options: [
         {
@@ -146,6 +148,7 @@ export default {
   async created () {
     if(this.$route.params.reload_page)
       this.$router.go()
+    await this.getCourse()
     this.setFakeMeetings()
     this.setFakeStudents()
     this.course_has_loaded = true
@@ -156,6 +159,16 @@ export default {
     this.showSection("meetings")
   },
   methods: {
+    async getCourse() {
+      try {
+        const response = await CourseAPI.getCourse(
+          this.$route.params.id)
+        this.course = response.data
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong getting your course")
+      }
+    },
     showSection(section_name) {
       if(this.active_section !== "") {
         let active_section_wrapper = this.getSectionWrapper(
