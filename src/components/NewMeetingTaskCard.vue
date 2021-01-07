@@ -1,13 +1,14 @@
 <template>
   <div class="new-meeting-task-card-container">
-    <sui-button class="remove-btn" size="mini"
-    color="red">
+    <sui-button @click="$emit('remove-task', index)"
+    class="remove-btn" size="mini" color="red">
       <sui-icon name="x"/>
     </sui-button>
     <div class="new-meeting-task-card inline-block">
       <sui-icon class="card-icon" name="qrcode" />
-      <div class="float-left">QR Scan 1</div>
-      <div>No Reminder</div>
+      <div class="float-left">QR Scan {{ index+1 }}</div>
+      <div v-if="reminder_time == null">No Reminder</div>
+      <div v-else>{{ reminder_time | moment("M/d h:mm a") }}</div>
     </div>
   </div>
 </template>
@@ -16,6 +17,15 @@
 
 export default {
   name: 'NewMeetingTaskCard',
+  props: {
+    index: {
+      type: Number,
+      required: true
+    },
+    reminder_time: {
+      type: String,
+    }
+  },
   components: {
   },
   data () {
@@ -47,7 +57,6 @@ export default {
 
 .new-meeting-task-card {
   border: #adadad solid thin;
-  cursor: pointer;
   border-radius: 3px;
   height: 2rem;
   width: 16rem;

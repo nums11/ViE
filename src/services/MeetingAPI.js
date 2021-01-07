@@ -30,14 +30,13 @@ export default {
   //     }
   //   )
   // },
-  addMeeting(title, real_time_portion, num_qr_scans, async_portion,
-    sections) {
+  addMeeting(meeting, real_time_portion,
+    async_portion, instructor_id) {
     return API().post(`meetings/add`, {
-        title: title,
+        meeting: meeting,
         real_time_portion: real_time_portion,
-        num_qr_scans: num_qr_scans,
         async_portion: async_portion,
-        sections: sections
+        instructor_id: instructor_id
     })
   },
   addVideoToMeeting(meeting_id, video) {

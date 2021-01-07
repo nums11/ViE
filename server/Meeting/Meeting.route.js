@@ -8,10 +8,10 @@ const Submission = require('../Submission/Submission.model');
 const QRScan = require('../QRScan/QRScan.model');
 const Video = require('../Video/Video.model');
 const Course = require('../Course/Course.model');
-// const Poll = require('../Poll/Poll.model');
 const User = require('../User/User.model');
 const Section = require('../Section/Section.model');
 const NotificationJob = require('../Notification/NotificationJob.model');
+const schedule = require('node-schedule');
 const {Storage} = require("@google-cloud/storage")
 const path = require('path');
 // var multer = require("multer")
@@ -78,18 +78,22 @@ meetingRoutes.post('/save_new_video/:video_name', (req, res) => {
 })
 
 meetingRoutes.post('/add', async (req, res, next) => {
-  const title = req.body.title
+  const meeting = req.body.meeting
   const real_time_portion = req.body.real_time_portion
-  const num_qr_scans = req.body.num_qr_scans
   const async_portion = req.body.async_portion
-  const sections = req.body.sections
+  const instructor_id = req.body.instructor_id
 
   try {
+    const new_meeting = new Meeting(meeting)
+    let saved_meeting = await new_meeting.save()
     // Create the meeting and the necessary objects
     let saved_real_time_portion = null, saved_async_portion = null
+
     if(real_time_portion != null) {
       // Is this running twice
-      const saved_qr_scans = await createQRScans(num_qr_scans)
+      const [saved_qr_scans, updated_notification_jobs] = 
+        await createQRScans(real_time_portion.qr_scans,
+          instructor_id, saved_meeting._id)
       if(saved_qr_scans == null)
         throw "<ERROR> meetings/add saving qr scans"
       new_real_time_portion = new RealTimePortion({
@@ -99,14 +103,9 @@ meetingRoutes.post('/add', async (req, res, next) => {
       })
       saved_real_time_portion = await new_real_time_portion.save()
     }
-    const new_meeting = new Meeting({
-      title: title,
-      sections: sections,
-      real_time_portion: new_real_time_portion,
-      async_portion: null
-    })
-    const saved_meeting = await new_meeting.save()
 
+    saved_meeting.real_time_portion = saved_real_time_portion
+    saved_meeting.save()
     // Update the section, instructor, and students
     const updated_sections = await addMeetingToObjects(
       saved_meeting.sections, "section", saved_meeting._id)
@@ -117,8 +116,6 @@ meetingRoutes.post('/add', async (req, res, next) => {
       student_ids, "user", saved_meeting._id)
     if(updated_students == null)
       throw "<ERROR> meetings/add"
-    const instructor_id = await getInstructorFromCourse(
-      updated_sections[0].course)
     const updated_instructor = await addMeetingToObjects(
       [instructor_id], "user", saved_meeting._id)
     if(updated_instructor == null)
@@ -721,10 +718,11 @@ async function getInstructorFromCourse(course_id) {
   }
 }
 
-async function createQRScans(num_qr_scans) {
+async function createQRScans(qr_scans, instructor_id, meeting_id) {
   try {
     let qr_scan_promises = []
-    for(let i = 0; i < num_qr_scans; i++) {
+    let notifcation_schedule_promises = []
+    for(let i = 0; i < qr_scans.length; i++) {
       qr_scan_promises.push(new Promise(async (resolve, reject) => {
         const random_code = generateRandomCode() 
         const qr_scan = new QRScan({
@@ -733,12 +731,25 @@ async function createQRScans(num_qr_scans) {
         const saved_qr_scan = await qr_scan.save()
         resolve(saved_qr_scan)
       }))
+      const reminder_time = qr_scans[i].reminder_time
+      if(reminder_time != null) {
+        notifcation_schedule_promises.push(new Promise(async (resolve, reject) => {
+          const updated_notification_job = await scheduleShowQRNotification(
+            reminder_time, instructor_id, meeting_id)
+          if(updated_notification_job == null)
+            reject(null)
+          else
+            resolve(updated_notification_job)
+        }))
+      }
     }
     const saved_qr_scans = await Promise.all(qr_scan_promises)
-    return saved_qr_scans
+    const updated_notification_jobs = await 
+      Promise.all(notifcation_schedule_promises)
+    return [saved_qr_scans, updated_notification_jobs]
   } catch(error) {
-    console.log(`<ERROR> createQRScans num_qr_scans: ${num_qr_scans}`, error)
-    return null
+    console.log(`<ERROR> createQRScans qr_scans: ${qr_scans}`, error)
+    return [null, null]
   }
 }
 
@@ -749,6 +760,57 @@ function generateRandomCode() {
     result += alnums[Math.floor(Math.random() * alnums.length)];
   }
   return result;
+}
+
+async function scheduleShowQRNotification(
+  scheduled_time, instructor_id, meeting_id) {
+  try {
+    const notification_job = new NotificationJob({
+      scheduled_time: scheduled_time,
+      primary_instructor_id: instructor_id,
+      secondary_instructor_id: "null",
+      meeting_id: meeting_id
+    })
+    const saved_notification_job = await notification_job.save()
+
+    const job = schedule.scheduleJob(scheduled_time, function(){
+      saved_notification_job.sendScheduledShowQRNotificationsToInstructors()
+      NotificationJob.findByIdAndRemove(saved_notification_job._id, (error) => {
+        if (error) {
+          console.log("<ERROR> (scheduleShowQRNotification) Deleting NotificationJob with ID:",
+            saved_notification_job._id, error)
+        } else {
+          console.log("<SUCCESS> (scheduleShowQRNotification) Deleting NotificationJob")
+        }
+      });
+    });
+
+    // The global index is used to reschedule all notifications on server
+    // restarts
+    all_notification_jobs.push(job)
+    const global_index = all_notification_jobs.length - 1
+    const update_promise = new Promise((resolve, reject) => {
+      NotificationJob.findByIdAndUpdate(saved_notification_job._id,
+        {global_index: global_index},
+        (error, notification_job) => {
+          if(error || notification_job == null) {
+            console.log("<ERROR> (scheduleShowQRNotification) Updating NotificationJob with ID:",
+              saved_notification_job._id, error)
+            reject(error)
+          } else {
+            resolve(notification_job)
+          }
+        }
+      )
+    })
+    const updated_notification_job = await Promise.resolve(update_promise)
+    return updated_notification_job
+  } catch(error) {
+    console.log(`<ERROR> (scheduleShowQRNotification) scheduled_time:`
+      + ` ${scheduled_time} instructor_id: ${instructor_id}`
+      + ` meeting_id: ${meeting_id}`, error)
+    return null
+  }
 }
 
 module.exports = meetingRoutes;

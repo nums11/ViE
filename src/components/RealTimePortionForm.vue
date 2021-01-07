@@ -33,11 +33,11 @@
       <div class="form-field">
         <sui-form-field>
           <label class="form-label">Schedule Reminder</label>
-          <input v-model="reminder_time" type="datetime-local">
+          <input v-model="task.reminder_time" type="datetime-local">
         </sui-form-field>
       </div>
       <div class="form-field">
-        <sui-button @click.prevent="$emit('add-task')"
+        <sui-button @click.prevent="$emit('add-task', task)"
         animated
         style="background-color:#00b80c; color:white;">
           <sui-button-content visible>
@@ -55,16 +55,24 @@
 <script>
 export default {
   name: 'RealTimePortionForm',
+  props: {
+    real_time_portion: {
+      type: Object,
+      required: true
+    }
+  },
   components: {
 
   },
   data () {
     return {
-      real_time_portion: {
-        real_time_start: null,
-        real_time_end: null
+      // real_time_portion: {
+      //   real_time_start: null,
+      //   real_time_end: null
+      // },
+      task: {
+        reminder_time: null,
       },
-      reminder_time: null,
       value: 1
     }
   },
