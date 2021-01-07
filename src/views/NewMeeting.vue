@@ -53,19 +53,6 @@
               <input v-model="meeting.title">
             </sui-form-field>
           </div>
-          <div class="mt-3">
-            <sui-form-field required>
-              <label>Select the sections for your meeting</label>
-            </sui-form-field>
-          </div>
-          <div class="section-selectors mt-1">
-            <div class="section-selector"
-            v-for="section in course.sections" :key="section._id"
-            @click="selectSection(section)"
-            :id="`section${section.section_number}`">
-              Section {{ section.section_number }}
-            </div>
-          </div>
           <h5 class="mt-3">Add tasks to your meeting</h5>
           <p>Tasks can also be added after your meeting is created</p>
           <sui-button @click.prevent="showRealTimePortionForm"
@@ -89,6 +76,19 @@
               <sui-icon name="clock" />
             </sui-button-content>
           </sui-button>
+          <div class="mt-3">
+            <sui-form-field required>
+              <label>Select the sections for your meeting</label>
+            </sui-form-field>
+          </div>
+          <div class="section-selectors mt-1">
+            <div class="section-selector"
+            v-for="section in course.sections" :key="section._id"
+            @click="selectSection(section)"
+            :id="`section${section.section_number}`">
+              Section {{ section.section_number }}
+            </div>
+          </div>
           <sui-dropdown selection
           v-model="repeat_selection"
           :options="repeat_options" class="mt-3 ml-1" />
@@ -195,6 +195,7 @@ export default {
     },
     hideRealTimePortionForm() {
       this.show_main_form = true
+      this.meeting.sections = []
     },
     clearRealTimePortion() {
       this.real_time_portion = {
@@ -209,12 +210,16 @@ export default {
     },
     selectSection(section) {
      let [meeting_has_section, index] = this.meetingHasSection(section)
-     let section_container = document.getElementById(`section${section.section_number}`);
+     let section_container = this.getSectionContainer(
+      section.section_number)
      if(meeting_has_section)
        this.removeSectionFromMeeting(index, section_container)
      else {
        this.addSectionToMeeting(section, section_container)
      }
+    },
+    getSectionContainer(section_number) {
+      return document.getElementById(`section${section_number}`)
     },
     meetingHasSection(section) {
      let meeting_has_section = false
@@ -231,6 +236,9 @@ export default {
     },
     addSectionToMeeting(section, section_container) {
      this.meeting.sections.push(section._id)
+     this.addSelectedClassToContainer(section_container)
+    },
+    addSelectedClassToContainer(section_container) {
      section_container.classList.add("selected-section")
     },
     removeSectionFromMeeting(index, section_container) {
@@ -249,7 +257,6 @@ export default {
           real_time_portion = this.real_time_portion
         else
           real_time_portion = null
-        console.log("Passing id", real_time_portion)
         const response = await MeetingAPI.addMeeting(this.meeting,
           real_time_portion, null, this.state_user._id)
         const saved_meeting = response.data
