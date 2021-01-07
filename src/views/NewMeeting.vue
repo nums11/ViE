@@ -1,36 +1,31 @@
 <template>
   <div id="new-meeting">
-<!--     <router-link
-    :to="{name: 'course_info', params: {id: course_id}}">
-      <sui-button content="Back to Course" icon="arrow left"
-      label-position="left" />
-    </router-link>
-    <div id="form-header-container">
-      <h1>Schedule Meeting</h1>
-    </div> -->
     <div id="left-section" class="inline-block">
-      <div class="float-right">
+<!--       <div class="floated-right-container">
         <router-link class="float-right"
         :to="{name: 'course_info', params: {id: course_id}}">
           <sui-button content="Back to Course" icon="arrow left"
           label-position="left" />
         </router-link>
-        <div>
-          <img src="@/assets/logo.svg" id="logo" />
-        </div>
-        <div id="meeting-tasks-container">
-          <div style="border: blue solid">
-           <h4>Real-Time Portion</h4>
-           <p>12/2, 2p - 12/3, 4p</p>
-           <NewMeetingTaskCard />
-         <NewMeetingTaskCard />
-         </div>
-         <div style="border: red solid;">
-           <h4>Async Portion</h4>
-           <p>No async tasks</p>
-         </div>
-
-       </div>
+      </div> -->
+      <div class="floated-right-container">
+        <router-link id="back-to-course-btn"
+        :to="{name: 'course_info', params: {id: course_id}}">
+          <sui-button content="Back to Course" icon="arrow left"
+          label-position="left" />
+        </router-link>
+        <img src="@/assets/logo.svg" id="logo" />
+      </div>
+      <div class="floated-right-container"
+      id="real-time-portion-container">
+        <h4>Real-Time Portion</h4>
+        <p>12/2, 2p - 12/3, 4p</p>
+        <NewMeetingTaskCard />
+        <NewMeetingTaskCard />
+      </div>
+      <div class="floated-right-container" id="async-portion-container">
+        <h4>Async Portion</h4>
+        <p>No async tasks</p>
       </div>
     </div>
     <div id="right-section" class="inline-block">
@@ -109,37 +104,52 @@ export default {
 
 <style scoped>
 #new-meeting {
-  border: black solid;
+  /*border: black solid;*/
   width: 88%;
   margin: auto;
   margin-top: 3rem;
 }
 
+.floated-right-container {
+  display: inline-block;
+  width: 100%;
+}
+
 #left-section {
-  border: blue solid;
-  width: 31%;
+  /*border: blue solid;*/
+  width: 30%;
   height: 45rem;
+}
+
+
+#back-to-course-btn {
+  /*border: black solid;*/
+  margin-left: 2rem;
+  margin-top: 1rem;
+  display: inline-block;
+  /*vertical-align: center;*/
 }
 
 #logo {
   height: 5rem;
-  margin-top: 3rem;
-  border: orange solid;
-  margin-right: 0;
-  margin-left: 4rem;
+  /*border: orange solid;*/
   float: right;
 }
 
-#meeting-tasks-container {
-  margin-top: 14rem;
-  border: blue solid;
+#real-time-portion-container {
+  /*border: black solid;*/
   text-align: right;
-  height: 30rem;
+  margin-top: 2.5rem;
+}
+
+#async-portion-container {
+  /*border: red solid;*/
+  text-align: right;
 }
 
 #right-section {
-  padding-top: 6rem;
-  border: green solid;
+  /*padding-top: 6rem;*/
+  /*border: green solid;*/
   width: 40%;
   text-align: center;
 }
