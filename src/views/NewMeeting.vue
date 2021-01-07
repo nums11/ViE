@@ -65,6 +65,21 @@
             <sui-icon name="clock" />
           </sui-button-content>
         </sui-button>
+        <sui-dropdown selection
+        v-model="repeat_selection"
+        :options="repeat_options" class="mt-3 ml-1" />
+        <div v-if="repeat_selection == 3" class="mt-1 ml-1">
+          <sui-dropdown
+          multiple selection v-model="repeat_days_selection"
+          :options="repeat_days" placeholder="Select days to repeat on"
+          />
+          <div class="mt-2">
+            <sui-form-field>
+              <label class="form-label">End Date</label>
+              <input v-model="repeat_end_date" type="datetime-local">
+            </sui-form-field>
+          </div>
+        </div>
         <div id="button-container">
           <Button text="Schedule" color="blue" size="large" invert_colors
           wide/>
@@ -88,7 +103,25 @@ export default {
   data () {
     return {
       course_id: "",
-      meeting: {}
+      meeting: {},
+      repeat_selection: 0,
+      repeat_options: [
+        {value: 0, text: "Does not repeat"}, 
+        {value: 1, text: "Daily"}, 
+        {value: 2, text: "Weekly"},
+        {value: 3, text: "Custom Weekly"},
+      ],
+      repeat_days: [
+        {value: 0, text: "Sunday"},
+        {value: 1, text: "Monday"},
+        {value: 2, text: "Tuesday"},
+        {value: 3, text: "Wednesday"},
+        {value: 4, text: "Thursday"},
+        {value: 5, text: "Friday"},
+        {value: 6, text: "Saturday"},
+      ],
+      repeat_days_selection: [],
+      repeat_end_date: null,
     }
   },
   computed: {
@@ -108,6 +141,7 @@ export default {
   width: 88%;
   margin: auto;
   margin-top: 3rem;
+  padding-bottom: 5rem;
 }
 
 .floated-right-container {
