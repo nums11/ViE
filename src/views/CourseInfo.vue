@@ -90,7 +90,7 @@
         </div>
       </transition>
       <transition name="fade" mode="out-in">
-        <h1>Coming Soon...</h1>
+        <h1 v-if="active_section === 'settings'">Coming Soon...</h1>
       </transition>
     </div>
   </div>

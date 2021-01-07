@@ -1,224 +1,164 @@
 <template>
   <div id="new-meeting">
-    <VueLottiePlayer v-if="creating_meeting"
-      name="QR CODE"
-      :animationData="require('@/assets/lottie/uploading.json')"
-      loop height="100%" width="100%" autoplay
-    />
-    <h1>New Meeting</h1>
-    <form @submit.prevent="createMeeting">
-      <input v-model="title" type="text"
-      placeholder="Title">
-      <div class="section-selectors">
-        <h5>Select the sections for your meeting</h5>
-        <div v-for="section in course.sections" :key="section._id" 
-        @click="selectSection(section)" class="section-selector"
-        :id="`section${section.section_number}`">
-          Section {{ section.section_number }}
+<!--     <router-link
+    :to="{name: 'course_info', params: {id: course_id}}">
+      <sui-button content="Back to Course" icon="arrow left"
+      label-position="left" />
+    </router-link>
+    <div id="form-header-container">
+      <h1>Schedule Meeting</h1>
+    </div> -->
+    <div id="left-section" class="inline-block">
+      <div class="float-right">
+        <router-link class="float-right"
+        :to="{name: 'course_info', params: {id: course_id}}">
+          <sui-button content="Back to Course" icon="arrow left"
+          label-position="left" />
+        </router-link>
+        <div>
+          <img src="@/assets/logo.svg" id="logo" />
         </div>
-      </div>
-      <label>Add real-time tasks</label>
-      <input v-model="show_real_time_inputs" type="checkbox" />
-      <div v-if="show_real_time_inputs" class="mt-2">
-        <label>START TIME</label>
-        <input type="datetime-local" v-model="real_time_portion.real_time_start" />
-        <label>End TIME</label>
-        <input type="datetime-local" v-model="real_time_portion.real_time_end" />
+        <div id="meeting-tasks-container">
+          <div style="border: blue solid">
+           <h4>Real-Time Portion</h4>
+           <p>12/2, 2p - 12/3, 4p</p>
+           <NewMeetingTaskCard />
+         <NewMeetingTaskCard />
+         </div>
+         <div style="border: red solid;">
+           <h4>Async Portion</h4>
+           <p>No async tasks</p>
+         </div>
 
-        <div class="mt-2">
-          <h3>Add QR Scan</h3>
-          <label>Scheduled Time</label>
-          <input v-model="qr_scan.scheduled_time" type="datetime-local">
-          <button @click.prevent="addQRScan">Add QR Scan</button>
-        </div>
-        <div v-for="(qr_scan, index) in qr_scans" :key="index"
-        class="mt-2 qr-scan-container">
-          QR Scan {{ index+1 }} 
-          <span v-if="qr_scan.scheduled_time != null">
-            Scheduled for {{ new Date(qr_scan.scheduled_time) }}
-          </span>
-          <span v-else>No Scheduled Time</span>
-          <button @click.prevent="removeQRScan(index)">Remove</button>
-        </div>
-
-        <div class="mt-2">
-          <h3>Add Quiz</h3>
-          <input v-model="quiz.name" placeholder="name" />
-          <h4>Add Question</h4>
-          <div>
-            <input v-model="quiz_question.question" placeholder="question" />
-          </div>
-          <div class="mt-1">
-            <input v-model="answer_choice" placeholder="answer choice" />
-            <button @click.prevent="addAnswerChoice">Add Answer Choice</button>
-          </div>
-        </div>
-        <div v-for="(choice, index) in quiz_question.answer_choices" :key="index"
-        class="qr-scan-container mt-2">
-          Choice {{ index+1 }}: {{ choice }}
-          <button @click.prevent="removeAnswerChoice(index)">Remove</button>
-        </div>
-
+       </div>
       </div>
-      <div class="mt-2">
-        <button>Create Meeting</button>
-      </div>
-    </form>
+    </div>
+    <div id="right-section" class="inline-block">
+      <h1>Schedule Meeting</h1>
+      <div id="course-name">RCOS</div>
+      <sui-form class="form">
+        <div class="form-field">
+          <sui-form-field>
+            <label class="form-label">Title</label>
+            <input v-model="meeting.title">
+          </sui-form-field>
+        </div>
+        <h5 class="mt-3">Select the sections for your meeting</h5>
+        <div class="section-selectors">
+          <div class="section-selector">Section 1</div>
+          <div class="section-selector">Section 2</div>
+        </div>
+        <h5 class="mt-3">Add tasks to your meeting</h5>
+        <p>Tasks can also be added after your meeting is created</p>
+        <sui-button animated size="large"
+          style="background-color:#00b80c; color:white;
+          margin-left:1rem; width:16rem;">
+          <sui-button-content visible>
+            Add real-time tasks
+          </sui-button-content>
+          <sui-button-content hidden>
+            <sui-icon name="podcast" />
+          </sui-button-content>
+        </sui-button>
+        <sui-button animated size="large"
+          style="background-color:#00b80c; color:white;
+          margin-left:1rem; margin-top:1rem; width:16rem;">
+          <sui-button-content visible>
+            Add asynchronous tasks
+          </sui-button-content>
+          <sui-button-content hidden>
+            <sui-icon name="clock" />
+          </sui-button-content>
+        </sui-button>
+        <div id="button-container">
+          <Button text="Schedule" color="blue" size="large" invert_colors
+          wide/>
+        </div>
+      </sui-form>
+
+    </div>
   </div>
 </template>
 
 <script>
-import CourseAPI from '@/services/CourseAPI'
-import MeetingAPI from '@/services/MeetingAPI'
-import NotificationAPI from '@/services/NotificationAPI'
-import VueLottiePlayer from 'vue-lottie-player'
+import Button from '../components/Button';
+import NewMeetingTaskCard from '@/components/NewMeetingTaskCard.vue';
 
 export default {
   name: 'NewMeeting',
   components: {
-
+    NewMeetingTaskCard,
+    Button
   },
   data () {
     return {
-      title: null,
-      sections: [],
-      real_time_portion: {
-        real_time_start: null,
-        real_time_end: null
-      },
-      course: {},
-      show_real_time_inputs: false,
-      qr_scan: {},
-      qr_scans: [],
-      quizzes: [],
-      quiz: {},
-      quiz_question: {
-        answer_choices: []
-      },
-      answer_choice: "",
-      creating_meeting: false
+      course_id: "",
+      meeting: {}
     }
-  },
-  components: {
-    VueLottiePlayer
   },
   computed: {
   },
   created () {
-    this.getCourse()
+    this.course_id = this.$route.params.course_id
   },
   methods: {
-    async getCourse() {
-      try {
-        this.course_id = this.$route.params.course_id;
-        const response = await CourseAPI.getCourse(this.course_id)
-        this.course = response.data
-      } catch(error) {
-        console.log(error)
-        alert("Sorry, something went wrong")
-      }
-    },
-    selectSection(section) {
-     let [meeting_has_section, index] = this.meetingHasSection(section)
-     let section_container = document.getElementById(`section${section.section_number}`);
-     if(meeting_has_section)
-       this.removeSectionFromMeeting(index, section_container)
-     else {
-       this.addSectionToMeeting(section, section_container)
-     }
-    },
-    meetingHasSection(section) {
-     let meeting_has_section = false
-     let index = -1
-     for(let i = 0; i < this.sections.length; i++) {
-       if(this.sections[i].section_number
-           === section.section_number){
-         meeting_has_section = true
-         index = i 
-         break
-       }
-     }
-     return [meeting_has_section, index]
-    },
-    addSectionToMeeting(section, section_container) {
-     this.sections.push(section)
-     section_container.classList.add("selected-section")
-    },
-    removeSectionFromMeeting(index, section_container) {
-      this.sections.splice(index, 1);
-      section_container.classList.remove("selected-section")
-    },
-    addQRScan() {
-      this.qr_scans.push(this.qr_scan)
-      this.qr_scan = {}
-    },
-    removeQRScan(index) {
-      this.qr_scans.splice(index, 1)
-    },
-    async createMeeting() {
-      this.creating_meeting = true
-      try {
-        const response = await MeetingAPI.addMeeting(this.title,
-          this.real_time_portion, this.qr_scans.length, null,
-          this.sections)
-        const saved_meeting = response.data
-        const scheduled_qr_times = this.getScheduledQRTimes()
-        if(scheduled_qr_times.length > 0){
-          await this.scheduleShowQRNotificationsForInstructors(
-            saved_meeting._id, scheduled_qr_times)
-        }
-        this.$router.push({name: 'meeting_info', params: {meeting_id:
-          saved_meeting._id}})        
-      } catch(error) {
-        console.log(error)
-        alert("Sorry, something went wrong creating your meeting")
-      }
-    },
-    getScheduledQRTimes() {
-      let scheduled_qr_times = []
-      this.qr_scans.forEach(qr_scan => {
-        const scheduled_time = qr_scan.scheduled_time
-        if(scheduled_time != null)
-          scheduled_qr_times.push(scheduled_time)
-      })
-      return scheduled_qr_times
-    },
-    async scheduleShowQRNotificationsForInstructors(meeting_id,
-      scheduled_qr_times) {
-      try {
-        await NotificationAPI.scheduleShowQRNotificationsForInstructors(
-          this.course.instructor._id, null, meeting_id,
-          scheduled_qr_times)
-      } catch(error) {
-        console.log(error)
-        alert("Sorry, something went wrong scheduling your notifications")
-      }
-    },
-    addAnswerChoice() {
-      this.quiz_question.answer_choices.push(this.answer_choice)
-      this.answer_choice = ""
-    },
-    removeAnswerChoice(index) {
-      this.quiz_question.answer_choices.splice(index, 1)
-    }
+
   }
 }
 </script>
 
 <style scoped>
 #new-meeting {
-  text-align: center;
-  width: 80%;
+  border: black solid;
+  width: 88%;
   margin: auto;
-  margin-top: 2rem;
+  margin-top: 3rem;
+}
+
+#left-section {
+  border: blue solid;
+  width: 31%;
+  height: 45rem;
+}
+
+#logo {
+  height: 5rem;
+  margin-top: 3rem;
+  border: orange solid;
+  margin-right: 0;
+  margin-left: 4rem;
+  float: right;
+}
+
+#meeting-tasks-container {
+  margin-top: 14rem;
+  border: blue solid;
+  text-align: right;
+  height: 30rem;
+}
+
+#right-section {
+  padding-top: 6rem;
+  border: green solid;
+  width: 40%;
+  text-align: center;
+}
+
+#course-name {
+  font-size: 1.75rem;
+}
+
+.form .mt-3 {
+  margin-top: 3rem;
 }
 
 .section-selectors {
-  width: 32rem;
+  /*border: blue solid;*/
+/*  width: 32rem;
   margin: auto;
   position: relative;
   margin-top: 3rem;
-  margin-bottom: 3rem;
+  margin-bottom: 3rem;*/
 }
 
 .section-selector {
@@ -240,15 +180,8 @@ export default {
   color: white;
 }
 
-.mt-1 {
-  margin-top: 1rem;
-}
-
-.mt-2 {
-  margin-top: 2rem;
-}
-
-.qr-scan-container {
-  border: black solid;
+#button-container {
+  margin-top: 3rem;
+  margin-left: 1rem;
 }
 </style>
