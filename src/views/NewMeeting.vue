@@ -1,13 +1,6 @@
 <template>
   <div id="new-meeting">
     <div id="left-section" class="inline-block">
-<!--       <div class="floated-right-container">
-        <router-link class="float-right"
-        :to="{name: 'course_info', params: {id: course_id}}">
-          <sui-button content="Back to Course" icon="arrow left"
-          label-position="left" />
-        </router-link>
-      </div> -->
       <div class="floated-right-container">
         <router-link id="back-to-course-btn"
         :to="{name: 'course_info', params: {id: course_id}}">
@@ -28,64 +21,74 @@
         <p>No async tasks</p>
       </div>
     </div>
+
     <div id="right-section" class="inline-block">
       <h1>Schedule Meeting</h1>
       <div id="course-name">RCOS</div>
-      <sui-form class="form">
-        <div class="form-field">
-          <sui-form-field>
-            <label class="form-label">Title</label>
-            <input v-model="meeting.title">
-          </sui-form-field>
-        </div>
-        <h5 class="mt-3">Select the sections for your meeting</h5>
-        <div class="section-selectors">
-          <div class="section-selector">Section 1</div>
-          <div class="section-selector">Section 2</div>
-        </div>
-        <h5 class="mt-3">Add tasks to your meeting</h5>
-        <p>Tasks can also be added after your meeting is created</p>
-        <sui-button animated size="large"
-          style="background-color:#00b80c; color:white;
-          margin-left:1rem; width:16rem;">
-          <sui-button-content visible>
-            Add real-time tasks
-          </sui-button-content>
-          <sui-button-content hidden>
-            <sui-icon name="podcast" />
-          </sui-button-content>
-        </sui-button>
-        <sui-button animated size="large"
-          style="background-color:#00b80c; color:white;
-          margin-left:1rem; margin-top:1rem; width:16rem;">
-          <sui-button-content visible>
-            Add asynchronous tasks
-          </sui-button-content>
-          <sui-button-content hidden>
-            <sui-icon name="clock" />
-          </sui-button-content>
-        </sui-button>
-        <sui-dropdown selection
-        v-model="repeat_selection"
-        :options="repeat_options" class="mt-3 ml-1" />
-        <div v-if="repeat_selection == 3" class="mt-1 ml-1">
-          <sui-dropdown
-          multiple selection v-model="repeat_days_selection"
-          :options="repeat_days" placeholder="Select days to repeat on"
-          />
-          <div class="mt-2">
-            <sui-form-field>
-              <label class="form-label">End Date</label>
-              <input v-model="repeat_end_date" type="datetime-local">
+      <transition name="fade" mode="out-in">
+        <sui-form v-if="show_main_form" class="form"">
+          <div class="form-field">
+            <sui-form-field required>
+              <label class="form-label">Title</label>
+              <input v-model="meeting.title">
             </sui-form-field>
           </div>
-        </div>
-        <div id="button-container">
-          <Button text="Schedule" color="blue" size="large" invert_colors
-          wide/>
-        </div>
-      </sui-form>
-
+          <div class="mt-3">
+            <sui-form-field required>
+              <label>Select the sections for your meeting</label>
+            </sui-form-field>
+          </div>
+          <div class="section-selectors mt-1">
+            <div class="section-selector">Section 1</div>
+            <div class="section-selector">Section 2</div>
+          </div>
+          <h5 class="mt-3">Add tasks to your meeting</h5>
+          <p>Tasks can also be added after your meeting is created</p>
+          <sui-button @click.prevent="showRealTimePortionForm"
+            animated size="large"
+            style="background-color:#00b80c; color:white;
+            margin-left:1rem; width:16rem;">
+            <sui-button-content visible>
+              Add real-time tasks
+            </sui-button-content>
+            <sui-button-content hidden>
+              <sui-icon name="podcast" />
+            </sui-button-content>
+          </sui-button>
+          <sui-button animated size="large"
+            style="background-color:#00b80c; color:white;
+            margin-left:1rem; margin-top:1rem; width:16rem;">
+            <sui-button-content visible>
+              Add asynchronous tasks
+            </sui-button-content>
+            <sui-button-content hidden>
+              <sui-icon name="clock" />
+            </sui-button-content>
+          </sui-button>
+          <sui-dropdown selection
+          v-model="repeat_selection"
+          :options="repeat_options" class="mt-3 ml-1" />
+          <div v-if="repeat_selection == 3" class="mt-1 ml-1">
+            <sui-dropdown
+            multiple selection v-model="repeat_days_selection"
+            :options="repeat_days" placeholder="Select days to repeat on"
+            />
+            <div class="mt-2">
+              <sui-form-field>
+                <label class="form-label">End Date</label>
+                <input v-model="repeat_end_date" type="datetime-local">
+              </sui-form-field>
+            </div>
+          </div>
+          <div id="button-container">
+            <Button text="Schedule" color="blue" size="large" invert_colors
+            wide/>
+          </div>
+        </sui-form>
+        <RealTimePortionForm v-else
+        v-on:hide-form="hideRealTimePortionForm"
+        v-on:add-task="addTask" />
+      </transition>
     </div>
   </div>
 </template>
@@ -93,17 +96,20 @@
 <script>
 import Button from '../components/Button';
 import NewMeetingTaskCard from '@/components/NewMeetingTaskCard.vue';
+import RealTimePortionForm from '@/components/RealTimePortionForm.vue';
 
 export default {
   name: 'NewMeeting',
   components: {
     NewMeetingTaskCard,
-    Button
+    Button,
+    RealTimePortionForm
   },
   data () {
     return {
       course_id: "",
       meeting: {},
+      show_main_form: true,
       repeat_selection: 0,
       repeat_options: [
         {value: 0, text: "Does not repeat"}, 
@@ -130,7 +136,15 @@ export default {
     this.course_id = this.$route.params.course_id
   },
   methods: {
-
+    showRealTimePortionForm() {
+      this.show_main_form = false
+    },
+    hideRealTimePortionForm() {
+      this.show_main_form = true
+    },
+    addTask() {
+      this.hideRealTimePortionForm()
+    }
   }
 }
 </script>
