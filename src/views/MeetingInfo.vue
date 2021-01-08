@@ -124,11 +124,9 @@ export default {
         this.meeting_id = this.$route.params.meeting_id
         const response = await MeetingAPI.getMeeting(this.meeting_id)
         this.meeting = response.data
-        console.log("Meeting", this.meeting)
         this.meeting_course = this.meeting.sections[0].course
         this.setSideBarSubHeaders()
         this.meeting_student_ids = this.getMeetingStudentIDs(this.meeting)
-        console.log("Studentids", this.meeting_student_ids)
         this.meeting_has_loaded = true
       } catch(error) {
         console.log(error)
@@ -156,7 +154,7 @@ export default {
       this.show_qr_code_modal = true
     },
     hideFullScreenQRCodeModal() {
-      this.show_qr_code_modal = false
+      this.show_full_screen_code = false
       this.full_screen_qr_scan = null
     },
     showQRScanningWindow(qr_scan) {

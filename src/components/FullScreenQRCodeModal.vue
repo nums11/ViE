@@ -58,7 +58,6 @@ export default {
     }
   },
   created() {
-    console.log("student_ids", this.student_ids)
     this.getExistingSubmissions()
     this.startRealTimeQRScan()
     this.students = []
