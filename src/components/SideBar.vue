@@ -9,7 +9,7 @@
     class="side-bar-link-container">
       <div @click="showSection(link.link_name)"
       class="side-bar-link-wrapper"
-      :id="`${link.link_name}-wrapper`">
+      :id="`${removeSpaces(link.link_name)}-wrapper`">
         <sui-icon :name="link.icon_name" />
         <p class="side-bar-link">{{ link.link_name }}</p>
       </div>
@@ -54,13 +54,22 @@ export default {
   },
   data () {
     return {
-      active_section: "Meetings"
+      active_section: ""
     }
   },
-  async created () {
-
+  mounted () {
+    this.setDefaultActiveSectionBasedOnRoute()
   },
   methods: {
+    setDefaultActiveSectionBasedOnRoute() {
+      this.active_section = this.$route.name === 'course_info' ?
+      "Meetings" : "Real-Time Portion"
+      console.log("Active section", this.active_section)
+      let active_section_wrapper = this.getSectionWrapper(
+        this.active_section)
+      console.log("wrapper", active_section_wrapper)
+      active_section_wrapper.classList.add("active-section")
+    },
     showSection(section_name) {
       if(this.active_section !== "") {
         let active_section_wrapper = this.getSectionWrapper(
@@ -73,8 +82,12 @@ export default {
       this.$emit('show-section', section_name)
     },
     getSectionWrapper(section_name) {
-      return document.getElementById(`${section_name}-wrapper`)
+      return document.getElementById(
+        `${this.removeSpaces(section_name)}-wrapper`)
     },
+    removeSpaces(str) {
+      return str.replace(/\s/g, '');
+    }
   }
 }
 </script>

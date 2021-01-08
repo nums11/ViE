@@ -100,7 +100,8 @@ export default {
         {
           link_name: "Roster",
           icon_name: "user circle outline"
-        },{
+        },
+        {
           link_name: "Settings",
           icon_name: "cog"
         }
@@ -139,11 +140,8 @@ export default {
     this.setFakeMeetings()
     this.setFakeStudents()
     this.course_has_loaded = true
-    // this.selected_section = this.section_selector_options[0].text
-    // console.log("selected", this.selected_section)
   },
   mounted () {
-    // this.showSection("meetings")
   },
   methods: {
     async getCourse() {
@@ -255,9 +253,6 @@ export default {
         this.students.slice(24)
       this.section2.pending_approval_students =
         this.students.slice(18)
-        console.log("Pending", this.section1.pending_approval_students)
-        console.log("Pending", this.section2.pending_approval_students)
-
     }
   },
 }
@@ -266,7 +261,6 @@ export default {
 <style scoped>
 #course-info {
   margin-top: 3rem;
-  /*border: blue solid;*/
   min-height: 47rem;
   padding-left: 5rem;
   padding-right: 5rem;
@@ -280,13 +274,10 @@ export default {
 }
 
 #side-bar {
-  /*border: black solid;*/
-  /*width: 17rem;*/
   width: 18%;
 }
 
 #main {
-  /*border: red solid;*/
   padding-top: 0.5rem;
   width: 78%;
 }
@@ -299,10 +290,6 @@ export default {
   margin-top: 1rem;
   margin-left: 0.75rem;
 }
-
-/*.side-bar-link-container:first-of-type {
-  margin-top: 2rem;
-}*/
 
 .side-bar-link-wrapper {
   display: inline-block;
@@ -327,7 +314,6 @@ export default {
 }
 
 #meetings-section-header {
-  /*border: blue solid;*/
   font-size: 1.5rem;
   margin-bottom: 2rem;
 }

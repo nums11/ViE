@@ -40,15 +40,8 @@ export default {
       }
   },
   created () {
-    // this.assignMeetingCourseValues()
   },
   methods: {
-    // assignMeetingCourseValues() {
-    //   const meeting_course = this.meeting.sections[0].course
-    //   this.course_subject_code = meeting_course.dept
-    //   this.course_number = meeting_course.course_number
-    //   this.course_name = meeting_course.name
-    // }
   }
 }
 </script>
@@ -66,7 +59,7 @@ export default {
   height: 2.65rem;
   display: inline-block;
   width: 21rem;
-  padding-left: 0.35rem;
+  padding-left: 0.45rem;
   padding-right: 0.25rem;
   padding-top: 0.25rem;
 }
@@ -75,15 +68,14 @@ export default {
   display: inline-block;
   vertical-align: top;
   margin-top: 0.2rem;
-  /*border: orange solid;*/
+  color: #252b36bf;
+  font-weight: bold;
   width: 10rem;
 }
 
 .icon-section {
   display: inline-block;
-  /*border: black solid;*/
   margin-top: 0.5rem;
-  /*margin-left: 2rem;*/
   width: 4.5rem;
 }
 
@@ -100,11 +92,6 @@ export default {
 .view-meeting-btn-container {
   display: inline-block;
   vertical-align: top;
-  /*border: red solid;*/
   margin-left: 0.65rem;
 }
-
-/*.course-meeting-card:not(:first-child) {
-  margin-left: 3rem;
-}*/
 </style>

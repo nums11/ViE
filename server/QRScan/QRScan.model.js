@@ -12,7 +12,8 @@ let QRScan = new Schema({
   submissions: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Submission'
-  }]
+  }],
+  reminder_time: Date
 });
 
 module.exports = mongoose.model('QRScan', QRScan);
