@@ -4,48 +4,6 @@
     :sub_headers="['CSCI 1200']" :links="links"
     :instructors="instructors"
     v-on:show-section="showSection" />
-<!--     <div class="course-info-container" id="side-bar">
-      <h2 id="course-name">Data Structures</h2>
-      <h3 id="course-number">CSCI 1200</h3>
-      <div class="side-bar-link-container">
-        <div @click="showSection('meetings')"
-        class="side-bar-link-wrapper" id="meetings-wrapper">
-          <sui-icon name="users" />
-          <p class="side-bar-link">Meetings</p>
-        </div>
-      </div>
-      <div class="side-bar-link-container">
-        <div @click="showSection('statistics')"
-        class="side-bar-link-wrapper" id="statistics-wrapper">      
-          <sui-icon name="chart bar" />
-          <p class="side-bar-link">Statistics</p>
-        </div>
-      </div>
-      <div class="side-bar-link-container">
-        <div @click="showSection('roster')"
-        class="side-bar-link-wrapper" id="roster-wrapper">
-          <sui-icon name="user circle outline" />
-          <p class="side-bar-link">Roster</p>
-        </div>
-      </div>
-      <div class="side-bar-link-container">
-        <div @click="showSection('settings')"
-        class="side-bar-link-wrapper" id="settings-wrapper">
-          <sui-icon name="cog" />
-          <p class="side-bar-link">Settings</p>
-        </div>
-      </div>
-      <h3>Instructors</h3>
-      <div class="side-bar-link-container">
-        <sui-icon name="graduation cap" />
-        <p class="side-bar-link">John Doe</p>
-      </div>
-      <div class="side-bar-link-container">
-        <sui-icon name="graduation cap" />
-        <p class="side-bar-link">Steven Smith</p>
-      </div>
-    </div> -->
-
     <div v-if="!course_has_loaded">
       <sui-loader active name="Loading Course" />
     </div>
@@ -199,18 +157,7 @@ export default {
       }
     },
     showSection(section_name) {
-      // if(this.active_section !== "") {
-      //   let active_section_wrapper = this.getSectionWrapper(
-      //     this.active_section)
-      //   active_section_wrapper.classList.remove("active-section")
-      // }
-      // let section_wrapper = this.getSectionWrapper(section_name)
-      // section_wrapper.classList.add("active-section")
       this.active_section = section_name
-    },
-    getSectionWrapper(section_name) {
-      return document.getElementById(
-        `${section_name}-wrapper`)
     },
     setFakeMeetings() {
       this.meetings.push({

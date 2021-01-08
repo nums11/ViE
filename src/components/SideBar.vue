@@ -7,8 +7,9 @@
     </h3>
     <div v-for="link,index in links" :key="link.link_name"
     class="side-bar-link-container">
-      <div @click="$emit('show-section', link.link_name)"
-      class="side-bar-link-wrapper" >
+      <div @click="showSection(link.link_name)"
+      class="side-bar-link-wrapper"
+      :id="`${link.link_name}-wrapper`">
         <sui-icon :name="link.icon_name" />
         <p class="side-bar-link">{{ link.link_name }}</p>
       </div>
@@ -53,14 +54,27 @@ export default {
   },
   data () {
     return {
-
+      active_section: "Meetings"
     }
   },
   async created () {
 
   },
   methods: {
-
+    showSection(section_name) {
+      if(this.active_section !== "") {
+        let active_section_wrapper = this.getSectionWrapper(
+          this.active_section)
+        active_section_wrapper.classList.remove("active-section")
+      }
+      let section_wrapper = this.getSectionWrapper(section_name)
+      section_wrapper.classList.add("active-section")
+      this.active_section = section_name
+      this.$emit('show-section', section_name)
+    },
+    getSectionWrapper(section_name) {
+      return document.getElementById(`${section_name}-wrapper`)
+    },
   }
 }
 </script>
