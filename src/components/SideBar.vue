@@ -64,10 +64,8 @@ export default {
     setDefaultActiveSectionBasedOnRoute() {
       this.active_section = this.$route.name === 'course_info' ?
       "Meetings" : "Real-Time Portion"
-      console.log("Active section", this.active_section)
       let active_section_wrapper = this.getSectionWrapper(
         this.active_section)
-      console.log("wrapper", active_section_wrapper)
       active_section_wrapper.classList.add("active-section")
     },
     showSection(section_name) {

@@ -24,8 +24,8 @@
           <h4>Real-Time Portion</h4>
         </div>
         <p class="mt-1" v-if="realTimePortionSet">
-          {{ real_time_portion.real_time_start | moment("M/d h:mm a") }}
-          - {{ real_time_portion.real_time_end | moment("M/d h:mm a") }}
+          {{ real_time_portion.real_time_start | moment("M/D, h:mm a") }}
+          - {{ real_time_portion.real_time_end | moment("M/D, h:mm a") }}
         </p>
         <p class="mt-1" v-else>No real-time portion</p>
         <NewMeetingTaskCard v-for="(qr_scan, index) in

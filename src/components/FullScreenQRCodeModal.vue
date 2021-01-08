@@ -58,6 +58,7 @@ export default {
     }
   },
   created() {
+    console.log("student_ids", this.student_ids)
     this.getExistingSubmissions()
     this.startRealTimeQRScan()
     this.students = []
@@ -101,7 +102,7 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 .fullscreen-modal {
   position: fixed;
   top: 0;
@@ -109,32 +110,29 @@ export default {
   right: 0;
   bottom: 0;
   z-index: 2000;
-
-  .bottom-controls {
-    position: absolute;
-    bottom: 40px;
-    right: 40px;
-  }
-
-  .full-content-area {
-
-    .qr-code-fullscreen {
-        width: 650px;
-        margin: 0 auto;
-    }
-
-    .progress-bar-area {
-      width: 400px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .title-area {
-      font-size: 1.2rem;
-      font-weight: 600;
-    }
-
-  }
-
+  background-color: white;
 }
+
+.bottom-controls {
+  position: absolute;
+  bottom: 40px;
+  right: 40px;
+}
+
+.qr-code-fullscreen {
+    width: 650px;
+    margin: 0 auto;
+}
+
+.progress-bar-area {
+  width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title-area {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
 </style>

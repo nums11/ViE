@@ -1,55 +1,57 @@
 <template>
   <div id="course-info">
-    <SideBar header="Data Structures"
-    :sub_headers="['CSCI 1200']" :links="links"
-    :instructors="instructors"
-    v-on:show-section="showSection" />
     <div v-if="!course_has_loaded">
       <sui-loader active name="Loading Course" />
     </div>
-    <div v-else class="course-info-container" id="main">
-      <transition name="fade" mode="out-in">
-        <div v-if="active_section === 'Meetings'" id="meetings-section"
-        key="meetings">
-          <div id="meetings-section-header-container">
-            <div id="meetings-section-header">Meetings</div>
-            <div>
-              <sui-dropdown selection
-              placeholder="All sections"
-              :options="section_selector_options"
-              v-model="selected_section" />
-              <router-link :to="{name: 'course_new_meeting',
-              params: {course_id: course._id}}">
-                <sui-button animated size="small"
-                  style="background-color:#00b80c; color:white;
-                  float:right;">
-                  <sui-button-content visible>
-                    Schedule Meeting
-                  </sui-button-content>
-                  <sui-button-content hidden>
-                    <sui-icon name="calendar plus" />
-                  </sui-button-content>
-                </sui-button>
-              </router-link>
+    <div v-else>
+      <SideBar :header="course.name"
+      :sub_headers="[`${course.dept} ${course.course_number}`]"
+      :links="links" :instructors="[course.instructor]"
+      v-on:show-section="showSection" />
+      <div class="course-info-container" id="main">
+        <transition name="fade" mode="out-in">
+          <div v-if="active_section === 'Meetings'" id="meetings-section"
+          key="meetings">
+            <div id="meetings-section-header-container">
+              <div id="meetings-section-header">Meetings</div>
+              <div>
+                <sui-dropdown selection
+                placeholder="All sections"
+                :options="section_selector_options"
+                v-model="selected_section" />
+                <router-link :to="{name: 'course_new_meeting',
+                params: {course_id: course._id}}">
+                  <sui-button animated size="small"
+                    style="background-color:#00b80c; color:white;
+                    float:right;">
+                    <sui-button-content visible>
+                      Schedule Meeting
+                    </sui-button-content>
+                    <sui-button-content hidden>
+                      <sui-icon name="calendar plus" />
+                    </sui-button-content>
+                  </sui-button>
+                </router-link>
+              </div>
             </div>
+            <CourseMeetingsForMonthContainer month="March"
+            :meetings="meetings" />
+            <CourseMeetingsForMonthContainer month="Februrary"
+            :meetings="meetings" />
           </div>
-          <CourseMeetingsForMonthContainer month="March"
-          :meetings="meetings" />
-          <CourseMeetingsForMonthContainer month="Februrary"
-          :meetings="meetings" />
-        </div>
-        <div v-else-if="active_section === 'Statistics'"
-        id="roster-section" key="statistics">
-          <h1>Coming Soon...</h1>
-        </div>
-        <div v-else-if="active_section === 'Roster'"
-        id="roster-section" key="roster">
-          <SectionInfoContainer :section="section1" />
-          <SectionInfoContainer :section="section2" />
-        </div>
-        <h1 v-else-if="active_section === 'Settings'"
-        key="settings">Coming Soon...</h1>
-      </transition>
+          <div v-else-if="active_section === 'Statistics'"
+          id="roster-section" key="statistics">
+            <h1>Coming Soon...</h1>
+          </div>
+          <div v-else-if="active_section === 'Roster'"
+          id="roster-section" key="roster">
+            <SectionInfoContainer v-for="section in course.sections"
+            :key="section._id" :section="section" />
+          </div>
+          <h1 v-else-if="active_section === 'Settings'"
+          key="settings">Coming Soon...</h1>
+        </transition>
+      </div>
     </div>
   </div>
 </template>
@@ -139,7 +141,6 @@ export default {
     await this.getCourse()
     this.setFakeMeetings()
     this.setFakeStudents()
-    this.course_has_loaded = true
   },
   mounted () {
   },
@@ -149,6 +150,8 @@ export default {
         const response = await CourseAPI.getCourse(
           this.$route.params.id)
         this.course = response.data
+        console.log("Course", this.course)
+        this.course_has_loaded = true
       } catch(error) {
         console.log(error)
         alert("Sorry, something went wrong getting your course")

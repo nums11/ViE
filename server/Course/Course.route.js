@@ -389,37 +389,43 @@ courseRoutes.route('/get/:id/:with_meetings').get(function (req, res) {
     populate('secondary_instructor').
     populate({
       path: 'sections',
-      populate: [{
-        path: 'meetings',
-        populate: [{
-          path: 'real_time_portion',
-          populate: {
-            path: 'qr_scans',
-            populate: {
-              path: 'submissions',
-              populate: {
-                path: 'submitter'
-              }
-            }
-          }
-        }, 
+      populate: [
         {
-          path: 'async_portion',
-          populate: {
-            path: 'videos',
-            populate: {
-              path: 'video_submissions',
+          path: 'meetings',
+          populate: [
+            {
+              path: 'real_time_portion',
               populate: {
-                path: 'submitter'
+                path: 'qr_scans',
+                populate: {
+                  path: 'submissions',
+                  populate: {
+                    path: 'submitter'
+                  }
+                }
+              }
+            }, 
+            {
+              path: 'async_portion',
+              populate: {
+                path: 'videos',
+                populate: {
+                  path: 'video_submissions',
+                  populate: {
+                    path: 'submitter'
+                  }
+                }
               }
             }
-          }
-        }]
-      },{
-        path: 'students'
-      }, {
-        path: 'pending_approval_students'
-      }]
+          ]
+        },
+        {
+          path: 'students'
+        },
+        {
+          path: 'pending_approval_students'
+        }
+      ]
     }).
     exec((error,course) => {
       if(error || course == null){
@@ -436,7 +442,17 @@ courseRoutes.route('/get/:id/:with_meetings').get(function (req, res) {
     Course.findById(id).
     populate('instructor').
     populate('secondary_instructor').
-    populate('sections').
+    populate({
+      path: 'sections',
+      populate: [
+        {
+          path: 'students'
+        },
+        {
+          path: 'pending_approval_students'
+        }
+      ]
+    }).
     exec((error,course) => {
       if(error || course == null){
         console.log("<ERROR> (courses/get) Getting course with ID:",id, error)

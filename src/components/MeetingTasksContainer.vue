@@ -5,7 +5,8 @@
     </div>
     <div class="task-cards">
       <MeetingTaskCard v-for="(task, index) in tasks"
-      :key="index" :task="task" :index="index" />
+      :key="index" :task="task" :index="index"
+      v-on:show-qr="$emit('show-qr',task)" />
     </div>
   </div>
 </template>
@@ -47,7 +48,7 @@ export default {
 <style scoped>
 .meeting-tasks-container {
   /*border: red solid;*/
-  margin-top: 3rem;
+  margin-top: 4rem;
 }
 
 .header {

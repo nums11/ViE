@@ -726,7 +726,8 @@ async function createQRScans(qr_scans, instructor_id, meeting_id) {
       qr_scan_promises.push(new Promise(async (resolve, reject) => {
         const random_code = generateRandomCode() 
         const qr_scan = new QRScan({
-          code: random_code
+          code: random_code,
+          reminder_time: qr_scans[i].reminder_time
         })
         const saved_qr_scan = await qr_scan.save()
         resolve(saved_qr_scan)

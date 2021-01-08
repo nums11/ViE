@@ -4,10 +4,13 @@
       Section {{ section.section_number }}
     </div>
     <p class="ml-2 inline-block">
-      Closed Enrollment
+      {{ section.has_open_enrollment ?
+        'Open Enrollemnt' : 'Closed Enrollemnt'}}
     </p>
     <div>
-      <p class="inline-block">Join Code: ABCDEFGHIJ</p>
+      <p class="inline-block">
+        Join Code: {{ section.join_code }}
+      </p>
       <div class="inline-block float-right">
         <Button text="Invite Students" color="blue"
         size="extra-small" wide />
@@ -18,7 +21,7 @@
     <SectionTable table_name="Students"
     :students="section.students" />
     <SectionTable table_name="Invited Students"
-    :students="section.invited_students" />
+    :students="[]" />
   </div>
 </template>
 
@@ -44,7 +47,7 @@ export default {
     }
   },
   async created () {
-    
+    console.log("Section", this.section)
   },
   mounted () {
   },

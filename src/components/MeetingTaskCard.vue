@@ -4,12 +4,18 @@
       <div class="meeting-title wrap-text">
         QR Scan {{ index + 1 }}
       </div>
-      <div class="reminder-container inline-block">
-        Reminder: 12/2 2pm
+      <div v-if="task.reminder_time == null" 
+      class="reminder-container inline-block">
+        No Scheduled Reminder
+      </div>
+      <div v-else 
+      class="reminder-container inline-block">
+        Reminder: {{ task.reminder_time | moment("M/D, h:mm a") }}
       </div>
       <div class="divider"></div>
       <div class="btn-container">
-        <sui-button animated size="mini"
+        <sui-button @click="$emit('show-qr')"
+        animated size="mini"
         style="background-color:#00B3FF; color:white;">
           <sui-button-content visible>
             Show QR
@@ -75,9 +81,9 @@ export default {
   margin-top: 2rem;
   height: 2.75rem;
   display: inline-block;
-  width: 35.5rem;
+  width: 36rem;
   padding-left: 0.45rem;
-  padding-right: 0.25rem;
+  padding-right: 0.2rem;
   padding-top: 0.35rem;
 }
 
@@ -94,6 +100,7 @@ export default {
 
 .reminder-container {
   margin-top: 0.3rem;
+  font-size: 0.9rem;
 }
 
 .icon-section {
