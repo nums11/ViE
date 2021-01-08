@@ -1,6 +1,10 @@
 <template>
   <div id="course-info">
-    <div class="course-info-container" id="side-bar">
+    <SideBar header="Data Structures"
+    :sub_headers="['CSCI 1200']" :links="links"
+    :instructors="instructors"
+    v-on:show-section="showSection" />
+<!--     <div class="course-info-container" id="side-bar">
       <h2 id="course-name">Data Structures</h2>
       <h3 id="course-number">CSCI 1200</h3>
       <div class="side-bar-link-container">
@@ -40,14 +44,15 @@
         <sui-icon name="graduation cap" />
         <p class="side-bar-link">Steven Smith</p>
       </div>
-    </div>
+    </div> -->
 
     <div v-if="!course_has_loaded">
       <sui-loader active name="Loading Course" />
     </div>
     <div v-else class="course-info-container" id="main">
       <transition name="fade" mode="out-in">
-        <div v-if="active_section === 'meetings'" id="meetings-section">
+        <div v-if="active_section === 'Meetings'" id="meetings-section"
+        key="meetings">
           <div id="meetings-section-header-container">
             <div id="meetings-section-header">Meetings</div>
             <div>
@@ -75,22 +80,17 @@
           <CourseMeetingsForMonthContainer month="Februrary"
           :meetings="meetings" />
         </div>
-      </transition>
-      <transition name="fade" mode="">
-        <div v-if="active_section === 'statistics'"
-        id="roster-section">
-        <h1>Coming Soon...</h1>
+        <div v-else-if="active_section === 'Statistics'"
+        id="roster-section" key="statistics">
+          <h1>Coming Soon...</h1>
         </div>
-      </transition>
-      <transition name="fade" mode="out-in">
-        <div v-if="active_section === 'roster'"
-        id="roster-section">
+        <div v-else-if="active_section === 'Roster'"
+        id="roster-section" key="roster">
           <SectionInfoContainer :section="section1" />
           <SectionInfoContainer :section="section2" />
         </div>
-      </transition>
-      <transition name="fade" mode="out-in">
-        <h1 v-if="active_section === 'settings'">Coming Soon...</h1>
+        <h1 v-else-if="active_section === 'Settings'"
+        key="settings">Coming Soon...</h1>
       </transition>
     </div>
   </div>
@@ -101,18 +101,20 @@ import CourseMeetingsForMonthContainer from
 '@/components/CourseMeetingsForMonthContainer'
 import SectionInfoContainer from
 '@/components/SectionInfoContainer'
+import SideBar from '@/components/SideBar'
 import CourseAPI from '@/services/CourseAPI'
 
 export default {
   name: 'CourseInfo',
   components: {
     CourseMeetingsForMonthContainer,
-    SectionInfoContainer
+    SectionInfoContainer,
+    SideBar
   },
   data () {
     return {
       course: {},
-      active_section: "",
+      active_section: "Meetings",
       section_selector_options: [
         {
           text: "All Sections",
@@ -128,6 +130,33 @@ export default {
         },
       ],
       selected_section: null,
+      links: [
+        {
+          link_name: "Meetings",
+          icon_name: "users"
+        },
+        {
+          link_name: "Statistics",
+          icon_name: "chart bar"
+        },
+        {
+          link_name: "Roster",
+          icon_name: "user circle outline"
+        },{
+          link_name: "Settings",
+          icon_name: "cog"
+        }
+      ],
+      instructors: [
+        {
+          first_name: "John",
+          last_name: "Doe"
+        },
+        {
+          first_name: "Steven",
+          last_name: "Smith"
+        }
+      ],
       meetings: [],
       students: [],
       section1: {
@@ -156,7 +185,7 @@ export default {
     // console.log("selected", this.selected_section)
   },
   mounted () {
-    this.showSection("meetings")
+    // this.showSection("meetings")
   },
   methods: {
     async getCourse() {
@@ -170,13 +199,13 @@ export default {
       }
     },
     showSection(section_name) {
-      if(this.active_section !== "") {
-        let active_section_wrapper = this.getSectionWrapper(
-          this.active_section)
-        active_section_wrapper.classList.remove("active-section")
-      }
-      let section_wrapper = this.getSectionWrapper(section_name)
-      section_wrapper.classList.add("active-section")
+      // if(this.active_section !== "") {
+      //   let active_section_wrapper = this.getSectionWrapper(
+      //     this.active_section)
+      //   active_section_wrapper.classList.remove("active-section")
+      // }
+      // let section_wrapper = this.getSectionWrapper(section_name)
+      // section_wrapper.classList.add("active-section")
       this.active_section = section_name
     },
     getSectionWrapper(section_name) {
