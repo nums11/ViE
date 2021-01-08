@@ -6,7 +6,8 @@
     <div class="task-cards">
       <MeetingTaskCard v-for="(task, index) in tasks"
       :key="index" :task="task" :index="index"
-      v-on:show-qr="$emit('show-qr',task)" />
+      v-on:show-qr="$emit('show-qr',task)"
+      v-on:view-submissions="$emit('view-submissions',task)" />
     </div>
   </div>
 </template>

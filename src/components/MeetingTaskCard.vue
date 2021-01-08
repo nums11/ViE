@@ -28,6 +28,7 @@
       <div class="divider"></div>
       <div class="btn-container">
         <sui-button animated size="mini"
+        @click="$emit('view-submissions')"
         style="background-color:#00B3FF; color:white;">
           <sui-button-content visible>
             View Submissions

@@ -42,9 +42,15 @@
               </sui-button>
             </div>
             <div v-if="meeting.real_time_portion != null">
-              <MeetingTasksContainer task_type="qr_scan"
+              <SubmissionTable v-if="show_submission_table"
+              :task="table_task"
+              :student_ids="meeting_student_ids"
+              v-on:hide-submission-table="hideSubmissionTable" />
+              <MeetingTasksContainer v-else
+              task_type="qr_scan"
               :tasks="meeting.real_time_portion.qr_scans"
-              v-on:show-qr="showQRScanningWindow" />
+              v-on:show-qr="showQRScanningWindow"
+              v-on:view-submissions="viewSubmissions" />
             </div>
             <div class="no-portion-text" v-else>
               No Real-Time Portion. Click the button in the
@@ -74,7 +80,10 @@ import SideBar from '@/components/SideBar'
 import MeetingTasksContainer from 
 '@/components/MeetingTasksContainer'
 import MeetingAPI from '@/services/MeetingAPI'
-import FullScreenQRCodeModal from '@/components/FullScreenQRCodeModal.vue';
+import FullScreenQRCodeModal from
+'@/components/FullScreenQRCodeModal.vue';
+import SubmissionTable from
+'@/components/SubmissionTable.vue';
 import helpers from '@/helpers.js'
 
 export default {
@@ -83,7 +92,8 @@ export default {
   components: {
     SideBar,
     MeetingTasksContainer,
-    FullScreenQRCodeModal
+    FullScreenQRCodeModal,
+    SubmissionTable
   },
   data () {
     return {
@@ -112,7 +122,9 @@ export default {
       ],
       show_qr_scanning_window: false,
       full_screen_qr_scan: null,
-      show_full_screen_code: false
+      show_full_screen_code: false,
+      show_submission_table: false,
+      table_task: null
     }
   },
   created () {
@@ -161,6 +173,14 @@ export default {
       console.log("qr_scan", qr_scan)
       this.full_screen_qr_scan = qr_scan
       this.show_full_screen_code = true
+    },
+    viewSubmissions(task) {
+      this.show_submission_table = true
+      this.table_task = task
+    },
+    hideSubmissionTable() {
+      this.show_submission_table = false
+      this.table_task = null
     }
   }
 }
