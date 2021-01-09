@@ -86,16 +86,16 @@ meetingRoutes.post('/add', async (req, res, next) => {
   try {
     const new_meeting = new Meeting(meeting)
     let saved_meeting = await new_meeting.save()
-    // Create the meeting and the necessary objects
     let saved_real_time_portion = null, saved_async_portion = null
 
     if(real_time_portion != null) {
-      // Is this running twice
       const [saved_qr_scans, updated_notification_jobs] = 
         await createQRScans(real_time_portion.qr_scans,
           instructor_id, saved_meeting._id)
-      if(saved_qr_scans == null)
-        throw "<ERROR> meetings/add saving qr scans"
+      if(saved_qr_scans == null) {
+        throw "<ERROR> meetings/add saving qr scans and "
+          + "scheduling notifications"
+      }
       new_real_time_portion = new RealTimePortion({
         real_time_start: real_time_portion.real_time_start,
         real_time_end: real_time_portion.real_time_end,
@@ -104,7 +104,20 @@ meetingRoutes.post('/add', async (req, res, next) => {
       saved_real_time_portion = await new_real_time_portion.save()
     }
 
+    if(async_portion != null) {
+      const saved_videos = await createVideos(async_portion.videos)
+      if(saved_videos == null)
+        throw "<ERROR> meetings/add saving videos"
+      new_async_portion = new AsyncPortion({
+        async_start: async_portion.async_start,
+        async_end: async_portion.async_end,
+        videos: saved_videos
+      })
+      saved_async_portion = await new_async_portion.save()
+    }
+
     saved_meeting.real_time_portion = saved_real_time_portion
+    saved_meeting.async_portion = saved_async_portion
     saved_meeting.save()
     // Update the section, instructor, and students
     const updated_sections = await addMeetingToObjects(
@@ -751,6 +764,27 @@ async function createQRScans(qr_scans, instructor_id, meeting_id) {
   } catch(error) {
     console.log(`<ERROR> createQRScans qr_scans: ${qr_scans}`, error)
     return [null, null]
+  }
+}
+
+async function createVideos(videos) {
+  try {
+    let video_promises = []
+    videos.forEach(video => {
+      video_promises.push(new Promise(async (resolve, reject) => {
+        const new_video = new Video({
+          name: video.name,
+          url: video.url
+        })
+        const saved_video = await new_video.save()
+        resolve(saved_video)
+      }))
+    })
+    const saved_videos = await Promise.all(video_promises)
+    return saved_videos
+  } catch(error) {
+    console.log(`<ERROR> createVideos videos:`,videos, error)
+    return null
   }
 }
 

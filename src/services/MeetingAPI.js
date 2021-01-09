@@ -5,7 +5,7 @@ export default {
   getAllMeetings() {
     return API().get('meetings/all')
   },
-  saveVideoVideoToGCS(video) {
+  saveVideoToGCS(video) {
     let form_data = new FormData()
     form_data.append('video', video)
     return API().post('meetings/save_new_video/' + video.name, form_data,

@@ -16,51 +16,17 @@
       v-on:show-section="showSection" />
       <div class="inline-block" id="main">
         <transition name="fade" mode="out-in">
-          <div v-if="active_section === 'Real-Time Portion'" 
-          key="real-time portion">
-            <div id="section-header">Real-Time Portion</div>
-            <div>
-              <div v-if="meeting.real_time_portion != null"
-              class="inline-block" id="portion-times">
-                {{ meeting.real_time_portion.real_time_start
-                  | moment("MMM Do, h:mm a") }}
-                - {{ meeting.real_time_portion.real_time_end
-                  | moment("MMM Do, h:mm a") }}
-              </div>
-              <div v-else>
-                No Real-Time Portion
-              </div>
-              <sui-button animated size="small"
-                style="background-color:#00b80c; color:white;
-                float:right;">
-                <sui-button-content visible>
-                  Add Real-Time Tasks
-                </sui-button-content>
-                <sui-button-content hidden>
-                  <sui-icon name="podcast" />
-                </sui-button-content>
-              </sui-button>
-            </div>
-            <div v-if="meeting.real_time_portion != null">
-              <SubmissionTable v-if="show_submission_table"
-              :task="table_task"
-              :student_ids="meeting_student_ids"
-              v-on:hide-submission-table="hideSubmissionTable" />
-              <MeetingTasksContainer v-else
-              task_type="qr_scan"
-              :tasks="meeting.real_time_portion.qr_scans"
-              v-on:show-qr="showQRScanningWindow"
-              v-on:view-submissions="viewSubmissions" />
-            </div>
-            <div class="no-portion-text" v-else>
-              No Real-Time Portion. Click the button in the
-               top right to add real-time tasks.
-            </div>
-          </div>
-          <div v-else-if="active_section === 'Async Portion'"
-          key="async portion">
-            <h1>Coming Soon</h1>
-          </div>
+          <MeetingInfoPortionContainer
+          v-if="active_section === 'Real-Time Portion'"
+          key="real-time portion"
+          :real_time_portion="meeting.real_time_portion"
+          :meeting_student_ids="meeting_student_ids"
+          v-on:show-qr="showQRScanningWindow" />
+          <MeetingInfoPortionContainer
+          v-else-if="active_section === 'Async Portion'"
+          key="async portion"
+          :async_portion="meeting.async_portion"
+          :meeting_student_ids="meeting_student_ids" />
           <div v-else-if="active_section === 'Statistics'"
           key="statistics">
             <h1>Coming Soon</h1>
@@ -77,13 +43,11 @@
 
 <script>
 import SideBar from '@/components/SideBar'
-import MeetingTasksContainer from 
-'@/components/MeetingTasksContainer'
 import MeetingAPI from '@/services/MeetingAPI'
 import FullScreenQRCodeModal from
 '@/components/FullScreenQRCodeModal.vue';
-import SubmissionTable from
-'@/components/SubmissionTable.vue';
+import MeetingInfoPortionContainer from
+'@/components/MeetingInfoPortionContainer.vue';
 import helpers from '@/helpers.js'
 
 export default {
@@ -91,14 +55,14 @@ export default {
   mixins: [helpers],
   components: {
     SideBar,
-    MeetingTasksContainer,
     FullScreenQRCodeModal,
-    SubmissionTable
+    MeetingInfoPortionContainer
   },
   data () {
     return {
       meeting: {},
       meeting_course: {},
+      meeting_student_ids: [],
       sidebar_sub_headers: [],
       meeting_has_loaded: false,
       active_section: "Real-Time Portion",
@@ -123,8 +87,6 @@ export default {
       show_qr_scanning_window: false,
       full_screen_qr_scan: null,
       show_full_screen_code: false,
-      show_submission_table: false,
-      table_task: null
     }
   },
   created () {
@@ -136,6 +98,7 @@ export default {
         this.meeting_id = this.$route.params.meeting_id
         const response = await MeetingAPI.getMeeting(this.meeting_id)
         this.meeting = response.data
+        console.log("meeting", this.meeting.async_portion)
         this.meeting_course = this.meeting.sections[0].course
         this.setSideBarSubHeaders()
         this.meeting_student_ids = this.getMeetingStudentIDs(this.meeting)
@@ -170,17 +133,8 @@ export default {
       this.full_screen_qr_scan = null
     },
     showQRScanningWindow(qr_scan) {
-      console.log("qr_scan", qr_scan)
       this.full_screen_qr_scan = qr_scan
       this.show_full_screen_code = true
-    },
-    viewSubmissions(task) {
-      this.show_submission_table = true
-      this.table_task = task
-    },
-    hideSubmissionTable() {
-      this.show_submission_table = false
-      this.table_task = null
     }
   }
 }

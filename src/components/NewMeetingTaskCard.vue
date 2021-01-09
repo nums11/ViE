@@ -7,13 +7,17 @@
     <div v-if="is_qr" class="new-meeting-task-card inline-block">
       <sui-icon class="card-icon" name="qrcode" />
       <div class="float-left">QR Scan {{ index+1 }}</div>
-      <div v-if="reminder_time == null">No Reminder</div>
-      <div v-else>{{ reminder_time | moment("M/d h:mm a") }}</div>
+      <div v-if="task.reminder_time == null">No Reminder</div>
+      <div v-else>{{ task.reminder_time | moment("M/d h:mm a") }}</div>
     </div>
     <div v-else class="new-meeting-task-card inline-block">
       <sui-icon class="card-icon" name="play circle outline" />
-      <div class="float-left">Video {{ index+1 }}</div>
-      <div>10m 30s</div>
+      <div class="video-name float-left wrap-text">
+        {{ task.name }}
+      </div>
+      <div class="video-name float-right wrap-text">
+        {{ task.video_file.name }}
+      </div>
     </div>
   </div>
 </template>
@@ -29,10 +33,10 @@ export default {
     },
     index: {
       type: Number,
-      required: true
     },
-    reminder_time: {
-      type: String,
+    task: {
+      type: Object,
+      required: true
     }
   },
   components: {
@@ -76,7 +80,9 @@ export default {
 
 .card-icon {
   float: left;
-  /*margin-left: 0.5rem;*/
 }
 
+.video-name {
+  width: 40%;
+}
 </style>

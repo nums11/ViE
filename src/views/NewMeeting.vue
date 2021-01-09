@@ -166,10 +166,6 @@ export default {
     }
   },
   computed: {
-    realTimePortionSet() {
-      return this.real_time_portion.real_time_start != null
-        && this.real_time_portion.real_time_end != null
-    }
   },
   created () {
     this.getCourse()
@@ -263,17 +259,38 @@ export default {
       else
         this.async_portion.videos.splice(index,1)
     },
+    portionTimesSet(is_real_time) {
+      if(is_real_time) {
+        return (this.real_time_portion.real_time_start != null
+          && this.real_time_portion.real_time_end != null)
+      } else {
+        return (this.async_portion.async_start != null
+          && this.async_portion.async_end != null)
+      }
+    },
     async createMeeting() {
       try {
         this.creating_meeting = true
         let real_time_portion;
-        if(this.realTimePortionSet &&
+        let async_portion;
+        if(this.portionTimesSet(true) &&
           this.real_time_portion.qr_scans.length > 0)
           real_time_portion = this.real_time_portion
         else
           real_time_portion = null
+        if(this.portionTimesSet(false) &&
+          this.async_portion.videos.length > 0)
+          async_portion = this.async_portion
+        else
+          async_portion = null
+        if(async_portion != null){
+          const videos_with_urls = await this.saveVideosToGCS()
+          if(videos_with_urls == null)
+            throw "Error saving videos to GCS"
+          async_portion.videos = videos_with_urls
+        }
         const response = await MeetingAPI.addMeeting(this.meeting,
-          real_time_portion, null, this.state_user._id)
+          real_time_portion, async_portion, this.state_user._id)
         const saved_meeting = response.data
         this.$router.push({name: 'meeting_info', params: {meeting_id:
           saved_meeting._id}})        
@@ -283,6 +300,29 @@ export default {
         this.creating_meeting = false
       }
     },
+    async saveVideosToGCS() {
+      try {
+        let video_promises = []
+        this.async_portion.videos.forEach(video => {
+          video_promises.push(new Promise(async (resolve, reject) => {
+            try {
+              const response =
+                await MeetingAPI.saveVideoToGCS(video.video_file)
+              const video_url = response.data
+              video.url = video_url
+              resolve(video)
+            } catch(error) {
+              reject(error)
+            }
+          }))
+        })
+        const videos_with_urls = await Promise.all(video_promises)
+        return videos_with_urls
+      } catch(error) {
+        console.log(error)
+        return null
+      }
+    }
   }
 }
 </script>

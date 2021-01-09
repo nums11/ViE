@@ -4,12 +4,16 @@
       <sui-table-header>
         <sui-table-row>
           <sui-table-header-cell colspan="2">
-            QR Scan 1 Submissions
+            {{ is_qr ? 'QR Scan' : 'Video' }} Submissions
           </sui-table-header-cell>
         </sui-table-row>
         <sui-table-row>
-          <sui-table-header-cell>Present (8/20)</sui-table-header-cell>
-          <sui-table-header-cell>Absent (4/20)</sui-table-header-cell>
+          <sui-table-header-cell>
+            Present ({{ task.submissions.length }}/{{ student_ids.size }})
+          </sui-table-header-cell>
+          <sui-table-header-cell>
+            Absent ({{ student_ids.size }}/{{ student_ids.size }})
+          </sui-table-header-cell>
         </sui-table-row>
       </sui-table-header>
       <sui-table-body>
@@ -41,6 +45,10 @@ export default {
     },
     student_ids: {
       type: Set,
+      required: true
+    },
+    is_qr: {
+      type: Boolean,
       required: true
     }
   },

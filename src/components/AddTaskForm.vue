@@ -36,6 +36,15 @@
           <input v-model="task.reminder_time" type="datetime-local">
         </sui-form-field>
       </div>
+      <div class="form-field" v-else>
+        <sui-form-field>
+          <label class="form-label">Video Name</label>
+          <input v-model="task.name" placeholder="Class Video">
+        </sui-form-field>
+        <sui-form-field>
+          <input @change="setVideoFile" type="file">
+        </sui-form-field>
+      </div>
       <div class="form-field">
         <sui-button @click.prevent="$emit('add-task', task)"
         animated
@@ -114,7 +123,11 @@ export default {
         else
           this.async_portion.async_end = this.end
       }
-    }
+    },
+    setVideoFile (e) {
+      // todo check if valid file extension
+      this.task.video_file = e.target.files[0]
+    },
   }
 }
 </script>

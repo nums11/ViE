@@ -20,7 +20,7 @@
     <p class="mt-1" v-else>{{ no_portion_message }}</p>
     <NewMeetingTaskCard v-for="(task, index) in portion_tasks"
     :is_qr="is_real_time" :key="index" :index="index"
-    :reminder_time="task.reminder_time"
+    :task="task"
     v-on:remove-task="$emit('remove-task',index)" />
   </div>
 </template>

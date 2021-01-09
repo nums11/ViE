@@ -5,6 +5,10 @@ const Quiz = require('../Quiz/Quiz.model');
 
 //Define collection and schema for User
 const Video = new Schema({
+	name: {
+		type: String,
+		required: true
+	},
 	url: {
 		type: String,
 		required: true

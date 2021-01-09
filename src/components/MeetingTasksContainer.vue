@@ -1,12 +1,13 @@
 <template>
   <div class="meeting-tasks-container">
-    <div class="header" v-if="task_type === 'qr_scan'">
-      QR Scans ({{ tasks.length }})
+    <div class="header">
+      {{ task_type === 'qr_scan' ? 'QR Scans' : 'Videos' }}
+       ({{ tasks.length }})
     </div>
     <div class="task-cards">
       <MeetingTaskCard v-for="(task, index) in tasks"
       :key="index" :task="task" :index="index"
-      v-on:show-qr="$emit('show-qr',task)"
+      :task_type="task_type" v-on:show-qr="$emit('show-qr',task)"
       v-on:view-submissions="$emit('view-submissions',task)" />
     </div>
   </div>
