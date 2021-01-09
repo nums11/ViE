@@ -1,0 +1,142 @@
+<template>
+  <div id="add-task-form">
+    <sui-button @click="$emit('hide-form')"
+    content="Cancel" icon="arrow left"
+    label-position="left" />
+    <sui-form class="form">
+      <div class="form-field">
+        <sui-form-field required>
+        <label class="form-label">{{ start_label }}</label>
+          <input v-model="start" @change="updatePropTime('start')"
+          type="datetime-local">
+        </sui-form-field>
+      </div>
+      <div class="form-field">
+        <sui-form-field required>
+          <label class="form-label">{{ end_label }}</label>
+          <input v-model="end" @change="updatePropTime('end')"
+          type="datetime-local">
+        </sui-form-field>
+      </div>
+      <div id="radio-container">
+        <sui-form-fields inline>
+          <sui-form-field>
+            <sui-checkbox :label="radio_label_one" radio value="1"
+            v-model="value" defaultChecked />
+          </sui-form-field>
+          <sui-form-field>
+            <sui-checkbox :label="radio_label_two" radio value="2"
+            v-model="value" />
+          </sui-form-field>
+        </sui-form-fields>
+      </div>
+      <div class="form-field" v-if='is_real_time'>
+        <sui-form-field>
+          <label class="form-label">Schedule Reminder</label>
+          <input v-model="task.reminder_time" type="datetime-local">
+        </sui-form-field>
+      </div>
+      <div class="form-field">
+        <sui-button @click.prevent="$emit('add-task', task)"
+        animated
+        style="background-color:#00b80c; color:white;">
+          <sui-button-content visible>
+            Add Task
+          </sui-button-content>
+          <sui-button-content hidden>
+            <sui-icon name="podcast" />
+          </sui-button-content>
+        </sui-button>
+      </div>
+    </sui-form>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'AddTaskForm',
+  props: {
+    real_time_portion: Object,
+    async_portion: Object
+  },
+  components: {
+
+  },
+  data () {
+    return {
+      task: {
+        reminder_time: null,
+      },
+      value: 1,
+      is_real_time: Boolean,
+      start_label: "",
+      end_label: "",
+      start: Date,
+      end: Date,
+      radio_label_one: "",
+      radio_label_two: ""
+    }
+  },
+  computed: {
+  },
+  created () {
+    this.is_real_time = this.real_time_portion != null
+    this.setLabelsAndDates()
+  },
+  methods: {
+    setLabelsAndDates() {
+      let label_prefix = ""
+      if(this.is_real_time) {
+        label_prefix = "Real-Time"
+        this.start = this.real_time_portion.real_time_start
+        this.end = this.real_time_portion.real_time_end
+        this.radio_label_one = "QR Scan"
+        this.radio_label_two = "Quiz"
+      } else {
+        label_prefix = "Async"
+        this.start = this.async_portion.async_start
+        this.end = this.async_portion.async_end
+        this.radio_label_one = "Video"
+        this.radio_label_two = "Link"
+      }
+      this.start_label = `${label_prefix} start`
+      this.end_label = `${label_prefix} end`
+    },
+    updatePropTime(time) {
+      if(time === "start") {
+        if(this.is_real_time)
+          this.real_time_portion.real_time_start = this.start
+        else
+          this.async_portion.async_start = this.start
+      } else {
+        if(this.is_real_time)
+          this.real_time_portion.real_time_end = this.end
+        else
+          this.async_portion.async_end = this.end
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+#add-task-form {
+  margin-top: 2rem;
+}
+.form {
+  /*border: black solid;*/
+  /*width: 80%;*/
+}
+
+.date-input {
+  margin-left: 1rem;
+  margin-right: 1rem;
+  width: 13rem;
+}
+
+#radio-container {
+  width: 12rem;
+  margin: auto;
+  margin-top: 3rem;
+}
+</style>

@@ -14,29 +14,12 @@
         </router-link>
         <img src="@/assets/logo.svg" id="logo" />
       </div>
-      <div class="floated-right-container"
-      id="real-time-portion-container">
-        <div v-if="realTimePortionSet" @click="clearRealTimePortion"
-        class="inline-block" id="clear-btn-container">
-          <sui-button content="clear" size="mini" />
-        </div>
-        <div class="inline-block">
-          <h4>Real-Time Portion</h4>
-        </div>
-        <p class="mt-1" v-if="realTimePortionSet">
-          {{ real_time_portion.real_time_start | moment("M/D, h:mm a") }}
-          - {{ real_time_portion.real_time_end | moment("M/D, h:mm a") }}
-        </p>
-        <p class="mt-1" v-else>No real-time portion</p>
-        <NewMeetingTaskCard v-for="(qr_scan, index) in
-        real_time_portion.qr_scans" :key="index" :index="index"
-        :reminder_time="qr_scan.reminder_time"
-        v-on:remove-task="removeTask(index)" />
-      </div>
-      <div class="floated-right-container" id="async-portion-container">
-        <h4>Async Portion</h4>
-        <p>No async tasks</p>
-      </div>
+      <NewMeetingPortionContainer :real_time_portion="real_time_portion"
+      v-on:clear-portion="clearPortion"
+      v-on:remove-task="removeTask('qr_scan', ...arguments)" />
+      <NewMeetingPortionContainer :async_portion="async_portion"
+      v-on:clear-portion="clearPortion"
+      v-on:remove-task="removeTask('video', ...arguments)" />
     </div>
 
     <div v-if="!course_has_loaded">
@@ -55,7 +38,7 @@
           </div>
           <h5 class="mt-3">Add tasks to your meeting</h5>
           <p>Tasks can also be added after your meeting is created</p>
-          <sui-button @click.prevent="showRealTimePortionForm"
+          <sui-button @click.prevent="showTaskForm('real-time')"
             animated size="large"
             style="background-color:#00b80c; color:white;
             margin-left:1rem; width:16rem;">
@@ -66,7 +49,8 @@
               <sui-icon name="podcast" />
             </sui-button-content>
           </sui-button>
-          <sui-button animated size="large"
+          <sui-button @click.prevent="showTaskForm('async')"
+            animated size="large"
             style="background-color:#00b80c; color:white;
             margin-left:1rem; margin-top:1rem; width:16rem;">
             <sui-button-content visible>
@@ -109,10 +93,14 @@
             wide/>
           </div>
         </sui-form>
-        <RealTimePortionForm v-else
+        <AddTaskForm v-else-if="show_real_time_task_form"
         :real_time_portion="real_time_portion"
-        v-on:hide-form="hideRealTimePortionForm"
-        v-on:add-task="addTask" />
+        v-on:hide-form="hideAddTaskForm"
+        v-on:add-task="addTask('qr_scan', ...arguments)" />
+        <AddTaskForm v-else-if="show_async_task_form"
+        :async_portion="async_portion"
+        v-on:hide-form="hideAddTaskForm"
+        v-on:add-task="addTask('video', ...arguments)" />
       </transition>
     </div>
   </div>
@@ -122,17 +110,18 @@
 import CourseAPI from '@/services/CourseAPI'
 import MeetingAPI from '@/services/MeetingAPI'
 import Button from '../components/Button';
-import NewMeetingTaskCard from '@/components/NewMeetingTaskCard.vue';
-import RealTimePortionForm from '@/components/RealTimePortionForm.vue';
+import AddTaskForm from '@/components/AddTaskForm.vue';
+import NewMeetingPortionContainer from
+'@/components/NewMeetingPortionContainer.vue';
 import VueLottiePlayer from 'vue-lottie-player'
 
 export default {
   name: 'NewMeeting',
   components: {
-    NewMeetingTaskCard,
     Button,
-    RealTimePortionForm,
-    VueLottiePlayer
+    AddTaskForm,
+    VueLottiePlayer,
+    NewMeetingPortionContainer
   },
   data () {
     return {
@@ -147,7 +136,14 @@ export default {
         real_time_end: null,
         qr_scans: []
       },
+      async_portion: {
+        async_start: null,
+        async_end: null,
+        videos: []
+      },
       show_main_form: true,
+      show_real_time_task_form: false,
+      show_async_task_form: false,
       repeat_selection: 0,
       repeat_options: [
         {value: 0, text: "Does not repeat"}, 
@@ -190,23 +186,39 @@ export default {
         alert("Sorry, something went wrong")
       }
     },
-    showRealTimePortionForm() {
+    showTaskForm(task_type) {
       this.show_main_form = false
-    },
-    hideRealTimePortionForm() {
-      this.show_main_form = true
-      this.meeting.sections = []
-    },
-    clearRealTimePortion() {
-      this.real_time_portion = {
-        real_time_start: null,
-        real_time_end: null,
-        qr_scans: []
+      if(task_type === 'real-time') {
+        this.show_real_time_task_form = true
+        this.show_async_task_form = false
+      } else if(task_type === 'async') {
+        this.show_real_time_task_form = false
+        this.show_async_task_form = true
       }
     },
-    addTask(task) {
-      this.real_time_portion.qr_scans.push(task)
-      this.hideRealTimePortionForm()
+    hideAddTaskForm() {
+      this.show_main_form = true
+      this.show_real_time_task_form = false
+      this.show_async_task_form = false
+      this.meeting.sections = []
+    },
+    clearPortion(is_real_time) {
+      if(is_real_time) {
+        this.real_time_portion.real_time_start = null
+        this.real_time_portion.real_time_end = null
+        this.real_time_portion.qr_scans = []
+      } else {
+        this.async_portion.async_start = null
+        this.async_portion.async_end = null
+        this.async_portion.videos = []
+      }
+    },
+    addTask(task_type, task) {
+      if(task_type === 'qr_scan')
+        this.real_time_portion.qr_scans.push(task)
+      else
+        this.async_portion.videos.push(task)
+      this.hideAddTaskForm()
     },
     selectSection(section) {
      let [meeting_has_section, index] = this.meetingHasSection(section)
@@ -245,8 +257,11 @@ export default {
       this.meeting.sections.splice(index, 1);
       section_container.classList.remove("selected-section")
     },
-    removeTask(index) {
-      this.real_time_portion.qr_scans.splice(index,1)
+    removeTask(task_type, index) {
+      if(task_type === 'qr_scan')
+        this.real_time_portion.qr_scans.splice(index,1)
+      else
+        this.async_portion.videos.splice(index,1)
     },
     async createMeeting() {
       try {
@@ -304,22 +319,6 @@ export default {
   height: 5rem;
   /*border: orange solid;*/
   float: right;
-}
-
-#real-time-portion-container {
-  /*border: black solid;*/
-  text-align: right;
-  margin-top: 2.5rem;
-}
-
-#clear-btn-container {
-  margin-right: 2rem;
-}
-
-#async-portion-container {
-  /*border: red solid;*/
-  margin-top: 2rem;
-  text-align: right;
 }
 
 #right-section {

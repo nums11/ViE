@@ -4,11 +4,16 @@
     class="remove-btn" size="mini" color="red">
       <sui-icon name="x"/>
     </sui-button>
-    <div class="new-meeting-task-card inline-block">
+    <div v-if="is_qr" class="new-meeting-task-card inline-block">
       <sui-icon class="card-icon" name="qrcode" />
       <div class="float-left">QR Scan {{ index+1 }}</div>
       <div v-if="reminder_time == null">No Reminder</div>
       <div v-else>{{ reminder_time | moment("M/d h:mm a") }}</div>
+    </div>
+    <div v-else class="new-meeting-task-card inline-block">
+      <sui-icon class="card-icon" name="play circle outline" />
+      <div class="float-left">Video {{ index+1 }}</div>
+      <div>10m 30s</div>
     </div>
   </div>
 </template>
@@ -18,6 +23,10 @@
 export default {
   name: 'NewMeetingTaskCard',
   props: {
+    is_qr: {
+      type: Boolean,
+      required: true
+    },
     index: {
       type: Number,
       required: true
