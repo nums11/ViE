@@ -6,14 +6,24 @@
     <sui-form class="form">
       <div class="form-field">
         <sui-form-field required>
-        <label class="form-label">{{ start_label }}</label>
+        <sui-popup :content="start_popup_text" position="top center"
+        inverted basic>
+          <label slot="trigger" class="form-label">
+            {{ start_label }}
+          </label>
+        </sui-popup>
           <input v-model="start" @change="updatePropTime('start')"
           type="datetime-local">
         </sui-form-field>
       </div>
       <div class="form-field">
         <sui-form-field required>
-          <label class="form-label">{{ end_label }}</label>
+          <sui-popup :content="end_popup_text" position="top center"
+          inverted basic>
+            <label slot="trigger" class="form-label">
+              {{ end_label }}
+            </label>
+          </sui-popup>
           <input v-model="end" @change="updatePropTime('end')"
           type="datetime-local">
         </sui-form-field>
@@ -80,6 +90,8 @@ export default {
       is_real_time: Boolean,
       start_label: "",
       end_label: "",
+      start_popup_text: "",
+      end_popup_text: "",
       start: Date,
       end: Date,
       radio_label_one: "",
@@ -108,8 +120,20 @@ export default {
         this.radio_label_one = "Video"
         this.radio_label_two = "Link"
       }
+      this.setPopupText()
       this.start_label = `${label_prefix} start`
       this.end_label = `${label_prefix} end`
+    },
+    setPopupText() {
+      let task_type = ""
+      if(this.is_real_time)
+        task_type = "real-time"
+      else
+        task_type = "async"
+      this.start_popup_text = `Students can begin submitting `
+        + `to ${task_type} tasks at this time`
+      this.end_popup_text = `Students can no longer submit to `
+                + `${task_type} tasks after this time`
     },
     updatePropTime(time) {
       if(time === "start") {

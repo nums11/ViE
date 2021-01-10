@@ -7,9 +7,12 @@ const SectionHelper = require('../helpers/section_helper')
 const UserHelper = require('../helpers/user_helper')
 const User = require('../User/User.model');
 const Section = require('../Section/Section.model');
+const passport = require('passport')
 
 const alnums = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const base_url = getBaseURL()
+const [base_url, server_base_url] = getBaseURLs()
+console.log("base_url", base_url)
+console.log("server_base_url", server_base_url)
 
 async function generateSID() {
   let venueSID = ""
@@ -24,52 +27,31 @@ async function generateSID() {
   }
 }
 
-//Passport setup START
-const passport = require('passport')
+// Set up passport for CAS Auth
 passport.serializeUser(function(user, done) {
   done(null, user);
 });
 passport.deserializeUser(function(user, done) {
   done(null, user);
 });
-if(process.env.NODE_ENV === "production") {
-  passport.use(new (require('passport-cas').Strategy)({
-    version: 'CAS3.0',
-    ssoBaseURL: 'https://cas-auth.rpi.edu/cas',
-    serverBaseURL: 'https://viengage.com'
-  }, function(profile, done) {
-    var login = profile.user.toLowerCase();
-    User.findOne({user_id: login}, function (err, user) {
-      if (err) {
-        return done(err);
-      }
-      if (!user) {
-        return done(null, false, {message: 'Unknown user'});
-      }
-      user.attributes = profile.attributes;
-      return done(null, user);
-    });
-  }));
-} else {
-  passport.use(new (require('passport-cas').Strategy)({
-    version: 'CAS3.0',
-    ssoBaseURL: 'https://cas-auth.rpi.edu/cas',
-    serverBaseURL: 'http://localhost:4000'
-  }, function(profile, done) {
-    var login = profile.user.toLowerCase();
-    User.findOne({user_id: login}, function (err, user) {
-      if (err) {
-        return done(err);
-      }
-      if (!user) {
-        return done(null, false, {user_id: login});
-      }
-      user.attributes = profile.attributes;
-      return done(null, user, {user_id: login});
-    });
-  }));
-}
-//Passport setup END
+passport.use(new (require('passport-cas').Strategy)({
+  version: 'CAS3.0',
+  ssoBaseURL: 'https://cas-auth.rpi.edu/cas',
+  serverBaseURL: server_base_url
+}, function(profile, done) {
+  console.log("")
+  const login = profile.user.toLowerCase();
+  User.findOne({user_id: login}, function (err, user) {
+    if (err) {
+      return done(err);
+    }
+    if (!user) {
+      return done(null, false, {user_id: login});
+    }
+    user.attributes = profile.attributes;
+    return done(null, user, {user_id: login});
+  });
+}));
 
 authRoutes.route('/onboard_user/:optional_invited_section_id/:optional_invite_code')
 .post(async function (req, res, next) {
@@ -92,27 +74,24 @@ authRoutes.route('/onboard_user/:optional_invited_section_id/:optional_invite_co
 
 authRoutes.route('/login').post(function (req, res) {
   let user = req.body.user
-  if(user){
-    User.findOne({ user_id: user.user_id }, function(error, current_user) {
-      if(error || !current_user){
-        console.log("Error unable to find user: " + user)
-        res.status(404).json({ error: 'Invalid Login Credentials. Please try again' })
-      }
-      else {
-        bcrypt.compare(user.password, current_user.password, function(err, result) {
-          if(result == true){
-            const token = jwt.sign(current_user.user_id + current_user.last_name +
-              current_user.first_name, process.env.AUTH_KEY)
-            res.json({token, current_user})
-          } else {
-            res.status(404).json({ error: 'Invalid Login Credentials. Please try again' })
-          }
-        });
-      }
-    })
-  }else{
-    res.status(400).json({ error: 'Invalid login. Please try again.' })
-  }
+  User.findOne({ user_id: user.user_id }, function(error, current_user) {
+    if(error || !current_user){
+      console.log("Error unable to find user: " + user)
+      res.status(404).json({ error: 'Invalid Login Credentials. Please try again' })
+    }
+    else {
+      bcrypt.compare(user.password, current_user.password, function(err, result) {
+        if(result == true){
+          const token = jwt.sign(current_user.user_id + current_user.last_name +
+            current_user.first_name, process.env.AUTH_KEY)
+          console.log("<SUCCESS> (auth/login)")
+          res.json({token, current_user})
+        } else {
+          res.status(404).json({ error: 'Invalid Login Credentials. Please try again' })
+        }
+      });
+    }
+  })
 });
 
 authRoutes.route('/check_for_temp_user/:user_id/:temp_password').get(function (req, res) {
@@ -206,24 +185,15 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next)
 });
 
 authRoutes.get("/signup", (req, res, next) => {
-  console.log("In signup route")
   passport.authenticate('cas', function (err, user, info) {
-    console.log("Authenticated cas")
     if (err) {
       console.log("<ERROR> (auth/signup) authenticating", err)
       next(err);
     } else if (user) {
-      console.log("User already exists")
       res.redirect(`${base_url}/signup/true`)
     } else {
-      let user_id = info.user_id
-      console.log("User did not already exist", user_id)
-      if(process.env.NODE_ENV === "production")
-        res.redirect(`https://viengage.com/#/create_user/`
-          + `${user_id}/null/null`);
-      else
-        res.redirect(`http://localhost:8080/#/create_user/${user_id}`
-          + `/null/null`);
+      const user_id = info.user_id
+      res.redirect(`${base_url}/create_user/${user_id}/null/null`)
     }
   })(req, res, next);
 });
@@ -370,11 +340,16 @@ async function acceptSectionInvite(section_id, student_id,
   }
 }
 
-function getBaseURL() {
-  if(process.env.NODE_ENV === "production")
-    return "https://viengage.com/#"
-  else
-    return "http://localhost:8080/#"
+function getBaseURLs() {
+  console.log("Getting base urls")
+  if(process.env.NODE_ENV === "production"){
+    const url = "https://viengage.com"
+    return [url, `${url}/#`]
+  } else {
+    return ["http://localhost:4000",
+      "http://localhost:8080/#"]
+  }
 }
+
 
 module.exports = authRoutes;
