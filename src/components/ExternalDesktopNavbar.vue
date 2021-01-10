@@ -7,12 +7,13 @@
       </router-link>
     </div>
     <div id="nav-buttons-container">
-      <router-link class="nav-link" :to="{name: 'features'}">
+      <!-- Add back -->
+<!--       <router-link class="nav-link" :to="{name: 'features'}">
         Features
       </router-link>
       <router-link class="nav-link" :to="{name: 'blog'}">
         Blog
-      </router-link>
+      </router-link> -->
     </div>
     <div id="login-signup-buttons-container">
       <router-link class="nav-link" :to="{name: 'login'}">
