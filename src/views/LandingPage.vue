@@ -31,8 +31,10 @@
       <div id="video-img-container">
         <div id="filter"></div>
         <div id="watch-video-btn">
-          <Button route_name="signup" text="Watch video" color="pink"
-          size="large" invert_colors wide/>
+          <div @click="goToYoutubeVideo">
+            <Button text="Watch video" color="pink"
+            size="large" invert_colors wide />
+          </div>
         </div>
         <img src="@/assets/venue_video_img.png" id="video-img" />
       </div>
@@ -130,7 +132,10 @@ export default {
 
   },
   methods: {
-
+    goToYoutubeVideo() {
+      console.log("In func")
+      window.location.href = "https://www.youtube.com/watch?v=m0ysryefnLI"
+    }
   }
 }
 </script>
