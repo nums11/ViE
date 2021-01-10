@@ -3,7 +3,7 @@
     <div class="month">{{ month }}</div>
     <div class="meeting-cards">
       <CourseMeetingCard v-for="(meeting,index) in meetings"
-      :key="meeting._id" :meeting="meeting" />
+      :meeting="meeting" />
     </div>
   </div>
 </template>
