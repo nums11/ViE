@@ -152,12 +152,12 @@ function start() {
 
   const origin_url = process.env.NODE_ENV === 'production' ?
   'https://viengage.com' : 'http://localhost:8080'
-  /* At the top, with other redirect methods before other routes */
+  // Force all requests to go through https
   app.get('*',function(req,res,next){
     if(req.headers['x-forwarded-proto']!='https')
-      res.redirect('https://mypreferreddomain.com'+req.url)
+      res.redirect('https://viengage.com'+req.url)
     else
-      next() /* Continue to other routes if we're not redirecting */
+      next()
   })
   app.use(cors({
     origin: origin_url,
