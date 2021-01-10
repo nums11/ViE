@@ -53,6 +53,8 @@ export default {
   box-shadow: 0px 3px 5px #c7c7c7;
   background-color: white;
   margin-top: 4rem;
+  margin-left: 2rem;
+  margin-right: 2rem;
 }
 
 .card-header {

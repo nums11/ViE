@@ -59,8 +59,11 @@
           <h1 class="step-header">1 - Prepare</h1>
           <img class="step-img" id="prepare-img" src="@/assets/prepare.jpg">
           <p class="step-explanation" id="prepare-explanation">
-            Schedule your course meetings with ease, specifying what times 
-            you want your students to scan QR codes.
+            Schedule your course meetings with ease.
+            <br/><br/>
+            Add pre-recorded class videos for your students to watch, quizzes
+            for your students to answer during class, or qr scans to verify
+            students attendance.  
           </p>
         </div>
         <div class="step-container">
@@ -68,22 +71,26 @@
           <img class="step-img" id="engage-img" src="@/assets/engage.jpg">
           <p class="step-explanation" id="engage-explanation">
             During your class, get notified in real-time with QR codes 
-            that your students scan to verify engagement.
+            that your students scan to verify engagement or quizzes for
+            your students to answer.
             <br/><br/>
             Upload videos before or after class for students to watch 
             asynchronously without being able to skip through.
             <br/><br/>
-            Add polls to these videos 
-            that test engagement and comprehension.
+            Make your videos interactive by adding questions at different
+            timestamps throughout videos. Students won't be able to skip past
+            these questions so they will test engagement and comprehension.
           </p>
         </div>
         <div class="step-container">
           <h1 class="step-header">3 - Analyze</h1>
           <img class="step-img" id="analyze-img" src="@/assets/analyze.jpg">
           <p class="step-explanation" id="analyze-explanation">
-            Track the students who scanned QR codes during class and the 
-            percentage of videos students watch as well as the answers to 
-            any asynchronous polls.
+            See which students scanned qr codes or how students performed on
+            quizzes during class.
+            <br/><br/>
+            View the percentage of videos that students watched and their
+            answers to quiz questions within those videos.
             <br/><br/>
             Get stats about a particular meeting or your class at large 
             to see how well your students are being engaged by your 
@@ -97,11 +104,15 @@
       <TestimonialCard instructor_name="Omar El-Shafee"
       instructor_dept="Engineering"
       testimonial="After switching to online teaching. One of the challenges was to find a reliable way to take attendance in my classes. ViE provided an easy to implement and efficient way of taking attendance during live lectures. More important, the asynchronous attendance done via watching the lecture video during a specified time window conquered the time zone difference issue and made my students less stressed about missing my live lecture for some reason. All in all I recommend ViE given my great experience using it, and as I know the ViE team is working on adding more features to the application for the upcoming semesters."
-      class="testimonial-card float-left" />
-      <TestimonialCard instructor_name="Omar El-Shafee"
+      class="testimonial-card inline-block" />
+      <TestimonialCard instructor_name="Charles Martin"
       instructor_dept="Astronomy"
-      testimonial="After switching to online teaching. One of the challenges was to find a reliable way to take attendance in my classes. ViE provided an easy to implement and efficient way of taking attendance during live lectures. More important, the asynchronous attendance done via watching the lecture video during a specified time window conquered the time zone difference issue and made my students less stressed about missing my live lecture for some reason. All in all I recommend ViE given my great experience using it, and as I know the ViE team is working on adding more features to the application for the upcoming semesters."
-      class="testimonial-card float-right" />
+      testimonial="ViE made measuring course engagement quick and easy. Through the QR codes I was able to keep track of students who were attending the live classes. Through the uploaded class recordings, I could ensure students who weren't coming to live classes were still keeping up with the material. In this way I was able to actively measure student participation rather than just looking at homework submissions to LMS."
+      class="testimonial-card inline-block" />
+      <TestimonialCard instructor_name="Helen Zhou"
+      instructor_dept="Language"
+      testimonial="ViE is a valuable tool not only useful for taking attendance but also for checking student attention and participation. The flexibility of random checking at any point of the class period keeps students attentive to the synchronous sessions. I highly recommend using ViE."
+      class="testimonial-card inline-block" />
     </div>
     <div id="bottom-container">
       <h1 id="bottom-container-header">Make your course more engaging today</h1>
@@ -110,7 +121,7 @@
         size="large" invert_colors/>
         <div id="or">Or</div>
         <p id="contact">Contact us at <span class="bold">viengagecontact@gmail.com</span>
-         for more information or to schedule a demo</p>
+         for more information or to schedule a demo.</p>
       </div>
     </div>
   </div>
@@ -294,13 +305,14 @@ export default {
 #testimonials-container {
   margin: auto;
   margin-top: 5rem;
-  padding-left: 10rem;
-  padding-right: 10rem;
+  /*padding-left: 10rem;*/
+  /*padding-right: 10rem;*/
   background-color: #f0f2f5;
   overflow: auto;
   text-align: center;
   padding-top: 3rem;
   padding-bottom: 4rem;
+  /*border: red solid;*/
 }
 
 #built-for-instructors {
@@ -331,6 +343,9 @@ export default {
   margin: auto;
   margin-top: 1.5rem;
   font-size: 1.25rem;
+}
+.testimonial-card {
+  /*border: black solid;*/
 }
 
 /* Tablets */
