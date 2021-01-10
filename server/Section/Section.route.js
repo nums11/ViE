@@ -396,7 +396,7 @@ function generateRandomString() {
 
 function getInviteUrl(section_id, student_id, invite_code) {
   const base_url = process.env.NODE_ENV === 'production' ?
-  'https://venue-attend.herokuapp.com/#/' : 'http://localhost:8080/#/'
+  'https://viengage.herokuapp.com/#/' : 'http://localhost:8080/#/'
   const invite_url = `${base_url}invite/${section_id}/${student_id}/${invite_code}`
   return invite_url
 }

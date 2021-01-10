@@ -36,7 +36,7 @@ if(process.env.NODE_ENV === "production") {
   passport.use(new (require('passport-cas').Strategy)({
     version: 'CAS3.0',
     ssoBaseURL: 'https://cas-auth.rpi.edu/cas',
-    serverBaseURL: 'https://venue-attend.herokuapp.com'
+    serverBaseURL: 'https://viengage.herokuapp.com'
   }, function(profile, done) {
     var login = profile.user.toLowerCase();
     User.findOne({user_id: login}, function (err, user) {
@@ -219,7 +219,7 @@ authRoutes.get("/signup", (req, res, next) => {
       let user_id = info.user_id
       console.log("User did not already exist", user_id)
       if(process.env.NODE_ENV === "production")
-        res.redirect(`https://venue-attend.herokuapp.com/#/create_user/`
+        res.redirect(`https://viengage.herokuapp.com/#/create_user/`
           + `${user_id}/null/null`);
       else
         res.redirect(`http://localhost:8080/#/create_user/${user_id}`
@@ -372,7 +372,7 @@ async function acceptSectionInvite(section_id, student_id,
 
 function getBaseURL() {
   if(process.env.NODE_ENV === "production")
-    return "https://venue-attend.herokuapp.com/#"
+    return "https://viengage.herokuapp.com/#"
   else
     return "http://localhost:8080/#"
 }

@@ -91,7 +91,7 @@ export default {
 
     let url = ""
     if(process.env.NODE_ENV === "production") {
-      url = "https://venue-attend.herokuapp.com/"
+      url = "https://viengage.herokuapp.com/"
     } else {
       url = "http://localhost:4000/"
     }
