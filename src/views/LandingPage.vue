@@ -43,9 +43,13 @@
       <div id="qa-container">
         <h1 id="question">What is ViE?</h1>
         <div id="answer-container">
-          <p id="answer">
+          <p id="answer">The 
+            <span class="blue-text">Virtual </span>
+            <span class="pink-text">Engagement </span> Platform
+          </p>
+          <p id="answer-sub-header">
             <span class="blue-text mr-2">Vi - virtual </span>
-            <span class="pink-text">E - engage</span>
+            <span class="pink-text">E - engagement</span>
           </p>
           <p id="catchphrase">It's as easy as 1, 2, 3</p>
         </div>
@@ -224,7 +228,12 @@ export default {
 }
 
 #answer {
-  font-size: 4rem;
+  font-size: 3.5rem;
+  margin-bottom: 2rem;
+}
+
+#answer-sub-header {
+  font-size: 2.5rem;
   margin-bottom: 2rem;
 }
 
@@ -339,8 +348,8 @@ export default {
   #answer-container {
     width: 70%;
   }
-  #answer {
-    font-size: 3rem;
+  #answer-sub-header {
+    font-size: 2rem;
   }
   #testimonials-container {
     padding-left: 0;
@@ -384,8 +393,8 @@ export default {
     text-align: center;
     width: 100%;
   }
-  #answer {
-    font-size: 1.6rem;
+  #answer-sub-header {
+    font-size: 1.25rem;
     width: 10000px;
     margin: auto;
   }
