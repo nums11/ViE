@@ -33,7 +33,7 @@ asyncPortionRoutes.route('/get/:id').get(function (req, res, next) {
     } else if(async_portion == null) {
       console.log(`<ERROR> (async_portions/get) Getting async_portion with ID ${id}` +
         ` async_portion not found.`)
-      res.status(404).json(error)
+      res.status(404).json("AsyncPortion not found")
     } else {
       console.log(`<SUCCESS> (async_portions/get) Getting async_portion by ID: ${id}`)
       res.json(async_portion);

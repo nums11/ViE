@@ -380,89 +380,46 @@ courseRoutes.route('/').get(function (req, res) {
   });
 });
 
-courseRoutes.route('/get/:id/:with_meetings').get(function (req, res) {
-  let id = req.params.id;
-  let with_meetings = req.params.with_meetings === 'true'
-  if(with_meetings) {
-    Course.findById(id).
-    populate('instructor').
-    populate('secondary_instructor').
-    populate({
-      path: 'sections',
-      populate: [
-        {
-          path: 'meetings',
-          populate: [
-            {
-              path: 'real_time_portion',
-              populate: {
-                path: 'qr_scans',
-                populate: {
-                  path: 'submissions',
-                  populate: {
-                    path: 'submitter'
-                  }
-                }
-              }
-            }, 
-            {
-              path: 'async_portion',
-              populate: {
-                path: 'videos',
-                populate: {
-                  path: 'video_submissions',
-                  populate: {
-                    path: 'submitter'
-                  }
-                }
-              }
-            }
-          ]
-        },
-        {
-          path: 'students'
-        },
-        {
-          path: 'pending_approval_students'
-        }
-      ]
-    }).
-    exec((error,course) => {
-      if(error || course == null){
-        console.log("<ERROR> (courses/get) Getting course with ID:",id, 
-          "with meetings", error)
-        res.status(404).json(error);
-      } else {
-        console.log("<SUCCESS> (courses/get) Getting course by ID:",id,
-          "with meetings")
-        res.json(course)
-      }
-    })
-  } else {
-    Course.findById(id).
-    populate('instructor').
-    populate('secondary_instructor').
-    populate({
-      path: 'sections',
-      populate: [
-        {
-          path: 'students'
-        },
-        {
-          path: 'pending_approval_students'
-        }
-      ]
-    }).
-    exec((error,course) => {
-      if(error || course == null){
-        console.log("<ERROR> (courses/get) Getting course with ID:",id, error)
-        res.status(404).json(error);
-      } else {
-        console.log("<SUCCESS> (courses/get) Getting course by ID:",id)
-        res.json(course)
-      }
-    })
+courseRoutes.get('/get/:id/:with_meetings?',
+  function (req, res, next) {
+  const id = req.params.id;
+  const with_meetings = req.params.with_meetings
+  console.log("with_meetings", with_meetings)
+  let meetings_population  = null
+  if(with_meetings != null) {
+    meetings_population = {
+      path: 'meetings'
+    }
   }
+
+  Course.findById(id).
+  populate('instructor').
+  populate('secondary_instructor').
+  populate({
+    path: 'sections',
+    populate: [
+      meetings_population,
+      {
+        path: 'students'
+      },
+      {
+        path: 'pending_approval_students'
+      }
+    ]
+  }).
+  exec((error,course) => {
+    if(error || course == null){
+      next(error)
+    } else if(course == null) {
+      console.log(`<ERROR> (courses/get) Getting course with ID ${id}`
+        + ` with_meetings ${with_meetings} course not found`)
+      res.status(404).json("Course not found");
+    } else {
+      console.log(`<SUCCESS> (courses/get) Getting course by ID ${id}`
+        + ` with_meetings ${with_meetings}`)
+      res.json(course)
+    }
+  })
 });
 
 courseRoutes.route('/update/:id').post(function (req, res) {

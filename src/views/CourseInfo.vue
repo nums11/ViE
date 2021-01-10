@@ -34,10 +34,10 @@
                 </router-link>
               </div>
             </div>
-            <CourseMeetingsForMonthContainer month="March"
+            <CourseMeetingsForMonthContainer month="January"
             :meetings="meetings" />
-            <CourseMeetingsForMonthContainer month="Februrary"
-            :meetings="meetings" />
+<!--             <CourseMeetingsForMonthContainer month="Februrary"
+            :meetings="meetings" /> -->
           </div>
           <div v-else-if="active_section === 'Statistics'"
           id="roster-section" key="statistics">
@@ -139,123 +139,30 @@ export default {
     if(this.$route.params.reload_page)
       this.$router.go()
     await this.getCourse()
-    this.setFakeMeetings()
-    this.setFakeStudents()
   },
   mounted () {
   },
   methods: {
     async getCourse() {
       try {
-        const response = await CourseAPI.getCourse(
+        const response = await CourseAPI.getCourseWithMeetings(
           this.$route.params.id)
         this.course = response.data
         console.log("Course", this.course)
+        this.getMeetingsForCourse()
         this.course_has_loaded = true
       } catch(error) {
         console.log(error)
         alert("Sorry, something went wrong getting your course")
       }
     },
+    getMeetingsForCourse() {
+      this.course.sections.forEach(section => {
+        this.meetings = this.meetings.concat(section.meetings)
+      })
+    },
     showSection(section_name) {
       this.active_section = section_name
-    },
-    setFakeMeetings() {
-      this.meetings.push({
-        title: "Meeting 1",
-        real_time_portion: {
-          qr_scans: [{
-            code: "some_code"
-          }]
-        },
-        async_portion: {
-          videos: [{
-            video_url: "some_url"
-          }]
-        },
-        _id: "abc"
-      })
-      this.meetings.push({
-        title: "Meeting 2",
-        real_time_portion: {
-          qr_scans: [{
-            code: "some_code"
-          }]
-        },
-        async_portion: {
-          videos: []
-        },
-        _id: "def"
-      })
-      this.meetings.push({
-        title: "Meeting 3",
-        real_time_portion: {
-          qr_scans: []
-        },
-        async_portion: {
-          videos: [{
-            video_url: "some_url"
-          }]
-        },
-        _id: "ghi"
-      })
-      this.meetings.push({
-        title: "Meeting 1",
-        real_time_portion: {
-          qr_scans: [{
-            code: "some_code"
-          }]
-        },
-        async_portion: {
-          videos: [{
-            video_url: "some_url"
-          }]
-        },
-        _id: "jkl"
-      })
-      this.meetings.push({
-        title: "Meeting 2",
-        real_time_portion: {
-          qr_scans: [{
-            code: "some_code"
-          }]
-        },
-        async_portion: {
-          videos: []
-        },
-        _id: "mno"
-      })
-      this.meetings.push({
-        title: "Meeting 3",
-        real_time_portion: {
-          qr_scans: []
-        },
-        async_portion: {
-          videos: [{
-            video_url: "some_url"
-          }]
-        },
-        _id: "pqr"
-      })
-    },
-    setFakeStudents() {
-      for(let i=0;i<26;i++) {  // 2-27 (a-z)
-        let chr = String.fromCharCode(97 + i);
-        this.students.push({
-          first_name: "Student",
-          last_name: chr,
-          user_id: "student" + chr,
-          email: "student"+chr+"@rpi.edu",
-          password: "password",
-        })
-      }
-      this.section1.students = this.section2.students
-        = this.students
-      this.section1.invited_students = this.students.slice(20)
-      this.section1.pending_approval_students =
-        this.students.slice(24)
-      this.section2.pending_approval_students =
-        this.students.slice(18)
     }
   },
 }

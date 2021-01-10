@@ -31,7 +31,7 @@ export default {
     return API().post('courses/remove_student/' + course_id + '/' + student_id, {})
   },
   getCourse(id) {
-    return API().get(`courses/get/${id}/false`)
+    return API().get(`courses/get/${id}`)
   },
   getCourseWithMeetings(id) {
     return API().get(`courses/get/${id}/true`)
