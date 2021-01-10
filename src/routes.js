@@ -301,7 +301,7 @@ const router = new VueRouter({
     },
     {
       name: 'watch_video',
-      path: '/watch_video/:video_id',
+      path: '/watch_video/:async_portion_id/:video_id',
       component: WatchVideo,
       meta: {
         title: "Venue - Watch Video",

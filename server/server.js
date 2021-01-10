@@ -64,6 +64,7 @@ function start() {
   const videoRouter = require('./Video/Video.route')
   const qrScanRouter = require('./QRScan/QRScan.route')
   const notificationRouter = require('./Notification/Notification.route')
+  const asyncPortionRouter = require('./AsyncPortion/AsyncPortion.route')
 
   let io;
 
@@ -182,8 +183,8 @@ function start() {
   app.use('/submissions', submissionRouter);
   app.use('/auth', authRouter);
   app.use('/videos', videoRouter);
-  app.use('/qrcheckins', qrScanRouter);
   app.use('/notifications', notificationRouter);
+  app.use('/async_portions', asyncPortionRouter);
 
   rescheduleAllNotificationJobs()
 }

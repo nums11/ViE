@@ -31,7 +31,8 @@
           </sui-button-content>
         </sui-button>
         <router-link v-else :to="{name: 'watch_video',
-        params: {video_id: task._id}}">
+        params: {async_portion_id: portion._id,
+          video_id: task._id}}">
           <sui-button @click="$emit('show-qr')"
           animated size="mini"
           style="background-color:#00B3FF; color:white;">
@@ -67,6 +68,10 @@ export default {
   props:{
     task_type: {
       type: String,
+      required: true
+    },
+    portion: {
+      type: Object,
       required: true
     },
     task: {

@@ -2,8 +2,8 @@
   <div class="meeting-info-portion-container">
     <div class="portion-header">{{ portion_label }}</div>
     <div>
-      <div v-if="(is_real_time && real_time_portion != null)
-      || (!is_real_time && async_portion != null)"
+      <div v-if="(is_real_time && portion != null)
+      || (!is_real_time && portion != null)"
       class="inline-block">
         {{ start | moment("MMM Do, h:mm a") }}
         - {{ end | moment("MMM Do, h:mm a") }}
@@ -22,8 +22,8 @@
         </sui-button-content>
       </sui-button>
     </div>
-    <div v-if="(is_real_time && real_time_portion != null)
-      || (!is_real_time && async_portion != null)">
+    <div v-if="(is_real_time && portion != null)
+      || (!is_real_time && portion != null)">
       <SubmissionTable v-if="show_submission_table"
       :task="table_task"
       :is_qr="is_real_time"
@@ -51,8 +51,11 @@ import SubmissionTable from
 export default {
   name: 'MeetingInfoPortionContainer',
   props: {
-    real_time_portion: Object,
-    async_portion: Object,
+    portion: Object,
+    is_real_time: {
+      type: Boolean,
+      default: false
+    },
     meeting_student_ids: {
       type: Set,
       required: true
@@ -72,24 +75,26 @@ export default {
     }
   },
   created () {
-    console.log("real_time_portion", this.real_time_portion)
-    console.log("async_portion", this.async_portion)
-    this.is_real_time = this.real_time_portion != null
+    console.log("is_real_time", this.is_real_time)
+    console.log("portion", this.portion)
     this.setLabelsAndDates()
   },
   methods: {
     setLabelsAndDates() {
       if(this.is_real_time) {
         this.portion_type = "Real-Time"
-        this.start = this.real_time_portion.real_time_start
-        this.end = this.real_time_portion.real_time_end
-        this.portion_tasks = this.real_time_portion.qr_scans
+        if(this.portion != null) {
+          this.start = this.portion.real_time_start
+          this.end = this.portion.real_time_end
+          this.portion_tasks = this.portion.qr_scans
+        }
       } else {
-        console.log("portion", this.async_portion)
         this.portion_type = "Async"
-        this.start = this.async_portion.async_start
-        this.end = this.async_portion.async_end
-        this.portion_tasks = this.async_portion.videos
+        if(this.portion != null) {
+          this.start = this.portion.async_start
+          this.end = this.portion.async_end
+          this.portion_tasks = this.portion.videos
+        }
       }
       this.portion_label = `${this.portion_type} Portion`
     },

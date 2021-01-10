@@ -19,13 +19,14 @@
           <MeetingInfoPortionContainer
           v-if="active_section === 'Real-Time Portion'"
           key="real-time portion"
-          :real_time_portion="meeting.real_time_portion"
+          :portion="meeting.real_time_portion"
           :meeting_student_ids="meeting_student_ids"
-          v-on:show-qr="showQRScanningWindow" />
+          v-on:show-qr="showQRScanningWindow"
+          is_real_time />
           <MeetingInfoPortionContainer
           v-else-if="active_section === 'Async Portion'"
           key="async portion"
-          :async_portion="meeting.async_portion"
+          :portion="meeting.async_portion"
           :meeting_student_ids="meeting_student_ids" />
           <div v-else-if="active_section === 'Statistics'"
           key="statistics">
@@ -98,7 +99,8 @@ export default {
         this.meeting_id = this.$route.params.meeting_id
         const response = await MeetingAPI.getMeeting(this.meeting_id)
         this.meeting = response.data
-        console.log("meeting", this.meeting.async_portion)
+        console.log("meeting", this.meeting)
+        console.log("Async portion", this.meeting.async_portion)
         this.meeting_course = this.meeting.sections[0].course
         this.setSideBarSubHeaders()
         this.meeting_student_ids = this.getMeetingStudentIDs(this.meeting)

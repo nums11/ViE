@@ -15,7 +15,7 @@ videoRoutes.route('/').get(function (req, res) {
   });
 });
 
-videoRoutes.route('/get/:id').get(function (req, res) {
+videoRoutes.route('/get/:id').get(function (req, res, next) {
   let id = req.params.id;
   Video.findById(id).
   populate({
@@ -25,11 +25,14 @@ videoRoutes.route('/get/:id').get(function (req, res) {
     }
   }).
   exec((error,video) => {
-    if(error || video == null){
-      console.log("<ERROR> (videos/get) Getting video with ID:",id,error)
-      res.json(error);
+    if(error){
+      next(error);
+    } else if(video == null) {
+      console.log(`<ERROR> (videos/get) Getting video with ID ${id}` +
+        ` video not found.`)
+      res.status(404).json(error)
     } else {
-      console.log("<SUCCESS> (videos/get) Getting video by ID:",id)
+      console.log(`<SUCCESS> (videos/get) Getting video by ID: ${id}`)
       res.json(video);
     }
   })
