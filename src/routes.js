@@ -52,7 +52,7 @@ const router = new VueRouter({
     //   path: '/login',
     //   component: LoginView,
     //   meta: {
-    //     title: 'Venue - Login',
+    //     title: '.ViE - Login',
     //     requiresNoLogin: true
     //   }
     // },
@@ -70,7 +70,7 @@ const router = new VueRouter({
       path: '/settings',
       component: Settings,
       meta: {
-        title: "Venue - Settings",
+        title: ".ViE - Settings",
         requiresAuth: true
       }
     },
@@ -304,7 +304,7 @@ const router = new VueRouter({
       path: '/watch_video/:async_portion_id/:video_id',
       component: WatchVideo,
       meta: {
-        title: "Venue - Watch Video",
+        title: ".ViE - Watch Video",
         requiresAuth: true,
       }
     },
@@ -313,7 +313,7 @@ const router = new VueRouter({
       path: '/meeting_info/:meeting_id',
       component: MeetingInfo,
       meta: {
-        title: "Venue - Meeting Info",
+        title: ".ViE - Meeting Info",
         requiresAuth: true,
       }
     },
@@ -330,7 +330,7 @@ const router = new VueRouter({
       path: '/redirectCASLogin/:optional_meeting_id/:optional_code',
       component: RedirectCASLogin,
       meta: {
-        title: "Venue - Redirecting",
+        title: ".ViE - Redirecting",
         requiresNoLogin: true
       }
     },

@@ -14,7 +14,7 @@
       </transition>
     </div>
     <!-- <ExternalFooter /> -->
-    <NewVersionMessage v-if="new_app_version_exists" />
+    <!-- <NewVersionMessage v-if="new_app_version_exists" /> -->
   </div>
 </template>
 
