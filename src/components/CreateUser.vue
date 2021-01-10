@@ -85,7 +85,7 @@ export default {
         try {
           await AuthAPI.onboardUser(this.user, this.section_id, this.invite_code);
           window.location.href = process.env.NODE_ENV === 'production' ?
-          "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fvenue-attend.herokuapp.com%2Fauth%2FloginCAS%-null-null":
+          "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fviengage.com%2Fauth%2FloginCAS%-null-null":
           "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS-null-null"
         } catch(error) {
           alert("Something went wrong. Please try again.")

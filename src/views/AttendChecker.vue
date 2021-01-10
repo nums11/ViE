@@ -18,7 +18,7 @@ export default {
   async created () {
     if(!this.userIsLoggedIn()) {
       if(process.env.NODE_ENV === "production") {
-        this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fvenue-attend.herokuapp.com%2Fauth%2FloginCAS-"
+        this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fviengage.com%2Fauth%2FloginCAS-"
           + `${this.$route.params.meeting_id}-${this.$route.params.code}`
       } else {
         this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS-" + `${this.$route.params.meeting_id}-${this.$route.params.code}`

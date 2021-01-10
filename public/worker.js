@@ -23,7 +23,7 @@ self.addEventListener('notificationclick', function(event) {
     type: "window"
   }).then(async function(clientList) {
   	// let venue_url = process.env.NODE_ENV === "production" ?
-  	// "https://viengage.herokuapp.com/" :
+  	// "https://viengage.com/" :
   	// "http://localhost:8080/"
   	let push_client;
     for (let i = 0; i < clientList.length; i++) {

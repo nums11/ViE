@@ -48,7 +48,7 @@ export default {
 		},
 		getBaseURL() {
 			if(process.env.NODE_ENV === "production") {
-			  return "https://viengage.herokuapp.com/"
+			  return "https://viengage.com/"
 			} else {
 			  return "http://localhost:4000/"
 			}

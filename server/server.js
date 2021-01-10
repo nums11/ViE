@@ -151,7 +151,14 @@ function start() {
   });
 
   const origin_url = process.env.NODE_ENV === 'production' ?
-  'https://viengage.herokuapp.com' : 'http://localhost:8080'
+  'https://viengage.com' : 'http://localhost:8080'
+  /* At the top, with other redirect methods before other routes */
+  app.get('*',function(req,res,next){
+    if(req.headers['x-forwarded-proto']!='https')
+      res.redirect('https://mypreferreddomain.com'+req.url)
+    else
+      next() /* Continue to other routes if we're not redirecting */
+  })
   app.use(cors({
     origin: origin_url,
     methods:['GET','POST','DELETE','PUT'],

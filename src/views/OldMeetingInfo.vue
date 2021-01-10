@@ -361,7 +361,7 @@ export default {
     scannedCodeIsValid(open_checkin, scanned_code) {
       let url = ""
       if(process.env.NODE_ENV === "production") {
-        url = "https://viengage.herokuapp.com/"
+        url = "https://viengage.com/"
       } else {
         url = "http://localhost:8080/"
       }
