@@ -6,7 +6,7 @@
     </div>
     <div class="task-cards">
       <MeetingTaskCard v-for="(task, index) in tasks"
-      :key="index" :task="task" :index="index"
+      :key="index" :task="task" :index="index" :portion="portion"
       :task_type="task_type" v-on:show-qr="$emit('show-qr',task)"
       v-on:view-submissions="$emit('view-submissions',task)" />
     </div>
@@ -25,6 +25,10 @@ export default {
     },
     tasks: {
       type: Array,
+      required: true
+    },
+    portion: {
+      type: Object,
       required: true
     }
   },

@@ -19,8 +19,8 @@
     </p>
     <p class="mt-1" v-else>{{ no_portion_message }}</p>
     <NewMeetingTaskCard v-for="(task, index) in portion_tasks"
-    :is_qr="is_real_time" :key="index" :index="index"
-    :portion="portion" :task="task"
+    :is_qr="is_real_time" :key="index" :index="index" :task="task"
+    :portion="is_real_time ? real_time_portion :async_portion"
     v-on:remove-task="$emit('remove-task',index)" />
   </div>
 </template>
@@ -81,13 +81,6 @@ export default {
       else
         this.portion_tasks = this.async_portion.videos
     }
-    // removeTask(index) {
-    //   this.$emit('remove-task', index)
-    //   if(this.is_real_time)
-    //     this.portion_tasks = this.real_time_portion.qr_scans
-    //   else
-    //     this.portion_tasks = this.async_portion.videos
-    // }
   }
 }
 </script>

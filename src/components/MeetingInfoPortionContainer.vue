@@ -31,7 +31,7 @@
       v-on:hide-submission-table="hideSubmissionTable" />
       <MeetingTasksContainer v-else
       :task_type="is_real_time ? 'qr_scan' : 'video'"
-      :tasks="portion_tasks"
+      :tasks="portion_tasks" :portion="portion"
       v-on:show-qr="showQR"
       v-on:view-submissions="viewSubmissions" />
     </div>

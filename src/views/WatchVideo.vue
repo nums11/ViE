@@ -47,10 +47,22 @@ export default {
           async_portion_id)
         this.async_portion = response.data
         console.log("async_portion", this.async_portion)
+        this.getVideo()
         this.video_has_loaded = true
       } catch(error) {
         console.log(error)
         alert("Sorry, something went wrong.")
+      }
+    },
+    getVideo() {
+      const video_id = this.$route.params.video_id
+      const videos = this.async_portion.videos
+      for(let i = 0; i < videos.length; i++) {
+        const video = videos[i]
+        if(video._id === video_id) {
+          this.video = video
+          break
+        }
       }
     },
     getWindowStatus(attendance, is_qr) {
