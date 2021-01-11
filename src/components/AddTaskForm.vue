@@ -31,12 +31,18 @@
       <div id="radio-container">
         <sui-form-fields inline>
           <sui-form-field>
-            <sui-checkbox :label="radio_label_one" radio value="1"
-            v-model="value" defaultChecked />
+            <div class="ui radio checkbox">
+              <input type="radio" name="checked_value"
+              checked="checked" id="cb-one" @click="selectValue(1)">
+              <label for="cb-one">{{ radio_label_one }}</label>
+            </div>
           </sui-form-field>
           <sui-form-field>
-            <sui-checkbox :label="radio_label_two" radio value="2"
-            v-model="value" />
+            <div class="ui radio checkbox">
+              <input type="radio" name="checked_value"
+              id="cb-two" @click="selectValue(2)">
+              <label for="cb-two">{{ radio_label_two }}</label>
+            </div>
           </sui-form-field>
         </sui-form-fields>
       </div>
@@ -152,6 +158,9 @@ export default {
       // todo check if valid file extension
       this.task.video_file = e.target.files[0]
     },
+    selectValue(value) {
+      this.value = value
+    }
   }
 }
 </script>

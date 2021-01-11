@@ -125,6 +125,7 @@ export default {
   },
   data () {
     return {
+      value: 1,
       course_id: "",
       course: {},
       course_has_loaded: false,
