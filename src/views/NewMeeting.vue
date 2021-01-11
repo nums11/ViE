@@ -163,7 +163,7 @@ export default {
       ],
       repeat_days_selection: [],
       repeat_end_date: null,
-      creating_meeting: true
+      creating_meeting: false
     }
   },
   computed: {
