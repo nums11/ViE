@@ -10,9 +10,7 @@ const Section = require('../Section/Section.model');
 const passport = require('passport')
 
 const alnums = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const [base_url, server_base_url] = getBaseURLs()
-console.log("base_url", base_url)
-console.log("server_base_url", server_base_url)
+const base_url = getBaseURL()
 
 async function generateSID() {
   let venueSID = ""
@@ -37,7 +35,7 @@ passport.deserializeUser(function(user, done) {
 passport.use(new (require('passport-cas').Strategy)({
   version: 'CAS3.0',
   ssoBaseURL: 'https://cas-auth.rpi.edu/cas',
-  serverBaseURL: server_base_url
+  serverBaseURL: getServerBaseURL()
 }, function(profile, done) {
   console.log("")
   const login = profile.user.toLowerCase();
@@ -340,16 +338,17 @@ async function acceptSectionInvite(section_id, student_id,
   }
 }
 
-function getBaseURLs() {
-  console.log("Getting base urls")
-  if(process.env.NODE_ENV === "production"){
-    const url = "https://viengage.com"
-    return [url, `${url}/#`]
-  } else {
-    return ["http://localhost:4000",
-      "http://localhost:8080/#"]
-  }
+function getBaseURL() {
+  if(process.env.NODE_ENV === "production")
+    return "https://viengage.com/#"
+  else
+    return "http://localhost:8080/#"
 }
 
-
+function getServerBaseURL() {
+  if(process.env.NODE_ENV === "production")
+    return "https://viengage.com"
+  else
+    return "http://localhost:4000"
+}
 module.exports = authRoutes;
