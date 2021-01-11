@@ -304,7 +304,7 @@ const router = new VueRouter({
       path: '/watch_video/:async_portion_id/:video_id',
       component: WatchVideo,
       meta: {
-        title: ".ViE - Watch Video",
+        title: "ViE - Watch Video",
         requiresAuth: true,
       }
     },
@@ -313,7 +313,7 @@ const router = new VueRouter({
       path: '/meeting_info/:meeting_id',
       component: MeetingInfo,
       meta: {
-        title: ".ViE - Meeting Info",
+        title: "ViE - Meeting Info",
         requiresAuth: true,
       }
     },
@@ -330,7 +330,7 @@ const router = new VueRouter({
       path: '/redirectCASLogin/:optional_meeting_id/:optional_code',
       component: RedirectCASLogin,
       meta: {
-        title: ".ViE - Redirecting",
+        title: "ViE - Redirecting",
         requiresNoLogin: true
       }
     },
