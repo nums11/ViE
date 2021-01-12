@@ -14,12 +14,14 @@
         </option>
       </select>
     </div>
-    <div v-if="show_rpi_verify_btn" id="verify-container">
-      <p v-if="!is_login_view" id="verify-message">Verify that you are a member of 
-      <span v-if="university_index === 2">the </span> 
-      {{ university_names[university_index] }}</p>
+    <div v-if="show_btn" id="verify-container">
+      <p id="verify-message">
+        {{ university_index === 0 ?
+          "Verify that you are a member of Rensselaer Polytechnic Institute":
+          "Click the button below to sign up" }}
+      </p>
       <div id="button-container" @click="redirectToUniversityLogin">
-        <Button :text="is_login_view ? 'Log in' : 'Verify'" color="blue"
+        <Button :text="btn_text" color="blue"
         size="large"
         invert_colors />
       </div>
@@ -51,7 +53,8 @@ export default {
       ],
       is_login_view: false,
       error_msg: null,
-      show_rpi_verify_btn: false
+      show_btn: false,
+      btn_text: ""
     }
   },
   computed: {
@@ -77,11 +80,17 @@ export default {
     },
     redirectToUniversityLogin() {
       let cas_url;
-      if(this.is_login_view)
+      if(this.is_login_view) {
         cas_url = this.getLoginURL()
-      else
-        cas_url = this.getSignUpURL()
-      window.location.href = cas_url
+        window.location.href = cas_url
+      } else {
+        if(this.university_index === 0) { //RPI
+          cas_url = this.getSignUpURL()
+          window.location.href = cas_url
+        } else {
+          this.$router.push({name: 'create_user'})
+        }
+      }
     },
     getLoginURL() {
       if(process.env.NODE_ENV === "production")
@@ -91,16 +100,16 @@ export default {
     },
     getSignUpURL() {
       if(process.env.NODE_ENV === "production")
-        return "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fviengage.com%2Fauth%2Fsignup"
+        return "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fviengage.com%2Fauth%2Fsignup_redirect"
       else
-        return "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Fsignup"
+        return "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Fsignup_redirect"
     },
     selectUniversity() {
-      if(this.university_index === 0)
-        this.show_rpi_verify_btn = true
-      else {
-        this.show_rpi_verify_btn = false
-      }
+      this.show_btn = true
+      if(this.university_index === 0) //RPI
+        this.btn_text = "Verify"
+      else
+        this.btn_text = "Sign Up"
     }
   }
 }

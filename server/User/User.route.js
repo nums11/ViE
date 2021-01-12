@@ -364,5 +364,4 @@ userRoutes.post('/add_service_worker_subscriptions_to_all', (req, res) => {
   })
 });
 
-
 module.exports = userRoutes;

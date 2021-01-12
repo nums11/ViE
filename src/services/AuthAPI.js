@@ -33,10 +33,12 @@ export default {
   getUsersWithUpdatedAuthHeaders() {
     return API().get('auth/user_with_updated_auth_headers')
   },
-  onboardUser(user, optional_invited_section_id, optional_invite_code) {
-    return API().post(`auth/onboard_user/${optional_invited_section_id}/`
-      + `${optional_invite_code}`, {
+  onboardUser(user) {
+    return API().post(`auth/onboard_user`, {
       user: user // add our data to the request body
     })
   },
+  getNonRPIUserIDs() {
+    return API().get('auth/non_rpi_user_ids/')
+  }
 }

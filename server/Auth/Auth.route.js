@@ -51,21 +51,18 @@ passport.use(new (require('passport-cas').Strategy)({
   });
 }));
 
-authRoutes.route('/onboard_user/:optional_invited_section_id/:optional_invite_code')
+authRoutes.route('/onboard_user')
 .post(async function (req, res, next) {
-  const section_id = req.params.optional_invited_section_id
-  const invite_code = req.params.optional_invite_code
-  const inviting_student = section_id !== "null"
+  const user = req.body.user
+
+  if(!user.is_rpi_member)
+    user.password = bcrypt.hashSync(user.password, saltRounds)
   const new_user = new User(req.body.user);
+
   try {
     const saved_user = await new_user.save()
-    if(inviting_student){
-      await acceptSectionInvite(section_id, saved_user._id, 
-        saved_user.user_id, invite_code)
-    }
     res.json(saved_user)
   } catch(error) {
-    console.log("<ERROR> saving user",new_user)
     next(error)
   }
 });
@@ -182,16 +179,18 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next)
   })(req, res, next);
 });
 
-authRoutes.get("/signup", (req, res, next) => {
+authRoutes.get("/signup_redirect", (req, res, next) => {
   passport.authenticate('cas', function (err, user, info) {
     if (err) {
       console.log("<ERROR> (auth/signup) authenticating", err)
       next(err);
     } else if (user) {
+      // User Exists - will show error on the frontend
       res.redirect(`${base_url}/signup/true`)
     } else {
+      // User does not exists - redirect to the create_user route
       const user_id = info.user_id
-      res.redirect(`${base_url}/create_user/${user_id}/null/null`)
+      res.redirect(`${base_url}/create_user/${user_id}`)
     }
   })(req, res, next);
 });
@@ -286,6 +285,21 @@ authRoutes.get('/user_with_updated_auth_headers', function (req, res) {
         res.json(users)
       }
     })
+});
+
+authRoutes.get('/non_rpi_user_ids', function (req, res, next) {
+  User.find({is_rpi_member: false},function(err, non_rpi_users){
+    if(err) {
+      next(error)
+    } else {
+      let non_rpi_user_ids = []
+      non_rpi_users.forEach(user => {
+        non_rpi_user_ids.push(user.user_id)
+      })
+      console.log("<SUCCESS> (auth/non_rpi_user_ids)")
+      res.json(non_rpi_user_ids);
+    }
+  });
 });
 
 async function sectionInvitedStudent(section_id, student_id, invite_code) {
