@@ -97,6 +97,7 @@ export default {
 
 #logo {
   height: 5rem;
+  margin-bottom: 1rem;
   display: inline-block;
   vertical-align: top;
 }

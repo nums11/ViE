@@ -6,17 +6,21 @@
     <h1 v-else class="form-header">Create an account</h1>
     <h3 id="choose-university-header">Choose your university</h3>
     <div id="university-select-container">
-      <select v-model="university_index" id="university-select">
+      <select v-model="university_index" id="university-select"
+      @change="selectUniversity">
         <option v-for="(name,index) in university_names"
-        :value="index">{{ name }}</option>
+        :value="index">
+          {{ name }}
+        </option>
       </select>
     </div>
-    <div v-if="universitySelected" id="verify-container">
+    <div v-if="show_rpi_verify_btn" id="verify-container">
       <p v-if="!is_login_view" id="verify-message">Verify that you are a member of 
       <span v-if="university_index === 2">the </span> 
       {{ university_names[university_index] }}</p>
       <div id="button-container" @click="redirectToUniversityLogin">
-        <Button :text="is_login_view ? 'Log in' : 'Verify'" color="blue" size="large"
+        <Button :text="is_login_view ? 'Log in' : 'Verify'" color="blue"
+        size="large"
         invert_colors />
       </div>
     </div>
@@ -43,17 +47,14 @@ export default {
       university_index: null,
       university_names: [
         "Rensselaer Polytechnic Institute",
-        "Lincoln University",
-        "University of North Texas"
+        "Other"
       ],
       is_login_view: false,
-      error_msg: null
+      error_msg: null,
+      show_rpi_verify_btn: false
     }
   },
   computed: {
-    universitySelected() {
-      return this.university_index !== null
-    }
   },
   created () {
     this.setIsLoginView()
@@ -93,6 +94,13 @@ export default {
         return "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fviengage.com%2Fauth%2Fsignup"
       else
         return "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Fsignup"
+    },
+    selectUniversity() {
+      if(this.university_index === 0)
+        this.show_rpi_verify_btn = true
+      else {
+        this.show_rpi_verify_btn = false
+      }
     }
   }
 }

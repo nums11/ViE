@@ -111,14 +111,14 @@ export default {
     }, 100);
 
     // load user preferences from cookies
-    var cookies_ = document.cookie.split(";");
-    for (var i = 0; i < cookies_.length; ++i) {
-      var cookie_ = Cookie.parse(cookies_[i]);
-      console.log(cookie_);
-      if (Object.prototype.hasOwnProperty.call(cookie_, "darkMode")) {
-        this.dark_mode = cookie_.darkMode == "true";
-      }
-    }
+    // var cookies_ = document.cookie.split(";");
+    // for (var i = 0; i < cookies_.length; ++i) {
+    //   var cookie_ = Cookie.parse(cookies_[i]);
+    //   console.log(cookie_);
+    //   if (Object.prototype.hasOwnProperty.call(cookie_, "darkMode")) {
+    //     this.dark_mode = cookie_.darkMode == "true";
+    //   }
+    // }
   },
   methods: {
     async checkNotificationPermissions() {
