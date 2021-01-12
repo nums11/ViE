@@ -39,7 +39,8 @@ passport.use(new (require('passport-cas').Strategy)({
 }, function(profile, done) {
   console.log("")
   const login = profile.user.toLowerCase();
-  User.findOne({user_id: login}, function (err, user) {
+  User.findOne({user_id: login, is_rpi_member: true},
+    function (err, user) {
     if (err) {
       return done(err);
     }
@@ -69,7 +70,7 @@ authRoutes.route('/onboard_user')
 
 authRoutes.route('/login').post(function (req, res) {
   let user = req.body.user
-  User.findOne({ user_id: user.user_id }, function(error, current_user) {
+  User.findOne({ user_id: user.user_id, is_rpi_member: false}, function(error, current_user) {
     if(error || !current_user){
       console.log("Error unable to find user: " + user)
       res.status(404).json({ error: 'Invalid Login Credentials. Please try again' })

@@ -15,7 +15,7 @@
       </select>
     </div>
     <div v-if="show_btn" id="verify-container">
-      <p id="verify-message">
+      <p v-if="!is_login_view" id="verify-message">
         {{ university_index === 0 ?
           "Verify that you are a member of Rensselaer Polytechnic Institute":
           "Click the button below to sign up" }}
@@ -26,6 +26,7 @@
         invert_colors />
       </div>
     </div>
+    <LoginForm v-else-if="show_login_form" />
     <p v-if="error_msg != null" id="error-msg">{{ error_msg }}</p>
     <p v-if="is_login_view" id="question" >Don't have an account? 
       <router-link :to="{name : 'signup'}">Sign up</router-link>
@@ -38,11 +39,13 @@
 
 <script>
 import Button from '@/components/Button'
+import LoginForm from '@/components/LoginForm'
 
 export default {
   name: 'LoginSignup',
   components: {
     Button,
+    LoginForm
   },
   data () {
     return {
@@ -54,6 +57,7 @@ export default {
       is_login_view: false,
       error_msg: null,
       show_btn: false,
+      show_login_form: false,
       btn_text: ""
     }
   },
@@ -105,11 +109,22 @@ export default {
         return "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Fsignup_redirect"
     },
     selectUniversity() {
+      if(this.is_login_view) {
+        if(this.university_index === 0) //RPI
+          this.btn_text = "Login"
+        else {
+          this.btn_text = "Show Form"
+          this.show_btn = false
+          this.show_login_form = true
+          return
+        }
+      } else {
+        if(this.university_index === 0) //RPI
+          this.btn_text = "Verify"
+        else
+          this.btn_text = "Sign Up"
+      }
       this.show_btn = true
-      if(this.university_index === 0) //RPI
-        this.btn_text = "Verify"
-      else
-        this.btn_text = "Sign Up"
     }
   }
 }
