@@ -56,6 +56,11 @@ const User = new Schema({
 		default: false,
 		required: true
 	},
+	is_rpi_member: {
+		type: Boolean,
+		default: false,
+		required: true
+	},
 	service_worker_subscriptions: [{}],
 	updated_auth_header: {
 		type: Boolean,

@@ -58,26 +58,6 @@ export default {
           this.error_msg = "An account already exists. "
             + "Are you sure you didn't mean to log in?"
         }
-      },
-      redirectToUniversityLogin() {
-        let cas_url;
-        if(this.is_login_view)
-          cas_url = this.getLoginURL()
-        else
-          cas_url = this.getSignUpURL()
-        window.location.href = cas_url
-      },
-      getLoginURL() {
-        if(process.env.NODE_ENV === "production")
-          return "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fviengage.com%2Fauth%2FloginCAS%-null-null"
-        else
-          return "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS-null-null"
-      },
-      getSignUpURL() {
-        if(process.env.NODE_ENV === "production")
-          return "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fviengage.com%2Fauth%2Fsignup"
-        else
-          return "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Fsignup"
       }
     }
 }
@@ -87,7 +67,7 @@ export default {
 #main {
   width: 50%;
   margin: auto;
-  margin-top: 4rem;
+  margin-top: 2rem;
   text-align: center;
 }
 
@@ -97,6 +77,7 @@ export default {
 
 #logo {
   height: 5rem;
+  margin-bottom: 1rem;
   display: inline-block;
   vertical-align: top;
 }

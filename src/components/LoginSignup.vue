@@ -6,20 +6,27 @@
     <h1 v-else class="form-header">Create an account</h1>
     <h3 id="choose-university-header">Choose your university</h3>
     <div id="university-select-container">
-      <select v-model="university_index" id="university-select">
+      <select v-model="university_index" id="university-select"
+      @change="selectUniversity">
         <option v-for="(name,index) in university_names"
-        :value="index">{{ name }}</option>
+        :value="index">
+          {{ name }}
+        </option>
       </select>
     </div>
-    <div v-if="universitySelected" id="verify-container">
-      <p v-if="!is_login_view" id="verify-message">Verify that you are a member of 
-      <span v-if="university_index === 2">the </span> 
-      {{ university_names[university_index] }}</p>
+    <div v-if="show_btn" id="verify-container">
+      <p v-if="!is_login_view" id="verify-message">
+        {{ university_index === 0 ?
+          "Verify that you are a member of Rensselaer Polytechnic Institute":
+          "Click the button below to sign up" }}
+      </p>
       <div id="button-container" @click="redirectToUniversityLogin">
-        <Button :text="is_login_view ? 'Log in' : 'Verify'" color="blue" size="large"
+        <Button :text="btn_text" color="blue"
+        size="large"
         invert_colors />
       </div>
     </div>
+    <LoginForm v-else-if="show_login_form" />
     <p v-if="error_msg != null" id="error-msg">{{ error_msg }}</p>
     <p v-if="is_login_view" id="question" >Don't have an account? 
       <router-link :to="{name : 'signup'}">Sign up</router-link>
@@ -32,28 +39,29 @@
 
 <script>
 import Button from '@/components/Button'
+import LoginForm from '@/components/LoginForm'
 
 export default {
   name: 'LoginSignup',
   components: {
     Button,
+    LoginForm
   },
   data () {
     return {
       university_index: null,
       university_names: [
         "Rensselaer Polytechnic Institute",
-        "Lincoln University",
-        "University of North Texas"
+        "Other"
       ],
       is_login_view: false,
-      error_msg: null
+      error_msg: null,
+      show_btn: false,
+      show_login_form: false,
+      btn_text: ""
     }
   },
   computed: {
-    universitySelected() {
-      return this.university_index !== null
-    }
   },
   created () {
     this.setIsLoginView()
@@ -76,11 +84,17 @@ export default {
     },
     redirectToUniversityLogin() {
       let cas_url;
-      if(this.is_login_view)
+      if(this.is_login_view) {
         cas_url = this.getLoginURL()
-      else
-        cas_url = this.getSignUpURL()
-      window.location.href = cas_url
+        window.location.href = cas_url
+      } else {
+        if(this.university_index === 0) { //RPI
+          cas_url = this.getSignUpURL()
+          window.location.href = cas_url
+        } else {
+          this.$router.push({name: 'create_user'})
+        }
+      }
     },
     getLoginURL() {
       if(process.env.NODE_ENV === "production")
@@ -90,9 +104,27 @@ export default {
     },
     getSignUpURL() {
       if(process.env.NODE_ENV === "production")
-        return "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fviengage.com%2Fauth%2Fsignup"
+        return "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fviengage.com%2Fauth%2Fsignup_redirect"
       else
-        return "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Fsignup"
+        return "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2Fsignup_redirect"
+    },
+    selectUniversity() {
+      if(this.is_login_view) {
+        if(this.university_index === 0) //RPI
+          this.btn_text = "Login"
+        else {
+          this.btn_text = "Show Form"
+          this.show_btn = false
+          this.show_login_form = true
+          return
+        }
+      } else {
+        if(this.university_index === 0) //RPI
+          this.btn_text = "Verify"
+        else
+          this.btn_text = "Sign Up"
+      }
+      this.show_btn = true
     }
   }
 }

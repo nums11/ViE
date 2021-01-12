@@ -251,7 +251,7 @@ const router = new VueRouter({
       component: LoginSignupCreate,
       meta: {
         title: 'ViE - Sign up',
-        requiresNoAuth: true,
+        requiresNoLogin: true,
       }
     },
     {
@@ -260,16 +260,15 @@ const router = new VueRouter({
       component: LoginSignupCreate,
       meta: {
         title: 'ViE - Log in',
-        requiresNoAuth: true,
+        requiresNoLogin: true,
       }
     },
     {
       name: 'create_user',
-      path: '/create_user/:user_id/:optional_invited_section_id?'
-      + '/:optional_invite_code?',
+      path: '/create_user/:rpi_user_id?',
       component: LoginSignupCreate,
       meta: {
-        requiresNoAuth: true,
+        requiresNoLogin: true,
       }
     },
     {
