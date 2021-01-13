@@ -11,27 +11,36 @@
       <p class="inline-block">
         Join Code: {{ section.join_code }}
       </p>
-      <div class="inline-block float-right">
+      <div @click="showModal"
+      class="inline-block float-right">
         <Button text="Invite Students" color="blue"
         size="extra-small" wide />
       </div>
     </div>
-    <SectionTable table_name="Pending Approval"
+    <SectionTable v-if="!section.has_open_enrollment"
+    table_name="Pending Approval"
     :students="section.pending_approval_students" />
     <SectionTable table_name="Students"
     :students="section.students" />
-    <SectionTable table_name="Invited Students"
-    :students="[]" />
+    <InviteModal ref="InviteModal"
+    :course="course" :section="section" />
   </div>
 </template>
 
 <script>
 import Button from '@/components/Button'
 import SectionTable from '@/components/SectionTable'
+import InviteModal from '@/components/InviteModal'
+
+import EmailAPI from '@/services/EmailAPI'
 
 export default {
   name: 'SectionInfoContainer',
   props: {
+    course: {
+      type: Object,
+      required: true
+    },
     section: {
       type: Object,
       required: true
@@ -39,21 +48,49 @@ export default {
   },
   components: {
     Button,
-    SectionTable
+    SectionTable,
+    InviteModal
   },
   data () {
     return {
-
+      show_modal: false,
+      invite_email: "",
+      sending_email: false
     }
   },
-  async created () {
-    console.log("Section", this.section)
+  computed: {
+    disableInviteBtn() {
+      return this.invite_email.length === 0
+        || !this.invite_email.includes('@')
+        || !this.invite_email.includes('.')
+    }
+  },
+  created () {
   },
   mounted () {
   },
   methods: {
-
-  },
+    showModal() {
+      this.$refs.InviteModal.showModal()
+    },
+    async inviteStudent() {
+      try {
+        this.sending_email = true
+        const course = this.course, section = this.section
+        const instructor = course.instructor
+        await EmailAPI.sendInviteEmail(course.name, course.dept,
+          course.course_number, section.section_number, 
+          `${instructor.first_name} ${instructor.last_name}`,
+          section.join_code, this.invite_email)
+        alert(`Join code sent to ${this.invite_email}`)
+        this.invite_email = ""
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong sending your email")
+      }
+      this.sending_email = false
+    }
+  }
 }
 </script>
 
@@ -74,5 +111,42 @@ export default {
   font-weight: bold;
   color: #252b36bf;
   font-size: 1.5rem;
+}
+
+#invite-modal-header {
+  text-align: center;
+}
+
+#loader {
+  color: black;
+}
+
+#content-container {
+  width: 60%;
+  margin: auto;
+}
+
+#invite-form {
+  margin-top: 0;
+}
+
+#invite-input {
+  width: 70%;
+  margin-right: 1rem;
+}
+
+.ui.dimmer .ui.workaround.loader:before {
+  border-color: rgba(0,0,0,.1);
+  color: black;
+}
+          
+.ui.dimmer .ui.workaround.loader:after {
+  border-color: #767676 transparent transparent;
+  color: black;
+}
+
+#csv-img {
+  border-radius: 5px;
+  width: 16rem;
 }
 </style>
