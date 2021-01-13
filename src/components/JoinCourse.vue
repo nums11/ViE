@@ -50,36 +50,38 @@ export default {
       this.user_has_loaded = true
     },
     async joinCourseSection() {
-      try {
-        const response = await SectionAPI.getSectionByJoinCode(this.join_code)
-        const section = response.data
-        console.log("section", section)
-        if(this.userIsStudentForCourse(section.course)) {
-          alert("You are already a student for a section within this course")
-        } else {
-          const confirmation = confirm(`Are you sure you want to join `
-            + `${section.course.name} (${section.course.dept} `
-            + `${section.course.course_number}) Section ${section.section_number}?`)
-          if(confirmation) {
-            await SectionAPI.addStudentToSection(section._id, this.user._id,
-              section.has_open_enrollment)
-            if(section.has_open_enrollment) {
-              alert("Section successfully joined")
-              this.$router.push({name: 'course_info',
-                params: {id: section.course._id, reload_page: true}})
-            } else {
-              alert("Requested to join section. You will be notified when the instructor grants approval")
-              this.$router.go()
+      if(this.formComplete) {
+        try {
+          const response = await SectionAPI.getSectionByJoinCode(this.join_code)
+          const section = response.data
+          console.log("section", section)
+          if(this.userIsStudentForCourse(section.course)) {
+            alert("You are already a student for a section within this course")
+          } else {
+            const confirmation = confirm(`Are you sure you want to join `
+              + `${section.course.name} (${section.course.dept} `
+              + `${section.course.course_number}) Section ${section.section_number}?`)
+            if(confirmation) {
+              await SectionAPI.addStudentToSection(section._id, this.user._id,
+                section.has_open_enrollment)
+              if(section.has_open_enrollment) {
+                alert("Section successfully joined")
+                this.$router.push({name: 'course_info',
+                  params: {id: section.course._id, reload_page: true}})
+              } else {
+                alert("Requested to join section. You will be notified when the instructor grants approval")
+                this.$router.go()
+              }
             }
           }
+        } catch(error) {
+          console.log("Error", error)
+          if(error.response.status === 404)
+            alert("No Section with this join code found. Please make sure join"
+              + "code is copied correctly.")
+          else
+            alert("Something went wrong. Please try again")
         }
-      } catch(error) {
-        console.log("Error", error)
-        if(error.response.status === 404)
-          alert("No Section with this join code found. Please make sure join"
-            + "code is copied correctly.")
-        else
-          alert("Something went wrong. Please try again")
       }
     },
     userIsStudentForCourse(course) {

@@ -24,11 +24,15 @@
     </div>
     <div class="form-field">
       <h3>Add Sections</h3>
-      <p>Additional sections can be added after your course is registered</p>
+      <p>
+        At least 1 section is required to register a course.
+      </p>
+      <p>
+        Additional sections can be added after a course is registered.
+      </p>
       <sui-form-field>
         <label class="form-label">Section Number</label>
-        <input v-model="section.section_number" type="number"
-        placeholder="1">
+        <input v-model="section.section_number" type="number">
       </sui-form-field>
       <sui-popup content="Sections with open enrollment allow their students
      to join without instructor approval" position="top center" inverted basic>
@@ -119,12 +123,14 @@ export default {
         this.course_number_input_clicked = true
       },
       async registerCourse(){
-        this.course.instructor = this.state_user._id
-        const response = await CourseAPI.addCourse(this.course, this.sections);
-        const new_course = response.data
-        console.log("Receied new course", new_course)
-        this.$router.push({name: 'course_info',
-          params: {id: new_course._id, reload_page: true}});
+        if(this.formComplete) {
+          this.course.instructor = this.state_user._id
+          const response = await CourseAPI.addCourse(this.course, this.sections);
+          const new_course = response.data
+          console.log("Receied new course", new_course)
+          this.$router.push({name: 'course_info',
+            params: {id: new_course._id, reload_page: true}});
+        }
       },
       addSection() {
         if(this.sectionWithSectionNumberAlreadyAdded()) {
