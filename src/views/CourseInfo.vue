@@ -1,7 +1,9 @@
 <template>
   <div id="course-info">
     <div v-if="!course_has_loaded">
-      <sui-loader active name="Loading Course" />
+      <sui-loader active size="large">
+        Loading Course
+      </sui-loader>
     </div>
     <div v-else>
       <SideBar :header="course.name"
@@ -36,8 +38,6 @@
             </div>
             <CourseMeetingsForMonthContainer month="January"
             :meetings="meetings" />
-<!--             <CourseMeetingsForMonthContainer month="Februrary"
-            :meetings="meetings" /> -->
           </div>
           <div v-else-if="active_section === 'Statistics'"
           id="roster-section" key="statistics">
@@ -46,7 +46,7 @@
           <div v-else-if="active_section === 'Roster'"
           id="roster-section" key="roster">
             <SectionInfoContainer v-for="section in course.sections"
-            :key="section._id" :section="section" />
+            :key="section._id" :course="course" :section="section" />
           </div>
           <h1 v-else-if="active_section === 'Settings'"
           key="settings">Coming Soon...</h1>

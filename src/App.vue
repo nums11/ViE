@@ -271,6 +271,10 @@ html, body {
   vertical-align: top;
 }
 
+.center-text {
+  text-align: center;
+}
+
 .mt-1 {
   margin-top: 1rem;
 }
