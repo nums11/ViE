@@ -20,7 +20,6 @@
 
 <script>
 
-import NavBar from "./components/NavBar.vue";
 import InternalNavbar from "./components/InternalNavbar.vue";
 import Footer from "./components/Footer.vue";
 import axios from 'axios';
@@ -40,7 +39,6 @@ export default {
     }
   },
   components: {
-    NavBar,
     InternalNavbar,
     Footer,
     NewVersionMessage,
@@ -309,6 +307,14 @@ html, body {
 
 .mr-3 {
   margin-right: 3rem;
+}
+
+.none {
+  display: none;
+}
+
+.hidden {
+  visibility: hidden;
 }
 
 .fade-enter-active,

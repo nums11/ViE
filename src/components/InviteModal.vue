@@ -13,13 +13,14 @@
       </div>
       <div v-else>
         <sui-form
-        @submit.prevent="inviteStudents([invite_email])"id="invite-form">
+        @submit.prevent="inviteStudents([invite_email])"
+        class="invite-form">
           <div style="margin-bottom:2rem;">
             Send an email that contains the section join code
           </div>
           <sui-form-field>
             <label class="form-label">Student Email</label>
-            <input id="invite-input" v-model="invite_email"
+            <input class="invite-input" v-model="invite_email"
             type="email" placeholder="student@email.com">
             <sui-button :disabled="disableInviteBtn"
               animated size="small"
@@ -244,11 +245,11 @@ export default {
   margin: auto;
 }
 
-#invite-form {
+.invite-form {
   margin-top: 0;
 }
 
-#invite-input {
+.invite-input {
   width: 70%;
   margin-right: 1rem;
 }

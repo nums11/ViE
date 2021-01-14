@@ -2,8 +2,14 @@
   <div class="course-meetings-for-month-container">
     <div class="month">{{ month }}</div>
     <div class="meeting-cards">
-      <CourseMeetingCard v-for="(meeting,index) in meetings"
-      :meeting="meeting" />
+      <p v-if="meetings.length === 0" class="no-meetings-text">
+        No Meetings. Click the green button above to schedule your
+        first meeting.
+      </p>
+      <div v-else>
+        <CourseMeetingCard v-for="(meeting,index) in meetings"
+        :meeting="meeting" />
+      </div>
     </div>
   </div>
 </template>
@@ -54,5 +60,10 @@ export default {
 .meeting-cards {
   width: 97%;
   margin: auto;
+}
+
+.no-meetings-text {
+  margin-top: 3rem;
+  text-align: center;
 }
 </style>

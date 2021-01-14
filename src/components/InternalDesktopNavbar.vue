@@ -31,7 +31,8 @@
     </div>
     <div id="right-side">
       <sui-popup content="Get help" position="bottom center" inverted>
-        <sui-icon name="question circle outline" size="large" id="question"
+        <sui-icon @click="showGettingStartedModal"
+        name="question circle outline" size="large" id="question"
         slot="trigger"/>
       </sui-popup>
       <sui-dropdown button
@@ -49,6 +50,7 @@
         </sui-dropdown-menu>
       </sui-dropdown>
     </div>
+    <GettingStartedModal ref="GettingStartedModal" />
   </div>
 </template>
 
@@ -56,6 +58,8 @@
 import {showAt, hideAt} from 'vue-breakpoints'
 import UserAPI from '@/services/UserAPI.js';
 import AuthAPI from '@/services/AuthAPI.js';
+import GettingStartedModal from
+'@/components/GettingStartedModal'
 
 export default {
   name: 'InternalDesktopNavBar',
@@ -71,7 +75,8 @@ export default {
   },
   components: {
     hideAt,
-    showAt
+    showAt,
+    GettingStartedModal
   },
   data(){
     return {
@@ -93,6 +98,10 @@ export default {
         alert("Sorry something went wrong when trying to log out")
       }
     },
+    showGettingStartedModal() {
+      console.log("Here")
+      this.$refs.GettingStartedModal.showModal()
+    }
   }
 }
 </script>

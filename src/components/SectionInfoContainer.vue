@@ -113,38 +113,6 @@ export default {
   font-size: 1.5rem;
 }
 
-#invite-modal-header {
-  text-align: center;
-}
-
-#loader {
-  color: black;
-}
-
-#content-container {
-  width: 60%;
-  margin: auto;
-}
-
-#invite-form {
-  margin-top: 0;
-}
-
-#invite-input {
-  width: 70%;
-  margin-right: 1rem;
-}
-
-.ui.dimmer .ui.workaround.loader:before {
-  border-color: rgba(0,0,0,.1);
-  color: black;
-}
-          
-.ui.dimmer .ui.workaround.loader:after {
-  border-color: #767676 transparent transparent;
-  color: black;
-}
-
 #csv-img {
   border-radius: 5px;
   width: 16rem;
