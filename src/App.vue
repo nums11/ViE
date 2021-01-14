@@ -309,6 +309,14 @@ html, body {
   margin-right: 3rem;
 }
 
+.none {
+  display: none;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition-duration: 0.3s;
