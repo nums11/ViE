@@ -20,7 +20,6 @@
 
 <script>
 
-import NavBar from "./components/NavBar.vue";
 import InternalNavbar from "./components/InternalNavbar.vue";
 import Footer from "./components/Footer.vue";
 import axios from 'axios';
@@ -40,7 +39,6 @@ export default {
     }
   },
   components: {
-    NavBar,
     InternalNavbar,
     Footer,
     NewVersionMessage,
