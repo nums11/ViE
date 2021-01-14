@@ -2,30 +2,32 @@
   <sui-form class="form">
     <div class="form-field">
       <sui-form-field required :error="showNameInputError">
+        <label class="form-label">Name</label>
         <sui-popup content="Course Name - e.g. Intro to ViE"
-        position="top left" inverted basic>
-          <label slot="trigger" class="form-label">Name</label>
+          position="top center" inverted>
+          <input v-model="course.name" @blur="setNameInputClicked"
+          slot="trigger">
         </sui-popup>
-        <input v-model="course.name" @blur="setNameInputClicked">
       </sui-form-field>
     </div>
     <div class="form-field">
       <sui-form-field required :error="showSubjectCodeInputError">
+        <label class="form-label">Subject Code</label>
         <sui-popup content="Subject Code - e.g. VIE"
-        position="top left" inverted basic>
-          <label slot="trigger" class="form-label">Subject Code</label>
+          position="top center" inverted>
+          <input v-model="course.dept" @blur="setSubjectCodeInputClicked"
+          slot="trigger">
         </sui-popup>
-        <input v-model="course.dept" @blur="setSubjectCodeInputClicked">
       </sui-form-field>
     </div>
     <div class="form-field">
       <sui-form-field required :error="showCourseNumberInputError">
+        <label class="form-label">Course Number</label>
         <sui-popup content="Course Number - e.g. 4200"
-        position="top left" inverted basic>
-          <label slot="trigger" class="form-label">Course Number</label>
+          position="top center" inverted>
+          <input v-model="course.course_number" @blur="setCourseNumberInputClicked"
+          type="number" slot="trigger">
         </sui-popup>
-        <input v-model="course.course_number" @blur="setCourseNumberInputClicked"
-        type="number">
       </sui-form-field>
     </div>
     <div class="form-field">
