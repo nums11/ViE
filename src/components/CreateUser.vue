@@ -142,20 +142,22 @@ export default {
       this.password_input_clicked = true
     },
     async onboardUser() {
-      if(this.rpi_user_id == null
-        && this.non_rpi_user_ids.includes(this.user.user_id)) {
-        this.show_existing_user_id_error = true
-        return
-      }
-      try {
-        await AuthAPI.onboardUser(this.user);
-        if(this.rpi_user_id == null)
-          this.loginNonCas()
-        else
-          this.loginCas()
-      } catch(error) {
-        alert("Something went wrong")
-        console.log("Error creating user", error)
+      if(this.formComplete) {
+        if(this.rpi_user_id == null
+          && this.non_rpi_user_ids.includes(this.user.user_id)) {
+          this.show_existing_user_id_error = true
+          return
+        }
+        try {
+          await AuthAPI.onboardUser(this.user);
+          if(this.rpi_user_id == null)
+            this.loginNonCas()
+          else
+            this.loginCas()
+        } catch(error) {
+          alert("Something went wrong")
+          console.log("Error creating user", error)
+        }
       }
     },
     checkIfUserIsFromRPI() {
