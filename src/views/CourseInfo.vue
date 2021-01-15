@@ -79,15 +79,7 @@ export default {
         {
           text: "All Sections",
           value: 1
-        },
-        {
-          text: "Section 1",
-          value: 2
-        },
-        {
-          text: "Section 2",
-          value: 3
-        },
+        }
       ],
       selected_section: null,
       links: [
@@ -139,6 +131,7 @@ export default {
     if(this.$route.params.reload_page)
       this.$router.go()
     await this.getCourse()
+    this.setSectionSelectorOptions()
   },
   mounted () {
   },
@@ -163,8 +156,17 @@ export default {
     },
     showSection(section_name) {
       this.active_section = section_name
+    },
+    setSectionSelectorOptions() {
+      const sections = this.course.sections
+      for(let i = 0; i < sections.length; i++) {
+        this.section_selector_options.push({
+          text: `Section ${sections[i].section_number}`,
+          value: i + 2
+        })
+      }
     }
-  },
+  }
 }
 </script>
 
