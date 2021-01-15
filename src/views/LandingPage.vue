@@ -39,11 +39,22 @@
         <img src="@/assets/vie_video_img.png" id="video-img" />
         <sui-modal v-model="show_video_modal">
           <sui-modal-content image>
-            <iframe id="youtube-video" width="860" height="483"
-            src="https://www.youtube.com/embed/CKhnfsnYl2M" frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media;
-            gyroscope; picture-in-picture" allowfullscreen>
-            </iframe>
+            <hide-at breakpoint="small">
+              <iframe id="youtube-video" width="860" height="483"
+              src="https://www.youtube.com/embed/CKhnfsnYl2M" frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media;
+              gyroscope; picture-in-picture" allowfullscreen>
+              </iframe>
+            </hide-at>
+            <show-at breakpoint="small">
+              <div style="width:312.7px; margin: auto;">
+                <iframe id="youtube-video" width="312.7" height="175.6"
+                src="https://www.youtube.com/embed/CKhnfsnYl2M" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media;
+                gyroscope; picture-in-picture" allowfullscreen>
+                </iframe>
+              </div>
+            </show-at>
           </sui-modal-content>
         </sui-modal>
       </div>
