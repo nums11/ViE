@@ -49,7 +49,7 @@
       </div>
     </div>
     <div id="explanatory-section">
-      <div id="qa-container">
+      <div id="what-is-vie">
         <h1 id="question">What is ViE?</h1>
         <div id="answer-container">
           <p id="answer">The 
@@ -108,7 +108,7 @@
         </div>
       </div>
     </div>
-    <div id="testimonials-container">
+    <div id="testimonials">
       <h1 id="built-for-instructors">Built For Instructors</h1>
       <TestimonialCard instructor_name="Omar El-Shafee"
       instructor_dept="Engineering"
@@ -241,7 +241,7 @@ export default {
   text-align: center;
 }
 
-#qa-container {
+#what-is-vie {
   background-color: black;
   color: white;
   padding-top: 3rem;
@@ -322,7 +322,7 @@ export default {
   margin-top: 4rem;
 }
 
-#testimonials-container {
+#testimonials {
   margin: auto;
   margin-top: 5rem;
   /*padding-left: 10rem;*/
@@ -386,7 +386,7 @@ export default {
   #answer-sub-header {
     font-size: 2rem;
   }
-  #testimonials-container {
+  #testimonials {
     padding-left: 0;
     padding-right: 0;
   }
@@ -417,7 +417,7 @@ export default {
     margin-left: 25%;
     margin-top: 25%;
   }
-  #qa-container {
+  #what-is-vie {
     padding-left: 0;
   }
   #question {
