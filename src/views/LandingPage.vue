@@ -430,7 +430,6 @@ export default {
   }
   #answer-sub-header {
     font-size: 1.25rem;
-    width: 10000px;
     margin: auto;
   }
   #catchphrase {
