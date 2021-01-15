@@ -408,9 +408,11 @@ const router = new VueRouter({
       path: '/dev_login',
       component: DevLogin,
     }, {
+      name: 'what-is-vie',
       path: '/what-is-vie',
       component: LandingPage
     }, {
+      name: 'testimonials',
       path: '/testimonials',
       component: LandingPage
     }
