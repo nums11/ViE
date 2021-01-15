@@ -8,11 +8,14 @@
          size="large" invert_colors :disabled="!formComplete" />
        </div>
     </sui-form>
-    <div v-if="user_has_loaded">
-      <h1 v-if="user.pending_approval_sections.length > 0">Pending approval</h1>
+    <div v-if="user_has_loaded" class="mt-3">
+      <h1 v-if="user.pending_approval_sections.length > 0">
+        Pending approval
+      </h1>
       <p v-for="section in user.pending_approval_sections">
         {{ section.course.name }} ({{ section.course.dept }}) 
-        {{ section.course.course_number }} Section {{ section.section_number }}
+        {{ section.course.course_number }} Section 
+        {{ section.section_number }}
       </p>
     </div>
   </div>
