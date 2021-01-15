@@ -55,7 +55,9 @@ export default {
         'landing_page',
         'login',
         'signup',
-        'create_user'
+        'create_user',
+        'what-is-vie',
+        'testimonials'
       ],
       navbarless_view_names: [
         'landing_page',

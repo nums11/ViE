@@ -10,6 +10,7 @@ import PortalVue from "portal-vue"
 import SuiVue from "semantic-ui-vue"
 import moment from 'vue-moment'
 import {showAt, hideAt} from 'vue-breakpoints'
+import vueSmoothScroll from 'vue-smooth-scroll'
 Vue.component('showAt', showAt)
 Vue.component('hideAt', hideAt)
 Vue.component('VueCtkDateTimePicker', VueCtkDateTimePicker);
@@ -17,6 +18,7 @@ Vue.use(moment)
 Vue.use(SuiVue)
 Vue.use(PortalVue)
 Vue.use(VueAxios, axios);
+Vue.use(vueSmoothScroll)
 
 import 'vue-ctk-date-time-picker/dist/vue-ctk-date-time-picker.css';
 import 'semantic-ui-css/semantic.min.css';

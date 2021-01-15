@@ -3,7 +3,7 @@
     <ExternalNavbar />
     <div id="main">
       <div id="attention-grabber">
-        <p class="attention-grabber-paragraph">Make your online course</p>
+        <p class="attention-grabber-paragraph">Make your online, hybrid, or in-person course</p>
         <!-- <p class="attention-grabber-paragraph">online course</p> -->
         <p class="attention-grabber-paragraph">
           <span class="blue-text">more </span> 
@@ -31,16 +31,36 @@
       <div id="video-img-container">
         <div id="filter"></div>
         <div id="watch-video-btn">
-          <div @click="goToYoutubeVideo">
+          <div @click="showVideoModal">
             <Button text="Watch video" color="pink"
             size="large" invert_colors wide />
           </div>
         </div>
-        <img src="@/assets/venue_video_img.png" id="video-img" />
+        <img src="@/assets/vie_video_img.png" id="video-img" />
+        <sui-modal v-model="show_video_modal">
+          <sui-modal-content image>
+            <hide-at breakpoint="small">
+              <iframe id="youtube-video" width="860" height="483"
+              src="https://www.youtube.com/embed/CKhnfsnYl2M" frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media;
+              gyroscope; picture-in-picture" allowfullscreen>
+              </iframe>
+            </hide-at>
+            <show-at breakpoint="small">
+              <div style="width:312.7px; margin: auto;">
+                <iframe id="youtube-video" width="312.7" height="175.6"
+                src="https://www.youtube.com/embed/CKhnfsnYl2M" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media;
+                gyroscope; picture-in-picture" allowfullscreen>
+                </iframe>
+              </div>
+            </show-at>
+          </sui-modal-content>
+        </sui-modal>
       </div>
     </div>
     <div id="explanatory-section">
-      <div id="qa-container">
+      <div id="what-is-vie">
         <h1 id="question">What is ViE?</h1>
         <div id="answer-container">
           <p id="answer">The 
@@ -99,7 +119,7 @@
         </div>
       </div>
     </div>
-    <div id="testimonials-container">
+    <div id="testimonials">
       <h1 id="built-for-instructors">Built For Instructors</h1>
       <TestimonialCard instructor_name="Omar El-Shafee"
       instructor_dept="Engineering"
@@ -124,6 +144,7 @@
          for more information or to schedule a demo.</p>
       </div>
     </div>
+    <div>{{ stopVideoWhenClosingModal }}</div>
   </div>
 </template>
 
@@ -141,15 +162,25 @@ export default {
   },
   data(){
     return {
+      show_video_modal: false
+    }
+  },
+  computed: {
+    stopVideoWhenClosingModal() {
+      if(this.show_video_modal === false) {
+        const youtube_video = document.getElementById('youtube-video')
+        if(youtube_video != null){
+          youtube_video.src = youtube_video.src
+        }
+      }
     }
   },
   created() {
 
   },
   methods: {
-    goToYoutubeVideo() {
-      console.log("In func")
-      window.location.href = "https://www.youtube.com/watch?v=m0ysryefnLI"
+    showVideoModal() {
+      this.show_video_modal = true
     }
   }
 }
@@ -210,7 +241,7 @@ export default {
 #watch-video-btn {
   position: absolute;
   margin-left: 36%;
-  margin-top: 30%;
+  margin-top: 26%;
 }
 
 #explanatory-section {
@@ -221,7 +252,7 @@ export default {
   text-align: center;
 }
 
-#qa-container {
+#what-is-vie {
   background-color: black;
   color: white;
   padding-top: 3rem;
@@ -302,7 +333,7 @@ export default {
   margin-top: 4rem;
 }
 
-#testimonials-container {
+#testimonials {
   margin: auto;
   margin-top: 5rem;
   /*padding-left: 10rem;*/
@@ -366,7 +397,7 @@ export default {
   #answer-sub-header {
     font-size: 2rem;
   }
-  #testimonials-container {
+  #testimonials {
     padding-left: 0;
     padding-right: 0;
   }
@@ -397,7 +428,7 @@ export default {
     margin-left: 25%;
     margin-top: 25%;
   }
-  #qa-container {
+  #what-is-vie {
     padding-left: 0;
   }
   #question {
@@ -410,7 +441,6 @@ export default {
   }
   #answer-sub-header {
     font-size: 1.25rem;
-    width: 10000px;
     margin: auto;
   }
   #catchphrase {

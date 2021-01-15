@@ -16,12 +16,12 @@
     </div>
     <div id="nav-links-dropdown-container">
       <div id="nav-links-dropdown">
-        <router-link class="nav-link" :to="{name: 'features'}">
+<!--         <router-link class="nav-link" :to="{name: 'features'}">
           Features
         </router-link>
         <router-link class="nav-link" :to="{name: 'blog'}">
           Blog
-        </router-link>
+        </router-link> -->
         <router-link class="nav-link" :to="{name: 'login'}">
           Log in
         </router-link>

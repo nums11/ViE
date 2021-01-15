@@ -8,11 +8,19 @@
     </div>
     <div id="nav-buttons-container">
       <!-- Add back -->
+      <a class="nav-link" href="#what-is-vie"
+      v-smooth-scroll="{duration: 3000}">
+        What Is ViE
+      </a>
+      <a class="nav-link" href="#testimonials"
+      v-smooth-scroll="{duration: 3000}">
+        Testimonials
+      </a>
 <!--       <router-link class="nav-link" :to="{name: 'features'}">
-        Features
-      </router-link>
-      <router-link class="nav-link" :to="{name: 'blog'}">
-        Blog
+        How it Works
+      </router-link> -->
+<!--       <router-link class="nav-link" :to="{name: 'blog'}">
+        Testimonials
       </router-link> -->
     </div>
     <div id="login-signup-buttons-container">
@@ -56,7 +64,7 @@ export default {
   display: inline-block;
   vertical-align: top;
   height: 3rem;
-  margin-left: 37.5%;
+  margin-left: 35%;
   padding-top: 1rem;
 }
 

@@ -407,6 +407,14 @@ const router = new VueRouter({
       name: 'dev_login',
       path: '/dev_login',
       component: DevLogin,
+    }, {
+      name: 'what-is-vie',
+      path: '/what-is-vie',
+      component: LandingPage
+    }, {
+      name: 'testimonials',
+      path: '/testimonials',
+      component: LandingPage
     }
   ]
 })
@@ -414,7 +422,7 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   const loggedIn = localStorage.getItem('user')
 
-  if (to.matched.some(record => record.meta.requiresAuth)) {
+ if (to.matched.some(record => record.meta.requiresAuth)) {
 
     if (loggedIn) {
 
