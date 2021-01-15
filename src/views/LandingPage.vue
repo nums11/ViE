@@ -31,12 +31,21 @@
       <div id="video-img-container">
         <div id="filter"></div>
         <div id="watch-video-btn">
-          <div @click="goToYoutubeVideo">
+          <div @click="showVideoModal">
             <Button text="Watch video" color="pink"
             size="large" invert_colors wide />
           </div>
         </div>
-        <img src="@/assets/venue_video_img.png" id="video-img" />
+        <img src="@/assets/vie_video_img.png" id="video-img" />
+        <sui-modal v-model="show_video_modal">
+          <sui-modal-content image>
+            <iframe id="youtube-video" width="860" height="483"
+            src="https://www.youtube.com/embed/CKhnfsnYl2M" frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media;
+            gyroscope; picture-in-picture" allowfullscreen>
+            </iframe>
+          </sui-modal-content>
+        </sui-modal>
       </div>
     </div>
     <div id="explanatory-section">
@@ -124,6 +133,7 @@
          for more information or to schedule a demo.</p>
       </div>
     </div>
+    <div>{{ stopVideoWhenClosingModal }}</div>
   </div>
 </template>
 
@@ -141,15 +151,25 @@ export default {
   },
   data(){
     return {
+      show_video_modal: false
+    }
+  },
+  computed: {
+    stopVideoWhenClosingModal() {
+      if(this.show_video_modal === false) {
+        const youtube_video = document.getElementById('youtube-video')
+        if(youtube_video != null){
+          youtube_video.src = youtube_video.src
+        }
+      }
     }
   },
   created() {
 
   },
   methods: {
-    goToYoutubeVideo() {
-      console.log("In func")
-      window.location.href = "https://www.youtube.com/watch?v=m0ysryefnLI"
+    showVideoModal() {
+      this.show_video_modal = true
     }
   }
 }
@@ -210,7 +230,7 @@ export default {
 #watch-video-btn {
   position: absolute;
   margin-left: 36%;
-  margin-top: 30%;
+  margin-top: 26%;
 }
 
 #explanatory-section {
