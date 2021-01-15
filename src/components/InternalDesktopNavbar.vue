@@ -99,7 +99,6 @@ export default {
       }
     },
     showGettingStartedModal() {
-      console.log("Here")
       this.$refs.GettingStartedModal.showModal()
     }
   }

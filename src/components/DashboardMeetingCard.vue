@@ -9,7 +9,7 @@
     <div class="divider"></div>
     <div class="view-meeting-btn-container">
       <router-link :to="{name: 'meeting_info', params: {meeting_id: meeting._id}}">
-        <sui-button animated size="small"
+        <sui-button  size="small"
         style="background-color:#00B3FF; color:white;">
             <sui-button-content visible>View</sui-button-content>
             <sui-button-content hidden>
