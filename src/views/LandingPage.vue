@@ -3,7 +3,7 @@
     <ExternalNavbar />
     <div id="main">
       <div id="attention-grabber">
-        <p class="attention-grabber-paragraph">Make your online course</p>
+        <p class="attention-grabber-paragraph">Make your online, hybrid, or in-person course</p>
         <!-- <p class="attention-grabber-paragraph">online course</p> -->
         <p class="attention-grabber-paragraph">
           <span class="blue-text">more </span> 

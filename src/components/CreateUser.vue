@@ -187,7 +187,8 @@ export default {
     async loginNonCas() {
       try {
         await this.$store.dispatch('login', this.user)
-        this.$router.push({name: 'dashboard'})
+        this.$router.push({name: 'dashboard',
+          params: {first_login: true}})
       } catch(error) {
         console.log(error)
         alert("Sorry, something went wrong")
