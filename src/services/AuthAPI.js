@@ -38,7 +38,7 @@ export default {
       user: user // add our data to the request body
     })
   },
-  getNonRPIUserIDs() {
-    return API().get('auth/non_rpi_user_ids/')
+  getNonRPIUserIDsAndEmails() {
+    return API().get('auth/non_rpi_user_ids_and_emails/')
   }
 }

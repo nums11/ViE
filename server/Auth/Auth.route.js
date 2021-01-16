@@ -288,17 +288,22 @@ authRoutes.get('/user_with_updated_auth_headers', function (req, res) {
     })
 });
 
-authRoutes.get('/non_rpi_user_ids', function (req, res, next) {
+authRoutes.get('/non_rpi_user_ids_and_emails', function (req, res, next) {
   User.find({is_rpi_member: false},function(err, non_rpi_users){
     if(err) {
       next(error)
     } else {
       let non_rpi_user_ids = []
+      let non_rpi_emails = []
       non_rpi_users.forEach(user => {
         non_rpi_user_ids.push(user.user_id)
+        non_rpi_emails.push(user.email)
       })
-      console.log("<SUCCESS> (auth/non_rpi_user_ids)")
-      res.json(non_rpi_user_ids);
+      console.log("<SUCCESS> (auth/non_rpi_user_ids_and_emails)")
+      res.json({
+        user_ids: non_rpi_user_ids,
+        emails: non_rpi_emails
+      });
     }
   });
 });

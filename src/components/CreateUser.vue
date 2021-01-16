@@ -19,6 +19,9 @@
           <label class="form-label">Email</label>
           <input @blur="setEmailInputClicked" v-model="user.email"
           :readonly="rpi_user_id != null" type="email">
+          <p v-if="show_existing_email_error" class="mt-1 error">
+            Account with this email already exists
+          </p>
         </sui-form-field>
       </div>
       <div class="form-field">
@@ -32,8 +35,7 @@
             <input v-model="user.user_id" :readonly="rpi_user_id != null"
             @blur="setUserIDInputClicked" slot="trigger">
           </sui-popup>
-          <p v-if="show_existing_user_id_error" class="mt-1" 
-          id="existing-user-error">
+          <p v-if="show_existing_user_id_error" class="mt-1 error">
             User with this user id already exists
           </p>
         </sui-form-field>
@@ -96,7 +98,9 @@ export default {
       confirm_password_input_clicked: false,
       rpi_user_id: null,
       show_existing_user_id_error: false,
-      non_rpi_user_ids: []
+      show_existing_email_error: false,
+      non_rpi_user_ids: [],
+      non_rpi_emails: []
     }
   },
   computed: {
@@ -161,11 +165,18 @@ export default {
       this.confirm_password_input_clicked = true
     },
     async onboardUser() {
+      this.show_existing_email_error = false
+      this.show_existing_user_id_error = false
       if(this.formComplete) {
-        if(this.rpi_user_id == null
-          && this.non_rpi_user_ids.includes(this.user.user_id)) {
-          this.show_existing_user_id_error = true
-          return
+        if(this.rpi_user_id == null) {
+          if(this.non_rpi_emails.includes(this.user.email)) {
+            this.show_existing_email_error = true
+            return
+          } else if(this.non_rpi_user_ids.includes(
+            this.user.user_id)) {
+            this.show_existing_user_id_error = true
+            return
+          }
         }
         try {
           await AuthAPI.onboardUser(this.user);
@@ -191,8 +202,10 @@ export default {
     },
     async getNonRPIUserIDs() {
       try {
-        const response = await AuthAPI.getNonRPIUserIDs()
-        this.non_rpi_user_ids = response.data
+        const response = await AuthAPI.getNonRPIUserIDsAndEmails()
+        const data = response.data
+        this.non_rpi_user_ids = data.user_ids
+        this.non_rpi_emails = data.emails
       } catch(error) {
         console.log(error)
         alert("Sorry, something went wrong")
@@ -228,7 +241,7 @@ export default {
   margin-bottom: 2rem;
 }
 
-#existing-user-error {
+.error {
   color: #FF0000;
 }
 </style>
