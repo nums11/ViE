@@ -364,4 +364,31 @@ userRoutes.post('/add_service_worker_subscriptions_to_all', (req, res) => {
   })
 });
 
+userRoutes.post('/update_user_name/:user_object_id',
+  function (req, res, next) {
+  const user_object_id = req.params.user_object_id
+  const first_name = req.body.first_name
+  const last_name = req.body.last_name
+
+  User.findByIdAndUpdate(user_object_id,
+  {
+    first_name: first_name,
+    last_name: last_name
+  },
+  {new: true},
+  (error, updated_user) => {
+    if(error) {
+      next(error)
+    } else if(updated_user == null) {
+      console.log(`<ERROR> (users/update_user_name). User with id`
+        `${user_object_id} not found`)
+      res.status(404).json("User not found")
+    } else {
+      console.log("<SUCCESS> (users/update_user_name)")
+      res.json(updated_user);
+    }
+  });
+});
+
+
 module.exports = userRoutes;

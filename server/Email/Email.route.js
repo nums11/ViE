@@ -50,6 +50,47 @@ emailRoutes.route('/invite').post(
   }
 });
 
+emailRoutes.route('/reset_password').post(
+  async function (req, res, next) {
+  const email = req.body.email
+  console.log("Email", email)
+
+  const transporter = nodemailer.createTransport({
+   service: 'gmail',
+   auth: {
+     user: 'vie.do.not.reply@gmail.com',
+     pass: process.env.EMAIL_PASS
+   }
+  });
+  const subject = "ViE - Reset Your Password"
+  const body = "Someone requested a password reset for your "
+    + "account. If this was not you, please contact viengagecontact@gmail.com "
+    + "so we can take the proper security measures.<br/><br/> "
+    + "Follow this link to reset your password: "
+    + `https://viengage.com/reset_password/${email}`
+
+  try {
+    const mail_options = getMailOptions(email,
+      subject, body)
+    const mail_promise = new Promise((resolve, reject) => {
+      transporter.sendMail(mail_options, function(error, info){
+        if (error) {
+          console.log("<ERROR> sending mail", error);
+          reject(error)
+        } else {
+          resolve(info)
+        }
+      });
+    })
+    const email_info = await Promise.resolve(mail_promise)
+    console.log("<SUCCESS> (emails/reset_password)")
+    res.json(email_info)
+  } catch(error) {
+    console.log(`<ERROR> (emails/invite) email: ${email}`)
+    next(error)
+  }
+});
+
 function getMailOptions(email, subject, body) {
   return {
    from: 'vie.do.not.reply@gmail.com',
