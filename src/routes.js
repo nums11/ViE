@@ -45,17 +45,7 @@ import DevLogin from './views/DevLogin.vue'
 Vue.use(VueRouter);
 
 const router = new VueRouter({
-  // mode: 'history',
   routes: [
-    // {
-    //   name: 'login',
-    //   path: '/login',
-    //   component: LoginView,
-    //   meta: {
-    //     title: '.ViE - Login',
-    //     requiresNoLogin: true
-    //   }
-    // },
     {
       name: 'landing_page',
       path: '/',
@@ -70,7 +60,7 @@ const router = new VueRouter({
       path: '/settings',
       component: Settings,
       meta: {
-        title: ".ViE - Settings",
+        title: "ViE - Settings",
         requiresAuth: true
       }
     },

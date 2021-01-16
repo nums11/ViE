@@ -152,9 +152,12 @@ sectionRoutes.get('/by_join_code/:join_code', (req, res, next) => {
     populate: {
       path: 'sections',
       populate: {
-        path: 'students'
+          path: 'students'
       }
     }
+  }).
+  populate({
+    path: 'pending_approval_students'
   }).
   exec((error, sections) => {
       if(error) {

@@ -13,8 +13,8 @@
         Pending approval
       </h1>
       <p v-for="section in user.pending_approval_sections">
-        {{ section.course.name }} ({{ section.course.dept }}) 
-        {{ section.course.course_number }} Section 
+        {{ section.course.name }} ({{ section.course.dept }} 
+        {{ section.course.course_number }}) Section 
         {{ section.section_number }}
       </p>
     </div>
@@ -57,9 +57,11 @@ export default {
         try {
           const response = await SectionAPI.getSectionByJoinCode(this.join_code)
           const section = response.data
-          console.log("section", section)
           if(this.userIsStudentForCourse(section.course)) {
             alert("You are already a student for a section within this course")
+          } else if(this.userIsAlreadyPendingAprroval(section)) {
+            alert("You have already requested to join this section. Please wait"
+              + " until you are approved by the instructor")
           } else {
             const confirmation = confirm(`Are you sure you want to join `
               + `${section.course.name} (${section.course.dept} `
@@ -73,15 +75,15 @@ export default {
                   params: {id: section.course._id, reload_page: true}})
               } else {
                 alert("Requested to join section. You will be notified when the instructor grants approval")
-                this.$router.go()
+                this.user.pending_approval_sections.push(section)
               }
             }
           }
         } catch(error) {
           console.log("Error", error)
           if(error.response.status === 404)
-            alert("No Section with this join code found. Please make sure join"
-              + "code is copied correctly.")
+            alert("No Section with this join code found. Please make sure you"
+              + " copied the join code correctly.")
           else
             alert("Something went wrong. Please try again")
         }
@@ -102,6 +104,17 @@ export default {
           break
       }
       return is_student
+    },
+    userIsAlreadyPendingAprroval(section) {
+      let is_pending = false
+      let pending_students = section.pending_approval_students
+      for(let i = 0; i < pending_students.length; i++) {
+        if(pending_students[i].user_id === this.user.user_id) {
+          is_pending = true
+          break
+        }
+      }
+      return is_pending
     }
   },
 }
