@@ -47,6 +47,14 @@
             type="password" slot="trigger">
           </sui-popup>
         </sui-form-field>
+        <div class="mt-3">
+          <sui-form-field required :error="showConfirmPasswordInputError">
+            <label class="form-label">Confirm Password</label>
+              <input @blur="setConfirmPasswordInputClicked"
+              v-model="confirmed_password"
+              type="password">
+          </sui-form-field>
+        </div>
       </div>
       <div class="form-field">
         <sui-form-field>
@@ -80,10 +88,12 @@ export default {
         email: "",
         password: ""
       },
+      confirmed_password: "",
       first_name_input_clicked: false,
       last_name_input_clicked: false,
       user_id_input_clicked: false,
       email_input_clicked: false,
+      confirm_password_input_clicked: false,
       rpi_user_id: null,
       show_existing_user_id_error: false,
       non_rpi_user_ids: []
@@ -111,6 +121,11 @@ export default {
       return this.password_input_clicked &&
       this.user.password.length < 6
     },
+    showConfirmPasswordInputError() {
+      return this.password_input_clicked &&
+      this.confirm_password_input_clicked &&
+      this.user.password !== this.confirmed_password
+    },
     formComplete() {
       return this.user.first_name !== "" &&
         this.user.last_name !== "" &&
@@ -118,7 +133,8 @@ export default {
         this.user.email !== "" &&
         this.user.email.includes("@") &&
         ((this.rpi_user_id == null &&
-          this.user.password.length >= 6) ||
+          this.user.password.length >= 6 &&
+          this.user.password === this.confirmed_password) ||
         this.rpi_user_id != null)
     }
   },
@@ -140,6 +156,9 @@ export default {
     },
     setPasswordInputClicked() {
       this.password_input_clicked = true
+    },
+    setConfirmPasswordInputClicked() {
+      this.confirm_password_input_clicked = true
     },
     async onboardUser() {
       if(this.formComplete) {
