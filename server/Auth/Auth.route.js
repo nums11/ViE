@@ -308,6 +308,29 @@ authRoutes.get('/non_rpi_user_ids_and_emails', function (req, res, next) {
   });
 });
 
+authRoutes.post('/update_password/:email', (req, res, next) => {
+  const email = req.params.email
+  const new_password = req.body.new_password
+
+  User.find({is_rpi_member: false, email: email},
+    async function(error, users){
+    if(error) {
+      next(error)
+    } else if(users.length === 0) {
+      console.log(`<ERROR> (users/update_password) could not find user`
+        + ` with email ${email}`)
+      res.status(404).json("Could not find user")
+    } else {
+      let user = users[0]
+      user.password = bcrypt.hashSync(new_password, saltRounds)
+      const saved_user = await user.save()
+      console.log("<SUCCESS> (auth/update_password)")
+      res.json(saved_user);
+    }
+  })
+})
+
+
 async function sectionInvitedStudent(section_id, student_id, invite_code) {
   try {
     let section_promise = new Promise((resolve,reject) => {

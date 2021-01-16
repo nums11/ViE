@@ -40,5 +40,10 @@ export default {
   },
   getNonRPIUserIDsAndEmails() {
     return API().get('auth/non_rpi_user_ids_and_emails/')
-  }
+  },
+  updatePassword(email, new_password) {
+    return API().post(`auth/update_password/${email}`, {
+      new_password: new_password
+    })
+  },
 }

@@ -67,5 +67,11 @@ export default {
   },
   addServiceWorkerSubscriptionsToAllUsers() {
     return API().post('users/add_service_worker_subscriptions_to_all')
+  },
+  updateUserName(user_object_id, first_name, last_name) {
+    return API().post(`users/update_user_name/${user_object_id}`, {
+      first_name: first_name,
+      last_name: last_name
+    })
   }
 }

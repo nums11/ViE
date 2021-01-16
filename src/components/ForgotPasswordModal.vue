@@ -99,6 +99,9 @@ export default {
       }
       this.emails_loaded = true
       this.email = ""
+    },
+    showModal() {
+      this.show_modal = true
     }
   }
 }

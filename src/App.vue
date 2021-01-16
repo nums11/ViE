@@ -57,7 +57,8 @@ export default {
         'signup',
         'create_user',
         'what-is-vie',
-        'testimonials'
+        'testimonials',
+        'reset_password'
       ],
       navbarless_view_names: [
         'landing_page',
