@@ -53,7 +53,6 @@ emailRoutes.route('/invite').post(
 emailRoutes.route('/reset_password').post(
   async function (req, res, next) {
   const email = req.body.email
-  console.log("Email", email)
 
   const transporter = nodemailer.createTransport({
    service: 'gmail',
@@ -67,7 +66,7 @@ emailRoutes.route('/reset_password').post(
     + "account. If this was not you, please contact viengagecontact@gmail.com "
     + "so we can take the proper security measures.<br/><br/> "
     + "Follow this link to reset your password: "
-    + `https://viengage.com/reset_password/${email}`
+    + `https://viengage.com/#/reset_password/${email}`
 
   try {
     const mail_options = getMailOptions(email,
