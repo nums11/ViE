@@ -17,6 +17,8 @@
       <p v-if="show_password_err" class="error">
         Password Required
       </p>
+      <p @click="showForgotPasswordModal"
+      id="forgot-password-text">Forgot Password?</p>
     </div>
     <div class="mt-2" @click="login">
       <Button text="Login" color="blue" size="large"
@@ -25,16 +27,20 @@
     <p v-if="show_invalid_credentials" class="error">
       Invalid User Id or Password
     </p>
+    <ForgotPasswordModal v-if="show_modal" />
   </sui-form>
 </template>
 
 <script>
 import Button from '@/components/Button'
+import ForgotPasswordModal from
+'@/components/ForgotPasswordModal'
 
 export default {
   name: 'LoginForm',
   components: {
-    Button
+    Button,
+    ForgotPasswordModal
   },
   data () {
     return {
@@ -44,7 +50,8 @@ export default {
       },
       show_user_id_err: false,
       show_password_err: false,
-      show_invalid_credentials: false
+      show_invalid_credentials: false,
+      show_modal: false
     }
   },
   computed: {
@@ -79,6 +86,9 @@ export default {
           }
         }
       }
+    },
+    showForgotPasswordModal() {
+      this.show_modal = true
     }
   }
 }
@@ -91,5 +101,12 @@ export default {
 
 .error {
   color: #FF0000;
+}
+
+#forgot-password-text {
+  color: #4183C4;
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-block;
 }
 </style>

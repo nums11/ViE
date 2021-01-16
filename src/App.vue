@@ -315,6 +315,21 @@ html, body {
   display: none;
 }
 
+.error {
+  color: #FF0000;
+}
+
+/*Fixes loader styling in modals*/
+.ui.dimmer .ui.workaround.loader:before {
+  border-color: rgba(0,0,0,.1);
+  color: black;
+}
+          
+.ui.dimmer .ui.workaround.loader:after {
+  border-color: #767676 transparent transparent;
+  color: black;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition-duration: 0.3s;

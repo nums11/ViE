@@ -14,4 +14,9 @@ export default {
       student_emails: student_emails
     })
   },
+  sendPasswordResetEmail(email) {
+    return API().post('emails/reset_password', {
+      email: email
+    })
+  }
 }

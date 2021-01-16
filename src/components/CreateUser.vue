@@ -240,8 +240,4 @@ export default {
 #button-container {
   margin-bottom: 2rem;
 }
-
-.error {
-  color: #FF0000;
-}
 </style>
