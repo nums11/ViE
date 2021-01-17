@@ -1,8 +1,10 @@
 <template>
   <div class="side-bar">
-    <h2>{{ header }}</h2>
+    <h2 class="wrap-text" id="side-bar-header">
+      {{ header }}
+    </h2>
     <h3 v-for="sub_header,index in sub_headers"
-    :key="sub_header" class="sub-header">
+    :key="sub_header" class="sub-header wrap-text">
       {{ sub_header }}
     </h3>
     <div v-for="link,index in links" :key="link.link_name"
@@ -98,8 +100,13 @@ export default {
   width: 18%;
 }
 
+#side-bar-header {
+  padding-right: 1rem;
+}
+
 .sub-header {
   margin-top: 0;
+  padding-right: 1rem;
 }
 
 .side-bar-link-container {

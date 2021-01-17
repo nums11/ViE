@@ -422,26 +422,71 @@ courseRoutes.get('/get/:id/:with_meetings?',
   })
 });
 
-courseRoutes.route('/update/:id').post(function (req, res) {
+courseRoutes.route('/update/:id').post(
+  async function (req, res, next) {
   const id = req.params.id;
-  const new_course = req.body.new_course;
-  Course.findByIdAndUpdate(id,
-    {
-      name: new_course.name,
-      dept: new_course.dept,
-      course_number: new_course.course_number,
-    },
-    {new: true},
-    function (error, updated_course) {
-      if (error) {
-        console.log("<ERROR> Updating course by ID:",id,"with:",new_course)
-        next(error)
-      } else {
-        console.log("<SUCCESS> Updating course")
-        res.json(updated_course);
-      }
-    }
-  );
+  const course = req.body.course;
+
+  try {
+    let section_promises = []
+    course.sections.forEach(section => {
+      section_promises.push(new Promise((resolve, reject) => {
+        Section.findByIdAndUpdate(section._id,
+          {
+            section_number: section.section_number,
+            has_open_enrollment: section.has_open_enrollment
+          },
+          {new: true},
+          (error, updated_section) => {
+            if(error) {
+              console.log(`<ERROR> (courses/update) updating section`
+                + ` with id: ${section._id} and section`,section,error)
+              reject(error)
+            } else if(updated_section == null) {
+              console.log(`<ERROR> (courses/update) section not found`
+                + ` with id ${section._id}`)
+              reject(null)
+            } else {
+              resolve(updated_section)
+            }
+          }
+        )
+      }))
+    })
+    let course_promise = new Promise((resolve,reject) => {
+      Course.findByIdAndUpdate(id,
+        {
+          name: course.name,
+          dept: course.dept,
+          course_number: course.course_number,
+        },
+        {new: true},
+        function (error, updated_course) {
+          if (error) {
+            console.log(`<ERROR> (courses/update) updating course`
+              + ` with id ${id} and course`,course,error)
+            reject(error)
+          } else if(updated_course == null) {
+            console.log(`<ERROR> (courses/update) could not find course`
+              + ` with id ${id}`)
+            reject(null)
+          } else {
+            resolve(updated_course)
+          }
+        }
+      );
+    })
+    const updated_sections = await Promise.all(section_promises)
+    const updated_course = await Promise.resolve(course_promise)
+    console.log("<SUCCESS> (courses/update)")
+    res.json({
+      updated_sections: updated_sections,
+      updated_course: updated_course
+    })
+  } catch(error) {
+    console.log("<ERROR> (courses/update)")
+    next(error)
+  }
 });
 
 // Todo update the instructor courses and student courses

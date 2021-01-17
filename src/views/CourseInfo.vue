@@ -48,8 +48,10 @@
             <SectionInfoContainer v-for="section in course.sections"
             :key="section._id" :course="course" :section="section" />
           </div>
-          <h1 v-else-if="active_section === 'Settings'"
-          key="settings">Coming Soon...</h1>
+          <CourseSettingsContainer
+          v-else-if="active_section === 'Settings'"
+          :course="course"
+          key="settings" />
         </transition>
       </div>
     </div>
@@ -61,6 +63,8 @@ import CourseMeetingsForMonthContainer from
 '@/components/CourseMeetingsForMonthContainer'
 import SectionInfoContainer from
 '@/components/SectionInfoContainer'
+import CourseSettingsContainer from
+'@/components/CourseSettingsContainer'
 import SideBar from '@/components/SideBar'
 import CourseAPI from '@/services/CourseAPI'
 
@@ -69,6 +73,7 @@ export default {
   components: {
     CourseMeetingsForMonthContainer,
     SectionInfoContainer,
+    CourseSettingsContainer,
     SideBar
   },
   data () {
