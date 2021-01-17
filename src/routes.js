@@ -24,7 +24,7 @@ import AdminUpdatedAuthHeaders from './components/admin/User/AdminUpdatedAuthHea
 import AdminStudentInvite from './components/admin/Course/StudentInvite.vue';
 import LandingPage from './views/LandingPage.vue';
 import SetPermanentPassword from './views/SetPermanentPassword.vue';
-import LoginSignupCreate from './views/LoginSignupCreate.vue';
+import ExternalForm from './views/ExternalForm.vue';
 import Dashboard from './views/Dashboard.vue';
 import CourseList from './components/CourseList.vue';
 import CourseOrgInfo from './views/CourseOrgInfo.vue';
@@ -238,7 +238,7 @@ const router = new VueRouter({
     {
       name: 'signup',
       path: '/signup/:user_exists?',
-      component: LoginSignupCreate,
+      component: ExternalForm,
       meta: {
         title: 'ViE - Sign up',
         requiresNoLogin: true,
@@ -247,7 +247,7 @@ const router = new VueRouter({
     {
       name: 'login',
       path: '/login/:user_does_not_exist?',
-      component: LoginSignupCreate,
+      component: ExternalForm,
       meta: {
         title: 'ViE - Log in',
         requiresNoLogin: true,
@@ -256,7 +256,7 @@ const router = new VueRouter({
     {
       name: 'create_user',
       path: '/create_user/:rpi_user_id?',
-      component: LoginSignupCreate,
+      component: ExternalForm,
       meta: {
         requiresNoLogin: true,
       }
@@ -405,6 +405,15 @@ const router = new VueRouter({
       name: 'testimonials',
       path: '/testimonials',
       component: LandingPage
+    }, {
+      name: 'reset_password',
+      path: '/reset_password/:email',
+      component: ExternalForm,
+      meta: {
+        title: 'ViE - Reset Password',
+        requiresAuth: false,
+        requiresNoLogin: true
+      }
     }
   ]
 })

@@ -57,7 +57,8 @@ export default {
         'signup',
         'create_user',
         'what-is-vie',
-        'testimonials'
+        'testimonials',
+        'reset_password'
       ],
       navbarless_view_names: [
         'landing_page',
@@ -313,6 +314,21 @@ html, body {
 
 .none {
   display: none;
+}
+
+.error {
+  color: #FF0000;
+}
+
+/*Fixes loader styling in modals*/
+.ui.dimmer .ui.workaround.loader:before {
+  border-color: rgba(0,0,0,.1);
+  color: black;
+}
+          
+.ui.dimmer .ui.workaround.loader:after {
+  border-color: #767676 transparent transparent;
+  color: black;
 }
 
 .fade-enter-active,

@@ -9,19 +9,22 @@
     <LoginSignup v-if="$route.name === 'login' || 
     $route.name === 'signup'"
     :is_login_view="$route.name === 'login'" />
-    <CreateUser v-else />
+    <CreateUser v-else-if="$route.name === 'create_user'" />
+    <ResetPassword v-else/>
   </div>
 </template>
 
 <script>
 import LoginSignup from '@/components/LoginSignup'
 import CreateUser from '@/components/CreateUser'
+import ResetPassword from '@/components/ResetPassword'
 
 export default {
-    name: 'LoginSignupCreate',
+    name: 'ExternalForm',
     components: {
       LoginSignup,
-      CreateUser
+      CreateUser,
+      ResetPassword
     },
     data () {
       return {

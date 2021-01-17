@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="login-signup">
     <h1 v-if="is_login_view" class="form-header">
       Log in to your ViE account
     </h1>
@@ -131,6 +131,10 @@ export default {
 </script>
 
 <style scoped>
+#login-signup {
+  padding-bottom: 2rem;
+}
+
 #choose-university-header {
   margin-top: 4rem;
 }

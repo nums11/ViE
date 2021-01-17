@@ -21,7 +21,7 @@
           <sui-form-field>
             <label class="form-label">Student Email</label>
             <input class="invite-input" v-model="invite_email"
-            type="email" placeholder="student@email.com">
+            type="email">
             <sui-button :disabled="disableInviteBtn"
               animated size="small"
               style="background-color:#00b80c; color:white;">
@@ -256,16 +256,6 @@ export default {
 
 #file-input {
   display: none;
-}
-
-.ui.dimmer .ui.workaround.loader:before {
-  border-color: rgba(0,0,0,.1);
-  color: black;
-}
-          
-.ui.dimmer .ui.workaround.loader:after {
-  border-color: #767676 transparent transparent;
-  color: black;
 }
 
 #csv-img {
