@@ -18,10 +18,12 @@
       </div>
     </div>
     <SectionTable v-if="!section.has_open_enrollment"
-    table_name="Pending Approval"
-    :students="section.pending_approval_students" />
+    table_name="Pending Approval" :section_id="section._id"
+    :students="section.pending_approval_students"
+    v-on:approve-student="approveStudent" />
     <SectionTable table_name="Students"
-    :students="section.students" />
+    :students="section.students" :section_id="section._id"
+    ref="StudentsTable" />
     <InviteModal ref="InviteModal"
     :course="course" :section="section" />
   </div>
@@ -89,6 +91,9 @@ export default {
         alert("Sorry, something went wrong sending your email")
       }
       this.sending_email = false
+    },
+    approveStudent(student) {
+      this.$refs.StudentsTable.addStudent(student)
     }
   }
 }

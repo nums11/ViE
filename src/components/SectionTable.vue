@@ -6,7 +6,7 @@
     <div class="table">
       <div class="table-wrapper">
         <sui-table v-if="table_name === 'Students' ||
-        table_name === 'Pending Approval Students'" striped>
+        table_name === 'Pending Approval'" striped>
           <sui-table-header>
             <sui-table-row>
               <sui-table-header-cell>First Name</sui-table-header-cell>
@@ -49,13 +49,14 @@
               </sui-table-cell>
               <sui-table-cell v-if="table_name === 'Pending Approval'">
                 <sui-button class="table-btn" size="mini"
-                color="#e83e8c">
+                style="background-color:#00b80c;color:white;"
+                @click="handleStudent(student,'approve')">
                   <sui-icon name="check"/>
                 </sui-button>
               </sui-table-cell>
               <sui-table-cell v-if="table_name === 'Pending Approval'">
                 <sui-button class="table-btn" size="mini"
-                color="red">
+                color="red" @click="handleStudent(student, 'deny')">
                   <sui-icon name="x"/>
                 </sui-button>
               </sui-table-cell>
@@ -90,10 +91,16 @@
 </template>
 
 <script>
+import SectionAPI from '@/services/SectionAPI'
+
 export default {
   name: 'SectionTable',
   props: {
     table_name: {
+      type: String,
+      required: true
+    },
+    section_id: {
       type: String,
       required: true
     },
@@ -102,20 +109,41 @@ export default {
       required: true
     }
   },
-  components: {
-  },
   data () {
     return {
 
     }
   },
-  async created () {
-
-  },
-  mounted () {
+  created () {
   },
   methods: {
-
+    async handleStudent(student, operation) {
+      try {
+        if(operation === 'approve') {
+          await SectionAPI.approveStudentIntoSection(
+            this.section_id, student._id)
+          this.$emit('approve-student', student)
+        } else {
+          await SectionAPI.denyStudentApprovalIntoSection(
+            this.section_id, student._id)
+        }
+        this.removeStudent(student._id)
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
+    },
+    removeStudent(student_object_id) {
+      for(let i = 0; i < this.students.length; i++) {
+        if(this.students[i]._id === student_object_id) {
+          this.students.splice(i,1)
+          break
+        }
+      }
+    },
+    addStudent(student) {
+      this.students.push(student)
+    }
   },
 }
 </script>

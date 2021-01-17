@@ -141,7 +141,6 @@ export default {
         const response = await CourseAPI.getCourseWithMeetings(
           this.$route.params.id)
         this.course = response.data
-        console.log("Course", this.course)
         this.getMeetingsForCourse()
         this.course_has_loaded = true
       } catch(error) {
