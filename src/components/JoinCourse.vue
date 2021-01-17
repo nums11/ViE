@@ -87,6 +87,7 @@ export default {
           else
             alert("Something went wrong. Please try again")
         }
+        this.join_code = ""
       }
     },
     userIsStudentForCourse(course) {
