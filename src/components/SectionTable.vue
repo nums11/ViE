@@ -43,7 +43,7 @@
               </sui-table-cell>
               <sui-table-cell v-if="table_name === 'Students'">
                 <sui-button class="table-btn" size="mini"
-                color="red">
+                color="red" @click="handleStudent(student, 'remove')">
                   <sui-icon name="x"/>
                 </sui-button>
               </sui-table-cell>
@@ -123,8 +123,11 @@ export default {
           await SectionAPI.approveStudentIntoSection(
             this.section_id, student._id)
           this.$emit('approve-student', student)
-        } else {
+        } else if(operation === 'deny') {
           await SectionAPI.denyStudentApprovalIntoSection(
+            this.section_id, student._id)
+        } else {
+          await SectionAPI.removeStudentFromSection(
             this.section_id, student._id)
         }
         this.removeStudent(student._id)
