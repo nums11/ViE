@@ -10,7 +10,10 @@
           <label class="form-label">Section Number</label>
           <input type="number" 
           v-model="section.section_number"
-          class="invite-input">
+          class="invite-input"
+          onkeypress="return event.charCode >= 48 &&
+            event.charCode <= 57"
+          min="0" >
         </sui-form-field>
         <div class="mt-2">
           <p>

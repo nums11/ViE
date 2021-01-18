@@ -14,8 +14,10 @@
         </sui-form-field>
         <sui-form-field>
           <label>Course Number</label>
-          <input type="number"
-          v-model="temp_course.course_number" />
+          <input type="number" min="0"
+          v-model="temp_course.course_number"
+          onkeypress="return event.charCode >= 48 &&
+            event.charCode <= 57" />
         </sui-form-field>
       </sui-form-fields>
     </sui-form>
@@ -33,6 +35,7 @@
     <div v-for="section in temp_course.sections"
     class="mt-2">
       Section <sui-input type="number" min="0"
+      onkeypress="return event.charCode >= 48 && event.charCode <= 57"
       v-model="section.section_number"
       class="section-number-input" />
       <p class="enrollment-status">

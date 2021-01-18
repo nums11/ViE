@@ -26,7 +26,8 @@
         <sui-popup content="Course Number - e.g. 4200"
           position="top center" inverted>
           <input v-model="course.course_number" @blur="setCourseNumberInputClicked"
-          type="number" slot="trigger">
+          type="number" slot="trigger" min="0"
+          onkeypress="return event.charCode >= 48 && event.charCode <= 57">
         </sui-popup>
       </sui-form-field>
     </div>
@@ -38,17 +39,6 @@
       <p>
         Additional sections can be added after a course is registered.
       </p>
-<!--       <sui-form-field>
-        <label class="form-label">Section Number</label>
-        <input v-model="section.section_number" type="number">
-      </sui-form-field>
-      <sui-popup content="Sections with open enrollment allow their students
-     to join without instructor approval" position="top center" inverted basic>
-        <sui-form-field inline slot="trigger">
-          <sui-checkbox v-model="section.has_open_enrollment" />
-          <label id="enrollment-label">Has Open Enrollment</label>
-        </sui-form-field>
-      </sui-popup> -->
       <sui-button @click="showModal" size="small"
       style="background-color:#00b80c; color:white;" animated>
         <sui-button-content visible>Add Section</sui-button-content>
@@ -76,111 +66,104 @@ import CourseAPI from '@/services/CourseAPI.js';
 import SectionPill from '@/components/SectionPill';
 import Button from '@/components/Button';
 import AddSectionModal from '@/components/AddSectionModal'
+import helpers from '@/helpers.js'
 
 export default {
-    name: 'RegisterCourse',
-    components: {
-      SectionPill,
-      Button,
-      AddSectionModal
-    },
-    data () {
-      return {
-        course: {
-          name: "",
-          subject_code: "",
-          course_number: null
-        },
-        sections: [],
-        name_input_clicked: false,
-        subject_code_input_clicked: false,
-        course_number_input_clicked: false,
-      }
-    },
-    computed: {
-      showNameInputError() {
-        return this.name_input_clicked &&
-        this.course.name === ''
+  name: 'RegisterCourse',
+  mixins: [helpers],
+  components: {
+    SectionPill,
+    Button,
+    AddSectionModal
+  },
+  data () {
+    return {
+      course: {
+        name: "",
+        subject_code: "",
+        course_number: null
       },
-      showSubjectCodeInputError() {
-        return this.subject_code_input_clicked &&
-        this.course.dept === ''
-      },
-      showCourseNumberInputError() {
-        return this.course_number_input_clicked &&
-        this.course.course_number == null ||
-        this.course.course_number === ""
-      },
-      sectionHasNumber() {
-        return this.section.section_number != null &&
-        this.section.section_number !== ""
-      },
-      formComplete() {
-        return this.course.name !== "" &&
-          this.course.dept !== "" &&
-          this.course.course_number != null &&
-          this.course.course_number !== "" &&
-          this.sections.length > 0
-      }
-    },
-    created () {
-    },
-    methods: {
-      setNameInputClicked() {
-        this.name_input_clicked = true
-      },
-      setSubjectCodeInputClicked() {
-        this.subject_code_input_clicked = true
-      },
-      setCourseNumberInputClicked() {
-        this.course_number_input_clicked = true
-      },
-      async registerCourse(){
-        if(this.formComplete) {
-          this.course.instructor = this.state_user._id
-          const response = await CourseAPI.addCourse(this.course, this.sections);
-          const new_course = response.data
-          console.log("Receied new course", new_course)
-          this.$router.push({name: 'course_info',
-            params: {id: new_course._id, reload_page: true}});
-        }
-      },
-      showModal() {
-        this.$refs.AddSectionModal.showModal()
-      },
-      addSection(section) {
-        if(this.sectionWithSectionNumberAlreadyAdded(section)) {
-          alert("Already added a section with this section number")
-        } else {
-          this.sections.push(section)
-          this.sections.sort(this.compare)
-        }
-      },
-      sectionWithSectionNumberAlreadyAdded(section) {
-        let section_found = false
-        for(let i = 0; i < this.sections.length; i++) {
-          if(this.sections[i].section_number === section.section_number) {
-            section_found = true
-            break
-          }
-        }
-        return section_found
-      },
-      compare( a, b ) {
-        if ( a.section_number < b.section_number ){
-          return -1;
-        }
-        if ( a.section_number > b.section_number ){
-          return 1;
-        }
-        return 0;
-      },
-      removeSection(section_number) {
-        this.sections = this.sections.filter((section) => {
-          return section.section_number !== section_number
-        })
-      }
+      sections: [],
+      name_input_clicked: false,
+      subject_code_input_clicked: false,
+      course_number_input_clicked: false,
     }
+  },
+  computed: {
+    showNameInputError() {
+      return this.name_input_clicked &&
+      this.course.name === ''
+    },
+    showSubjectCodeInputError() {
+      return this.subject_code_input_clicked &&
+      this.course.dept === ''
+    },
+    showCourseNumberInputError() {
+      return this.course_number_input_clicked &&
+      this.course.course_number == null ||
+      this.course.course_number === ""
+    },
+    sectionHasNumber() {
+      return this.section.section_number != null &&
+      this.section.section_number !== ""
+    },
+    formComplete() {
+      return this.course.name !== "" &&
+        this.course.dept !== "" &&
+        this.course.course_number != null &&
+        this.course.course_number !== "" &&
+        this.sections.length > 0
+    }
+  },
+  created () {
+  },
+  methods: {
+    setNameInputClicked() {
+      this.name_input_clicked = true
+    },
+    setSubjectCodeInputClicked() {
+      this.subject_code_input_clicked = true
+    },
+    setCourseNumberInputClicked() {
+      this.course_number_input_clicked = true
+    },
+    async registerCourse(){
+      if(this.formComplete) {
+        this.course.instructor = this.state_user._id
+        const response = await CourseAPI.addCourse(this.course, this.sections);
+        const new_course = response.data
+        console.log("Receied new course", new_course)
+        this.$router.push({name: 'course_info',
+          params: {id: new_course._id, reload_page: true}});
+      }
+    },
+    showModal() {
+      this.$refs.AddSectionModal.showModal()
+    },
+    addSection(section) {
+      if(this.sectionWithSectionNumberAlreadyAdded(section)) {
+        alert("Already added a section with this section number")
+      } else {
+        this.sections.push(section)
+        this.sections.sort(this.sectionCompare)
+      }
+    },
+    sectionWithSectionNumberAlreadyAdded(section) {
+      let section_found = false
+      for(let i = 0; i < this.sections.length; i++) {
+        if(this.sections[i].section_number === section.section_number) {
+          section_found = true
+          break
+        }
+      }
+      return section_found
+    },
+    removeSection(section_number) {
+      this.sections = this.sections.filter((section) => {
+        return section.section_number !== section_number
+      })
+    }
+  }
 }
 </script>
 
