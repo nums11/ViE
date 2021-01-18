@@ -25,12 +25,17 @@ sectionRoutes.get('/by_join_code/:join_code', (req, res, next) => {
   Section.find({join_code: join_code}).
   populate({
     path: 'course',
-    populate: {
-      path: 'sections',
-      populate: {
-          path: 'students'
+    populate: [
+      {
+        path: 'sections',
+        populate: {
+            path: 'students'
+        }
+      },
+      {
+        path: 'instructor'
       }
-    }
+    ]
   }).
   populate({
     path: 'pending_approval_students'

@@ -40,7 +40,7 @@ seeder.connect(process.env.DB_URI || db, function () {
 			first_name: "Fake",
 			last_name: "Inst",
 			user_id: "fakeinst",
-			email: "fakeinst@gmail.com",
+			email: "numsmt2@gmail.com",
 			password: "nimda",
 			is_instructor: true,
 			is_admin: true,
