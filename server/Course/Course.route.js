@@ -1,75 +1,21 @@
 const express = require('express');
 const courseRoutes = express.Router();
-const _ = require('lodash')
-const mongoose = require('mongoose')
-// const randomstring = require('randomstring')
+const Course = require('./Course.model');
+const Section = require('../Section/Section.model');
+const User = require('../User/User.model');
+const CourseHelper = require('../helpers/course_helper')
+const UserHelper = require('../helpers/user_helper')
+const SectionHelper = require('../helpers/section_helper')
 
-let Course = require('./Course.model');
-let Section = require('../Section/Section.model');
-let User = require('../User/User.model');
+// GET --------------------
 
-courseRoutes.route('/add').post(async function (req, res, next) {
-  let course = new Course(req.body.course);
-  let sections = req.body.sections
-
-  try {
-    let new_course = await course.save()
-    let updated_course_and_sections = await createSectionsAndAddToCourse(
-      sections, new_course._id, "courses/add")
-    if(updated_course_and_sections == null)
-      throw "<ERROR> (courses/add)"
-    updated_course = updated_course_and_sections.updated_course
-
-    // Update the instructor with the new course
-    let instructor_update_promise = new Promise((resolve, reject) => {
-      User.findByIdAndUpdate(updated_course.instructor,
-        {$push: {instructor_courses: updated_course}},
-        {new: true},
-        (error, updated_instructor) => {
-          if(error) {
-            console.log("<ERROR> (courses/add) Updating instructor with course",
-              updated_instructor, error)
-            reject(error)
-          } else {
-            resolve(updated_instructor)
-          }
-        }
-      )
-    })
-    let updated_instructor = await Promise.resolve(instructor_update_promise)
-    console.log("<SUCCESS> (courses/add) creating course")
-    res.json(updated_course)
-  } catch(error) {
-    next(error)
-  }
-});
-
-// Broken because of change to sections... fix later
-courseRoutes.route('/add_section/:course_id').post(
-  async function (req, res, next) {
-	const course_id = req.params.course_id
-  let section = req.body.section
-  try {
-    const updated_course_and_sections = await
-      createSectionsAndAddToCourse([section], course_id,
-        "courses/add_section")
-    if(updated_course_and_sections == null)
-      throw "<ERROR> (courses/add_section)"
-    const added_section = 
-      updated_course_and_sections.saved_sections[0]
-    res.json(added_section)
-  } catch(error) {
-    next(error)
-  }
-});
-
-courseRoutes.route('/').get(function (req, res) {
-  Course.find(function (err, courses) {
-    if (err || courses == null) {
-      console.log("<ERROR> Getting all courses")
-      res.json(err);
+courseRoutes.get('/', function (req, res, next) {
+  Course.find(function (error, courses) {
+    if (error) {
+      console.log("<ERROR> (courses/) Getting all courses")
+      next(error)
     } else {
-      console.log("<Success> Getting all courses")
+      console.log("<Success> (courses/) Getting all courses")
       res.json(courses);
     }
   });
@@ -117,7 +63,64 @@ courseRoutes.get('/get/:id/:with_meetings?',
   })
 });
 
-courseRoutes.route('/update/:id').post(
+// POST --------------------
+
+courseRoutes.post('/add', async function (req, res, next) {
+  let course = new Course(req.body.course);
+  let sections = req.body.sections
+
+  try {
+    let new_course = await course.save()
+    let updated_course_and_sections = 
+      await CourseHelper.createSectionsAndAddToCourse(
+      sections, new_course._id, "courses/add")
+    if(updated_course_and_sections == null)
+      throw "<ERROR> (courses/add)"
+    updated_course = updated_course_and_sections.updated_course
+
+    // Update the instructor with the new course
+    let instructor_update_promise = new Promise((resolve, reject) => {
+      User.findByIdAndUpdate(updated_course.instructor,
+        {$push: {instructor_courses: updated_course}},
+        {new: true},
+        (error, updated_instructor) => {
+          if(error) {
+            console.log("<ERROR> (courses/add) Updating instructor with course",
+              updated_instructor, error)
+            reject(error)
+          } else {
+            resolve(updated_instructor)
+          }
+        }
+      )
+    })
+    let updated_instructor = await Promise.resolve(instructor_update_promise)
+    console.log("<SUCCESS> (courses/add) creating course")
+    res.json(updated_course)
+  } catch(error) {
+    next(error)
+  }
+});
+
+courseRoutes.post('/add_section/:course_id',
+  async function (req, res, next) {
+	const course_id = req.params.course_id
+  let section = req.body.section
+  try {
+    const updated_course_and_sections = await
+      CourseHelper.createSectionsAndAddToCourse([section],
+        course_id, "courses/add_section")
+    if(updated_course_and_sections == null)
+      throw "<ERROR> (courses/add_section)"
+    const added_section = 
+      updated_course_and_sections.saved_sections[0]
+    res.json(added_section)
+  } catch(error) {
+    next(error)
+  }
+});
+
+courseRoutes.post('/update/:id',
   async function (req, res, next) {
   const id = req.params.id;
   const course = req.body.course;
@@ -184,118 +187,72 @@ courseRoutes.route('/update/:id').post(
   }
 });
 
-// Todo update the instructor courses and student courses
-courseRoutes.route('/delete/:id').delete(function (req, res) {
-  Course.findByIdAndRemove({ _id: req.params.id }, function (err) {
-    if (err) {
-      console.log("<ERROR> Deleting course with ID:",req.params.id)
-      res.json(err);
-    } else {
-      console.log("<SUCCESS> Deleting course with ID:",req.params.id)
-      res.json('Successfully removed');
-    }
-  });
-});
+// DELETE ---------------
 
-//Todo: change the id being passed to just be the instructor id
-//and search for the instructor or remove this function entirely and use
-//the userapis get user function
-courseRoutes.route('/getInstructor/:id').get(function (req, res) {
-  let id = req.params.id;
-  Course.findById(id, function (err, course) {
-    if (err || course == null) {
-      console.log("<ERROR> Getting course with ID:",id)
-      res.json(err);
-    } else {
-      let instructor_id = course.instructor;
-      User.findById(instructor_id, function (error, instructor) {
-        if (error || instructor == null) {
-          console.log("<ERROR> Getting user with ID:",instructor_id)
-          res.json(error);
-        } else {
-          console.log("<SUCCESS> Getting instructor for course with ID:",id)
-          res.json(instructor);
-        }
-      });
-    }
-  });
-});
+courseRoutes.delete('/delete/:course_id',
+  async function (req, res, next) {
+  const course_id = req.params.course_id
+  const sections = req.body.sections
+  const meeting_ids = req.body.meeting_ids
+  const instructor_id = req.body.instructor_id
+  const course = {
+    _id: course_id,
+    meetings: meeting_ids
+  }
 
-courseRoutes.route('/get_instructor_courses/:user_id').get(function (req, res) {
-  let user_id = req.params.user_id;
-  Course.find({instructor: user_id}, function(err, instructor_courses) {
-    if(err || instructor_courses == null) {
-      console.log("<ERROR> Getting course by instructor with ID:",user_id)
-      res.json(err)
-    } else {
-      console.log("<SUCCESS> Getting course by instructor with ID:",user_id)
-      res.json(instructor_courses)
-    }
-  })
-});
-
-async function createSectionsAndAddToCourse(sections, course_id, route) {
-    // Save Sections
   try {
-    let section_promises = []
-    sections.forEach(section => {
-      section_promises.push(new Promise(async (resolve,reject) => {
-        section.join_code = getJoinCodeForSection(section.section_number,
-          course_id)
-        section.course = course_id
-        let new_section = new Section(section)
+    // Remove course and course meetings from instructor
+    const updated_instructor_promise = UserHelper.updateUser(
+      instructor_id, "remove_instructor_course", null, course)
+    console.log("Promise", updated_instructor_promise)
+    if(updated_instructor_promise == null)
+      throw `<ERROR> (courses/delete) removing instructor course`
+    // Delete all the sections 
+    let section_deletion_promises = []
+    section_deletion_promises.push(new Promise((resolve,reject) => {
+      sections.forEach(async section => {
         try {
-          let saved_section = await new_section.save()
-          resolve(saved_section)
+          const result = await SectionHelper.deleteSection(section._id,
+            section.meeting_ids, section.student_ids,
+            section.pending_approval_student_ids, instructor_id,
+            course_id)
+          if(result)
+            resolve(result)
+          else {
+            console.log("<ERROR> (courses/delete) deleting section")
+            reject(result)
+          }
         } catch(error) {
-          console.log(`<ERROR> (${route}) saving section`,section, error)
+          console.log("<ERROR> (courses/delete) deleting section",
+            error)
           reject(error)
         }
-      }))
-    })
-    let saved_sections = await Promise.all(section_promises)
-
-    // Update the course
-    let course_update_promise = new Promise((resolve, reject) => {
-      Course.findByIdAndUpdate(course_id,
-        {$push: {sections: {$each: saved_sections}}},
-        {new: true},
-        (error, updated_course) => {
-          if(error) {
-            console.log(`<ERROR> (${route}) Updating course with new sections`,
-              updated_course, error)
-            reject(error)
-          } else {
-            resolve(updated_course)
-          }
+      })
+    }))
+    // Delete the course
+    const course_deletion_promise = new Promise((resolve,reject) => {
+      Course.findByIdAndRemove(course_id, function (error) {
+        if (error) {
+          console.log(`<ERROR> (courses/delete) Deleting course with`
+            + ` ID: ${course_id}`, error)
+          reject(error)
+        } else {
+          resolve(true)
         }
-      )
+      });
     })
-    let updated_course = await Promise.resolve(course_update_promise)
-    return {
-      updated_course: updated_course,
-      saved_sections: saved_sections
-    }
-  } catch (error) {
-    console.log(`<ERROR> createSectionsAndAddToCourse from ${route} route`,
-      error)
-    return null
+    const all_promises = [].concat.apply([], [
+      [updated_instructor_promise, course_deletion_promise],
+      section_deletion_promises])
+    await Promise.all(all_promises)
+    console.log("<SUCCESS> (courses/delete)")
+    res.json()
+  } catch(error) {
+    console.log(`<ERROR> (courses/delete) course_id ${course_id}`,
+      `sections`, sections, `meeting_ids`, meeting_ids,
+      `instructor_id ${instructor_id}`, error)
+    next(error)
   }
-}
-
-function getJoinCodeForSection(section_number, course_id) {
-  let random_string = generateRandomString()
-  return `${section_number}${course_id}${random_string}`
-}
-
-function generateRandomString() {
-  let length = 10,
-      charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-      str = "";
-  for (let i = 0, n = charset.length; i < length; ++i) {
-      str += charset.charAt(Math.floor(Math.random() * n))
-  }
-  return str
-}
+});
 
 module.exports = courseRoutes;

@@ -2,7 +2,8 @@ const User = require('../User/User.model');
 
 module.exports = {updateUser}
 
-async function updateUser(user_id, operation, section) {
+async function updateUser(user_id, operation, section,
+  course = null) {
   let update_block = {
     pull_block: {},
     pull_all_block: {},
@@ -22,6 +23,9 @@ async function updateUser(user_id, operation, section) {
   } else if(operation === "remove_student_section") {
     update_block.pull_block.student_sections = section._id
     update_block.pull_all_block.meetings = section.meetings
+  } else if(operation === "remove_instructor_course") {
+    update_block.pull_block.instructor_courses = course._id
+    update_block.pull_all_block.meetings = course.meetings
   }
 
   try {

@@ -1,11 +1,8 @@
 const express = require('express');
 const sectionRoutes = express.Router();
-const jwt = require('jsonwebtoken')
-const ObjectID = require(`mongoose`).Types.ObjectId
 const Section = require('./Section.model');
 const User = require('../User/User.model');
 const Course = require('../Course/Course.model');
-const nodemailer = require("nodemailer");
 const SectionHelper = require('../helpers/section_helper')
 const UserHelper = require('../helpers/user_helper')
 
@@ -102,7 +99,6 @@ sectionRoutes.delete('/delete/:section_id',
     req.body.pending_approval_student_ids
   const instructor_id = req.body.instructor_id
   const course_id = req.body.course_id
-  console.log("in delete route meeting_ids", meeting_ids)
 
   try {
     const result = await SectionHelper.deleteSection(section_id,
