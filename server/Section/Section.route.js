@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken')
 const ObjectID = require(`mongoose`).Types.ObjectId
 const Section = require('./Section.model');
 const User = require('../User/User.model');
+const Meeting = require('../Meeting/Meeting.model');
 const Course = require('../Course/Course.model');
 const nodemailer = require("nodemailer");
 const SectionHelper = require('../helpers/section_helper')
@@ -194,35 +195,26 @@ sectionRoutes.route('/delete/:section_id').delete(
     const student_update_promises = removeSectionFromUsers(
       student_ids, "normal_student", section)
     if(student_update_promises == null)
-      throw "<ERROR> (sections/delete) updating normal students"
+      throw "<ERROR> (sections/delete) removing section from "
+        + "students"
     // Remove section from each of the pending students
     const pending_student_update_promises = removeSectionFromUsers(
       student_ids, "pending_student", section)
     if(pending_student_update_promises == null)
-      throw "<ERROR> (sections/delete) updating pending students"
+      throw "<ERROR> (sections/delete) removing section from "
+        + "pending students"
     // Remove section from the course
-    const course_promise = new Promise((resolve,reject) => {
-      Course.findByIdAndUpdate(course_id,
-        {$pull: {sections: section_id}},
-        (error, course) => {
-          if(error) {
-            console.log(`<ERROR> (sections/delete) updating course`
-              + ` with id ${course_id} with section id ${section_id}`,
-              error)
-            reject(error)
-          } else if(course == null) {
-            console.log(`<ERROR> (sections/delete) could not find course`
-              + ` with id ${course_id}`)
-            reject(null)
-          } else {
-            resolve(course)
-          }
-        }
-      )
-    })
-
-    // Delete meetings
-
+    const course_promise = removeSectionFromCourse(
+      section_id, course_id)
+    if(course_promise == null)
+      throw "<ERROR> (sections/delete) removing section from "
+        + "course"
+    // Remove section from meetings
+    const meeting_promises = removeSectionFromMeetings(
+      meeting_ids)
+    if(meeting_promises == null)
+      throw "<ERROR> (sections/delete) removing section from "
+        + "meetings"
     // Delete section
     const section_promise = new Promise((resolve, reject) => {
       Section.findByIdAndRemove(section_id, function(error){
@@ -476,6 +468,90 @@ function removeSectionFromUsers(user_ids, user_type,
       ` ${user_type} user_ids`, user_ids, "section",
       section)
     return null
+  }
+}
+
+function removeSectionFromCourse(section_id, course_id) {
+  try {
+    const course_promise = new Promise((resolve,reject) => {
+      Course.findByIdAndUpdate(course_id,
+        {$pull: {sections: section_id}},
+        (error, course) => {
+          if(error) {
+            console.log(`<ERROR> (sections/delete) updating course`
+              + ` with id ${course_id} with section id ${section_id}`,
+              error)
+            reject(error)
+          } else if(course == null) {
+            console.log(`<ERROR> (sections/delete) could not find course`
+              + ` with id ${course_id}`)
+            reject(null)
+          } else {
+            resolve(course)
+          }
+        }
+      )
+    })
+    return course_promise
+  } catch(error) {
+    console.log(`<ERROR> removeSectionFromCourse section_id`
+      + ` ${section_id} course_id ${course_id}`, error)
+    return null
+  }
+}
+
+async function removeSectionFromMeetings(section_id, meeting_ids) {
+  try {
+    let section_removal_promises = []
+    meeting_ids.forEach(meeting_id => {
+      section_removal_promises.push(new Promise(
+        (resolve, reject) => {
+        Meeting.findByIdAndUpdate(meeting_id,
+          {$pull: {sections: section_id}},
+          {new: true},
+          (error, updated_meeting) => {
+            if(error) {
+              console.log(`<ERROR> removeSectionFromMeetings updating`
+                + ` meeting with id ${meeting_id} with section `
+                ` with id ${section_id}`, error)
+              reject(error)
+            } else if(updated_meeting == null) {
+              console.log(`<ERROR> removeSectionFromMeetings could not`
+                ` find meeting with id ${meeting_id}`)
+              reject(null)
+            } else {
+              resolve(updated_meeting)
+            }
+          }
+        )
+      }))
+    })
+    return section_removal_promises
+
+    // If this was the only section for the meeting
+    // Then delete the meeting and remove it from the
+    // Instructors meetnigs
+    // let meetings_to_be_deleted = []
+    // updated_meetings.forEach(meeting => {
+    //   if(meeting.sections.length === 0) {
+    //     meetings_to_be_deleted.push(meeting)
+    //   }
+    // })
+    // deleteMeetings(meetings)
+  } catch(error) {
+    console.log(`<ERROR> removeSectionFromMeetings`
+      + ` section id ${section_id} meeting_ids`, meeting_ids)
+    return null
+  }
+}
+
+
+// Implement later
+function deleteMeetings(meetings) {
+  try {
+
+  } catch(error) {
+    console.log("<ERROR> deleteMeetings")
   }
 }
 
