@@ -138,8 +138,6 @@ export default {
 #course-info {
   margin-top: 3rem;
   min-height: 47rem;
-  /*padding-left: 5rem;*/
-  /*padding-right: 5rem;*/
   padding-bottom: 2rem;
 }
 </style>

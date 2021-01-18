@@ -91,11 +91,15 @@ emailRoutes.route('/new_student').post(
   const course_subject_code = req.body.course_subject_code
   const course_number = req.body.course_number
   const section_number = req.body.section_number
+  const open_enrollment = req.body.open_enrollment
 
-  const subject = `ViE - ${student_name} Joined Your Course`
-  const body = `${student_name} joined your course - ${course_name}`
+  const subject =
+    `ViE - ${student_name} ${open_enrollment ? 'Joined' : 'Requested To Join'}`
+    + ` Your Course`
+  const body = `${student_name} ${open_enrollment ? 'joined' : 'requested to join'}`
+    + ` your course - ${course_name}`
     + ` (${course_subject_code} ${course_number}) Section ${section_number}`
-    + `<br/><br/>--`
+    + `<br/><br/>--<br/>`
     + `ViE - Increase Virtual Engagement</p>`
 
   try {
