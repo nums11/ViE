@@ -3,7 +3,6 @@ const authRoutes = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-const SectionHelper = require('../helpers/section_helper')
 const UserHelper = require('../helpers/user_helper')
 const User = require('../User/User.model');
 const Section = require('../Section/Section.model');
@@ -196,47 +195,6 @@ authRoutes.get("/signup_redirect", (req, res, next) => {
   })(req, res, next);
 });
 
-authRoutes.get("/invite_student-:section_id-:student_id-:invite_code",
-  (req, res, next) => {
-  const section_id = req.params.section_id
-  const student_id = req.params.student_id
-  const invite_code = req.params.invite_code
-  passport.authenticate('cas', async function (err, user, info) {
-    if (err) {
-      console.log("<ERROR> (auth/invite_student) authenticating", err)
-      next(err);
-    } else if(info.user_id !== student_id) { //user clicked a link that was not theirs
-      res.json("Authentication failed: you have accessed an invite link"
-        + " for another user.")
-    } else {
-      try {
-        // Check if this student was actually invited to the section
-        const section_invited_student = await sectionInvitedStudent(
-          section_id, student_id, invite_code)
-        if(section_invited_student == null)
-          throw "<ERROR> (auth/invite_student)"
-        if(!section_invited_student) {
-          res.json("Invalid invite url. Invite may have been cancelled"
-            + " please contact your instructor for more information.")
-        } else {
-          if(user) { //user exists in the database
-            await acceptSectionInvite(section_id, user._id, student_id,
-              invite_code)
-            console.log("<SUCCESS> (auth/invite_student)")
-            res.redirect(`${base_url}/successful_invite`)
-          } else { //user does not exist in the database
-            let user_id = info.user_id
-            res.redirect(`${base_url}/create_user/${user_id}/${section_id}`
-              + `/${invite_code}`)
-          }
-        }
-      } catch(error) {
-        next(error)
-      }
-    }
-  })(req, res, next);
-});
-
 authRoutes.get("/loginStatus", function(req, res) {
   User.findOne({connect_sid: req.cookies["connect_sid"]}, function (err, current_user) {
     if(err || current_user == null) {
@@ -330,56 +288,6 @@ authRoutes.post('/update_password/:email', (req, res, next) => {
   })
 })
 
-
-async function sectionInvitedStudent(section_id, student_id, invite_code) {
-  try {
-    let section_promise = new Promise((resolve,reject) => {
-      Section.findById(section_id,
-        (error, section) => {
-          if(error) {
-            console.log("<ERROR> finding section by id", section_id)
-            reject(error)
-          } else if (section == null) {
-            resolve(false)
-          } else {
-            const section_invited_student = section.invited_students.get(
-              student_id) != null
-            resolve(section_invited_student)
-          }
-        }
-      )
-    })
-    const section_invited_student = await Promise.resolve(section_promise)
-    return section_invited_student
-  } catch(error) {
-    console.log(`<ERROR> sectionInvitedStudent ${section_id}`
-      + `${student_id} ${invite_code}`, error)
-    return null
-  }
-}
-
-async function acceptSectionInvite(section_id, student_id,
-  student_user_id, invite_code) {
-  try {
-    // add the student to the section
-    let updated_section = await SectionHelper.updateSection(
-      section_id, "add_student", student_id)
-    if(updated_section == null)
-      throw "<ERROR> acceptSectionInvite"
-    const updated_student = await UserHelper.updateUser(
-      student_id, "add_student_section", updated_section)
-    if(updated_student == null)
-      throw "<ERROR> acceptSectionInvite"
-    updated_section = await SectionHelper.handleInvitedStudent(
-      section_id, student_user_id, "remove", invite_code)
-    if(updated_section == null)
-      throw "<ERROR> acceptSectionInvite"
-    // remove the student from the invited students map
-  } catch(error) {
-    console.log(`<ERROR> acceptSectionInvite section_id: ${section_id},`
-      + ` student_id: ${student_id}`, error)
-  }
-}
 
 function getBaseURL() {
   if(process.env.NODE_ENV === "production")
