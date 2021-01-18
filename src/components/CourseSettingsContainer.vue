@@ -32,7 +32,7 @@
     v-on:add-section="addSection" />
     <div v-for="section in temp_course.sections"
     class="mt-2">
-      Section <sui-input type="text"
+      Section <sui-input type="number"
       v-model="section.section_number"
       class="section-number-input" />
       <p class="enrollment-status">
@@ -118,6 +118,12 @@ export default {
       })
     },
     async updateCourse() {
+      if(this.sectionsHaveDuplicateNumbers()) {
+        alert("Cannot have 2 or more sections with the same"
+          + " section number")
+        return
+      }
+
       try {
         await CourseAPI.updateCourse(this.course._id,
           this.temp_course)
@@ -145,6 +151,24 @@ export default {
     },
     showModal() {
       this.$refs.AddSectionModal.showModal()
+    },
+    sectionsHaveDuplicateNumbers() {
+      let section_numbers = new Set()
+      let has_duplicate = false
+      const sections = this.temp_course.sections
+      for(let i = 0; i < sections.length; i++) {
+        const number = sections[i].section_number
+        console.log("number", number)
+        console.log("all numbers", section_numbers)
+        if(section_numbers.has(number)) {
+          has_duplicate = true
+          break
+        } else {
+          section_numbers.add(number)
+        }
+      }
+      console.log("Has duplicate", has_duplicate)
+      return has_duplicate
     }
   }
 }

@@ -38,7 +38,7 @@
       <p>
         Additional sections can be added after a course is registered.
       </p>
-      <sui-form-field>
+<!--       <sui-form-field>
         <label class="form-label">Section Number</label>
         <input v-model="section.section_number" type="number">
       </sui-form-field>
@@ -48,10 +48,16 @@
           <sui-checkbox v-model="section.has_open_enrollment" />
           <label id="enrollment-label">Has Open Enrollment</label>
         </sui-form-field>
-      </sui-popup>
-      <sui-button @click.prevent="addSection" size="small"
-      style="background-color:#00b80c; color: white;"
-      content="Add Section" :disabled="!sectionHasNumber" />
+      </sui-popup> -->
+      <sui-button @click="showModal" size="small"
+      style="background-color:#00b80c; color:white;" animated>
+        <sui-button-content visible>Add Section</sui-button-content>
+        <sui-button-content hidden>
+            <sui-icon name="plus" />
+        </sui-button-content>
+      </sui-button>
+      <AddSectionModal ref="AddSectionModal"
+      v-on:add-section="addSection" />
       <div id="section-pill-container">
         <SectionPill v-for="section in sections"
         :key="section.section_number" :section="section"
@@ -69,12 +75,14 @@
 import CourseAPI from '@/services/CourseAPI.js';
 import SectionPill from '@/components/SectionPill';
 import Button from '@/components/Button';
+import AddSectionModal from '@/components/AddSectionModal'
 
 export default {
     name: 'RegisterCourse',
     components: {
       SectionPill,
-      Button
+      Button,
+      AddSectionModal
     },
     data () {
       return {
@@ -84,9 +92,6 @@ export default {
           course_number: null
         },
         sections: [],
-        section: {
-          has_open_enrollment: false,
-        },
         name_input_clicked: false,
         subject_code_input_clicked: false,
         course_number_input_clicked: false,
@@ -140,20 +145,21 @@ export default {
             params: {id: new_course._id, reload_page: true}});
         }
       },
-      addSection() {
-        if(this.sectionWithSectionNumberAlreadyAdded()) {
+      showModal() {
+        this.$refs.AddSectionModal.showModal()
+      },
+      addSection(section) {
+        if(this.sectionWithSectionNumberAlreadyAdded(section)) {
           alert("Already added a section with this section number")
         } else {
-          this.sections.push(this.section)
+          this.sections.push(section)
           this.sections.sort(this.compare)
-
-          this.section = { has_open_enrollment: false }
         }
       },
-      sectionWithSectionNumberAlreadyAdded() {
+      sectionWithSectionNumberAlreadyAdded(section) {
         let section_found = false
         for(let i = 0; i < this.sections.length; i++) {
-          if(this.sections[i].section_number === this.section.section_number) {
+          if(this.sections[i].section_number === section.section_number) {
             section_found = true
             break
           }

@@ -50,8 +50,7 @@ export default {
   name: 'AddSectionModal',
   props: {
     course: {
-      type: Object,
-      required: true
+      type: Object
     }
   },
   data () {
@@ -77,11 +76,21 @@ export default {
   methods: {
     async addSection() {
       try {
-        const response = await CourseAPI.addSectionToCourse(
-          this.course._id, this.section)
-        const added_section = response.data
-        this.$emit('add-section', added_section)
+        // Don't actually create the section on the Register
+        // Course view
+        if(this.course == null) {
+          this.$emit('add-section', {
+            section_number: this.section.section_number,
+            has_open_enrollment: this.section.has_open_enrollment
+          })
+        } else {
+          const response = await CourseAPI.addSectionToCourse(
+            this.course._id, this.section)
+          const added_section = response.data
+          this.$emit('add-section', added_section)
+        }
         this.show_modal = false
+        this.resetSection()
       } catch(error) {
         console.log(error)
         alert("Sorry, something went wrong")
@@ -89,6 +98,10 @@ export default {
     },
     showModal() {
       this.show_modal = true
+    },
+    resetSection() {
+      this.section.section_number = null
+      this.section.has_open_enrollment = false
     }
   }
 }
