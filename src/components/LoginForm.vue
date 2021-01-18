@@ -27,8 +27,7 @@
     <p v-if="show_invalid_credentials" class="error">
       Invalid User Id or Password
     </p>
-    <ForgotPasswordModal v-if="show_modal" 
-    ref="ForgotPasswordModal" />
+    <ForgotPasswordModal ref="ForgotPasswordModal" />
   </sui-form>
 </template>
 
@@ -52,7 +51,6 @@ export default {
       show_user_id_err: false,
       show_password_err: false,
       show_invalid_credentials: false,
-      show_modal: false
     }
   },
   computed: {
@@ -89,7 +87,6 @@ export default {
       }
     },
     showForgotPasswordModal() {
-      this.show_modal = true
       this.$refs.ForgotPasswordModal.showModal()
     }
   }

@@ -20,13 +20,16 @@
       </sui-form-fields>
     </sui-form>
     <h3 class="mt-2">Sections</h3>
-    <sui-button @click.prevent="addSection" size="small"
+    <sui-button @click="showModal" size="small"
     style="background-color:#00b80c; color:white;" animated>
-    <sui-button-content visible>Add Section</sui-button-content>
-    <sui-button-content hidden>
-        <sui-icon name="plus" />
-    </sui-button-content>
+      <sui-button-content visible>Add Section</sui-button-content>
+      <sui-button-content hidden>
+          <sui-icon name="plus" />
+      </sui-button-content>
     </sui-button>
+    <AddSectionModal
+    ref="AddSectionModal" :course="course"
+    v-on:add-section="addSection" />
     <div v-for="section in temp_course.sections"
     class="mt-2">
       Section <sui-input type="text"
@@ -74,9 +77,14 @@
 
 <script>
 import CourseAPI from '@/services/CourseAPI'
+import AddSectionModal from
+'@/components/AddSectionModal'
 
 export default {
   name: 'CourseSettings',
+  components: {
+    AddSectionModal
+  },
   props: {
     course: {
       type: Object,
@@ -85,7 +93,7 @@ export default {
   },
   data () {
     return {
-      temp_course: null
+      temp_course: null,
     }
   },
   created () {
@@ -130,6 +138,13 @@ export default {
         this.course.sections[i].has_open_enrollment =
           this.temp_course.sections[i].has_open_enrollment
       }
+    },
+    addSection(section) {
+      this.course.sections.push(section)
+      this.temp_course.sections.push(section)
+    },
+    showModal() {
+      this.$refs.AddSectionModal.showModal()
     }
   }
 }

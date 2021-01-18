@@ -46,7 +46,7 @@ export default {
   },
   data () {
     return {
-      show_modal: true,
+      show_modal: false,
       first_name: "",
       last_name: "",
       updating: false
@@ -63,8 +63,6 @@ export default {
   created () {
     this.first_name = this.state_user.first_name
     this.last_name = this.state_user.last_name
-    console.log("local_storage", this.$store.state.user)
-
   },
   mounted () {
   },
