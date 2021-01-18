@@ -52,6 +52,15 @@ export default {
 			} else {
 			  return "http://localhost:4000/"
 			}
+		},
+		sectionCompare(a,b) {
+			if ( a.section_number < b.section_number ){
+			  return -1;
+			}
+			if ( a.section_number > b.section_number ){
+			  return 1;
+			}
+			return 0;
 		}
 	}
 }

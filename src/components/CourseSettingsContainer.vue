@@ -32,7 +32,7 @@
     v-on:add-section="addSection" />
     <div v-for="section in temp_course.sections"
     class="mt-2">
-      Section <sui-input type="number"
+      Section <sui-input type="number" min="0"
       v-model="section.section_number"
       class="section-number-input" />
       <p class="enrollment-status">
@@ -79,9 +79,11 @@
 import CourseAPI from '@/services/CourseAPI'
 import AddSectionModal from
 '@/components/AddSectionModal'
+import helpers from '@/helpers.js'
 
 export default {
   name: 'CourseSettings',
+  mixins: [helpers],
   components: {
     AddSectionModal
   },
@@ -139,11 +141,13 @@ export default {
       this.course.dept = this.temp_course.dept
       this.course.course_number = this.temp_course.course_number
       for(let i = 0; i < this.course.sections.length; i++) {
-        this.course.sections[i].course_number =
-          this.temp_course.sections[i].course_number
+        this.course.sections[i].section_number =
+          this.temp_course.sections[i].section_number
         this.course.sections[i].has_open_enrollment =
           this.temp_course.sections[i].has_open_enrollment
       }
+      this.course.sections.sort(this.sectionCompare)
+      this.temp_course.sections.sort(this.sectionCompare)
     },
     addSection(section) {
       this.course.sections.push(section)
@@ -158,8 +162,6 @@ export default {
       const sections = this.temp_course.sections
       for(let i = 0; i < sections.length; i++) {
         const number = sections[i].section_number
-        console.log("number", number)
-        console.log("all numbers", section_numbers)
         if(section_numbers.has(number)) {
           has_duplicate = true
           break
@@ -167,7 +169,6 @@ export default {
           section_numbers.add(number)
         }
       }
-      console.log("Has duplicate", has_duplicate)
       return has_duplicate
     }
   }
