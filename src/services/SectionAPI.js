@@ -42,8 +42,17 @@ export default {
       updated_section_number: section_number
     })
   },
-  deleteSection(id) {
-    return API().delete('sections/delete/' + id)
+  deleteSection(section_id, meeting_ids, student_ids,
+    pending_approval_student_ids, instructor_id, course_id) {
+    return API().delete(`sections/delete/${section_id}`, {
+      data: {
+        meeting_ids: meeting_ids,
+        student_ids: student_ids,
+        pending_approval_student_ids: pending_approval_student_ids,
+        instructor_id: instructor_id,
+        course_id: course_id
+      }
+    })
   },
   getInstructor (section_id) {
     return API().get('sections/getInstructor/' + section_id)

@@ -44,7 +44,7 @@
       </p>
       <sui-checkbox v-model="section.has_open_enrollment"
       class="enrollment-checkbox" />
-      <sui-button size="small" animated
+      <sui-button @click="deleteSection(section)" size="small" animated
       style="background-color:#FF0000; 
       color:white;margin-left:2rem;">
         <sui-button-content visible>Delete Section</sui-button-content>
@@ -80,6 +80,7 @@
 
 <script>
 import CourseAPI from '@/services/CourseAPI'
+import SectionAPI from '@/services/SectionAPI'
 import AddSectionModal from
 '@/components/AddSectionModal'
 import helpers from '@/helpers.js'
@@ -173,6 +174,58 @@ export default {
         }
       }
       return has_duplicate
+    },
+    async deleteSection(temp_section) {
+      const confirmation = confirm("Are you sure you want to"
+        + " permanently delete this section?")
+      if(!confirmation)
+        return
+
+      try {
+        const index = this.getSectionIndex(temp_section)
+        const section = this.course.sections[index]
+        const [meeting_ids, student_ids,
+        pending_approval_student_ids]
+          = this.getStudentIDsAndMeetingIDS(section)
+        await SectionAPI.deleteSection(section._id, meeting_ids,
+          student_ids, pending_approval_student_ids,
+          this.course.instructor._id, this.course._id)
+        console.log("Section deleted")
+        this.removeSectionFromCourse(index)
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
+    },
+    getStudentIDsAndMeetingIDS(section) {
+      let meeting_ids = []
+      let student_ids = []
+      let pending_approval_student_ids = []
+      section.meetings.forEach(meeting => {
+        meeting_ids.push(meeting._id)
+      })
+      section.students.forEach(student => {
+        student_ids.push(student._id)
+      })
+      section.pending_approval_students.forEach(student => {
+        pending_approval_student_ids.push(student._id)
+      })
+      return [meeting_ids, student_ids, pending_approval_student_ids]
+    },
+    getSectionIndex(section) {
+      let index = -1
+      let sections = this.course.sections
+      for(let i = 0; i < sections.length; i++) {
+        if(sections[i]._id === section._id){
+          index = i
+          break
+        }
+      }
+      return index
+    },
+    removeSectionFromCourse(index) {
+      this.course.sections.splice(index, 1)
+      this.temp_course.sections.splice(index, 1)
     }
   }
 }

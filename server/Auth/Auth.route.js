@@ -366,7 +366,7 @@ async function acceptSectionInvite(section_id, student_id,
       section_id, "add_student", student_id)
     if(updated_section == null)
       throw "<ERROR> acceptSectionInvite"
-    const updated_student = await UserHelper.updateStudent(
+    const updated_student = await UserHelper.updateUser(
       student_id, "add_student_section", updated_section)
     if(updated_student == null)
       throw "<ERROR> acceptSectionInvite"

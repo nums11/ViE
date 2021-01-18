@@ -112,7 +112,7 @@ sectionRoutes.post('/handle_student/:section_id/:student_id/:operation',
       section_id, section_operation, student_id)
     if(updated_section == null)
       throw "<ERROR> (courses/handle_student)"
-    const updated_student = await UserHelper.updateStudent(
+    const updated_student = await UserHelper.updateUser(
       student_id, student_operation, updated_section)
     if(updated_student == null)
       throw "<ERROR> (courses/handle_student)"
@@ -133,7 +133,7 @@ sectionRoutes.post('/handle_enrollment/:section_id/:student_id/:operation',
       section_id, operation, student_id)
     if(updated_section == null)
       throw "<ERROR> (courses/handle_enrollment)"
-    const updated_student = await UserHelper.updateStudent(
+    const updated_student = await UserHelper.updateUser(
       student_id, operation, updated_section)
     if(updated_student == null)
       throw "<ERROR> (courses/handle_enrollment)"
@@ -175,16 +175,77 @@ sectionRoutes.get('/by_join_code/:join_code', (req, res, next) => {
   )
 });
 
-sectionRoutes.route('/delete/:id').delete(function (req, res) {
-  Section.findByIdAndRemove({_id: req.params.id}, function(err){
-    if(err) {
-      console.log("<ERROR> Deleting section with ID:",req.params.id)
-      res.json(err);
-    } else {
-      console.log("<SUCCESS> Deleting section with ID:",req.params.id)
-      res.json('Successfully removed');
-    }
-  });
+sectionRoutes.route('/delete/:section_id').delete(
+  async function (req, res, next) {
+  const section_id = req.params.section_id
+  const meeting_ids = req.body.meeting_ids
+  const student_ids = req.body.student_ids
+  const pending_approval_student_ids =
+    req.body.pending_approval_student_ids
+  const instructor_id = req.body.instructor_id
+  const course_id = req.body.course_id
+  const section = {
+    _id: section_id,
+    meetings: meeting_ids
+  }
+
+  try {
+    // Remove section from each of the students
+    const student_update_promises = removeSectionFromUsers(
+      student_ids, "normal_student", section)
+    if(student_update_promises == null)
+      throw "<ERROR> (sections/delete) updating normal students"
+    // Remove section from each of the pending students
+    const pending_student_update_promises = removeSectionFromUsers(
+      student_ids, "pending_student", section)
+    if(pending_student_update_promises == null)
+      throw "<ERROR> (sections/delete) updating pending students"
+    // Remove section from the course
+    const course_promise = new Promise((resolve,reject) => {
+      Course.findByIdAndUpdate(course_id,
+        {$pull: {sections: section_id}},
+        (error, course) => {
+          if(error) {
+            console.log(`<ERROR> (sections/delete) updating course`
+              + ` with id ${course_id} with section id ${section_id}`,
+              error)
+            reject(error)
+          } else if(course == null) {
+            console.log(`<ERROR> (sections/delete) could not find course`
+              + ` with id ${course_id}`)
+            reject(null)
+          } else {
+            resolve(course)
+          }
+        }
+      )
+    })
+
+    // Delete meetings
+
+    // Delete section
+    const section_promise = new Promise((resolve, reject) => {
+      Section.findByIdAndRemove(section_id, function(error){
+        if(error) {
+          console.log(`<ERROR> (sections/delete) Deleting section`
+            + ` with id ${section_id}`, error)
+          reject(error)
+        } else {
+          console.log(`<SUCCESS> (sections/delete) Deleting section`
+            + ` with id ${section_id}`)
+          resolve(true)
+        }
+      });
+    })
+
+    const all_promises = [].concat.apply([], [
+      student_update_promises, pending_student_update_promises,
+      [course_promise, section_promise]])
+    await Promise.all(all_promises)
+    res.json("<SUCCESS> (sections/delete)")
+  } catch(error) {
+    next(error)
+  }
 });
 
 sectionRoutes.route('/getInstructor/:id').get(function (req, res) {
@@ -386,6 +447,37 @@ sectionRoutes.post('/cancel_invite/:section_id/:student_user_id/:invite_code',
   }
 })
 
+function removeSectionFromUsers(user_ids, user_type,
+  section) {
+  let operation = ""
+  if(user_type === "pending_student")
+    operation = "deny_student"
+  else if(user_type === "normal_student")
+    operation = "remove_student_section"
+
+  try {
+    let user_promises = []
+    user_ids.forEach(user_id => {
+      user_promises.push(new Promise((resolve, reject) => {
+        const updated_user = UserHelper.updateUser(
+          user_id, operation, section)
+        if(updated_user == null) {
+          console.log(`<ERROR> removeSectionFromUsers`
+            + ` removing section`)
+          reject(null)
+        } else {
+          resolve(updated_user)
+        }
+      }))
+    })
+    return user_promises
+  } catch(error) {
+    console.log(`<ERROR> removeSectionFromUsers user_type`,
+      ` ${user_type} user_ids`, user_ids, "section",
+      section)
+    return null
+  }
+}
 
 function generateRandomString() {
   let length = 10,

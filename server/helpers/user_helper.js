@@ -1,8 +1,8 @@
 const User = require('../User/User.model');
 
-module.exports = {updateStudent}
+module.exports = {updateUser}
 
-async function updateStudent(student_id, operation, section) {
+async function updateUser(user_id, operation, section) {
   let update_block = {
     pull_block: {},
     pull_all_block: {},
@@ -26,7 +26,7 @@ async function updateStudent(student_id, operation, section) {
 
   try {
     let update_promise = new Promise((resolve, reject) => {
-      User.findByIdAndUpdate(student_id,
+      User.findByIdAndUpdate(user_id,
         {
           $push: update_block.push_block,
           $pull: update_block.pull_block,
@@ -35,7 +35,7 @@ async function updateStudent(student_id, operation, section) {
         {new: true},
         (error, updated_student) => {
           if(error) {
-            console.log(`<ERROR> updating student with id ${student_id}`
+            console.log(`<ERROR> updating student with id ${user_id}`
               + ` and update_block`, update_block)
             reject(error)
           } else {
@@ -47,7 +47,7 @@ async function updateStudent(student_id, operation, section) {
     const updated_student = await Promise.resolve(update_promise)
     return updated_student
   } catch(error) {
-    console.log(`<ERROR> updateStudent with student_id: ${student_id},` +
+    console.log(`<ERROR> updateStudent with user_id: ${user_id},` +
       ` operation: '${operation}', section_id: ${section._id}`, error)
     return null
   }

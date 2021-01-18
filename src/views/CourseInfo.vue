@@ -67,9 +67,11 @@ import CourseSettingsContainer from
 '@/components/CourseSettingsContainer'
 import SideBar from '@/components/SideBar'
 import CourseAPI from '@/services/CourseAPI'
+import helpers from '@/helpers.js'
 
 export default {
   name: 'CourseInfo',
+  mixins: [helpers],
   components: {
     CourseMeetingsForMonthContainer,
     SectionInfoContainer,
@@ -146,6 +148,7 @@ export default {
         const response = await CourseAPI.getCourseWithMeetings(
           this.$route.params.id)
         this.course = response.data
+        this.course.sections.sort(this.sectionCompare)
         this.getMeetingsForCourse()
         this.course_has_loaded = true
       } catch(error) {
