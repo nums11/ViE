@@ -64,7 +64,7 @@
           <sui-icon name="sync" />
         </sui-button-content>
       </sui-button>
-      <sui-button
+      <sui-button @click="deleteCourse"
         animated size="small"
         style="background-color:#FF0000; color:white;">
         <sui-button-content visible>
@@ -231,6 +231,41 @@ export default {
     removeSectionFromCourse(index) {
       this.course.sections.splice(index, 1)
       this.temp_course.sections.splice(index, 1)
+    },
+    async deleteCourse() {
+      let confirmation = confirm("Are you sure you want to"
+        + " permanently delete this course?")
+      if(!confirmation)
+        return
+
+      try {
+        const [sections, meeting_ids] =
+          this.getCourseSectionsAndMeetingIDsForDeletion()
+        await CourseAPI.deleteCourse(this.course._id,
+          sections, meeting_ids, this.course.instructor._id)
+        this.$router.push({name: 'dashboard', params:
+          {reload_page: true}});
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
+    },
+    getCourseSectionsAndMeetingIDsForDeletion() {
+      let sections = []
+      let course_meeting_ids = []
+      this.course.sections.forEach(section => {
+        const [meeting_ids, student_ids,
+        pending_approval_student_ids]
+          = this.getStudentIDsAndMeetingIDS(section)
+        course_meeting_ids = course_meeting_ids.concat(meeting_ids)
+        sections.push({
+          student_ids: student_ids,
+          pending_approval_student_ids: pending_approval_student_ids,
+          meeting_ids: meeting_ids
+        })
+      })
+      const unique_meeting_ids = [...new Set(course_meeting_ids)]
+      return [sections, unique_meeting_ids]
     }
   }
 }

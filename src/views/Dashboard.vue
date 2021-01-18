@@ -58,6 +58,8 @@ export default {
     }
   },
   async created() {
+    if(this.$route.params.reload_page)
+      this.$router.go()
     await this.getUser()
     this.categorizeMeetings()
     this.assignUserCourses()
