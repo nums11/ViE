@@ -46,7 +46,7 @@
       class="enrollment-checkbox" />
       <sui-button @click="deleteSection(section)" size="small" animated
       style="background-color:#FF0000; 
-      color:white;margin-left:2rem;">
+      color:white;margin-left:2rem;" :disabled="courseHas1Section">
         <sui-button-content visible>Delete Section</sui-button-content>
         <sui-button-content hidden>
             <sui-icon name="trash" />
@@ -100,6 +100,12 @@ export default {
   data () {
     return {
       temp_course: null,
+    }
+  },
+  computed: {
+    courseHas1Section() {
+      return this.temp_course.sections.length
+        === 1
     }
   },
   created () {
@@ -190,7 +196,6 @@ export default {
         await SectionAPI.deleteSection(section._id, meeting_ids,
           student_ids, pending_approval_student_ids,
           this.course.instructor._id, this.course._id)
-        console.log("Section deleted")
         this.removeSectionFromCourse(index)
       } catch(error) {
         console.log(error)
