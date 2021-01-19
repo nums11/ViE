@@ -28,8 +28,8 @@
     <div v-else id="right-section" class="inline-block">
       <h1>Schedule Meeting</h1>
       <div id="course-name">RCOS</div>
-      <transition name="fade" mode="out-in">
-        <sui-form v-if="show_main_form" class="form"">
+      <!-- <transition name="fade" mode="out-in"> -->
+        <sui-form class="form"">
           <div class="form-field">
             <sui-form-field required>
               <label class="form-label">Title</label>
@@ -38,7 +38,7 @@
           </div>
           <h5 class="mt-3">Add tasks to your meeting</h5>
           <p>Tasks can also be added after your meeting is created</p>
-          <sui-button @click.prevent="showTaskForm('real-time')"
+          <sui-button @click.prevent="showAddTaskModal('real-time')"
             animated size="large"
             style="background-color:#00b80c; color:white;
             margin-left:1rem; width:16rem;">
@@ -49,7 +49,7 @@
               <sui-icon name="podcast" />
             </sui-button-content>
           </sui-button>
-          <sui-button @click.prevent="showTaskForm('async')"
+          <sui-button @click.prevent="showAddTaskModal('async')"
             animated size="large"
             style="background-color:#00b80c; color:white;
             margin-left:1rem; margin-top:1rem; width:16rem;">
@@ -90,18 +90,18 @@
           </div>
           <div id="button-container" @click="createMeeting">
             <Button text="Schedule" color="blue" size="large" invert_colors
-            wide/>
+            wide :disabled="!formComplete" />
           </div>
         </sui-form>
-        <AddTaskForm v-else-if="show_real_time_task_form"
+        <AddTaskModal ref="RealTimeModal"
         :real_time_portion="real_time_portion"
-        v-on:hide-form="hideAddTaskForm"
+        v-on:hide-form="hideAddTaskModal"
         v-on:add-task="addTask('qr_scan', ...arguments)" />
-        <AddTaskForm v-else-if="show_async_task_form"
+        <AddTaskModal ref="AsyncModal"
         :async_portion="async_portion"
-        v-on:hide-form="hideAddTaskForm"
+        v-on:hide-form="hideAddTaskModal"
         v-on:add-task="addTask('video', ...arguments)" />
-      </transition>
+      <!-- </transition> -->
     </div>
   </div>
 </template>
@@ -110,7 +110,7 @@
 import CourseAPI from '@/services/CourseAPI'
 import MeetingAPI from '@/services/MeetingAPI'
 import Button from '../components/Button';
-import AddTaskForm from '@/components/AddTaskForm.vue';
+import AddTaskModal from '@/components/AddTaskModal.vue';
 import NewMeetingPortionContainer from
 '@/components/NewMeetingPortionContainer.vue';
 import VueLottiePlayer from 'vue-lottie-player'
@@ -119,7 +119,7 @@ export default {
   name: 'NewMeeting',
   components: {
     Button,
-    AddTaskForm,
+    AddTaskModal,
     VueLottiePlayer,
     NewMeetingPortionContainer
   },
@@ -130,6 +130,7 @@ export default {
       course: {},
       course_has_loaded: false,
       meeting: {
+        title: "",
         sections: [],
       },
       real_time_portion: {
@@ -142,9 +143,6 @@ export default {
         async_end: null,
         videos: []
       },
-      show_main_form: true,
-      show_real_time_task_form: false,
-      show_async_task_form: false,
       repeat_selection: 0,
       repeat_options: [
         {value: 0, text: "Does not repeat"}, 
@@ -167,6 +165,10 @@ export default {
     }
   },
   computed: {
+    formComplete() {
+      return this.meeting.title !== '' &&
+      this.meeting.sections.length > 0
+    }
   },
   created () {
     this.getCourse()
@@ -183,17 +185,13 @@ export default {
         alert("Sorry, something went wrong")
       }
     },
-    showTaskForm(task_type) {
-      this.show_main_form = false
-      if(task_type === 'real-time') {
-        this.show_real_time_task_form = true
-        this.show_async_task_form = false
-      } else if(task_type === 'async') {
-        this.show_real_time_task_form = false
-        this.show_async_task_form = true
-      }
+    showAddTaskModal(task_type) {
+      if(task_type === 'real-time')
+        this.$refs.RealTimeModal.showModal()
+      else if(task_type === 'async')
+        this.$refs.AsyncModal.showModal()
     },
-    hideAddTaskForm() {
+    hideAddTaskModal() {
       this.show_main_form = true
       this.show_real_time_task_form = false
       this.show_async_task_form = false
@@ -215,7 +213,7 @@ export default {
         this.real_time_portion.qr_scans.push(task)
       else
         this.async_portion.videos.push(task)
-      this.hideAddTaskForm()
+      this.hideAddTaskModal()
     },
     selectSection(section) {
      let [meeting_has_section, index] = this.meetingHasSection(section)
