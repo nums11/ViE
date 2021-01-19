@@ -4,7 +4,9 @@
       Getting Started
     </sui-modal-header>
     <sui-modal-content scrolling class="center-text">
-      <iframe width="560" height="315" src="https://www.youtube.com/embed/m0ysryefnLI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <video id="getting-started-video" controls>
+        <source :src="src">
+      </video>
     </sui-modal-content>
     <sui-modal-actions>
       <sui-button @click="hideModal"
@@ -26,11 +28,13 @@ export default {
   data () {
     return {
       show_modal: false,
+      src: ""
     }
   },
   computed: {
   },
   created () {
+    this.setVideoSrc()
   },
   mounted () {
   },
@@ -41,9 +45,19 @@ export default {
     hideModal() {
       this.show_modal = false
     },
+    setVideoSrc() {
+      if(this.is_instructor)
+        this.src = "https://storage.googleapis.com/venue_videos/ViE%20Instructors%20-%20Getting%20Started.mp4"
+      else
+        this.src = "https://storage.googleapis.com/venue_videos/ViE%20%20Students%20-%20Getting%20Started.mp4"
+
+    }
   }
 }
 </script>
 
 <style scoped>
+#getting-started-video {
+  width: 90%;
+}
 </style>

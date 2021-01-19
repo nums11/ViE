@@ -6,14 +6,25 @@
         <div id="app-name">ViE</div>
       </router-link>
     </div>
+
     <sui-icon name="bars" size="big" id="menu-bars"
     @click="$emit('show-mobile-nav-slider')" />
+    <sui-icon @click="showGettingStartedModal"
+    name="question circle outline" size="large" id="question"
+    slot="trigger"/>
+    <GettingStartedModal ref="GettingStartedModal" />
   </div>
 </template>
 
 <script>
+import GettingStartedModal from
+'@/components/GettingStartedModal'
+
 export default {
   name: 'InternalMobileNavBar',
+  components: {
+    GettingStartedModal
+  },
   data(){
     return {
     }
@@ -21,6 +32,9 @@ export default {
   created() {
   },
   methods: {
+    showGettingStartedModal() {
+      this.$refs.GettingStartedModal.showModal()
+    }
   }
 }
 </script>
@@ -59,6 +73,12 @@ export default {
   float: right;
   margin-top: 0.5rem;
   cursor: pointer;
+}
+
+#question {
+  float: right;
+  margin-top: 0.75rem;
+  margin-right: 1rem;
 }
 
 /* Tablet */
