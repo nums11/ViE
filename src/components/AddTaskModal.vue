@@ -15,15 +15,6 @@
             <input type="datetime-local" :id="time_window_id">
           </sui-form-field>
         </div>
-<!--         <div class="form-field">
-          <sui-form-field required>
-            <label class="form-label">
-              {{ end_label }}
-            </label>
-            <input v-model="end" @change="updatePropTime('end')"
-            type="datetime-local">
-          </sui-form-field>
-        </div> -->
         <div id="radio-container">
           <p class="mb-2 mr-1">
             Choose the task type ({{ coming_soon_task}}
@@ -53,7 +44,8 @@
           </p>
           <sui-form-field>
             <label class="form-label">Schedule Reminder</label>
-            <input v-model="task.reminder_time" type="datetime-local">
+            <input v-model="task.reminder_time" type="datetime-local"
+            id="reminder-input">
           </sui-form-field>
         </div>
         <div class="form-field" v-else>
@@ -160,6 +152,7 @@ export default {
       this.window_label = `${label_prefix} Window`
     },
     initFlatPickr() {
+      // Time Window Input
       const self = this
       flatpickr(`#${this.time_window_id}`, {
         enableTime: true,
@@ -175,6 +168,19 @@ export default {
         },
         onChange: function (selected_dates) {
           self.updatePropTimes(selected_dates)
+        }
+      })
+      // Reminder Input
+      flatpickr('#reminder-input', {
+        enableTime: true,
+        altInput: true,
+        altFormat: "M/D, h:mm a",
+        parseDate: (datestr, format) => {
+          return moment(datestr, format, true).toDate();
+        },
+        formatDate: (date, format, locale) => {
+          // locale can also be used
+          return moment(date).format(format);
         }
       })
     },
