@@ -28,81 +28,77 @@
     <div v-else id="right-section" class="inline-block">
       <h1>Schedule Meeting</h1>
       <div id="course-name">RCOS</div>
-      <!-- <transition name="fade" mode="out-in"> -->
-        <sui-form class="form"">
-          <div class="form-field">
-            <sui-form-field required>
-              <label class="form-label">Title</label>
-              <input v-model="meeting.title">
+      <sui-form class="form"">
+        <div class="form-field">
+          <sui-form-field required>
+            <label class="form-label">Title</label>
+            <input v-model="meeting.title">
+          </sui-form-field>
+        </div>
+        <h5 class="mt-3">Add tasks to your meeting</h5>
+        <p>Tasks can also be added after your meeting is created</p>
+        <sui-button @click.prevent="showAddTaskModal('real-time')"
+          animated size="large"
+          style="background-color:#00b80c; color:white;
+          margin-left:1rem; width:16rem;">
+          <sui-button-content visible>
+            Add real-time tasks
+          </sui-button-content>
+          <sui-button-content hidden>
+            <sui-icon name="podcast" />
+          </sui-button-content>
+        </sui-button>
+        <sui-button @click.prevent="showAddTaskModal('async')"
+          animated size="large"
+          style="background-color:#00b80c; color:white;
+          margin-left:1rem; margin-top:1rem; width:16rem;">
+          <sui-button-content visible>
+            Add asynchronous tasks
+          </sui-button-content>
+          <sui-button-content hidden>
+            <sui-icon name="clock" />
+          </sui-button-content>
+        </sui-button>
+        <div class="mt-3">
+          <sui-form-field required>
+            <label>Select the sections for your meeting</label>
+          </sui-form-field>
+        </div>
+        <div class="section-selectors mt-1">
+          <div class="section-selector"
+          v-for="section in course.sections" :key="section._id"
+          @click="selectSection(section)"
+          :id="`section${section.section_number}`">
+            Section {{ section.section_number }}
+          </div>
+        </div>
+        <sui-dropdown selection
+        v-model="repeat_selection"
+        :options="repeat_options" class="mt-3 ml-1" />
+        <div v-if="repeat_selection == 3" class="mt-1 ml-1">
+          <sui-dropdown
+          multiple selection v-model="repeat_days_selection"
+          :options="repeat_days" placeholder="Select days to repeat on"
+          />
+          <div class="mt-2">
+            <sui-form-field>
+              <label class="form-label">End Date</label>
+              <input v-model="repeat_end_date" type="datetime-local">
             </sui-form-field>
           </div>
-          <h5 class="mt-3">Add tasks to your meeting</h5>
-          <p>Tasks can also be added after your meeting is created</p>
-          <sui-button @click.prevent="showAddTaskModal('real-time')"
-            animated size="large"
-            style="background-color:#00b80c; color:white;
-            margin-left:1rem; width:16rem;">
-            <sui-button-content visible>
-              Add real-time tasks
-            </sui-button-content>
-            <sui-button-content hidden>
-              <sui-icon name="podcast" />
-            </sui-button-content>
-          </sui-button>
-          <sui-button @click.prevent="showAddTaskModal('async')"
-            animated size="large"
-            style="background-color:#00b80c; color:white;
-            margin-left:1rem; margin-top:1rem; width:16rem;">
-            <sui-button-content visible>
-              Add asynchronous tasks
-            </sui-button-content>
-            <sui-button-content hidden>
-              <sui-icon name="clock" />
-            </sui-button-content>
-          </sui-button>
-          <div class="mt-3">
-            <sui-form-field required>
-              <label>Select the sections for your meeting</label>
-            </sui-form-field>
-          </div>
-          <div class="section-selectors mt-1">
-            <div class="section-selector"
-            v-for="section in course.sections" :key="section._id"
-            @click="selectSection(section)"
-            :id="`section${section.section_number}`">
-              Section {{ section.section_number }}
-            </div>
-          </div>
-          <sui-dropdown selection
-          v-model="repeat_selection"
-          :options="repeat_options" class="mt-3 ml-1" />
-          <div v-if="repeat_selection == 3" class="mt-1 ml-1">
-            <sui-dropdown
-            multiple selection v-model="repeat_days_selection"
-            :options="repeat_days" placeholder="Select days to repeat on"
-            />
-            <div class="mt-2">
-              <sui-form-field>
-                <label class="form-label">End Date</label>
-                <input v-model="repeat_end_date" type="datetime-local">
-              </sui-form-field>
-            </div>
-          </div>
-          <div id="button-container" @click="createMeeting">
-            <Button text="Schedule" color="blue" size="large" invert_colors
-            wide :disabled="!formComplete" />
-          </div>
-        </sui-form>
-        <AddTaskModal ref="RealTimeModal"
-        :real_time_portion="real_time_portion"
-        :async_portion="async_portion"
-        v-on:hide-form="hideAddTaskModal"
-        v-on:add-task="addTask('qr_scan', ...arguments)" />
-        <AddTaskModal ref="AsyncModal"
-        :async_portion="async_portion"
-        v-on:hide-form="hideAddTaskModal"
-        v-on:add-task="addTask('video', ...arguments)" />
-      <!-- </transition> -->
+        </div>
+        <div id="button-container" @click="createMeeting">
+          <Button text="Schedule" color="blue" size="large" invert_colors
+          wide :disabled="!formComplete" />
+        </div>
+      </sui-form>
+      <AddTaskModal ref="RealTimeModal"
+      :real_time_portion="real_time_portion"
+      :async_portion="async_portion"
+      v-on:add-task="addTask('qr_scan', ...arguments)" />
+      <AddTaskModal ref="AsyncModal"
+      :async_portion="async_portion"
+      v-on:add-task="addTask('video', ...arguments)" />
     </div>
   </div>
 </template>
@@ -192,12 +188,6 @@ export default {
       else if(task_type === 'async')
         this.$refs.AsyncModal.showModal()
     },
-    hideAddTaskModal() {
-      this.show_main_form = true
-      this.show_real_time_task_form = false
-      this.show_async_task_form = false
-      this.meeting.sections = []
-    },
     clearPortion(is_real_time) {
       if(is_real_time) {
         this.real_time_portion.real_time_start = null
@@ -216,7 +206,6 @@ export default {
         this.real_time_portion.qr_scans.push(task)
       else
         this.async_portion.videos.push(task)
-      this.hideAddTaskModal()
     },
     selectSection(section) {
      let [meeting_has_section, index] = this.meetingHasSection(section)
@@ -271,6 +260,9 @@ export default {
       }
     },
     async createMeeting() {
+      if(!this.formComplete)
+        return
+
       try {
         this.creating_meeting = true
         let real_time_portion;

@@ -99,8 +99,6 @@ export default {
         this.meeting_id = this.$route.params.meeting_id
         const response = await MeetingAPI.getMeeting(this.meeting_id)
         this.meeting = response.data
-        console.log("meeting", this.meeting)
-        console.log("Async portion", this.meeting.async_portion)
         this.meeting_course = this.meeting.sections[0].course
         this.setSideBarSubHeaders()
         this.meeting_student_ids = this.getMeetingStudentIDs(this.meeting)

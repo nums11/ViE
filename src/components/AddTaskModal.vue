@@ -223,7 +223,6 @@ export default {
       this.show_modal = true
     },
     hideModal() {
-      console.log("reminder_picker", this.reminder_picker)
       this.resetInputs()
       this.show_modal = false
     },
