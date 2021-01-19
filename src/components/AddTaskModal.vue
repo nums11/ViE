@@ -63,7 +63,7 @@
             <input v-model="task.name" placeholder="Class Video">
           </sui-form-field>
           <sui-form-field>
-            <input @change="setVideoFile" type="file">
+            <input @change="setVideoFile" type="file" id="file-input">
           </sui-form-field>
         </div>
         <div class="form-field">
@@ -175,15 +175,16 @@ export default {
     },
     addTask(){
       this.$emit('add-task', this.task)
-      this.task = {
-        reminder_time: null
-      }
       this.hideModal()
     },
     showModal() {
       this.show_modal = true
     },
     hideModal() {
+      this.task = {
+        reminder_time: null
+      }
+      document.getElementById('file-input').value = ''
       this.show_modal = false
     }
   }
