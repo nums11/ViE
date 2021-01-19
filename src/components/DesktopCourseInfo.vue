@@ -17,7 +17,7 @@
               v-model="selected_section" />
               <router-link :to="{name: 'course_new_meeting',
               params: {course_id: course._id}}">
-                <sui-button animated size="small" disabled
+                <sui-button animated size="small"
                   style="background-color:#00b80c; color:white;
                   float:right;">
                   <sui-button-content visible>

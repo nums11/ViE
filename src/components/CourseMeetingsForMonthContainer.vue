@@ -4,8 +4,9 @@
     <div class="meeting-cards">
       <p v-if="meetings.length === 0" class="no-meetings-text">
         No Meetings.
-        <span v-if="is_instructor">Meeting scheduling functionality
-        will be made available soon.</span>
+        <span v-if="is_instructor">
+          Click on the green button above to schedule a meeting.
+        </span>
       </p>
       <div v-else>
         <CourseMeetingCard v-for="(meeting,index) in meetings"
