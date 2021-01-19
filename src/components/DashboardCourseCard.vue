@@ -36,7 +36,7 @@
         <router-link :to="{name: 'course_new_meeting',
         params: {course_id: course._id}}">
           <show-at breakpoint="mediumAndAbove">
-            <sui-button animated size="small"
+            <sui-button animated size="small" disabled
               style="background-color:#00b80c; color: white;">
                 <sui-button-content visible>
                   Schedule Meeting
