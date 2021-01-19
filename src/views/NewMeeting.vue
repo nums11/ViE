@@ -95,6 +95,7 @@
         </sui-form>
         <AddTaskModal ref="RealTimeModal"
         :real_time_portion="real_time_portion"
+        :async_portion="async_portion"
         v-on:hide-form="hideAddTaskModal"
         v-on:add-task="addTask('qr_scan', ...arguments)" />
         <AddTaskModal ref="AsyncModal"
@@ -186,10 +187,14 @@ export default {
       }
     },
     showAddTaskModal(task_type) {
-      if(task_type === 'real-time')
+      if(task_type === 'real-time'){
+        console.log("Showing real time")
         this.$refs.RealTimeModal.showModal()
-      else if(task_type === 'async')
+      }
+      else if(task_type === 'async'){
+        console.log("Showing async")
         this.$refs.AsyncModal.showModal()
+      }
     },
     hideAddTaskModal() {
       this.show_main_form = true
