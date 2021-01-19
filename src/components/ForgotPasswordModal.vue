@@ -52,7 +52,7 @@ export default {
   name: 'ForgotPasswordModal',
   data () {
     return {
-      show_modal: true,
+      show_modal: false,
       email: "",
       show_error: false,
       emails_loaded: false,

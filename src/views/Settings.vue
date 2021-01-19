@@ -22,7 +22,7 @@
           </sui-button-content>
       </sui-button>
     </div>
-    <EditUserModal v-if="show_modal" ref="EditUserModal" />
+    <EditUserModal ref="EditUserModal" />
   </div>
 </template>
 
@@ -39,7 +39,6 @@ export default {
   },
   data(){
     return {
-      show_modal: false
     }
   },
   created() {
@@ -56,7 +55,6 @@ export default {
       }
     },
     showEditUserModal() {
-      this.show_modal = true
       this.$refs.EditUserModal.showModal()
     }
   }

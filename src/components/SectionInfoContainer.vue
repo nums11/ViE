@@ -18,10 +18,13 @@
       </div>
     </div>
     <SectionTable v-if="!section.has_open_enrollment"
-    table_name="Pending Approval"
-    :students="section.pending_approval_students" />
+    table_name="Pending Approval" :section_id="section._id"
+    :students="section.pending_approval_students"
+    v-on:approve-student="approveStudent"
+    v-on:deny-student="denyStudent" />
     <SectionTable table_name="Students"
-    :students="section.students" />
+    :students="section.students" :section_id="section._id"
+    ref="StudentsTable" />
     <InviteModal ref="InviteModal"
     :course="course" :section="section" />
   </div>
@@ -31,7 +34,6 @@
 import Button from '@/components/Button'
 import SectionTable from '@/components/SectionTable'
 import InviteModal from '@/components/InviteModal'
-
 import EmailAPI from '@/services/EmailAPI'
 
 export default {
@@ -89,6 +91,27 @@ export default {
         alert("Sorry, something went wrong sending your email")
       }
       this.sending_email = false
+    },
+    approveStudent(student) {
+      this.$refs.StudentsTable.addStudent(student)
+      this.sendApproveOrDenyEmail(student,true)
+
+    },
+    denyStudent(student) {
+      this.sendApproveOrDenyEmail(student,false)
+    },
+    sendApproveOrDenyEmail(student, is_approval) {
+      const student_email = student.email
+      const instructor_name =
+      `${this.course.instructor.first_name} `
+        + `${this.course.instructor.last_name}`
+      const course_name = this.course.name
+      const course_subject_code = this.course.dept
+      const course_number = this.course.course_number
+      const section_number = this.section.section_number
+      EmailAPI.sendApproveOrDenyEmailToStudent(student_email,
+        instructor_name, course_name, course_subject_code,
+        course_number, section_number, is_approval)
     }
   }
 }

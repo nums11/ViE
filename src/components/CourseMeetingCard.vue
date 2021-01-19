@@ -94,4 +94,19 @@ export default {
   vertical-align: top;
   margin-left: 0.65rem;
 }
+
+/* Phones */
+@media (max-width: 744px) {
+  .course-meeting-card {
+    width: 24rem;
+    height: 3rem;
+    padding-left: 0.5rem;
+    padding-top: 0.45rem;
+    text-align: left;
+    font-size: 1.15rem;
+  }
+  .icon-section {
+    width: 7rem;
+  }
+}
 </style>

@@ -40,7 +40,7 @@ seeder.connect(process.env.DB_URI || db, function () {
 			first_name: "Fake",
 			last_name: "Inst",
 			user_id: "fakeinst",
-			email: "venue@rpi.edu",
+			email: "fakeinst@gmail.com",
 			password: "nimda",
 			is_instructor: true,
 			is_admin: true,
@@ -57,7 +57,7 @@ seeder.connect(process.env.DB_URI || db, function () {
 			first_name: "John",
 			last_name: "Doe",
 			user_id: "testinst",
-			email: "testinst@rpi.edu",
+			email: "testinst@gmail.com",
 			password: "password",
 			is_instructor: true,
 			is_admin: false,
@@ -90,11 +90,11 @@ seeder.connect(process.env.DB_URI || db, function () {
 			}))
 		}
 
-		users.push(new User({ // 1
+		users[5] = new User({ // 1
 			first_name: "Numfor",
 			last_name: "Mbiziwo-Tiapo",
-			user_id: "mbizin",
-			email: "mbizin@rpi.edu",
+			user_id: "numsmt2",
+			email: "numsmt2@gmail.com",
 			password: "password",
 			is_instructor: false,
 			is_admin: false,
@@ -105,7 +105,7 @@ seeder.connect(process.env.DB_URI || db, function () {
 			meetings: [],
 			submissions: [],
 			async_submissions: [],
-		}))
+		})
 
 		// Creating Courses
 
@@ -120,15 +120,21 @@ seeder.connect(process.env.DB_URI || db, function () {
 			section_number: 1,
 			course: courses[0]._id,
 			students: [users[2]._id, users[3]._id, users[4]._id],
+			pending_approval_students: [users[5]._id, users[6]._id,
+			users[7]._id, users[8]._id],
 			meetings: [],
 			join_code: getJoinCodeForSection(1,courses[0]._id),
-			has_open_enrollment: true
+			has_open_enrollment: false
 		}))
 		courses[0].sections.push(sections[0]._id)
 		users[0].instructor_courses.push(courses[0]._id)
 		users[2].student_sections.push(sections[0]._id)
 		users[3].student_sections.push(sections[0]._id)
 		users[4].student_sections.push(sections[0]._id)
+		users[5].pending_approval_sections.push(sections[0]._id)
+		users[6].pending_approval_sections.push(sections[0]._id)
+		users[7].pending_approval_sections.push(sections[0]._id)
+		users[8].pending_approval_sections.push(sections[0]._id)
 
 		courses.push(new Course({ // 1
 			name: "Data Structures",
@@ -149,7 +155,8 @@ seeder.connect(process.env.DB_URI || db, function () {
 			course: courses[1]._id,
 			students: [users[7]._id, users[8]._id, users[9]._id, users[10]._id, users[11]._id],
 			meetings: [],
-			join_code: getJoinCodeForSection(2,courses[1]._id)
+			join_code: getJoinCodeForSection(2,courses[1]._id),
+			has_open_enrollment: true
 		}))
 		courses[1].sections.push(sections[1]._id)
 		courses[1].sections.push(sections[2]._id)
@@ -196,47 +203,32 @@ seeder.connect(process.env.DB_URI || db, function () {
 		// users[7].user_orgs.push(organizations[1])
 
 		// Hash user passwords
+		for(let i=0; i < users.length; i++){
+			users[i].password = bcrypt.hashSync(users[i].password,
+				saltRounds)
+		}
 
-		let promises = []
-		users.forEach(user => {
-			promises.push(new Promise((resolve,reject) => {
-				bcrypt.hash(user.password,saltRounds,(err,hash) => {
-					resolve(hash)
-				})
-			}))
+		let data = [{
+			"model": "User",
+			"documents": users
+		}, {
+			"model": "Course",
+			"documents": courses
+		}, {
+			"model": "Section",
+			"documents": sections
+		}
+		]
+
+		seeder.populateModels(data, function (err, done) {
+			if (err) {
+				return console.log("seed err", err)
+			}
+			if (done) {
+				return console.log("seed finished", done)
+			}
+			seeder.disconnect()
 		})
-
-		Promise.all(promises)
-			.then((fulfilled) => {
-				for(i=0;i<users.length;i++){
-					users[i].password = fulfilled[i]
-				}
-
-				let data = [{
-					"model": "User",
-					"documents": users
-				}, {
-					"model": "Course",
-					"documents": courses
-				}, {
-					"model": "Section",
-					"documents": sections
-				}
-				]
-
-				seeder.populateModels(data, function (err, done) {
-					if (err) {
-						return console.log("seed err", err)
-					}
-					if (done) {
-						return console.log("seed finished", done)
-					}
-					seeder.disconnect()
-				})
-			})
-			.catch(err => {
-				console.log("ERROR IN RESOLVING HASHED PASSWORDS",err)
-			})
 	});
 });
 

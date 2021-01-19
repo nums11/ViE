@@ -3,8 +3,9 @@
     <div class="month">{{ month }}</div>
     <div class="meeting-cards">
       <p v-if="meetings.length === 0" class="no-meetings-text">
-        No Meetings. Click the green button above to schedule your
-        first meeting.
+        No Meetings.
+        <span v-if="is_instructor">Click the green
+        button above to schedule your first meeting.</span>
       </p>
       <div v-else>
         <CourseMeetingCard v-for="(meeting,index) in meetings"

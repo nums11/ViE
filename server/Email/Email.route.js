@@ -1,6 +1,13 @@
 const express = require('express');
 const emailRoutes = express.Router();
 const nodemailer = require("nodemailer");
+const transporter = nodemailer.createTransport({
+ service: 'gmail',
+ auth: {
+   user: 'vie.do.not.reply@gmail.com',
+   pass: process.env.EMAIL_PASS
+ }
+});
 
 emailRoutes.route('/invite').post(
   async function (req, res, next) {
@@ -11,13 +18,6 @@ emailRoutes.route('/invite').post(
   const instructor_name = req.body.instructor_name
   const join_code = req.body.join_code
   const student_emails = req.body.student_emails
-  const transporter = nodemailer.createTransport({
-   service: 'gmail',
-   auth: {
-     user: 'vie.do.not.reply@gmail.com',
-     pass: process.env.EMAIL_PASS
-   }
-  });
   const subject = getEmailSubject(course_name, section_number)
   const body = getEmailBody(instructor_name, course_name,
     course_subject_code, course_number, section_number, join_code)
@@ -29,7 +29,7 @@ emailRoutes.route('/invite').post(
           subject, body)
         transporter.sendMail(mail_options, function(error, info){
           if (error) {
-            console.log("<ERROR> sending mail", error);
+            console.log("<ERROR> sending invite email", error);
             reject(student_email)
           } else {
             resolve(student_email)
@@ -54,13 +54,6 @@ emailRoutes.route('/reset_password').post(
   async function (req, res, next) {
   const email = req.body.email
 
-  const transporter = nodemailer.createTransport({
-   service: 'gmail',
-   auth: {
-     user: 'vie.do.not.reply@gmail.com',
-     pass: process.env.EMAIL_PASS
-   }
-  });
   const subject = "ViE - Reset Your Password"
   const body = "Someone requested a password reset for your "
     + "account. If this was not you, please contact viengagecontact@gmail.com "
@@ -74,7 +67,7 @@ emailRoutes.route('/reset_password').post(
     const mail_promise = new Promise((resolve, reject) => {
       transporter.sendMail(mail_options, function(error, info){
         if (error) {
-          console.log("<ERROR> sending mail", error);
+          console.log("<ERROR> sending reset password email", error);
           reject(error)
         } else {
           resolve(info)
@@ -86,6 +79,98 @@ emailRoutes.route('/reset_password').post(
     res.json(email_info)
   } catch(error) {
     console.log(`<ERROR> (emails/invite) email: ${email}`)
+    next(error)
+  }
+});
+
+emailRoutes.route('/new_student').post(
+  async function (req, res, next) {
+  const instructor_email = req.body.instructor_email
+  const student_name = req.body.student_name
+  const course_name = req.body.course_name
+  const course_subject_code = req.body.course_subject_code
+  const course_number = req.body.course_number
+  const section_number = req.body.section_number
+  const open_enrollment = req.body.open_enrollment
+
+  const subject =
+    `ViE - ${student_name} ${open_enrollment ? 'Joined' : 'Requested To Join'}`
+    + ` Your Course`
+  const body = `${student_name} ${open_enrollment ? 'joined' : 'requested to join'}`
+    + ` your course - ${course_name}`
+    + ` (${course_subject_code} ${course_number}) Section ${section_number}`
+    + `<br/><br/>--<br/>`
+    + `ViE - Increase Virtual Engagement</p>`
+
+  try {
+    const mail_options = getMailOptions(instructor_email,
+      subject, body)
+    const mail_promise = new Promise((resolve, reject) => {
+      transporter.sendMail(mail_options, function(error, info){
+        if (error) {
+          console.log("<ERROR> sending new student mail", error);
+          reject(error)
+        } else {
+          resolve(info)
+        }
+      });
+    })
+    const email_info = await Promise.resolve(mail_promise)
+    console.log("<SUCCESS> (emails/new_student)")
+    res.json(email_info)
+  } catch(error) {
+    console.log(`<ERROR> (emails/new_student) instructor_email:`
+      + ` ${instructor_email} student_name ${student_name}`
+      + ` course_name ${course_name} course_subject_code`
+      + ` ${course_subject_code} course_number ${course_number}`
+      + ` section_number ${section_number}`)
+    next(error)
+  }
+});
+
+emailRoutes.route('/approve_or_deny').post(
+  async function (req, res, next) {
+  const student_email = req.body.student_email
+  const instructor_name = req.body.instructor_name
+  const course_name = req.body.course_name
+  const course_subject_code = req.body.course_subject_code
+  const course_number = req.body.course_number
+  const section_number = req.body.section_number
+  const is_approval = req.body.is_approval
+
+  const subject =
+    `ViE - Your Course Join Request Has Been `
+    + `${is_approval ? 'Approved' : 'Denied'}`
+  const body =
+    `${instructor_name} has`
+    + ` ${is_approval ? 'approved you into' : 'denied you from'}`
+    + ` thier course - ${course_name}`
+    + ` (${course_subject_code} ${course_number}) Section ${section_number}`
+    + `<br/><br/>--<br/>`
+    + `ViE - Increase Virtual Engagement</p>`
+
+  try {
+    const mail_options = getMailOptions(student_email,
+      subject, body)
+    const mail_promise = new Promise((resolve, reject) => {
+      transporter.sendMail(mail_options, function(error, info){
+        if (error) {
+          console.log("<ERROR> sending approve or deny mail", error);
+          reject(error)
+        } else {
+          resolve(info)
+        }
+      });
+    })
+    const email_info = await Promise.resolve(mail_promise)
+    console.log("<SUCCESS> (emails/approve_or_deny)")
+    res.json(email_info)
+  } catch(error) {
+    console.log(`<ERROR> (emails/approve_or_deny) student_email:`
+      + ` ${student_email} instructor_name ${instructor_name}`
+      + ` course_name ${course_name} course_subject_code`
+      + ` ${course_subject_code} course_number ${course_number}`
+      + ` section_number ${section_number}`)
     next(error)
   }
 });
