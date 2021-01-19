@@ -128,6 +128,53 @@ emailRoutes.route('/new_student').post(
   }
 });
 
+emailRoutes.route('/approve_or_deny').post(
+  async function (req, res, next) {
+  const student_email = req.body.student_email
+  const instructor_name = req.body.instructor_name
+  const course_name = req.body.course_name
+  const course_subject_code = req.body.course_subject_code
+  const course_number = req.body.course_number
+  const section_number = req.body.section_number
+  const is_approval = req.body.is_approval
+
+  const subject =
+    `ViE - Your Course Join Request Has Been `
+    + `${is_approval ? 'Approved' : 'Denied'}`
+  const body =
+    `${instructor_name} has`
+    + ` ${is_approval ? 'approved you into' : 'denied you from'}`
+    + ` thier course - ${course_name}`
+    + ` (${course_subject_code} ${course_number}) Section ${section_number}`
+    + `<br/><br/>--<br/>`
+    + `ViE - Increase Virtual Engagement</p>`
+
+  try {
+    const mail_options = getMailOptions(student_email,
+      subject, body)
+    const mail_promise = new Promise((resolve, reject) => {
+      transporter.sendMail(mail_options, function(error, info){
+        if (error) {
+          console.log("<ERROR> sending approve or deny mail", error);
+          reject(error)
+        } else {
+          resolve(info)
+        }
+      });
+    })
+    const email_info = await Promise.resolve(mail_promise)
+    console.log("<SUCCESS> (emails/approve_or_deny)")
+    res.json(email_info)
+  } catch(error) {
+    console.log(`<ERROR> (emails/approve_or_deny) student_email:`
+      + ` ${student_email} instructor_name ${instructor_name}`
+      + ` course_name ${course_name} course_subject_code`
+      + ` ${course_subject_code} course_number ${course_number}`
+      + ` section_number ${section_number}`)
+    next(error)
+  }
+});
+
 function getMailOptions(email, subject, body) {
   return {
    from: 'vie.do.not.reply@gmail.com',

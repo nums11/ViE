@@ -31,5 +31,18 @@ export default {
       section_number: section_number,
       open_enrollment: open_enrollment
     })
+  },
+  sendApproveOrDenyEmailToStudent(student_email,
+    instructor_name, course_name, course_subject_code,
+    course_number, section_number, is_approval) {
+    return API().post('emails/approve_or_deny', {
+      student_email: student_email,
+      instructor_name: instructor_name,
+      course_name: course_name,
+      course_subject_code: course_subject_code,
+      course_number: course_number,
+      section_number: section_number,
+      is_approval: is_approval
+    })
   }
 }

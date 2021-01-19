@@ -40,7 +40,7 @@ seeder.connect(process.env.DB_URI || db, function () {
 			first_name: "Fake",
 			last_name: "Inst",
 			user_id: "fakeinst",
-			email: "numsmt2@gmail.com",
+			email: "fakeinst@gmail.com",
 			password: "nimda",
 			is_instructor: true,
 			is_admin: true,
@@ -90,11 +90,11 @@ seeder.connect(process.env.DB_URI || db, function () {
 			}))
 		}
 
-		users.push(new User({ // 1
+		users[5] = new User({ // 1
 			first_name: "Numfor",
 			last_name: "Mbiziwo-Tiapo",
-			user_id: "mbizin",
-			email: "mbizin@rpi.edu",
+			user_id: "numsmt2",
+			email: "numsmt2@gmail.com",
 			password: "password",
 			is_instructor: false,
 			is_admin: false,
@@ -105,7 +105,7 @@ seeder.connect(process.env.DB_URI || db, function () {
 			meetings: [],
 			submissions: [],
 			async_submissions: [],
-		}))
+		})
 
 		// Creating Courses
 

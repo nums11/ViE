@@ -118,6 +118,11 @@ export default {
   },
   methods: {
     async handleStudent(student, operation) {
+      const confirmation_msg = this.getConfirmationMsg(
+        student, operation)
+      if(!confirm(confirmation_msg))
+        return;
+
       try {
         if(operation === 'approve') {
           await SectionAPI.approveStudentIntoSection(
@@ -126,6 +131,7 @@ export default {
         } else if(operation === 'deny') {
           await SectionAPI.denyStudentApprovalIntoSection(
             this.section_id, student._id)
+          this.$emit('deny-student', student)
         } else {
           await SectionAPI.removeStudentFromSection(
             this.section_id, student._id)
@@ -135,6 +141,18 @@ export default {
         console.log(error)
         alert("Sorry, something went wrong")
       }
+    },
+    getConfirmationMsg(student, operation) {
+      let msg = "Are you sure you want to "
+      if(operation === "approve")
+        msg += "approve "
+      else if(operation === "deny")
+        msg += "deny "
+      else
+        msg += "remove "
+      msg += `${student.first_name} ${student.last_name}`
+        + ` from your course?`
+      return msg
     },
     removeStudent(student_object_id) {
       for(let i = 0; i < this.students.length; i++) {
