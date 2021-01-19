@@ -267,13 +267,11 @@ export default {
         this.creating_meeting = true
         let real_time_portion;
         let async_portion;
-        if(this.portionTimesSet(true) &&
-          this.real_time_portion.qr_scans.length > 0)
+        if(this.portionTimesSet(true))
           real_time_portion = this.real_time_portion
         else
           real_time_portion = null
-        if(this.portionTimesSet(false) &&
-          this.async_portion.videos.length > 0)
+        if(this.portionTimesSet(false))
           async_portion = this.async_portion
         else
           async_portion = null
