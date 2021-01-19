@@ -155,7 +155,7 @@ export default {
 #main {
   /*border: red solid;*/
   padding-top: 0.5rem;
-  width: 78%;
+  width: 79%;
   height: 100%;
 }
 
