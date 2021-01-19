@@ -138,9 +138,10 @@ authRoutes.route('/set_permanent_pasword').post(function (req, res) {
   }
 });
 
-authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next) => {
+authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code-:first_login", (req, res, next) => {
   let optional_meeting_id = req.params.optional_meeting_id
   let optional_code = req.params.optional_code
+  let first_login = req.params.first_login
   passport.authenticate('cas', function (err, user, info) {
     if (err) {
       console.log("<ERROR> (auth/loginCAS) authenticating", err)
@@ -165,7 +166,7 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code", (req, res, next)
                 } else {
                   res.header("Set-Cookie","connect_sid="+resolvedSID)
                   console.log("<SUCCESS> (auth/loginCAS) updating user and setting cookie.")
-                  res.redirect(`${base_url}/redirectCASLogin/${optional_meeting_id}/${optional_code}`)
+                  res.redirect(`${base_url}/redirectCASLogin/${optional_meeting_id}/${optional_code}/${first_login}`)
                 }
               })
             } else {

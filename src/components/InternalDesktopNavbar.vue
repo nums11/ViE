@@ -84,6 +84,10 @@ export default {
   },
   created() {
   },
+  mounted() {
+    if(this.$route.params.first_login)
+      this.showGettingStartedModal()
+  },
   methods: {
     // Todo: come back and fix error when navigating to the same route
     changeRoute(route_name, params) {
