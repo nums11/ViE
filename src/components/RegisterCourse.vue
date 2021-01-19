@@ -39,7 +39,7 @@
       <p>
         Additional sections can be added after a course is registered.
       </p>
-      <sui-button @click="showModal" size="small"
+      <sui-button @click.prevent="showModal" size="small"
       style="background-color:#00b80c; color:white;" animated>
         <sui-button-content visible>Add Section</sui-button-content>
         <sui-button-content hidden>
@@ -53,7 +53,7 @@
         :key="section.section_number" :section="section"
         v-on:remove-section="removeSection" />
       </div>
-      <div id="btn-container" @click="registerCourse">
+      <div id="btn-container" @click.prevent="registerCourse">
         <Button text="Register" color="blue" 
         size="large" invert_colors :disabled="!formComplete" />
       </div>
