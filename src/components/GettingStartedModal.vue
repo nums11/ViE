@@ -4,9 +4,9 @@
       Getting Started
     </sui-modal-header>
     <sui-modal-content scrolling class="center-text">
-      <video id="getting-started-video" controls>
-        <source :src="src">
-      </video>
+      <p>Watch this video to get started</p>
+      <iframe v-if="is_instructor" id="getting-started-video" src="https://www.youtube.com/embed/LDn55wPsx3Y" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <iframe v-else width="560" height="315" src="https://www.youtube.com/embed/Q_P20sig254" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </sui-modal-content>
     <sui-modal-actions>
       <sui-button @click="hideModal"
@@ -18,6 +18,8 @@
 </template>
 
 <script>
+import videojs from "video.js"
+
 export default {
   name: 'GettingStartedModal',
   props: {
@@ -34,9 +36,6 @@ export default {
   computed: {
   },
   created () {
-    this.setVideoSrc()
-  },
-  mounted () {
   },
   methods: {
     showModal() {
@@ -45,19 +44,20 @@ export default {
     hideModal() {
       this.show_modal = false
     },
-    setVideoSrc() {
-      if(this.is_instructor)
-        this.src = "https://storage.googleapis.com/venue_videos/ViE%20Instructors%20-%20Getting%20Started.mp4"
-      else
-        this.src = "https://storage.googleapis.com/venue_videos/ViE%20%20Students%20-%20Getting%20Started.mp4"
-
-    }
   }
 }
 </script>
 
 <style scoped>
 #getting-started-video {
-  width: 90%;
+  width: 40rem;
+  height: 20rem;
+
+}
+
+@media (max-width: 744px) {
+  #getting-started-video {
+    width: 90%;
+  }
 }
 </style>
