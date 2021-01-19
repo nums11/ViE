@@ -173,6 +173,7 @@ export default {
       // Reminder Input
       flatpickr('#reminder-input', {
         enableTime: true,
+        dateFormat: "M/D, h:mm a",
         altInput: true,
         altFormat: "M/D, h:mm a",
         parseDate: (datestr, format) => {
