@@ -59,7 +59,7 @@
         </div>
         <div class="form-field">
           <sui-button @click.prevent="addTask"
-          animated
+          animated :disabled="!formComplete"
           style="background-color:#00b80c; color:white;">
             <sui-button-content visible>
               Add Task
@@ -98,6 +98,7 @@ export default {
       show_modal: false,
       task: {
         reminder_time: null,
+        video_file: null
       },
       value: 1,
       is_real_time: Boolean,
@@ -115,6 +116,17 @@ export default {
     }
   },
   computed: {
+    formComplete() {
+      if(this.is_real_time) {
+        return this.real_time_portion.real_time_start != null
+          && this.real_time_portion.real_time_end != null
+      } else {
+        return this.async_portion.async_start != null &&
+          this.async_portion.async_end != null &&
+          this.task.name != null && this.task.name !== ''
+          && this.task.video_file != null
+      }
+    }
   },
   created () {
     this.is_real_time = this.real_time_portion != null
@@ -154,7 +166,7 @@ export default {
     initFlatPickr() {
       // Time Window Input
       const self = this
-      flatpickr(`#${this.time_window_id}`, {
+      self.time_window_picker = flatpickr(`#${this.time_window_id}`, {
         enableTime: true,
         mode: "range",
         altInput: true,
@@ -170,20 +182,22 @@ export default {
           self.updatePropTimes(selected_dates)
         }
       })
-      // Reminder Input
-      flatpickr('#reminder-input', {
-        enableTime: true,
-        dateFormat: "M/D, h:mm a",
-        altInput: true,
-        altFormat: "M/D, h:mm a",
-        parseDate: (datestr, format) => {
-          return moment(datestr, format, true).toDate();
-        },
-        formatDate: (date, format, locale) => {
-          // locale can also be used
-          return moment(date).format(format);
-        }
-      })
+      if(this.is_real_time) {
+        // Reminder Input
+        self.reminder_picker = flatpickr('#reminder-input', {
+          enableTime: true,
+          dateFormat: "M/D, h:mm a",
+          altInput: true,
+          altFormat: "M/D, h:mm a",
+          parseDate: (datestr, format) => {
+            return moment(datestr, format, true).toDate();
+          },
+          formatDate: (date, format, locale) => {
+            // locale can also be used
+            return moment(date).format(format);
+          }
+        })
+      }
     },
     updatePropTimes(new_times) {
       if(this.is_real_time){
@@ -209,13 +223,25 @@ export default {
       this.show_modal = true
     },
     hideModal() {
-      this.task = {
-        reminder_time: null
-      }
-      let file_input = document.getElementById('file-input')
-      if(file_input != null)
-        file_input.value = ''
+      console.log("reminder_picker", this.reminder_picker)
+      this.resetInputs()
       this.show_modal = false
+    },
+    resetInputs() {
+      this.task = {
+        reminder_time: null,
+        video_file: null
+      }
+      if(this.is_real_time){
+        this.reminder_picker.clear()
+      } else {
+        let file_input = document.getElementById('file-input')
+        file_input.value = ''
+      }
+    },
+    clearDateTimePicker() {
+      this.time_window_picker.clear()
+      this.resetInputs()
     }
   }
 }

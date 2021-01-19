@@ -187,14 +187,10 @@ export default {
       }
     },
     showAddTaskModal(task_type) {
-      if(task_type === 'real-time'){
-        console.log("Showing real time")
+      if(task_type === 'real-time')
         this.$refs.RealTimeModal.showModal()
-      }
-      else if(task_type === 'async'){
-        console.log("Showing async")
+      else if(task_type === 'async')
         this.$refs.AsyncModal.showModal()
-      }
     },
     hideAddTaskModal() {
       this.show_main_form = true
@@ -207,10 +203,12 @@ export default {
         this.real_time_portion.real_time_start = null
         this.real_time_portion.real_time_end = null
         this.real_time_portion.qr_scans = []
+        this.$refs.RealTimeModal.clearDateTimePicker()
       } else {
         this.async_portion.async_start = null
         this.async_portion.async_end = null
         this.async_portion.videos = []
+        this.$refs.AsyncModal.clearDateTimePicker()
       }
     },
     addTask(task_type, task) {
