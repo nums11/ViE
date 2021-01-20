@@ -75,8 +75,6 @@ export default {
     }
   },
   created () {
-    console.log("is_real_time", this.is_real_time)
-    console.log("portion", this.portion)
     this.setLabelsAndDates()
   },
   methods: {

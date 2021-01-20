@@ -77,15 +77,15 @@
         :options="repeat_options" class="mt-3 ml-1" />
         <div v-if="repeat_selection == 3" class="mt-1 ml-1">
           <sui-dropdown
-          multiple selection v-model="repeat_days_selection"
+          multiple selection v-model="custom_repeat_days_selection"
           :options="repeat_days" placeholder="Select days to repeat on"
           />
-          <div class="mt-2">
-            <sui-form-field>
-              <label class="form-label">End Date</label>
-              <input v-model="repeat_end_date" type="datetime-local">
-            </sui-form-field>
-          </div>
+        </div>
+        <div v-if="repeat_selection !== 0" class="mt-2">
+          <sui-form-field>
+            <label class="form-label">Repeat End Date</label>
+            <input v-model="repeat_end_date" type="date">
+          </sui-form-field>
         </div>
         <div id="button-container" @click="createMeeting">
           <Button text="Schedule" color="blue" size="large" invert_colors
@@ -156,7 +156,7 @@ export default {
         {value: 5, text: "Friday"},
         {value: 6, text: "Saturday"},
       ],
-      repeat_days_selection: [],
+      custom_repeat_days_selection: [],
       repeat_end_date: null,
       creating_meeting: false
     }
