@@ -145,7 +145,7 @@ export default {
   margin-top: 0.3rem;
   font-size: 0.9rem;
   /*border: blue solid;*/
-  width: 28.5%;
+  width: 29.5%;
 }
 
 .icon-section {

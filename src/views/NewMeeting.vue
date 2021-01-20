@@ -212,8 +212,11 @@ export default {
       }
     },
     addTask(task_type, task) {
-      if(task_type === 'qr_scan')
+      if(task_type === 'qr_scan'){
+        if(task.reminder_time === '')
+          task.reminder_time = null
         this.real_time_portion.qr_scans.push(task)
+      }
       else
         this.async_portion.videos.push(task)
     },
