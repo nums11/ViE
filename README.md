@@ -1,6 +1,6 @@
-# Venue2
+# ViE
 
-## Secure attendance
+## Increase Virtual Engagement
 
 ### Prerequisites
 
