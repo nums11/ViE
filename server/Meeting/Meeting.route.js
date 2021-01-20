@@ -14,131 +14,15 @@ const NotificationJob = require('../Notification/NotificationJob.model');
 const schedule = require('node-schedule');
 const {Storage} = require("@google-cloud/storage")
 const path = require('path');
-// var multer = require("multer")
-// var upload = multer({ storage: multer.memoryStorage() })
 const multiparty = require('multiparty')
-
 // GCS Specific
-
 const storage = new Storage({
   keyFilename: path.join(__dirname, 'venue-279902-649f22aa6e34.json'),
   projectId: "venue-279902"
 })
-
 const bucket = storage.bucket('venue_videos')
 
-const uploadVideoToGCS = (file) => new Promise((resolve, reject) => {
-  const { originalname, buffer } = file
-  const blob = bucket.file(originalname.replace(/ /g, "_"))
-  const blobStream = blob.createWriteStream({
-    resumable: false
-  })
-  blobStream.on('finish', () => {
-    const publicUrl = 'https://storage.googleapis.com/' + bucket.name + '/' + blob.name
-    resolve(publicUrl)
-  })
-  .on('error', (err) => {
-    reject(`Unable to upload video, something went wrong` + err)
-  })
-  .end(buffer)
-})
-
-meetingRoutes.post('/save_new_video/:video_name', (req, res) => {
-  let video_name = req.params.video_name
-  const blob = bucket.file(video_name.replace(/ /g, "_"))
-  console.log("Instantiated blob with name", blob.name)
-  var form = new multiparty.Form()
-
-  form.on('error', (err) => {
-    console.log("<ERROR> (meetings/save_new_video) form error", err)
-    res.status(500).json(err)
-  })
-
-  form.on('close', () => {
-    console.log("<SUCCESS> (meetings/save_new_video) saving video")
-    const publicUrl = 'https://storage.googleapis.com/' + bucket.name + '/' + blob.name
-    res.json(publicUrl)
-  })
-
-  form.on('part', function(part) {
-    console.log("(meetings/save_new_video) received part of size", part.byteCount)
-    part.pipe(
-      blob.createWriteStream({
-          resumable: false,
-          timeout: 600000 //10 minutes
-      })
-    )
-    // part.resume()
-    part.on('error', (err)=> {
-      console.log("<ERROR> (meetings/save_new_video) part error", err)
-    })
-  })
-
-  form.parse(req)
-})
-
-meetingRoutes.post('/add', async (req, res, next) => {
-  const meeting = req.body.meeting
-  const real_time_portion = req.body.real_time_portion
-  const async_portion = req.body.async_portion
-  const instructor_id = req.body.instructor_id
-
-  try {
-    const new_meeting = new Meeting(meeting)
-    let saved_meeting = await new_meeting.save()
-    let saved_real_time_portion = null, saved_async_portion = null
-
-    if(real_time_portion != null) {
-      const [saved_qr_scans, updated_notification_jobs] = 
-        await createQRScans(real_time_portion.qr_scans,
-          instructor_id, saved_meeting._id)
-      if(saved_qr_scans == null) {
-        throw "<ERROR> meetings/add saving qr scans and "
-          + "scheduling notifications"
-      }
-      new_real_time_portion = new RealTimePortion({
-        real_time_start: real_time_portion.real_time_start,
-        real_time_end: real_time_portion.real_time_end,
-        qr_scans: saved_qr_scans
-      })
-      saved_real_time_portion = await new_real_time_portion.save()
-    }
-
-    if(async_portion != null) {
-      const saved_videos = await createVideos(async_portion.videos)
-      if(saved_videos == null)
-        throw "<ERROR> meetings/add saving videos"
-      new_async_portion = new AsyncPortion({
-        async_start: async_portion.async_start,
-        async_end: async_portion.async_end,
-        videos: saved_videos
-      })
-      saved_async_portion = await new_async_portion.save()
-    }
-
-    saved_meeting.real_time_portion = saved_real_time_portion
-    saved_meeting.async_portion = saved_async_portion
-    saved_meeting.save()
-    // Update the section, instructor, and students
-    const updated_sections = await addMeetingToObjects(
-      saved_meeting.sections, "section", saved_meeting._id)
-    if(updated_sections == null)
-      throw "<ERROR> meetings/add"
-    const student_ids = getAllStudentsFromSections(updated_sections)
-    const updated_students = await addMeetingToObjects(
-      student_ids, "user", saved_meeting._id)
-    if(updated_students == null)
-      throw "<ERROR> meetings/add"
-    const updated_instructor = await addMeetingToObjects(
-      [instructor_id], "user", saved_meeting._id)
-    if(updated_instructor == null)
-      throw "<ERROR> meetings/add"
-
-    res.json(saved_meeting)
-  } catch(error) {
-    next(error)
-  }
-});
+// GET -----------
 
 meetingRoutes.route('/all').get(function (req, res) {
   Meeting.find().
@@ -230,7 +114,109 @@ meetingRoutes.route('/get/:id').get(function (req, res, next) {
   })
 });
 
-meetingRoutes.route('/update/:id').post(function (req, res) {
+// POST ---------------
+
+
+meetingRoutes.post('/add', async (req, res, next) => {
+  const meeting = req.body.meeting
+  const real_time_portion = req.body.real_time_portion
+  const async_portion = req.body.async_portion
+  const instructor_id = req.body.instructor_id
+
+  try {
+    const new_meeting = new Meeting(meeting)
+    let saved_meeting = await new_meeting.save()
+    let saved_real_time_portion = null, saved_async_portion = null
+
+    if(real_time_portion != null) {
+      const [saved_qr_scans, updated_notification_jobs] = 
+        await createQRScans(real_time_portion.qr_scans,
+          instructor_id, saved_meeting._id)
+      if(saved_qr_scans == null) {
+        throw "<ERROR> meetings/add saving qr scans and "
+          + "scheduling notifications"
+      }
+      new_real_time_portion = new RealTimePortion({
+        real_time_start: real_time_portion.real_time_start,
+        real_time_end: real_time_portion.real_time_end,
+        qr_scans: saved_qr_scans
+      })
+      saved_real_time_portion = await new_real_time_portion.save()
+    }
+
+    if(async_portion != null) {
+      const saved_videos = await createVideos(async_portion.videos)
+      if(saved_videos == null)
+        throw "<ERROR> meetings/add saving videos"
+      new_async_portion = new AsyncPortion({
+        async_start: async_portion.async_start,
+        async_end: async_portion.async_end,
+        videos: saved_videos
+      })
+      saved_async_portion = await new_async_portion.save()
+    }
+
+    saved_meeting.real_time_portion = saved_real_time_portion
+    saved_meeting.async_portion = saved_async_portion
+    saved_meeting.save()
+    // Update the section, instructor, and students
+    const updated_sections = await addMeetingToObjects(
+      saved_meeting.sections, "section", saved_meeting._id)
+    if(updated_sections == null)
+      throw "<ERROR> meetings/add"
+    const student_ids = getAllStudentsFromSections(updated_sections)
+    const updated_students = await addMeetingToObjects(
+      student_ids, "user", saved_meeting._id)
+    if(updated_students == null)
+      throw "<ERROR> meetings/add"
+    const updated_instructor = await addMeetingToObjects(
+      [instructor_id], "user", saved_meeting._id)
+    if(updated_instructor == null)
+      throw "<ERROR> meetings/add"
+
+    res.json(saved_meeting)
+  } catch(error) {
+    next(error)
+  }
+});
+
+meetingRoutes.post('/save_new_video/:video_name', (req, res) => {
+  let video_name = req.params.video_name
+  const blob = bucket.file(video_name.replace(/ /g, "_"))
+  console.log("Instantiated blob with name", blob.name)
+  var form = new multiparty.Form()
+
+  form.on('error', (err) => {
+    console.log("<ERROR> (meetings/save_new_video) form error", err)
+    res.status(500).json(err)
+  })
+
+  form.on('close', () => {
+    console.log("<SUCCESS> (meetings/save_new_video) saving video")
+    const publicUrl = 'https://storage.googleapis.com/' + bucket.name + '/' + blob.name
+    res.json(publicUrl)
+  })
+
+  form.on('part', function(part) {
+    console.log("(meetings/save_new_video) received part of size", part.byteCount)
+    part.pipe(
+      blob.createWriteStream({
+          resumable: false,
+          timeout: 600000 //10 minutes
+      })
+    )
+    // part.resume()
+    part.on('error', (err)=> {
+      console.log("<ERROR> (meetings/save_new_video) part error", err)
+    })
+  })
+
+  form.parse(req)
+})
+
+
+
+meetingRoutes.post('/update/:id', function (req, res) {
   let id = req.params.id;
   let updated_meeting = req.body.updated_meeting;
   Meeting.findByIdAndUpdate(id,
@@ -253,7 +239,7 @@ meetingRoutes.route('/update/:id').post(function (req, res) {
 
 // TODO: Remove reliance on the has_real_time_portion and has_async_portion
 // booleans
-meetingRoutes.route('/add_video/:meeting_id').post(async (req, res) => {
+meetingRoutes.post('/add_video/:meeting_id', async (req, res) => {
   let meeting_id = req.params.meeting_id
   let video = req.body.video
   
@@ -291,12 +277,14 @@ meetingRoutes.route('/add_video/:meeting_id').post(async (req, res) => {
   })
 })
 
+// DELETE --------------
+
 // TODO: remove video video from GCS
 // Need to update has async attendance
 // For removing video from GCS would have to first ensure that all videos saved have unique names
 // (e.g. adding the timestamp)
-meetingRoutes.route('/remove_video/:meeting_id/:async_portion_id/:video_id').
-delete(async function (req, res) {
+meetingRoutes.delete('/remove_video/:meeting_id/:async_portion_id/:video_id',
+  async function (req, res) {
   let meeting_id = req.params.meeting_id
   let async_portion_id = req.params.async_portion_id
   let video_id = req.params.video_id

@@ -16,27 +16,19 @@ export default {
       }
     )
   },
-  // saveVideoVideosToGCS(videos) {
-  //   // Attach the meeting and videos to the form data
-  //   let form_data = new FormData()
-  //   for(let i = 0; i < videos.length; i++) {
-  //     form_data.append('video_videos', videos[i].video)
-  //   }
-  //   return API().post('meetings/save_to_gcs', form_data,
-  //     {
-  //       headers: {
-  //         'Content-Type': 'multipart/form-data'
-  //       }
-  //     }
-  //   )
-  // },
   addMeeting(meeting, real_time_portion,
-    async_portion, instructor_id) {
+    async_portion, instructor_id, repeat_day_indices,
+    repeat_end_date) {
     return API().post(`meetings/add`, {
         meeting: meeting,
         real_time_portion: real_time_portion,
         async_portion: async_portion,
-        instructor_id: instructor_id
+        instructor_id: instructor_id,
+        real_time_repeat_day_indices:
+        repeat_day_indices.real_time_repeat_day_indices,
+        aync_repeat_day_indices:
+        repeat_day_indices.async_repeat_day_indices,
+        repeat_end_date: repeat_end_date
     })
   },
   addVideoToMeeting(meeting_id, video) {

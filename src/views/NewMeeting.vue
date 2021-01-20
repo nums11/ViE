@@ -77,7 +77,7 @@
         :options="repeat_options" class="mt-3 ml-1" />
         <div v-if="repeat_selection == 3" class="mt-1 ml-1">
           <sui-dropdown
-          multiple selection v-model="custom_repeat_days_selection"
+          multiple selection v-model="repeat_days_selection"
           :options="repeat_days" placeholder="Select days to repeat on"
           />
         </div>
@@ -111,6 +111,7 @@ import AddTaskModal from '@/components/AddTaskModal.vue';
 import NewMeetingPortionContainer from
 '@/components/NewMeetingPortionContainer.vue';
 import VueLottiePlayer from 'vue-lottie-player'
+import moment from 'moment'
 
 export default {
   name: 'NewMeeting',
@@ -156,15 +157,24 @@ export default {
         {value: 5, text: "Friday"},
         {value: 6, text: "Saturday"},
       ],
-      custom_repeat_days_selection: [],
+      repeat_days_selection: [],
       repeat_end_date: null,
       creating_meeting: false
     }
   },
   computed: {
     formComplete() {
+      // Repeating meetings must have an end date
+      if(this.repeat_selection !== 0 &&
+        this.repeat_end_date == null)
+        return false
+      // Custom repeats must have at least one day specified
+      if(this.repeat_selection === 3
+        && this.repeat_days_selection.length === 0)
+        return false
+
       return this.meeting.title !== '' &&
-      this.meeting.sections.length > 0
+        this.meeting.sections.length > 0
     }
   },
   created () {
@@ -264,7 +274,8 @@ export default {
         return
 
       try {
-        this.creating_meeting = true
+        // this.creating_meeting = true
+        // Add real time and async portion if necessary
         let real_time_portion;
         let async_portion;
         if(this.portionTimesSet(true))
@@ -275,14 +286,19 @@ export default {
           async_portion = this.async_portion
         else
           async_portion = null
+        // Save videos to cloud storage
         if(async_portion != null){
           const videos_with_urls = await this.saveVideosToGCS()
           if(videos_with_urls == null)
             throw "Error saving videos to GCS"
           async_portion.videos = videos_with_urls
         }
+        const repeat_day_indices = 
+          this.getRealTimeAndAsyncRepeatDayIndices(real_time_portion,
+            async_portion)
         const response = await MeetingAPI.addMeeting(this.meeting,
-          real_time_portion, async_portion, this.state_user._id)
+          real_time_portion, async_portion, this.state_user._id,
+          repeat_day_indices, this.repeat_end_date)
         const saved_meeting = response.data
         this.$router.push({name: 'meeting_info', params: {meeting_id:
           saved_meeting._id}})        
@@ -290,6 +306,34 @@ export default {
         console.log(error)
         alert("Sorry, something went wrong creating your meeting")
         this.creating_meeting = false
+      }
+    },
+    getRealTimeAndAsyncRepeatDayIndices(real_time_portion,
+      async_portion) {
+      let real_time_repeat_day_indices = null
+      let async_repeat_day_indices = null
+      if(this.repeat_selection === 1){ //daily
+        real_time_repeat_day_indices = [0, 1, 2, 3, 4, 5, 6]
+        async_repeat_day_indices = [0, 1, 2, 3, 4, 5, 6]
+      } else if(this.repeat_selection === 2) { //weekly
+        if(real_time_portion != null) {
+          let real_time_start_day_index = moment(
+            real_time_portion.real_time_start).day()
+          real_time_repeat_day_indices = [
+            real_time_start_day_index]
+        }
+        if(async_portion != null) {
+          let async_start_day_index = moment(
+            async_portion.async_start).day()
+          async_repeat_day_indices = [async_start_day_index]
+        }
+      } else if(this.repeat_selection === 3) {
+        real_time_repeat_day_indices = this.repeat_days_selection
+        async_repeat_day_indices = this.repeat_days_selection
+      }
+      return {
+        real_time_repeat_day_indices: real_time_repeat_day_indices,
+        async_repeat_day_indices: async_repeat_day_indices
       }
     },
     async saveVideosToGCS() {
