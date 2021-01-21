@@ -12,6 +12,7 @@ const MeetingHelper = require('../helpers/meeting_helper')
 const {Storage} = require("@google-cloud/storage")
 const path = require('path');
 const multiparty = require('multiparty')
+const moment = require("moment");
 // GCS Specific
 const storage = new Storage({
   keyFilename: path.join(__dirname, 'venue-279902-649f22aa6e34.json'),
@@ -146,61 +147,77 @@ meetingRoutes.post('/add', async (req, res, next) => {
   const real_time_portion = req.body.real_time_portion
   const async_portion = req.body.async_portion
   const instructor_id = req.body.instructor_id
+  const repeat_day_indices = req.body.repeat_day_indices
+  const repeat_end_date = req.body.repeat_end_date
 
   try {
-    const new_meeting = new Meeting(meeting)
-    let saved_meeting = await new_meeting.save()
-    let saved_real_time_portion = null, saved_async_portion = null
+    let meeting_creation_promises = []
+    meeting_creation_promises.push(MeetingHelper.addMeeting(
+      meeting, real_time_portion,async_portion, instructor_id))
 
-    if(real_time_portion != null) {
-      const [saved_qr_scans, updated_notification_jobs] = 
-        await MeetingHelper.createQRScans(real_time_portion.qr_scans,
-          instructor_id, saved_meeting._id)
-      if(saved_qr_scans == null) {
-        throw "<ERROR> meetings/add saving qr scans and "
-          + "scheduling notifications"
+    // Make the meeting recurring
+    if(repeat_end_date != null) {
+
+      // Figure out which portion starts first and start
+      // 1 day after that day
+      let earliest_start_date;
+      if(moment(real_time_portion.real_time_start).isBefore(
+        async_portion.async_start)) {
+        console.log("real time first")
+        earliest_start_date = real_time_portion.real_time_start
+      } else {
+        console.log("async first")
+        earliest_start_date = async_portion.async_start
       }
-      new_real_time_portion = new RealTimePortion({
-        real_time_start: real_time_portion.real_time_start,
-        real_time_end: real_time_portion.real_time_end,
-        qr_scans: saved_qr_scans
-      })
-      saved_real_time_portion = await new_real_time_portion.save()
+      let start = moment(earliest_start_date).add(1, 'days')
+      const end = moment(repeat_end_date)
+      console.log("start", start)
+      console.log("end", end)
+
+      let i = 1
+      while(moment(start).isBefore(end)) {
+        console.log("start", start.day())
+        // This is one of the days to create a meeting
+        if(repeat_day_indices.includes(start.day())) {
+          console.log("Creating_meeting")
+          // Does a deep copy
+          let new_real_time_portion =
+            JSON.parse(JSON.stringify(real_time_portion))
+          let new_async_portion =
+            JSON.parse(JSON.stringify(async_portion))
+          // Create the new real time and async portions adding
+          // the number of days iterated so far to the original dates
+          new_real_time_portion.real_time_start =
+            moment(real_time_portion.real_time_start).add(i, 'days')
+          new_real_time_portion.real_time_end =
+            moment(real_time_portion.real_time_end).add(i, 'days')
+          new_real_time_portion.qr_scans.forEach(qr_scan => {
+            if(qr_scan.reminder_time != null) {
+              qr_scan.reminder_time =
+                moment(qr_scan.reminder_time).add(i, 'days')
+            }
+          })
+          new_async_portion.async_start =
+            moment(async_portion.async_start).add(i, 'days')
+          new_async_portion.async_end =
+            moment(async_portion.async_end).add(i, 'days')
+          meeting_creation_promises.push(
+            MeetingHelper.addMeeting(meeting, new_real_time_portion,
+              new_async_portion, instructor_id))
+        }
+        i++
+        start.add(1, 'days')
+      }
     }
 
-    if(async_portion != null) {
-      const saved_videos = await MeetingHelper.createVideos(
-        async_portion.videos)
-      if(saved_videos == null)
-        throw "<ERROR> meetings/add saving videos"
-      new_async_portion = new AsyncPortion({
-        async_start: async_portion.async_start,
-        async_end: async_portion.async_end,
-        videos: saved_videos
-      })
-      saved_async_portion = await new_async_portion.save()
-    }
-
-    saved_meeting.real_time_portion = saved_real_time_portion
-    saved_meeting.async_portion = saved_async_portion
-    saved_meeting.save()
-    // Update the section, instructor, and students
-    const updated_sections = await MeetingHelper.addMeetingToObjects(
-      saved_meeting.sections, "section", saved_meeting._id)
-    if(updated_sections == null)
-      throw "<ERROR> meetings/add"
-    const student_ids = MeetingHelper.getAllStudentsFromSections(
-      updated_sections)
-    const updated_students = await MeetingHelper.addMeetingToObjects(
-      student_ids, "user", saved_meeting._id)
-    if(updated_students == null)
-      throw "<ERROR> meetings/add"
-    const updated_instructor = await MeetingHelper.addMeetingToObjects(
-      [instructor_id], "user", saved_meeting._id)
-    if(updated_instructor == null)
-      throw "<ERROR> meetings/add"
-
-    res.json(saved_meeting)
+    const saved_meetings =
+      await Promise.all(meeting_creation_promises)
+    saved_meetings.forEach(meeting => {
+      if(meeting == null)
+        throw "<ERROR> (meetings/add) saving meetings"
+    })
+    console.log("<SUCCESS> (meetings/add)")
+    res.json(saved_meetings)
   } catch(error) {
     next(error)
   }

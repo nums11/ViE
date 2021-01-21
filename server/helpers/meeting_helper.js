@@ -1,4 +1,7 @@
+const Meeting = require('../Meeting/Meeting.model');
 const NotificationJob = require('../Notification/NotificationJob.model');
+const RealTimePortion = require('../RealTimePortion/RealTimePortion.model');
+const AsyncPortion = require('../AsyncPortion/AsyncPortion.model');
 const Section = require('../Section/Section.model');
 const User = require('../User/User.model');
 const QRScan = require('../QRScan/QRScan.model');
@@ -6,10 +9,71 @@ const Video = require('../Video/Video.model');
 const schedule = require('node-schedule');
 
 module.exports = {
-  addMeetingToObjects,
-  getAllStudentsFromSections,
-  createQRScans,
-  createVideos
+  addMeeting
+}
+
+async function addMeeting(meeting, real_time_portion, async_portion,
+  instructor_id) {
+  try {
+    const new_meeting = new Meeting(meeting)
+    let saved_meeting = await new_meeting.save()
+    let saved_real_time_portion = null, saved_async_portion = null
+
+    if(real_time_portion != null) {
+      const [saved_qr_scans, updated_notification_jobs] = 
+        await createQRScans(real_time_portion.qr_scans,
+          instructor_id, saved_meeting._id)
+      if(saved_qr_scans == null) {
+        throw "<ERROR> addMeeting saving qr scans and "
+          + "scheduling notifications"
+      }
+      new_real_time_portion = new RealTimePortion({
+        real_time_start: real_time_portion.real_time_start,
+        real_time_end: real_time_portion.real_time_end,
+        qr_scans: saved_qr_scans
+      })
+      saved_real_time_portion = await new_real_time_portion.save()
+    }
+
+    if(async_portion != null) {
+      const saved_videos = await createVideos(
+        async_portion.videos)
+      if(saved_videos == null)
+        throw "<ERROR> addMeeting saving videos"
+      new_async_portion = new AsyncPortion({
+        async_start: async_portion.async_start,
+        async_end: async_portion.async_end,
+        videos: saved_videos
+      })
+      saved_async_portion = await new_async_portion.save()
+    }
+
+    saved_meeting.real_time_portion = saved_real_time_portion
+    saved_meeting.async_portion = saved_async_portion
+    saved_meeting.save()
+    // Update the section, instructor, and students
+    const updated_sections = await addMeetingToObjects(
+      saved_meeting.sections, "section", saved_meeting._id)
+    if(updated_sections == null)
+      throw "<ERROR> addMeeting updating the section"
+    const student_ids = getAllStudentsFromSections(
+      updated_sections)
+    const updated_students = await addMeetingToObjects(
+      student_ids, "user", saved_meeting._id)
+    if(updated_students == null)
+      throw "<ERROR> addMeeting updating the students"
+    const updated_instructor = await addMeetingToObjects(
+      [instructor_id], "user", saved_meeting._id)
+    if(updated_instructor == null)
+      throw "<ERROR> addMeeting updating the instructor"
+
+    return saved_meeting
+  } catch(error) {
+    console.log(`<ERROR> addMeeting meeting`, meeting,
+      `real_time_portion`, real_time_portion, `async_portion`,
+      async_portion, `instructor_id ${instructor_id}`, error)
+    return null
+  }
 }
 
 async function addMeetingToObjects(object_ids, object_type, meeting_id) {
