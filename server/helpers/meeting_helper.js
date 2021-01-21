@@ -8,7 +8,8 @@ const QRScan = require('../QRScan/QRScan.model');
 const Video = require('../Video/Video.model');
 const schedule = require('node-schedule');
 
-module.exports = {addMeeting, getEarlierStartDate}
+module.exports = {addMeeting, getEarlierStartDate,
+setRecurringIds}
 
 async function addMeeting(meeting, real_time_portion, async_portion,
   instructor_id) {
@@ -90,6 +91,32 @@ function getEarlierStartDate(real_time_portion, async_portion) {
     }
   }
   return earlier_start_date
+}
+
+async function setRecurringIds(meetings) {
+  try {
+    const recurring_id = meetings[0]._id
+    let recurring_id_promises = []
+    meetings.forEach(meeting => {
+      recurring_id_promises.push(new Promise(
+        async (resolve,reject) => {
+        meeting.recurring_id = recurring_id
+        try {
+          await meeting.save()
+          resolve(meeting)
+        } catch(error) {
+          console.log("<ERROR> saving meeting with new recurring_id")
+          reject(error)
+        }
+      }))
+    })
+    const meetings_with_recurring_ids =
+      await Promise.all(recurring_id_promises)
+    return meetings_with_recurring_ids
+  } catch(error) {
+    console.log("<ERROR> setRecurringIds meetings", meetings, error)
+    return null
+  }
 }
 
 async function addMeetingToObjects(object_ids, object_type, meeting_id) {

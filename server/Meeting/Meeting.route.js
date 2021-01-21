@@ -209,6 +209,13 @@ meetingRoutes.post('/add', async (req, res, next) => {
       if(meeting == null)
         throw "<ERROR> (meetings/add) saving meetings"
     })
+    if(repeat_end_date != null) {
+      const meetings_with_recurring_ids = 
+        await MeetingHelper.setRecurringIds(saved_meetings)
+      if(meetings_with_recurring_ids == null)
+        throw "<ERROR> (meetings/add) setting recurring ids"
+    }
+
     console.log("<SUCCESS> (meetings/add)")
     res.json(saved_meetings)
   } catch(error) {
