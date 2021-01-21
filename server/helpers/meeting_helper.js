@@ -7,6 +7,7 @@ const User = require('../User/User.model');
 const QRScan = require('../QRScan/QRScan.model');
 const Video = require('../Video/Video.model');
 const schedule = require('node-schedule');
+const QRScanHelper = require('./qr_scan_helper')
 
 module.exports = {addMeeting, getEarlierStartDate,
 setRecurringIds}
@@ -176,7 +177,7 @@ async function createQRScans(qr_scans, instructor_id, meeting_id) {
     let notifcation_schedule_promises = []
     for(let i = 0; i < qr_scans.length; i++) {
       qr_scan_promises.push(new Promise(async (resolve, reject) => {
-        const random_code = generateRandomCode() 
+        const random_code = QRScanHelper.generateRandomCode() 
         const qr_scan = new QRScan({
           code: random_code,
           reminder_time: qr_scans[i].reminder_time
@@ -226,15 +227,6 @@ async function createVideos(videos) {
     console.log(`<ERROR> createVideos videos:`,videos, error)
     return null
   }
-}
-
-function generateRandomCode() {
-  const alnums = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  let result = "";
-  for (let i = 100; i > 0; --i) {
-    result += alnums[Math.floor(Math.random() * alnums.length)];
-  }
-  return result;
 }
 
 async function scheduleShowQRNotification(

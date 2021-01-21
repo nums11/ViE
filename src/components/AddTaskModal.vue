@@ -6,14 +6,16 @@
     <sui-modal-content scrolling class="center-text"
     style="padding-top: 0;">
       <sui-form class="form">
-        <p>{{ time_window_text }}</p>
-        <div class="form-field">
-          <sui-form-field required>
-            <label class="form-label">
-              {{ window_label }}
-            </label>
-            <input type="datetime-local" :id="time_window_id">
-          </sui-form-field>
+        <div v-if="edit_portion_times">
+          <p>{{ time_window_text }}</p>
+          <div class="form-field">
+            <sui-form-field required>
+              <label class="form-label">
+                {{ window_label }}
+              </label>
+              <input type="datetime-local" :id="time_window_id">
+            </sui-form-field>
+          </div>
         </div>
         <div id="radio-container">
           <p class="mb-2 mr-1">
@@ -89,7 +91,11 @@ export default {
   name: 'AddTaskModal',
   props: {
     real_time_portion: Object,
-    async_portion: Object
+    async_portion: Object,
+    edit_portion_times: {
+      type: Boolean,
+      default: false
+    }
   },
   components: {
   },

@@ -11,7 +11,8 @@
       <div v-else>
         No {{ portion_type }} Portion
       </div>
-      <sui-button animated size="small"
+      <sui-button @click="showAddTaskModal"
+        animated size="small"
         style="background-color:#00b80c; color:white;
         float:right;">
         <sui-button-content visible>
@@ -39,6 +40,12 @@
       No {{ portion_type }} Portion. Click the button in the
        top right to add real-time tasks.
     </div>
+    <AddTaskModal v-if="is_real_time"
+    ref="AddTaskModal" :real_time_portion="portion"
+    v-on:add-task="addTask('qr_scan', ...arguments)" />
+    <AddTaskModal v-else
+    ref="AddTaskModal" :async_portion="portion"
+    v-on:add-task="addTask('video', ...arguments)" />
   </div>
 </template>
 
@@ -47,6 +54,9 @@ import MeetingTasksContainer from
 '@/components/MeetingTasksContainer'
 import SubmissionTable from
 '@/components/SubmissionTable.vue';
+import AddTaskModal from '@/components/AddTaskModal.vue';
+import RealTimePortionAPI from
+'@/services/RealTimePortionAPI'
 
 export default {
   name: 'MeetingInfoPortionContainer',
@@ -64,6 +74,7 @@ export default {
   components: {
     MeetingTasksContainer,
     SubmissionTable,
+    AddTaskModal
   },
   data () {
     return {
@@ -106,7 +117,27 @@ export default {
     },
     showQR(qr_scan) {
       this.$emit("show-qr", qr_scan)
-    }
+    },
+    showAddTaskModal() {
+      this.$refs.AddTaskModal.showModal()
+    },
+    async addTask(task_type, task) {
+      if(task_type === 'qr_scan'){
+        if(task.reminder_time === '')
+          task.reminder_time = null
+        try {
+          const response = await RealTimePortionAPI.addQRScan(
+            this.portion._id, task)
+          const new_qr_scan = response.data
+          this.portion.qr_scans.push(new_qr_scan)
+        } catch(error) {
+          console.log(error)
+          alert("Sorry, something went wrong")
+        }
+      }
+      else
+        this.async_portion.videos.push(task)
+    },
   }
 }
 </script>

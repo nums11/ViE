@@ -97,11 +97,12 @@
       </sui-form>
       <AddTaskModal ref="RealTimeModal"
       :real_time_portion="real_time_portion"
-      :async_portion="async_portion"
-      v-on:add-task="addTask('qr_scan', ...arguments)" />
+      v-on:add-task="addTask('qr_scan', ...arguments)"
+      edit_portion_times />
       <AddTaskModal ref="AsyncModal"
       :async_portion="async_portion"
-      v-on:add-task="addTask('video', ...arguments)" />
+      v-on:add-task="addTask('video', ...arguments)"
+      edit_portion_times />
     </div>
   </div>
 </template>
