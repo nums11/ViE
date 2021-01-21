@@ -8,9 +8,7 @@ const QRScan = require('../QRScan/QRScan.model');
 const Video = require('../Video/Video.model');
 const schedule = require('node-schedule');
 
-module.exports = {
-  addMeeting
-}
+module.exports = {addMeeting, getEarlierStartDate}
 
 async function addMeeting(meeting, real_time_portion, async_portion,
   instructor_id) {
@@ -74,6 +72,24 @@ async function addMeeting(meeting, real_time_portion, async_portion,
       async_portion, `instructor_id ${instructor_id}`, error)
     return null
   }
+}
+
+function getEarlierStartDate(real_time_portion, async_portion) {
+  let earlier_start_date;
+  if(real_time_portion == null) {
+    earlier_start_date = async_portion.async_start
+  } else if(async_portion == null) {
+    earlier_start_date = real_time_portion.real_time_start
+  } else {
+    if(moment(real_time_portion.real_time_start)
+        .isBefore(async_portion.async_start)) {
+      earlier_start_date
+        = this.real_time_portion.real_time_start
+    } else {
+      earlier_start_date = async_portion.async_start
+    }
+  }
+  return earlier_start_date
 }
 
 async function addMeetingToObjects(object_ids, object_type, meeting_id) {

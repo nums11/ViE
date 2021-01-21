@@ -157,29 +157,18 @@ meetingRoutes.post('/add', async (req, res, next) => {
 
     // Make the meeting recurring
     if(repeat_end_date != null) {
-
       // Figure out which portion starts first and start
       // 1 day after that day
-      let earliest_start_date;
-      if(moment(real_time_portion.real_time_start).isBefore(
-        async_portion.async_start)) {
-        console.log("real time first")
-        earliest_start_date = real_time_portion.real_time_start
-      } else {
-        console.log("async first")
-        earliest_start_date = async_portion.async_start
-      }
+      let earliest_start_date =
+        MeetingHelper.getEarlierStartDate(real_time_portion,
+          async_portion)
       let start = moment(earliest_start_date).add(1, 'days')
       const end = moment(repeat_end_date)
-      console.log("start", start)
-      console.log("end", end)
 
       let i = 1
       while(moment(start).isBefore(end)) {
-        console.log("start", start.day())
         // This is one of the days to create a meeting
         if(repeat_day_indices.includes(start.day())) {
-          console.log("Creating_meeting")
           // Does a deep copy
           let new_real_time_portion =
             JSON.parse(JSON.stringify(real_time_portion))
@@ -187,20 +176,24 @@ meetingRoutes.post('/add', async (req, res, next) => {
             JSON.parse(JSON.stringify(async_portion))
           // Create the new real time and async portions adding
           // the number of days iterated so far to the original dates
-          new_real_time_portion.real_time_start =
-            moment(real_time_portion.real_time_start).add(i, 'days')
-          new_real_time_portion.real_time_end =
-            moment(real_time_portion.real_time_end).add(i, 'days')
-          new_real_time_portion.qr_scans.forEach(qr_scan => {
-            if(qr_scan.reminder_time != null) {
-              qr_scan.reminder_time =
-                moment(qr_scan.reminder_time).add(i, 'days')
-            }
-          })
-          new_async_portion.async_start =
-            moment(async_portion.async_start).add(i, 'days')
-          new_async_portion.async_end =
-            moment(async_portion.async_end).add(i, 'days')
+          if(new_real_time_portion != null) {
+            new_real_time_portion.real_time_start =
+              moment(real_time_portion.real_time_start).add(i, 'days')
+            new_real_time_portion.real_time_end =
+              moment(real_time_portion.real_time_end).add(i, 'days')
+            new_real_time_portion.qr_scans.forEach(qr_scan => {
+              if(qr_scan.reminder_time != null) {
+                qr_scan.reminder_time =
+                  moment(qr_scan.reminder_time).add(i, 'days')
+              }
+            })
+          }
+          if(new_async_portion != null) {
+            new_async_portion.async_start =
+              moment(async_portion.async_start).add(i, 'days')
+            new_async_portion.async_end =
+              moment(async_portion.async_end).add(i, 'days')
+          }
           meeting_creation_promises.push(
             MeetingHelper.addMeeting(meeting, new_real_time_portion,
               new_async_portion, instructor_id))

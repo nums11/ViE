@@ -315,16 +315,16 @@ export default {
             throw "Error saving videos to GCS"
           async_portion.videos = videos_with_urls
         }
-        // const repeat_day_indices = 
-        //   this.getRepeatDayIndices(real_time_portion,
-        //     async_portion)
-        //   console.log("repeat_day_indices", repeat_day_indices)
-        // const response = await MeetingAPI.addMeeting(this.meeting,
-        //   real_time_portion, async_portion, this.state_user._id,
-        //   repeat_day_indices, this.repeat_end_date)
-        // const saved_meetings = response.data
-        // this.$router.push({name: 'meeting_info', params: {meeting_id:
-        //   saved_meetings[0]._id}})        
+        const repeat_day_indices = 
+          this.getRepeatDayIndices(real_time_portion,
+            async_portion)
+          console.log("repeat_day_indices", repeat_day_indices)
+        const response = await MeetingAPI.addMeeting(this.meeting,
+          real_time_portion, async_portion, this.state_user._id,
+          repeat_day_indices, this.repeat_end_date)
+        const saved_meetings = response.data
+        this.$router.push({name: 'meeting_info', params: {meeting_id:
+          saved_meetings[0]._id}})        
       } catch(error) {
         console.log(error)
         alert("Sorry, something went wrong creating your meeting")
@@ -341,19 +341,30 @@ export default {
       if(this.repeat_selection === 1){ //daily
         repeat_day_indices = [0, 1, 2, 3, 4, 5, 6]
       } else if(this.repeat_selection === 2) { //weekly
-        let earlier_start_date;
-        if(moment(this.real_time_portion.real_time_start)
-            .isBefore(this.async_portion.async_start)) {
-          earlier_start_date
-            = this.real_time_portion.real_time_start
-        } else {
-          earlier_start_date = this.async_portion.async_start
-        }
+        const earlier_start_date = this.getEarlierStartDate(
+          real_time_portion, async_portion)
         repeat_day_indices = [moment(earlier_start_date).day()]
       } else if(this.repeat_selection === 3) {
         repeat_day_indices = this.repeat_days_selection
       }
       return repeat_day_indices
+    },
+    getEarlierStartDate(real_time_portion, async_portion) {
+      let earlier_start_date;
+      if(real_time_portion == null) {
+        earlier_start_date = async_portion.async_start
+      } else if(async_portion == null) {
+        earlier_start_date = real_time_portion.real_time_start
+      } else {
+        if(moment(real_time_portion.real_time_start)
+            .isBefore(async_portion.async_start)) {
+          earlier_start_date
+            = this.real_time_portion.real_time_start
+        } else {
+          earlier_start_date = async_portion.async_start
+        }
+      }
+      return earlier_start_date
     },
     async saveVideosToGCS() {
       try {
