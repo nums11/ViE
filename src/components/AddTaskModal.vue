@@ -49,7 +49,7 @@
           </sui-form-field>
         </div>
         <div class="form-field" v-else>
-          <sui-form-field>
+          <sui-form-field required>
             <label class="form-label">Video Name</label>
             <input v-model="task.name" placeholder="Class Video">
           </sui-form-field>

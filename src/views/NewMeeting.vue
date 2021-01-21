@@ -82,11 +82,14 @@
           />
         </div>
         <div v-if="repeat_selection !== 0" class="mt-2">
-          <sui-form-field>
+          <sui-form-field required>
             <label class="form-label">Repeat End Date</label>
             <input v-model="repeat_end_date" type="date">
           </sui-form-field>
         </div>
+        <p class="error mt-3" v-if="show_error">
+          Must have real time portion or async portion to create meeting
+        </p>
         <div id="button-container" @click="createMeeting">
           <Button text="Schedule" color="blue" size="large" invert_colors
           wide :disabled="!formComplete" />
@@ -159,10 +162,19 @@ export default {
       ],
       repeat_days_selection: [],
       repeat_end_date: null,
-      creating_meeting: false
+      creating_meeting: false,
+      show_error: false
     }
   },
   computed: {
+    realTimePortionTimesSet() {
+      return (this.real_time_portion.real_time_start != null
+        && this.real_time_portion.real_time_end != null)
+    },
+    asyncPortionTimesSet() {
+      return (this.async_portion.async_start != null
+        && this.async_portion.async_end != null)
+    },
     formComplete() {
       // Repeating meetings must have an end date
       if(this.repeat_selection !== 0 &&
@@ -263,29 +275,36 @@ export default {
       else
         this.async_portion.videos.splice(index,1)
     },
-    portionTimesSet(is_real_time) {
-      if(is_real_time) {
-        return (this.real_time_portion.real_time_start != null
-          && this.real_time_portion.real_time_end != null)
-      } else {
-        return (this.async_portion.async_start != null
-          && this.async_portion.async_end != null)
-      }
-    },
+    // portionTimesSet(is_real_time) {
+    //   if(is_real_time) {
+    //     return (this.real_time_portion.real_time_start != null
+    //       && this.real_time_portion.real_time_end != null)
+    //   } else {
+    //     return (this.async_portion.async_start != null
+    //       && this.async_portion.async_end != null)
+    //   }
+    // },
     async createMeeting() {
+      this.show_error = false
       if(!this.formComplete)
         return
+      if(!(this.realTimePortionTimesSet ||
+        this.asyncPortionTimesSet)) {
+        this.show_error = true
+        return
+      }
 
       try {
         // this.creating_meeting = true
         // Add real time and async portion if necessary
+        this.resetRepeatEndDateIfNoRepeatSelected()
         let real_time_portion;
         let async_portion;
-        if(this.portionTimesSet(true))
+        if(this.realTimePortionTimesSet)
           real_time_portion = this.real_time_portion
         else
           real_time_portion = null
-        if(this.portionTimesSet(false))
+        if(this.asyncPortionTimesSet)
           async_portion = this.async_portion
         else
           async_portion = null
@@ -296,48 +315,45 @@ export default {
             throw "Error saving videos to GCS"
           async_portion.videos = videos_with_urls
         }
-        const repeat_day_indices = 
-          this.getRealTimeAndAsyncRepeatDayIndices(real_time_portion,
-            async_portion)
-        const response = await MeetingAPI.addMeeting(this.meeting,
-          real_time_portion, async_portion, this.state_user._id,
-          repeat_day_indices, this.repeat_end_date)
-        const saved_meeting = response.data
-        this.$router.push({name: 'meeting_info', params: {meeting_id:
-          saved_meeting._id}})        
+        // const repeat_day_indices = 
+        //   this.getRepeatDayIndices(real_time_portion,
+        //     async_portion)
+        //   console.log("repeat_day_indices", repeat_day_indices)
+        // const response = await MeetingAPI.addMeeting(this.meeting,
+        //   real_time_portion, async_portion, this.state_user._id,
+        //   repeat_day_indices, this.repeat_end_date)
+        // const saved_meetings = response.data
+        // this.$router.push({name: 'meeting_info', params: {meeting_id:
+        //   saved_meetings[0]._id}})        
       } catch(error) {
         console.log(error)
         alert("Sorry, something went wrong creating your meeting")
         this.creating_meeting = false
       }
     },
-    getRealTimeAndAsyncRepeatDayIndices(real_time_portion,
+    resetRepeatEndDateIfNoRepeatSelected() {
+      if(this.repeat_selection === 0)
+        this.repeat_end_date = null
+    },
+    getRepeatDayIndices(real_time_portion,
       async_portion) {
-      let real_time_repeat_day_indices = null
-      let async_repeat_day_indices = null
+      let repeat_day_indices = null
       if(this.repeat_selection === 1){ //daily
-        real_time_repeat_day_indices = [0, 1, 2, 3, 4, 5, 6]
-        async_repeat_day_indices = [0, 1, 2, 3, 4, 5, 6]
+        repeat_day_indices = [0, 1, 2, 3, 4, 5, 6]
       } else if(this.repeat_selection === 2) { //weekly
-        if(real_time_portion != null) {
-          let real_time_start_day_index = moment(
-            real_time_portion.real_time_start).day()
-          real_time_repeat_day_indices = [
-            real_time_start_day_index]
+        let earlier_start_date;
+        if(moment(this.real_time_portion.real_time_start)
+            .isBefore(this.async_portion.async_start)) {
+          earlier_start_date
+            = this.real_time_portion.real_time_start
+        } else {
+          earlier_start_date = this.async_portion.async_start
         }
-        if(async_portion != null) {
-          let async_start_day_index = moment(
-            async_portion.async_start).day()
-          async_repeat_day_indices = [async_start_day_index]
-        }
+        repeat_day_indices = [moment(earlier_start_date).day()]
       } else if(this.repeat_selection === 3) {
-        real_time_repeat_day_indices = this.repeat_days_selection
-        async_repeat_day_indices = this.repeat_days_selection
+        repeat_day_indices = this.repeat_days_selection
       }
-      return {
-        real_time_repeat_day_indices: real_time_repeat_day_indices,
-        async_repeat_day_indices: async_repeat_day_indices
-      }
+      return repeat_day_indices
     },
     async saveVideosToGCS() {
       try {

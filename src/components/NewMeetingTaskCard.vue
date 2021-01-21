@@ -8,7 +8,7 @@
       <sui-icon class="card-icon" name="qrcode" />
       <div class="float-left">QR Scan {{ index+1 }}</div>
       <div v-if="task.reminder_time == null">No Reminder</div>
-      <div v-else>{{ task.reminder_time | moment("M/d h:mm a") }}</div>
+      <div v-else>{{ task.reminder_time | moment("M/D h:mm a") }}</div>
     </div>
     <div v-else class="new-meeting-task-card inline-block">
       <sui-icon class="card-icon" name="play circle outline" />

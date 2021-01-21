@@ -24,10 +24,7 @@ export default {
         real_time_portion: real_time_portion,
         async_portion: async_portion,
         instructor_id: instructor_id,
-        real_time_repeat_day_indices:
-        repeat_day_indices.real_time_repeat_day_indices,
-        aync_repeat_day_indices:
-        repeat_day_indices.async_repeat_day_indices,
+        repeat_day_indices: repeat_day_indices,
         repeat_end_date: repeat_end_date
     })
   },
