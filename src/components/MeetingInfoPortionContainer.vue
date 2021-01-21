@@ -1,51 +1,70 @@
 <template>
   <div class="meeting-info-portion-container">
-    <div class="portion-header">{{ portion_label }}</div>
-    <div>
+    <div v-if="adding_task">
+      <sui-loader active size="large">
+        Adding Task
+      </sui-loader>
+    </div>
+    <div v-else>
+      <div class="portion-header">{{ portion_label }}</div>
+      <div>
+        <div v-if="portion != null"
+        class="inline-block">
+          {{ start | moment("MMM Do, h:mm a") }}
+          - {{ end | moment("MMM Do, h:mm a") }}
+        </div>
+        <div v-else>
+          No {{ portion_type }} Portion
+        </div>
+        <sui-button @click="showAddTaskModal"
+          animated size="small"
+          style="background-color:#00b80c; color:white;
+          float:right;" :disabled="portion == null">
+          <sui-button-content visible>
+            Add {{ portion_type }} Tasks
+          </sui-button-content>
+          <sui-button-content hidden>
+            <sui-icon :name="btn_icon_name" />
+          </sui-button-content>
+        </sui-button>
+      </div>
       <div v-if="(is_real_time && portion != null)
-      || (!is_real_time && portion != null)"
-      class="inline-block">
-        {{ start | moment("MMM Do, h:mm a") }}
-        - {{ end | moment("MMM Do, h:mm a") }}
+        || (!is_real_time && portion != null)">
+        <SubmissionTable v-if="show_submission_table"
+        :task="table_task"
+        :is_qr="is_real_time"
+        :student_ids="meeting_student_ids"
+        v-on:hide-submission-table="hideSubmissionTable" />
+        <MeetingTasksContainer v-else
+        :task_type="is_real_time ? 'qr_scan' : 'video'"
+        :tasks="portion_tasks" :portion="portion"
+        v-on:show-qr="showQR"
+        v-on:view-submissions="viewSubmissions" />
       </div>
-      <div v-else>
-        No {{ portion_type }} Portion
+      <div class="add-portion-btn-container" v-else>
+        <sui-button @click="showAddPortionModal"
+        size="large" animated
+        style="background-color:#00B3FF; color:white;">
+            <sui-button-content visible>
+              Add {{ portion_type.toLowerCase() }} portion
+            </sui-button-content>
+            <sui-button-content hidden>
+                <sui-icon :name="btn_icon_name" />
+            </sui-button-content>
+        </sui-button>
       </div>
-      <sui-button @click="showAddTaskModal"
-        animated size="small"
-        style="background-color:#00b80c; color:white;
-        float:right;">
-        <sui-button-content visible>
-          Add {{ portion_type }} Tasks
-        </sui-button-content>
-        <sui-button-content hidden>
-          <sui-icon name="podcast" />
-        </sui-button-content>
-      </sui-button>
+      <div v-if="portion != null">
+        <AddTaskModal v-if="is_real_time"
+        ref="AddTaskModal" :real_time_portion="portion"
+        v-on:add-task="addTask('qr_scan', ...arguments)" />
+        <AddTaskModal v-else
+        ref="AddTaskModal" :async_portion="portion"
+        v-on:add-task="addTask('video', ...arguments)" />
+      </div>
+      <AddPortionModal v-if="portion == null"
+      ref="AddPortionModal" :is_real_time="is_real_time"
+      v-on:add-portion="addPortion" />
     </div>
-    <div v-if="(is_real_time && portion != null)
-      || (!is_real_time && portion != null)">
-      <SubmissionTable v-if="show_submission_table"
-      :task="table_task"
-      :is_qr="is_real_time"
-      :student_ids="meeting_student_ids"
-      v-on:hide-submission-table="hideSubmissionTable" />
-      <MeetingTasksContainer v-else
-      :task_type="is_real_time ? 'qr_scan' : 'video'"
-      :tasks="portion_tasks" :portion="portion"
-      v-on:show-qr="showQR"
-      v-on:view-submissions="viewSubmissions" />
-    </div>
-    <div class="no-portion-text" v-else>
-      No {{ portion_type }} Portion. Click the button in the
-       top right to add real-time tasks.
-    </div>
-    <AddTaskModal v-if="is_real_time"
-    ref="AddTaskModal" :real_time_portion="portion"
-    v-on:add-task="addTask('qr_scan', ...arguments)" />
-    <AddTaskModal v-else
-    ref="AddTaskModal" :async_portion="portion"
-    v-on:add-task="addTask('video', ...arguments)" />
   </div>
 </template>
 
@@ -57,11 +76,20 @@ import SubmissionTable from
 import AddTaskModal from '@/components/AddTaskModal.vue';
 import RealTimePortionAPI from
 '@/services/RealTimePortionAPI'
+import AsyncPortionAPI from
+'@/services/AsyncPortionAPI'
+import AddPortionModal from
+'@/components/AddPortionModal'
+import MeetingAPI from '@/services/MeetingAPI'
 
 export default {
   name: 'MeetingInfoPortionContainer',
   props: {
     portion: Object,
+    meeting_id: {
+      type: String,
+      required: true
+    },
     is_real_time: {
       type: Boolean,
       default: false
@@ -74,7 +102,8 @@ export default {
   components: {
     MeetingTasksContainer,
     SubmissionTable,
-    AddTaskModal
+    AddTaskModal,
+    AddPortionModal
   },
   data () {
     return {
@@ -82,7 +111,11 @@ export default {
       table_task: null,
       portion_label: "",
       portion_type: "",
-      portion_tasks: []
+      btn_icon_name: "",
+      portion_tasks: [],
+      start: null,
+      end: null,
+      adding_task: false
     }
   },
   created () {
@@ -92,20 +125,27 @@ export default {
     setLabelsAndDates() {
       if(this.is_real_time) {
         this.portion_type = "Real-Time"
-        if(this.portion != null) {
+        this.btn_icon_name = "podcast"
+      } else {
+        this.portion_type = "Async"
+        this.btn_icon_name = "clock"
+      }
+      if(this.portion != null)
+        this.setPortionTimesAndTasks()
+      this.portion_label = `${this.portion_type} Portion`
+    },
+    setPortionTimesAndTasks() {
+      this.$nextTick(function () {
+        if(this.is_real_time) {
           this.start = this.portion.real_time_start
           this.end = this.portion.real_time_end
           this.portion_tasks = this.portion.qr_scans
-        }
-      } else {
-        this.portion_type = "Async"
-        if(this.portion != null) {
+        } else {
           this.start = this.portion.async_start
           this.end = this.portion.async_end
           this.portion_tasks = this.portion.videos
         }
-      }
-      this.portion_label = `${this.portion_type} Portion`
+      })
     },
     viewSubmissions(task) {
       this.show_submission_table = true
@@ -122,6 +162,7 @@ export default {
       this.$refs.AddTaskModal.showModal()
     },
     async addTask(task_type, task) {
+      this.adding_task = true
       if(task_type === 'qr_scan'){
         if(task.reminder_time === '')
           task.reminder_time = null
@@ -134,10 +175,38 @@ export default {
           console.log(error)
           alert("Sorry, something went wrong")
         }
+      } else {
+        try {
+          let response =
+            await MeetingAPI.saveVideoToGCS(task.video_file)
+          const video_url = response.data
+          task.url = video_url
+          response = await AsyncPortionAPI.addVideo(
+            this.portion._id, task)
+          const new_video = response.data
+          this.portion.videos.push(new_video)
+        } catch(error) {
+          console.log(error)
+          alert("Sorry, something went wrong")
+        }
       }
-      else
-        this.async_portion.videos.push(task)
+      this.adding_task = false
     },
+    showAddPortionModal() {
+      this.$refs.AddPortionModal.showModal()
+    },
+    async addPortion(portion) {
+      try {
+        const response = await MeetingAPI.addPortion(
+          this.meeting_id, portion, this.is_real_time)
+        const new_portion = response.data
+        // this.portion = new_portion
+        this.$emit('set-new-portion',new_portion)
+      } catch(error){
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
+    }
   }
 }
 </script>
@@ -148,7 +217,7 @@ export default {
   margin-bottom: 2rem;
 }
 
-.no-portion-text {
+.add-portion-btn-container {
   text-align: center;
   font-weight: bold;
   font-size: 1.75rem;

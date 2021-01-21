@@ -257,6 +257,50 @@ meetingRoutes.post('/save_new_video/:video_name', (req, res) => {
   form.parse(req)
 })
 
+meetingRoutes.post('/add_portion/:meeting_id',
+  async (req, res, next) => {
+  const meeting_id = req.params.meeting_id
+  const portion = req.body.portion
+  const is_real_time = req.body.is_real_time
+
+  try {
+
+    let saved_portion;
+    let update_block;
+    if(is_real_time) {
+      saved_portion =
+        await (new RealTimePortion(portion)).save()
+      update_block = {real_time_portion: saved_portion}
+    } else {
+      saved_portion =
+        await (new AsyncPortion(portion)).save()
+        update_block = {async_portion: saved_portion}
+    }
+
+    Meeting.findByIdAndUpdate(meeting_id, update_block,
+      {new: true},
+      (error, updated_meeting) => {
+        if(error) {
+          console.log(`<ERROR> (meetings/add_portion) updating meeting`
+            + ` with id ${meeting_id} update_block`, update_block)
+          next(error)
+        } else if(updated_meeting == null) {
+          console.log(`<ERROR> (meetings/add_portion) could not find`
+            + ` meeting with id ${meeting_id}`)
+          res.status(404).json("Meeting not found")
+        } else {
+          console.log("<SUCCESS> (meetings/add_portion)")
+          res.json(saved_portion)
+        }
+      }
+    )
+
+  } catch(error) {
+    console.log(`<ERROR> (meetings/add_portion) meeting_id ${meeting_id}`
+      + ` portion`,portion,`is_real_time ${is_real_time}`)
+    next(error)
+  }
+})
 
 meetingRoutes.post('/update/:id', function (req, res) {
   let id = req.params.id;

@@ -19,14 +19,20 @@
           <MeetingInfoPortionContainer
           v-if="active_section === 'Real-Time Portion'"
           key="real-time portion"
+          ref="RealTimePortionContainer"
+          :meeting_id="meeting._id"
           :portion="meeting.real_time_portion"
           :meeting_student_ids="meeting_student_ids"
           v-on:show-qr="showQRScanningWindow"
+          v-on:set-new-portion="setNewPortion(true, ...arguments)"
           is_real_time />
           <MeetingInfoPortionContainer
           v-else-if="active_section === 'Async Portion'"
           key="async portion"
+          ref="AsyncPortionContainer"
+          :meeting_id="meeting._id"
           :portion="meeting.async_portion"
+          v-on:set-new-portion="setNewPortion(false, ...arguments)"
           :meeting_student_ids="meeting_student_ids" />
           <div v-else-if="active_section === 'Statistics'"
           key="statistics">
@@ -135,6 +141,17 @@ export default {
     showQRScanningWindow(qr_scan) {
       this.full_screen_qr_scan = qr_scan
       this.show_full_screen_code = true
+    },
+    setNewPortion(is_real_time, portion) {
+      if(is_real_time){
+        this.meeting.real_time_portion = portion
+        this.$refs.RealTimePortionContainer.
+          setPortionTimesAndTasks()
+      } else {
+        this.meeting.async_portion = portion
+        this.$refs.AsyncPortionContainer.
+          setPortionTimesAndTasks()
+      }
     }
   }
 }

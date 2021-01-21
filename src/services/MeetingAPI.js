@@ -28,6 +28,12 @@ export default {
         repeat_end_date: repeat_end_date
     })
   },
+  addPortion(meeting_id, portion, is_real_time) {
+    return API().post(`meetings/add_portion/${meeting_id}`, {
+      portion: portion,
+      is_real_time: is_real_time
+    })
+  },
   addVideoToMeeting(meeting_id, video) {
     return API().post(`meetings/add_video/${meeting_id}`, {
       video

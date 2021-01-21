@@ -27,7 +27,7 @@ realTimePortionRoutes.post('/add_qr_scan/:real_time_portion_id',
             + ` find real_time_portion with id ${real_time_portion_id}`)
           res.status(404).json("real_time_portion not found")
         } else {
-          console.log("<SUCCESS> (real_time_portions/add)")
+          console.log("<SUCCESS> (real_time_portions/add_qr_scan")
           res.json(saved_qr_scan)
         }
       }
