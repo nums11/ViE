@@ -310,7 +310,6 @@ export default {
         const repeat_day_indices = 
           this.getRepeatDayIndices(real_time_portion,
             async_portion)
-          console.log("repeat_day_indices", repeat_day_indices)
         const response = await MeetingAPI.addMeeting(this.meeting,
           real_time_portion, async_portion, this.state_user._id,
           repeat_day_indices, this.repeat_end_date)

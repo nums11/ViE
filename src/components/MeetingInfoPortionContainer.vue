@@ -5,6 +5,11 @@
         Adding Task
       </sui-loader>
     </div>
+    <VueLottiePlayer v-else-if="adding_video"
+      name="QR CODE"
+      :animationData="require('@/assets/lottie/uploading.json')"
+      loop height="100%" width="100%" autoplay
+    />
     <div v-else>
       <div class="portion-header">{{ portion_label }}</div>
       <div>
@@ -81,6 +86,7 @@ import AsyncPortionAPI from
 import AddPortionModal from
 '@/components/AddPortionModal'
 import MeetingAPI from '@/services/MeetingAPI'
+import VueLottiePlayer from 'vue-lottie-player'
 
 export default {
   name: 'MeetingInfoPortionContainer',
@@ -103,7 +109,8 @@ export default {
     MeetingTasksContainer,
     SubmissionTable,
     AddTaskModal,
-    AddPortionModal
+    AddPortionModal,
+    VueLottiePlayer
   },
   data () {
     return {
@@ -115,7 +122,8 @@ export default {
       portion_tasks: [],
       start: null,
       end: null,
-      adding_task: false
+      adding_task: false,
+      adding_video: false
     }
   },
   created () {
@@ -162,8 +170,8 @@ export default {
       this.$refs.AddTaskModal.showModal()
     },
     async addTask(task_type, task) {
-      this.adding_task = true
       if(task_type === 'qr_scan'){
+        this.adding_task = true
         if(task.reminder_time === '')
           task.reminder_time = null
         try {
@@ -175,7 +183,9 @@ export default {
           console.log(error)
           alert("Sorry, something went wrong")
         }
+        this.adding_task = false
       } else {
+        this.adding_video = true
         try {
           let response =
             await MeetingAPI.saveVideoToGCS(task.video_file)
@@ -189,8 +199,8 @@ export default {
           console.log(error)
           alert("Sorry, something went wrong")
         }
+        this.adding_video = false
       }
-      this.adding_task = false
     },
     showAddPortionModal() {
       this.$refs.AddPortionModal.showModal()
