@@ -2,9 +2,14 @@ import API from '@/services/API'
 const fs = require('fs');
 
 export default {
+  // GET ---------------
   getAllMeetings() {
     return API().get('meetings/all')
   },
+  getMeeting(id) {
+    return API().get('meetings/get/' + id)
+  },
+  // POST --------------
   saveVideoToGCS(video) {
     let form_data = new FormData()
     form_data.append('video', video)
@@ -39,27 +44,25 @@ export default {
       video
     })
   },
+  updateMeeting(meeting_id, meeting){
+    return API().post(`meetings/update/${meeting_id}`, {
+      meeting: meeting
+    })
+  },
   removeVideoFromMeeting(meeting_id, async_portion_id,video_id) {
     return API().delete(`meetings/remove_video/${meeting_id}` +
       `/${async_portion_id}/${video_id}`)
   },
-  getMeeting(id) {
-    return API().get('meetings/get/' + id)
+  addAsyncPortionToMeetings() {
+    return API().post('meetings/add_async_portion')
   },
-  updateMeeting(id, meeting){
-    return API().post('meetings/update/' + id, {
-      updated_meeting: meeting
-    })
-  },
+  // DELETE -------------------
   deleteMeeting (meeting) {
     return API().delete('meetings/delete/' + meeting._id, {
       data: {
         meeting: meeting
       }
     })
-  },
-  addAsyncPortionToMeetings() {
-    return API().post('meetings/add_async_portion')
   },
   getUpcomingMeetings() {
     return API().get('meetings/upcoming')

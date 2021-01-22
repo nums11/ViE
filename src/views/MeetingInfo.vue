@@ -40,7 +40,7 @@
           </div>
           <div v-else-if="active_section === 'Settings'"
           key="settings">
-            <h1>Coming Soon</h1>
+            <MeetingSettingsContainer :meeting="meeting" />
           </div>
         </transition>
       </div>
@@ -55,6 +55,8 @@ import FullScreenQRCodeModal from
 '@/components/FullScreenQRCodeModal.vue';
 import MeetingInfoPortionContainer from
 '@/components/MeetingInfoPortionContainer.vue';
+import MeetingSettingsContainer from
+'@/components/MeetingSettingsContainer'
 import helpers from '@/helpers.js'
 
 export default {
@@ -63,7 +65,8 @@ export default {
   components: {
     SideBar,
     FullScreenQRCodeModal,
-    MeetingInfoPortionContainer
+    MeetingInfoPortionContainer,
+    MeetingSettingsContainer
   },
   data () {
     return {

@@ -10,7 +10,7 @@ const schedule = require('node-schedule');
 const QRScanHelper = require('./qr_scan_helper')
 
 module.exports = {addMeeting, getEarlierStartDate,
-setRecurringIds}
+setRecurringIds, updateMeeting}
 
 async function addMeeting(meeting, real_time_portion, async_portion,
   instructor_id) {
@@ -73,6 +73,218 @@ async function addMeeting(meeting, real_time_portion, async_portion,
       `real_time_portion`, real_time_portion, `async_portion`,
       async_portion, `instructor_id ${instructor_id}`, error)
     return null
+  }
+}
+
+async function updateMeeting(meeting_id, meeting) {
+  try {
+    let qr_scan_promise;
+    let real_time_portion_promise;
+    if(meeting.real_time_portion != null){
+      qr_scan_promise = updateQRScans(
+        meeting.real_time_portion.qr_scans)
+      real_time_portion_promise = updateRealTimePortion(
+        meeting.real_time_portion)
+    }
+    let video_promise;
+    let async_portion_promise;
+    if(meeting.async_portion != null){
+      video_promise = updateVideos(meeting.async_portion.videos)
+      async_portion_promise = updateAsyncPortion(
+        meeting.async_portion)
+    }
+    let meeting_promise = updateMeetingTitle(meeting_id,
+      meeting.title)
+    const updated_qr_scans = await Promise.resolve(qr_scan_promise)
+    const updated_videos = await Promise.resolve(video_promise)
+    const updated_real_time_portion =
+      await Promise.resolve(real_time_portion_promise)
+    const updated_async_portion =
+      await Promise.resolve(async_portion_promise)
+    const updated_meeting = await Promise.resolve(meeting_promise)
+    return {
+      updated_qr_scans: updated_qr_scans,
+      updated_videos: updated_videos,
+      updated_real_time_portion: updated_real_time_portion,
+      updated_async_portion: updated_async_portion,
+      updated_meeting: updated_meeting
+    }
+  } catch(error) {
+    console.log(`<ERROR> updateMeeting meeting_id ${meeting_id}`,
+      ` meeting`, meeting, error)
+    return null
+  }
+}
+
+async function updateQRScans(qr_scans) {
+  try {
+    let qr_scan_promises = []
+    qr_scans.forEach(qr_scan => {
+      qr_scan_promises.push(new Promise((resolve,reject) => {
+        QRScan.findByIdAndUpdate(qr_scan._id,
+          {reminder_time: qr_scan.reminder_time},
+          {new: true},
+          (error, updated_qr_scan) => {
+            if(error) {
+              console.log(`<ERROR> updateQRScans updating qr_scan with`
+              + ` id ${qr_scan._id} with reminder_time `
+              + `${qr_scan.reminder_time}`,error)
+              reject(error)
+            } else if(updated_qr_scan == null) {
+              console.log(`<ERROR> updateQRScans could not find`
+                + ` qr_scan with id ${qr_scan._id} `)
+              reject(null)
+            } else {
+              resolve(updated_qr_scan)
+            }
+          }
+        )
+      }))
+    })
+    const updated_qr_scans = await Promise.all(qr_scan_promises)
+    return updated_qr_scans
+  } catch(error) {
+    console.log("<ERROR> updateQRScans qr_scans", qr_scans,
+      error)
+    return null
+  }
+}
+
+async function updateVideos(videos) {
+  try {
+    let video_promises = []
+    videos.forEach(video => {
+      video_promises.push(new Promise((resolve,reject) => {
+        Video.findByIdAndUpdate(video._id,
+          {name: video.name},
+          {new: true},
+          (error, updated_video) => {
+            if(error) {
+              console.log(`<ERROR> updateVideos updating video with`
+              + ` id ${video._id} with name ${video.name}`,error)
+              reject(error)
+            } else if(updated_video == null) {
+              console.log(`<ERROR> updateVideos could not find`
+                + ` video with id ${video._id}`)
+              reject(null)
+            } else {
+              resolve(updated_video)
+            }
+          }
+        )
+      }))
+    })
+    const updated_videos = await Promise.all(video_promises)
+    return updated_videos
+  } catch(error) {
+    console.log("<ERROR> updateVideos videos", videos,
+      error)
+    return null
+  }
+}
+
+async function updateRealTimePortion(real_time_portion) {
+  try {
+    const real_time_portion_promise = new Promise(
+      (resolve, reject) => {
+        RealTimePortion.findByIdAndUpdate(real_time_portion._id,
+          {
+            real_time_start: real_time_portion.real_time_start,
+            real_time_end: real_time_portion.real_time_end
+          },
+          {new: true},
+          (error, updated_real_time_portion) => {
+            if(error) {
+              console.log(`<ERROR> updateRealTimePortion updating`
+                + ` real_time_portion with id ${real_time_portion._id}`
+                + ` real_time_start ${real_time_portion.real_time_start}`
+                + ` real_time_end ${real_time_portion.real_time_end}`,
+                error)
+              reject(error)
+            } else if(updated_real_time_portion == null) {
+              console.log(`<ERROR> updateRealTimePortion real_time_portion`
+                + ` with id ${real_time_portion._id} not found`)
+              reject(null)
+            } else {
+              resolve(updated_real_time_portion)
+            }
+          }
+        )
+      })
+    const updated_real_time_portion
+      = await Promise.resolve(real_time_portion_promise)
+    return updated_real_time_portion
+  } catch(error) {
+    console.log("<ERROR> updateRealTimePortion real_time_portion",
+      real_time_portion, error)
+    return null
+  }
+}
+
+async function updateAsyncPortion(async_portion) {
+  try {
+    const async_portion_promise = new Promise(
+      (resolve, reject) => {
+        AsyncPortion.findByIdAndUpdate(async_portion._id,
+          {
+            async_start: async_portion.async_start,
+            async_end: async_portion.async_end
+          },
+          {new: true},
+          (error, updated_async_portion) => {
+            if(error) {
+              console.log(`<ERROR> updateAsyncPortion updating`
+                + ` async_portion with id ${async_portion._id}`
+                + ` async_start ${async_portion.async_start}`
+                + ` async_end ${async_portion.async_end}`,
+                error)
+              reject(error)
+            } else if(updated_async_portion == null) {
+              console.log(`<ERROR> updateAsyncPortion async_portion`
+                + ` with id ${async_portion._id} not found`)
+              reject(null)
+            } else {
+              resolve(updated_async_portion)
+            }
+          }
+        )
+      })
+    const updated_async_portion
+      = await Promise.resolve(async_portion_promise)
+    return updated_async_portion
+  } catch(error) {
+    console.log("<ERROR> updateAsyncPortion async_portion",
+      async_portion, error)
+    return null
+  }
+}
+
+async function updateMeetingTitle(meeting_id, title) {
+  try {
+    const meeting_promise = new Promise((resolve,reject) => {
+      Meeting.findByIdAndUpdate(meeting_id,
+        {title: title},
+        {new: true},
+        function (error, updated_meeting) {
+          if (error) {
+            console.log(`<ERROR> updateMeetingTitle meeting_id ${meeting_id}`
+              + ` meeting`, meeting, error)
+            reject(error)
+          } else if(updated_meeting == null) {
+            console.log(`<ERROR> updateMeetingTitle meeting with id ${meeting_id}`
+              + ` not found`)
+            reject(null)
+          } else {
+            resolve(updated_meeting)
+          }
+        }
+      );
+    })
+    const updated_meeting = await Promise.resolve(meeting_promise)
+    return updated_meeting
+  } catch(error) {
+    console.log(`<ERROR> updateMeetingTitle meeting_id ${meeting_id}`,
+      ` title ${title}`,error)
   }
 }
 

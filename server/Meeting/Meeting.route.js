@@ -302,25 +302,21 @@ meetingRoutes.post('/add_portion/:meeting_id',
   }
 })
 
-meetingRoutes.post('/update/:id', function (req, res) {
-  let id = req.params.id;
-  let updated_meeting = req.body.updated_meeting;
-  Meeting.findByIdAndUpdate(id,
-    {
-      title: updated_meeting.title,
-      start_time: updated_meeting.start_time,
-      end_time: updated_meeting.end_time,
-    },
-    function (err, meeting) {
-      if (err || meeting == null) {
-        console.log("<ERROR> (meetings/update) Updating meeting by ID:",id,"with:",updated_meeting)
-        res.status(404).send("meeting not found");
-      } else {
-        console.log("<SUCCESS> (meetings/update) Updating meeting by ID:",id)
-        res.json(meeting);
-      }
-    }
-  );
+meetingRoutes.post('/update/:meeting_id',
+  async function (req, res, next) {
+  const meeting_id = req.params.meeting_id;
+  const meeting = req.body.meeting;
+  try {
+    const updated_values = await MeetingHelper.updateMeeting(
+      meeting_id, meeting)
+    if(updated_values == null)
+      throw "<ERROR> (meetings/update) updating values"
+    res.json(updated_values)
+  } catch(error) {
+    console.log(`<ERROR> (meetings/update) meeting_id ${meeting_id}`
+      + ` meeting`, meeting)
+    next(error)
+  }
 });
 
 // TODO: Remove reliance on the has_real_time_portion and has_async_portion

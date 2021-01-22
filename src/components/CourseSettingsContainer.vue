@@ -6,16 +6,16 @@
       <sui-form-fields fields="three">
         <sui-form-field>
           <label>Name</label>
-          <input type="text" v-model="temp_course.name" />
+          <input type="text" v-model="course_copy.name" />
         </sui-form-field>
         <sui-form-field>
           <label>Subject Code</label>
-          <input type="text" v-model="temp_course.dept" />
+          <input type="text" v-model="course_copy.dept" />
         </sui-form-field>
         <sui-form-field>
           <label>Course Number</label>
           <input type="number" min="0"
-          v-model="temp_course.course_number"
+          v-model="course_copy.course_number"
           onkeypress="return event.charCode >= 48 &&
             event.charCode <= 57" />
         </sui-form-field>
@@ -32,7 +32,7 @@
     <AddSectionModal
     ref="AddSectionModal" :course="course"
     v-on:add-section="addSection" />
-    <div v-for="section in temp_course.sections"
+    <div v-for="section in course_copy.sections"
     class="mt-2">
       Section <sui-input type="number" min="0"
       onkeypress="return event.charCode >= 48 && event.charCode <= 57"
@@ -99,30 +99,30 @@ export default {
   },
   data () {
     return {
-      temp_course: null,
+      course_copy: null,
     }
   },
   computed: {
     courseHas1Section() {
-      return this.temp_course.sections.length
+      return this.course_copy.sections.length
         === 1
     }
   },
   created () {
-    this.setTempVariables()
+    this.setCopyVariables()
   },
   mounted () {
   },
   methods: {
-    setTempVariables() {
-      this.temp_course = {
+    setCopyVariables() {
+      this.course_copy = {
         name: this.course.name,
         dept: this.course.dept,
         course_number: this.course.course_number,
         sections: []
       }
       this.course.sections.forEach(section => {
-        this.temp_course.sections.push({
+        this.course_copy.sections.push({
           section_number: section.section_number,
           has_open_enrollment: section.has_open_enrollment,
           _id: section._id
@@ -138,7 +138,7 @@ export default {
 
       try {
         await CourseAPI.updateCourse(this.course._id,
-          this.temp_course)
+          this.course_copy)
         this.updateCourseAndSectionValues()
         alert("Course Updated")
       } catch(error) {
@@ -147,21 +147,21 @@ export default {
       }
     },
     updateCourseAndSectionValues() {
-      this.course.name = this.temp_course.name
-      this.course.dept = this.temp_course.dept
-      this.course.course_number = this.temp_course.course_number
+      this.course.name = this.course_copy.name
+      this.course.dept = this.course_copy.dept
+      this.course.course_number = this.course_copy.course_number
       for(let i = 0; i < this.course.sections.length; i++) {
         this.course.sections[i].section_number =
-          this.temp_course.sections[i].section_number
+          this.course_copy.sections[i].section_number
         this.course.sections[i].has_open_enrollment =
-          this.temp_course.sections[i].has_open_enrollment
+          this.course_copy.sections[i].has_open_enrollment
       }
       this.course.sections.sort(this.sectionCompare)
-      this.temp_course.sections.sort(this.sectionCompare)
+      this.course_copy.sections.sort(this.sectionCompare)
     },
     addSection(section) {
       this.course.sections.push(section)
-      this.temp_course.sections.push(section)
+      this.course_copy.sections.push(section)
     },
     showModal() {
       this.$refs.AddSectionModal.showModal()
@@ -169,7 +169,7 @@ export default {
     sectionsHaveDuplicateNumbers() {
       let section_numbers = new Set()
       let has_duplicate = false
-      const sections = this.temp_course.sections
+      const sections = this.course_copy.sections
       for(let i = 0; i < sections.length; i++) {
         const number = sections[i].section_number
         if(section_numbers.has(number)) {
@@ -230,7 +230,7 @@ export default {
     },
     removeSectionFromCourse(index) {
       this.course.sections.splice(index, 1)
-      this.temp_course.sections.splice(index, 1)
+      this.course_copy.sections.splice(index, 1)
     },
     async deleteCourse() {
       let confirmation = confirm("Are you sure you want to"
