@@ -123,7 +123,7 @@
           <sui-icon name="sync" />
         </sui-button-content>
       </sui-button>
-      <sui-button @click="deleteMeeting" 
+      <sui-button @click="promptMeetingDeletion" 
         animated size="small"
         style="background-color:#FF0000; color:white;">
         <sui-button-content visible>
@@ -134,6 +134,8 @@
         </sui-button-content>
       </sui-button>
     </div>
+    <MeetingDeletionModal ref="MeetingDeletionModal"
+    v-on:delete-meeting="deleteMeeting" />
   </div>
 </template>
 
@@ -149,11 +151,14 @@ import RealTimePortionAPI from
 '@/services/RealTimePortionAPI'
 import AsyncPortionAPI from
 '@/services/AsyncPortionAPI'
+import MeetingDeletionModal from
+'@/components/MeetingDeletionModal'
 
 export default {
   name: 'MeetingSettings',
   mixins: [helpers],
   components: {
+    MeetingDeletionModal
   },
   props: {
     meeting: {
@@ -433,33 +438,45 @@ export default {
         this.meeting_copy.async_portion = null
       }
     },
-    async deleteMeeting() {
+    async promptMeetingDeletion() {
       const confirmation = confirm(`Are you sure you want to`
         + ` permanently delete this meeting?`
         + ` This will delete all student submissions.`)
       if(!confirmation)
         return
 
+      if(this.meeting.recurring_id != null) {
+        this.$refs.MeetingDeletionModal.showModal()
+      } else {
+        this.deleteMeeting(false)
+      }
+    },
+    async deleteMeeting(delete_all_recurring) {
       try {
-        let real_time_portion_id = null
-        let qr_scans = []
-        if(this.meeting.real_time_portion != null){
-          real_time_portion_id =
-            this.meeting.real_time_portion._id
-          qr_scans = this.getTasksWithSubmissionIds(
-            true)
+        if(delete_all_recurring) {
+          await MeetingAPI.deleteAllRecurringMeetings(
+            this.meeting.recurring_id)
+        } else {
+          let real_time_portion_id = null
+          let qr_scans = []
+          if(this.meeting.real_time_portion != null){
+            real_time_portion_id =
+              this.meeting.real_time_portion._id
+            qr_scans = this.getTasksWithSubmissionIds(
+              true)
+          }
+          let async_portion_id = null
+          let videos = []
+          if(this.meeting.async_portion != null){
+            async_portion_id =
+              this.meeting.async_portion._id
+            videos = this.getTasksWithSubmissionIds(
+              false)
+          }
+          await MeetingAPI.deleteMeeting(this.meeting._id,
+            real_time_portion_id, async_portion_id, qr_scans,
+            videos)
         }
-        let async_portion_id = null
-        let videos = []
-        if(this.meeting.async_portion != null){
-          async_portion_id =
-            this.meeting.async_portion._id
-          videos = this.getTasksWithSubmissionIds(
-            false)
-        }
-        await MeetingAPI.deleteMeeting(this.meeting._id,
-          real_time_portion_id, async_portion_id, qr_scans,
-          videos)
         this.$router.push({name: 'course_info',
           params: {id: this.meeting.sections[0].course._id}})
       } catch (error) {

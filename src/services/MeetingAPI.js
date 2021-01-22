@@ -39,22 +39,10 @@ export default {
       is_real_time: is_real_time
     })
   },
-  addVideoToMeeting(meeting_id, video) {
-    return API().post(`meetings/add_video/${meeting_id}`, {
-      video
-    })
-  },
   updateMeeting(meeting_id, meeting){
     return API().post(`meetings/update/${meeting_id}`, {
       meeting: meeting
     })
-  },
-  removeVideoFromMeeting(meeting_id, async_portion_id,video_id) {
-    return API().delete(`meetings/remove_video/${meeting_id}` +
-      `/${async_portion_id}/${video_id}`)
-  },
-  addAsyncPortionToMeetings() {
-    return API().post('meetings/add_async_portion')
   },
   // DELETE -------------------
   deleteMeeting (meeting_id, real_time_portion_id, async_portion_id,
@@ -68,4 +56,8 @@ export default {
       }
     })
   },
+  deleteAllRecurringMeetings(recurring_id) {
+    return API().delete(`meetings/delete_all_recurring/`
+      + `${recurring_id}`)
+  }
 }

@@ -12,7 +12,7 @@ const RealTimePortionHelper = require('./real_time_portion_helper')
 const AsyncPortionHelper = require('./async_portion_helper')
 
 module.exports = {addMeeting, getEarlierStartDate,
-setRecurringIds, updateMeeting, deleteMeeting}
+setRecurringIds, updateMeeting, deleteMeeting, getRecurringMeetings}
 
 async function addMeeting(meeting, real_time_portion, async_portion,
   instructor_id) {
@@ -166,6 +166,47 @@ async function deleteMeeting(meeting_id, real_time_portion_id,
       + ` async_portion_id ${async_portion_id} qr_scans`,qr_scans,
       + `videos`,videos,error)
     return false
+  }
+}
+
+async function getRecurringMeetings(recurring_id) {
+  try {
+    const recurring_meetings_promise = new Promise(
+      (resolve, reject) => {
+      Meeting.find({recurring_id: recurring_id})
+      .populate({
+        path: 'real_time_portion',
+        populate: {
+          path: 'qr_scans'
+        }
+      })
+      .populate({
+        path: 'async_portion',
+        populate: {
+          path: 'videos'
+        }
+      })
+      .exec((error, meetings) => {
+        if(error) {
+          console.log(`<ERROR> getRecurringMeetings recurring_id`
+            + ` ${recurring_id}`, error)
+          reject(error)
+        } else if(meetings.length === 0) {
+          console.log(`<ERROR> getRecurringMeetings no meetings`
+            + ` with recurring_id ${recurring_id} found`)
+          reject(null)
+        } else {
+          resolve(meetings)
+        }
+      })
+    })
+    const recurring_meetings =
+      await Promise.resolve(recurring_meetings_promise)
+    return recurring_meetings
+  } catch(error) {
+    console.log(`<ERROR> getRecurringMeetings recurring_id`
+      + ` recurring_id`, error)
+    return null
   }
 }
 
