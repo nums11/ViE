@@ -3,6 +3,9 @@ const realTimePortionRoutes = express.Router();
 const RealTimePortion = require('../RealTimePortion/RealTimePortion.model');
 const QRScan = require('../QRScan/QRScan.model');
 const QRScanHelper = require('../helpers/qr_scan_helper')
+const RealTimePortionHelper = require('../helpers/real_time_portion_helper')
+
+// POST -------------
 
 realTimePortionRoutes.post('/add_qr_scan/:real_time_portion_id',
   async function(req, res, next) {
@@ -40,6 +43,26 @@ realTimePortionRoutes.post('/add_qr_scan/:real_time_portion_id',
   }
 })
 
+// DELETE -------------
 
+realTimePortionRoutes.delete('/delete/:real_time_portion_id',
+  async function(req, res, next) {
+  const real_time_portion_id = req.params.real_time_portion_id
+  const meeting_id = req.body.meeting_id
+  const qr_scans = req.body.qr_scans
+
+  try {
+    const deletion_status = await RealTimePortionHelper.deleteRealTimePortion(
+      real_time_portion_id, meeting_id, qr_scans)
+    if(!deletion_status)
+      throw "<ERROR> (real_time_portions/delete) deleting real_time_portion"
+    console.log("<SUCCESS> (real_time_portions/delete)")
+    res.json(true)
+  } catch(error) {
+    console.log(`<ERROR> (real_time_portions/delete) real_time_portion_id`
+      + ` ${real_time_portion_id} meeting_id ${meeting_id}`)
+    next(error)
+  }
+})
 
 module.exports = realTimePortionRoutes;

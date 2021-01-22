@@ -47,7 +47,8 @@
           </div>
         </div>
         <div class="inline-block mt-2 ">
-          <sui-button size="tiny" animated
+          <sui-button @click="deletePortion(true)"
+          size="tiny" animated
           style="background-color:#FF0000; 
           color:white; margin:auto;">
             <sui-button-content visible>
@@ -95,7 +96,8 @@
           </div>
         </div>
         <div class="inline-block mt-2 ">
-          <sui-button size="tiny" animated
+          <sui-button @click="deletePortion(false)"
+          size="tiny" animated
           style="background-color:#FF0000; 
           color:white; margin:auto;">
             <sui-button-content visible>
@@ -141,6 +143,10 @@ import moment from 'moment'
 import MeetingAPI from '@/services/MeetingAPI'
 import QRScanAPI from '@/services/QRScanAPI'
 import VideoAPI from '@/services/VideoAPI'
+import RealTimePortionAPI from
+'@/services/RealTimePortionAPI'
+import AsyncPortionAPI from
+'@/services/AsyncPortionAPI'
 
 export default {
   name: 'MeetingSettings',
@@ -325,7 +331,7 @@ export default {
       }
     },
     async deleteQRScanOrVideo(index, id, is_qr_scan) {
-      let type = is_qr_scan ? 'QR Scan' : 'Video'
+      const type = is_qr_scan ? 'QR Scan' : 'Video'
       const confirmation = confirm(`Are you sure you want to`
         + ` permanently delete this ${type}? This will delete all`
         + " student submissions.")
@@ -369,6 +375,60 @@ export default {
       } else {
         this.meeting.async_portion.videos.splice(index, 1)
         this.meeting_copy.async_portion.videos.splice(index, 1)
+      }
+    },
+    async deletePortion(is_real_time) {
+      const type = is_real_time ? 'Real-Time' : 'Async'
+      const confirmation = confirm(`Are you sure you want to`
+        + ` permanently delete the ${type} portion of your meeting?`
+        + ` This will delete all student submissions.`)
+      if(!confirmation)
+        return
+
+      try {
+        const tasks = this.getTasksWithSubmissionIds(is_real_time)
+        if(is_real_time) {
+          await RealTimePortionAPI.deleteRealTimePortion(
+            this.meeting.real_time_portion._id, this.meeting._id,
+            tasks)
+        } else {
+          await AsyncPortionAPI.deleteAsyncPortion(
+            this.meeting.async_portion._id, this.meeting._id,
+            tasks)
+        }
+        this.removePortionFromCourse(is_real_time)
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
+    },
+    getTasksWithSubmissionIds(is_real_time) {
+      let tasks_with_submission_ids = []
+      let meeting_tasks;
+      if(is_real_time) {
+        meeting_tasks =
+          this.meeting.real_time_portion.qr_scans
+      } else {
+        meeting_tasks =
+          this.meeting.async_portion.videos
+      }
+      for(let i = 0; i < meeting_tasks.length; i++) {
+        const submission_ids = this.getSubmissionIds(i,
+          is_real_time)
+        tasks_with_submission_ids.push({
+          _id: meeting_tasks[i]._id,
+          submission_ids: submission_ids
+        })
+      }
+      return tasks_with_submission_ids
+    },
+    removePortionFromCourse(is_real_time) {
+      if(is_real_time) {
+        this.meeting.real_time_portion = null
+        this.meeting_copy.real_time_portion = null
+      } else {
+        this.meeting.async_portion = null
+        this.meeting_copy.async_portion = null
       }
     }
   }

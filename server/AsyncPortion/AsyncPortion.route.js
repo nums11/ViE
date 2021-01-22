@@ -2,6 +2,7 @@ const express = require('express');
 const asyncPortionRoutes = express.Router();
 const AsyncPortion = require('./AsyncPortion.model');
 const Video = require('../Video/Video.model');
+const AsyncPortionHelper = require('../helpers/async_portion_helper')
 
 // GET --------------
 
@@ -99,5 +100,27 @@ asyncPortionRoutes.post('/update/:id', function (req, res) {
     }
   );
 });
+
+// DELETE -----------------------
+
+asyncPortionRoutes.delete('/delete/:async_portion_id',
+  async function(req, res, next) {
+  const async_portion_id = req.params.async_portion_id
+  const meeting_id = req.body.meeting_id
+  const videos = req.body.videos
+
+  try {
+    const deletion_status = await AsyncPortionHelper.deleteAsyncPortion(
+      async_portion_id, meeting_id, videos)
+    if(!deletion_status)
+      throw "<ERROR> (async_portions/delete) deleting async_portion"
+    console.log("<SUCCESS> (async_portions/delete)")
+    res.json(true)
+  } catch(error) {
+    console.log(`<ERROR> (async_portions/delete) async_portion_id`
+      + ` ${async_portion_id} meeting_id ${meeting_id}`)
+    next(error)
+  }
+})
 
 module.exports = asyncPortionRoutes;

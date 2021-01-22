@@ -14,11 +14,11 @@ qrScanRoutes.delete('/delete/:qr_scan_id',
   const qr_scan_id = req.params.qr_scan_id
   const real_time_portion_id = req.body.real_time_portion_id
   const submission_ids = req.body.submission_ids
-  
+
   try {
     const deletion_status = await QRScanHelper.deleteQRScan(
       qr_scan_id, real_time_portion_id, submission_ids)
-    if(deletion_status == false)
+    if(!deletion_status)
       throw "<ERROR> (qr_scans/delete) deleting qr_scan"
     console.log("<SUCCESS> (qr_scans/delete)")
     res.json(true)

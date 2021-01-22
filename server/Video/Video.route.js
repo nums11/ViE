@@ -73,7 +73,7 @@ videoRoutes.delete('/delete/:video_id',
   try {
     const deletion_status = await VideoHelper.deleteVideo(
       video_id, async_portion_id, submission_ids)
-    if(deletion_status == false)
+    if(!deletion_status)
       throw "<ERROR> (videos/delete) deleting video"
     console.log("<SUCCESS> (videos/delete)")
     res.json(true)
