@@ -7,6 +7,8 @@
       <p>Watch this video to get started</p>
       <iframe v-if="is_instructor" id="getting-started-video" src="https://www.youtube.com/embed/LDn55wPsx3Y" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       <iframe v-else width="560" id="getting-started-video" height="315" src="https://www.youtube.com/embed/Q_P20sig254" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <p class="mt-2">How to Schedule a Meeting</p>
+      <!-- Add video below -->
     </sui-modal-content>
     <sui-modal-actions>
       <sui-button @click="hideModal"
