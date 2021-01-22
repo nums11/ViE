@@ -50,7 +50,8 @@
           <sui-button @click="deletePortion(true)"
           size="tiny" animated
           style="background-color:#FF0000; 
-          color:white; margin:auto;">
+          color:white; margin:auto;"
+          :disabled="meeting.async_portion == null">
             <sui-button-content visible>
               Delete Real-Time Portion
             </sui-button-content>
@@ -99,7 +100,8 @@
           <sui-button @click="deletePortion(false)"
           size="tiny" animated
           style="background-color:#FF0000; 
-          color:white; margin:auto;">
+          color:white; margin:auto;"
+          :disabled="meeting.real_time_portion == null">
             <sui-button-content visible>
               Delete Async Portion
             </sui-button-content>
