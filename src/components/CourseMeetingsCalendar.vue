@@ -49,8 +49,8 @@ export default {
           right: 'dayGridMonth,timeGridWeek,timeGridDay'
         },
         eventClick: this.handleEventClick,
-        events: [
-        ]
+        events: [],
+        editable: true
       }
     }
   },
@@ -61,8 +61,10 @@ export default {
   mounted () {
   },
   methods: {
-    handleEventClick(arg) {
-      console.log("date clicked!", arg)
+    handleEventClick(info) {
+      const meeting_id = info.event._def.extendedProps.meeting_id
+      this.$router.push({name: 'meeting_info',
+        params: {meeting_id: meeting_id}})
     },
     addMeetingsToCalendar() {
       this.meetings.forEach(meeting => {
@@ -71,29 +73,34 @@ export default {
           this.addToCalendar(
             `${meeting.title} (real-time)`,
             meeting.real_time_portion.real_time_start,
-            meeting.real_time_portion.real_time_end)
+            meeting.real_time_portion.real_time_end,
+            meeting._id)
           this.addToCalendar(
             `${meeting.title} (async)`,
             meeting.async_portion.async_start,
-            meeting.async_portion.async_end)
+            meeting.async_portion.async_end,
+            meeting._id)
         } else if(meeting.real_time_portion != null) {
           this.addToCalendar(
             meeting.title,
             meeting.real_time_portion.real_time_start,
-            meeting.real_time_portion.real_time_end)
+            meeting.real_time_portion.real_time_end,
+            meeting._id)
         } else if(meeting.async_portion != null) {
           this.addToCalendar(
             meeting.title,
             meeting.async_portion.async_start,
-            meeting.async_portion.async_end)
+            meeting.async_portion.async_end,
+            meeting._id)
         }
       })
     },
-    addToCalendar(title, start, end) {
+    addToCalendar(title, start, end, meeting_id) {
       this.calendar_options.events.push({
         title: title,
         start: start,
-        end: end
+        end: end,
+        meeting_id: meeting_id
       })
     }
   }
