@@ -14,7 +14,7 @@
               <sui-dropdown selection
               placeholder="All sections"
               :options="section_selector_options"
-              v-model="selected_section" />
+              v-model="selected_section" disabled />
               <router-link :to="{name: 'course_new_meeting',
               params: {course_id: course._id}}">
                 <sui-button animated size="small"
@@ -30,8 +30,7 @@
               </router-link>
             </div>
           </div>
-          <CourseMeetingsForMonthContainer month="January"
-          :meetings="meetings" />
+          <CourseMeetingsCalendar :meetings="meetings" />
         </div>
         <div v-else-if="active_section === 'Statistics'"
         id="roster-section" key="statistics">
@@ -53,8 +52,8 @@
 
 <script>
 import SideBar from '@/components/SideBar'
-import CourseMeetingsForMonthContainer from
-'@/components/CourseMeetingsForMonthContainer'
+import CourseMeetingsCalendar from
+'@/components/CourseMeetingsCalendar'
 import SectionInfoContainer from
 '@/components/SectionInfoContainer'
 import CourseSettingsContainer from
@@ -86,7 +85,7 @@ export default {
   },
   components: {
     SideBar,
-    CourseMeetingsForMonthContainer,
+    CourseMeetingsCalendar,
     SectionInfoContainer,
     CourseSettingsContainer
 

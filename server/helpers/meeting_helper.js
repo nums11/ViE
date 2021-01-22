@@ -10,6 +10,7 @@ const schedule = require('node-schedule');
 const QRScanHelper = require('./qr_scan_helper')
 const RealTimePortionHelper = require('./real_time_portion_helper')
 const AsyncPortionHelper = require('./async_portion_helper')
+const moment = require("moment");
 
 module.exports = {addMeeting, getEarlierStartDate,
 setRecurringIds, updateMeeting, deleteMeeting, getRecurringMeetings}
@@ -392,7 +393,7 @@ function getEarlierStartDate(real_time_portion, async_portion) {
     if(moment(real_time_portion.real_time_start)
         .isBefore(async_portion.async_start)) {
       earlier_start_date
-        = this.real_time_portion.real_time_start
+        = real_time_portion.real_time_start
     } else {
       earlier_start_date = async_portion.async_start
     }

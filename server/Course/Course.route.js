@@ -29,7 +29,17 @@ courseRoutes.get('/get/:id/:with_meetings?',
     path: ''
   }
   if(with_meetings != null) {
-    meetings_population.path = 'meetings'
+    meetings_population = {
+      path: 'meetings',
+      populate: [
+        {
+          path: 'real_time_portion'
+        },
+        {
+          path: 'async_portion'
+        }
+      ]
+    }
   }
 
   Course.findById(id).

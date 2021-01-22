@@ -110,7 +110,7 @@ export default {
     SubmissionTable,
     AddTaskModal,
     AddPortionModal,
-    VueLottiePlayer
+    VueLottiePlayer,
   },
   data () {
     return {
