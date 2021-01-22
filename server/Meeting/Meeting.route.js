@@ -479,226 +479,25 @@ meetingRoutes.delete('/remove_video/:meeting_id/:async_portion_id/:video_id',
   )
 })
 
-// TODO: Update routes to use deleteMany
-meetingRoutes.delete('/delete/:meeting_id', async function (req, res) {
-  let meeting_id = req.params.meeting_id
-  let meeting = req.body.meeting
+meetingRoutes.delete('/delete/:meeting_id',
+  async function(req, res, next) {
+  const meeting_id = req.params.meeting_id
+  const real_time_portion_id = req.body.real_time_portion_id
+  const async_portion_id = req.body.async_portion_id
+  const qr_scans = req.body.qr_scans
+  const videos = req.body.videos
 
-  let meeting_real_time_portion = meeting.real_time_portion
-  let qr_submission_promises = []
-  let qr_promises = []
-  let notification_job_promises = []
-  // Delete live attendance
-  if(meeting.has_real_time_portion) {
-    meeting_real_time_portion.qr_scans.forEach(qr_scan => {
-      // Delete qr checkin submissions
-      qr_scan.submissions.forEach(submission => {
-        let submission_id = submission._id
-        qr_submission_promises.push(new Promise((resolve,reject) => {
-          Submission.findByIdAndRemove(submission_id, (error) => {
-            if (error) {
-              console.log("<ERROR (meetings/delete)> deleting QR checkin submission with ID:",
-                submission_id, error)
-              reject(false)
-              res.json(error);
-            } else {
-              resolve(true)
-            }
-          })
-        }))
-      })
-      // Delete qr checkin
-      let qr_scan_id = qr_scan._id
-      qr_promises.push(new Promise((resolve,reject) => {
-        QRScan.findByIdAndRemove(qr_scan_id, (error) => {
-          if (error) {
-            console.log("<ERROR (meetings/delete)> deleting QR checkin with ID:", qr_scan_id,
-              error)
-            reject(false)
-            res.json(error);
-          } else {
-            resolve(true)
-          }
-        });
-      }))
-    })
-    // Cancel all notifications for this meeting and delete all NotificationJob objects
-    // notification_job_promises.push(new Promise((resolve,reject) => { 
-    NotificationJob.find({meeting_id: meeting_id}, (error, meeting_notification_jobs) => {
-      if(error || meeting_notification_jobs == null) {
-        console.log("<ERROR (meetings/delete)> getting notification jobs for meeting",
-          error)
-        res.json(error)
-      } else {
-        meeting_notification_jobs.forEach(notification_job => {
-         notification_job_promises.push(new Promise((resolve,reject) => { 
-            let global_index = notification_job.global_index
-            if(all_notification_jobs[global_index] == null) {
-              console.log(`<ERROR> all_notification_jobs[global_index] is null where global_index`
-                + `is ${global_index} and all_notification_jobs length is ${all_notification_jobs.length}`)
-              console.log("all_notification_jobs", all_notification_jobs)
-            } else {
-              all_notification_jobs[global_index].cancel()
-            }
-            let notification_job_id = notification_job._id
-            NotificationJob.findByIdAndRemove(notification_job_id, (error) => {
-              if(error){
-                console.log("<ERROR> (meetings/delete)> deleting notification_job with ID:",
-                  notification_job_id)
-                reject(false)
-              }
-              resolve(true)
-            }) 
-          }))
-        })
-      }
-    })
-  }
-  // Delete live attendance
   try {
-    await Promise.all(qr_submission_promises)
-    await Promise.all(qr_promises)
-    await Promise.all(notification_job_promises)
-    RealTimePortion.findByIdAndRemove(meeting_real_time_portion._id, (err) => {
-      if (err) {
-        console.log("<ERROR> (meetings/delete)> deleting live attendance with ID:", meeting_real_time_portion._id)
-        res.json(err);
-      }
-    });
-  } catch (error) {
-    console.log("<ERROR> (meetings/delete) deleting live attendance:",error)
-    res.status(500).json(error)
+    const deletion_status = await MeetingHelper.deleteMeeting(
+      meeting_id, real_time_portion_id, async_portion_id,
+      qr_scans, videos)
+    if(!deletion_status)
+      throw "<ERROR> (meetings/delete) deleting meeting"
+    console.log("<SUCCESS> (meetings/delete)")
+    res.json(true)
+  } catch(error) {
+    console.log(`<ERROR> (meetings/delete) meeting_id ${meeting_id}`)
   }
-
-  let meeting_async_portion = meeting.async_portion
-  let video_submission_promises = []
-  let video_promises = []
-  // Delete async attendance
-  if(meeting.has_async_portion) {
-    meeting_async_portion.videos.forEach(video => {
-      // Delete video submissions
-      video.video_submissions.forEach(submission => {
-        let submission_id = submission._id
-        video_submission_promises.push(new Promise((resolve,reject) => {
-          Submission.findByIdAndRemove(submission_id, (error) => {
-            if (error) {
-              console.log("<ERROR (meetings/delete)> deleting video submission with ID:",
-                submission_id, error)
-              reject(false)
-              res.json(error);
-            } else {
-              resolve(true)
-            }
-          })
-        }))
-      })
-      // Delete video
-      let video_id = video._id
-      video_promises.push(new Promise((resolve,reject) => {
-        Video.findByIdAndRemove(video_id, (err) => {
-          if (err) {
-            console.log("<ERROR (meetings/delete)> Deleting QR checkin with ID:", video_id)
-            reject(false)
-            res.json(err);
-          } else {
-            resolve(true)
-          }
-        });
-      }))
-    })
-  }
-  // Delete async attendance
-  try {
-    await Promise.all(video_submission_promises)
-    await Promise.all(video_promises)
-    AsyncPortion.findByIdAndRemove(meeting_async_portion._id, (err) => {
-      if (err) {
-        console.log("<ERROR (meetings/delete)> deleting aysnc attendance with ID:", meeting_async_portion._id)
-        res.json(err);
-      }
-    });
-  } catch (error) {
-    console.log("<ERROR> (meetings/delete) deleting async attendance:",error)
-    res.json(error)
-  }
-
-  if(meeting.for_course) {
-
-    // Remove this meeting from the courses meetings array
-    // as well as the instructor's and students'
-    Course.findByIdAndUpdate(meeting.course._id,
-      {$pull: {meetings: meeting_id}},
-      (error,course) => {
-        if(error || course == null) {
-          console.log("<ERROR> (meetings/delete) Updating course with id",
-            meeting.course_id, err)
-          res.json(error);
-        } else {
-          User.findByIdAndUpdate(course.instructor,
-            {$pull: {meetings: meeting_id}},
-            async (error, instructor) => {
-              if(error || course == null) {
-                console.log("<ERROR> (meetings/delete) Updating instructor with id",
-                  course.instructor, error)
-                res.json(error);
-              } else {
-                let student_promises = []
-                course.students.forEach(student => {
-                  student_promises.push(new Promise(async (resolve, reject) => {
-                    User.findByIdAndUpdate(student,
-                      {$pull: {meetings: meeting_id}},
-                      (error, user) => {
-                        if(error || user == null) {
-                          console.log("<ERROR> (meetings/delete) Updating student with id",
-                            student, error)
-                          res.json(error);
-                        } else {
-                          resolve(user)
-                        }
-                      })
-                  }))
-                })
-                try {
-                  await Promise.all(student_promises)
-                  if(course.secondary_instructor != null) {
-                    User.findByIdAndUpdate(course.secondary_instructor,
-                      {$pull: {meetings: meeting_id}},
-                      (error, secondary_instructor) => {
-                        if(error || secondary_instructor == null) {
-                          console.log("<ERROR> (meetings/delete) Updating secondary instructor with id",
-                            course.secondary_instructor._id, error)
-                          res.json(error);
-                        }
-                      }
-                    )
-                  }
-                } catch (error) {
-                  console.log("<ERROR> (meetings/add) Updating students", error)
-                  res.json(error)
-                }
-              }
-            }
-          )
-        }
-      }
-    )
-
-  } else {
-
-
-  }
-
-  // Delete Meeting
-  Meeting.findByIdAndRemove(meeting_id, (err) => {
-    if (err) {
-      console.log("<ERROR> (meetings/delete) Deleting meeting with ID:",meeting_id)
-      res.json(err);
-    } else {
-      console.log("<SUCCESS> (meetings/delete) Deleting meeting with ID:",meeting_id)
-      res.json('Successfully removed');
-    }
-  });
-});
-
+})
 
 module.exports = meetingRoutes;

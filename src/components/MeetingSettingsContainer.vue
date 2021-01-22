@@ -121,7 +121,7 @@
           <sui-icon name="sync" />
         </sui-button-content>
       </sui-button>
-      <sui-button 
+      <sui-button @click="deleteMeeting" 
         animated size="small"
         style="background-color:#FF0000; color:white;">
         <sui-button-content visible>
@@ -429,6 +429,40 @@ export default {
       } else {
         this.meeting.async_portion = null
         this.meeting_copy.async_portion = null
+      }
+    },
+    async deleteMeeting() {
+      const confirmation = confirm(`Are you sure you want to`
+        + ` permanently delete this meeting?`
+        + ` This will delete all student submissions.`)
+      if(!confirmation)
+        return
+
+      try {
+        let real_time_portion_id = null
+        let qr_scans = []
+        if(this.meeting.real_time_portion != null){
+          real_time_portion_id =
+            this.meeting.real_time_portion._id
+          qr_scans = this.getTasksWithSubmissionIds(
+            true)
+        }
+        let async_portion_id = null
+        let videos = []
+        if(this.meeting.async_portion != null){
+          async_portion_id =
+            this.meeting.async_portion._id
+          videos = this.getTasksWithSubmissionIds(
+            false)
+        }
+        await MeetingAPI.deleteMeeting(this.meeting._id,
+          real_time_portion_id, async_portion_id, qr_scans,
+          videos)
+        this.$router.push({name: 'course_info',
+          params: {id: this.meeting.sections[0].course._id}})
+      } catch (error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
       }
     }
   }

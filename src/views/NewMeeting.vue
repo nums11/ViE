@@ -276,15 +276,6 @@ export default {
       else
         this.async_portion.videos.splice(index,1)
     },
-    // portionTimesSet(is_real_time) {
-    //   if(is_real_time) {
-    //     return (this.real_time_portion.real_time_start != null
-    //       && this.real_time_portion.real_time_end != null)
-    //   } else {
-    //     return (this.async_portion.async_start != null
-    //       && this.async_portion.async_end != null)
-    //   }
-    // },
     async createMeeting() {
       this.show_error = false
       if(!this.formComplete)
@@ -296,7 +287,7 @@ export default {
       }
 
       try {
-        // this.creating_meeting = true
+        this.creating_meeting = true
         // Add real time and async portion if necessary
         this.resetRepeatEndDateIfNoRepeatSelected()
         let real_time_portion;

@@ -57,14 +57,15 @@ export default {
     return API().post('meetings/add_async_portion')
   },
   // DELETE -------------------
-  deleteMeeting (meeting) {
-    return API().delete('meetings/delete/' + meeting._id, {
+  deleteMeeting (meeting_id, real_time_portion_id, async_portion_id,
+    qr_scans, videos) {
+    return API().delete(`meetings/delete/${meeting_id}`, {
       data: {
-        meeting: meeting
+        real_time_portion_id: real_time_portion_id,
+        async_portion_id: async_portion_id,
+        qr_scans: qr_scans,
+        videos: videos
       }
     })
   },
-  getUpcomingMeetings() {
-    return API().get('meetings/upcoming')
-  }
 }

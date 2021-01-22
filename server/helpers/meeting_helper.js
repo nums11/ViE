@@ -8,9 +8,11 @@ const QRScan = require('../QRScan/QRScan.model');
 const Video = require('../Video/Video.model');
 const schedule = require('node-schedule');
 const QRScanHelper = require('./qr_scan_helper')
+const RealTimePortionHelper = require('./real_time_portion_helper')
+const AsyncPortionHelper = require('./async_portion_helper')
 
 module.exports = {addMeeting, getEarlierStartDate,
-setRecurringIds, updateMeeting}
+setRecurringIds, updateMeeting, deleteMeeting}
 
 async function addMeeting(meeting, real_time_portion, async_portion,
   instructor_id) {
@@ -113,6 +115,57 @@ async function updateMeeting(meeting_id, meeting) {
     console.log(`<ERROR> updateMeeting meeting_id ${meeting_id}`,
       ` meeting`, meeting, error)
     return null
+  }
+}
+
+async function deleteMeeting(meeting_id, real_time_portion_id,
+  async_portion_id, qr_scans, videos) {
+  try {
+    let real_time_portion_promise = null;
+    if(real_time_portion_id != null) {
+      real_time_portion_promise = 
+        RealTimePortionHelper.deleteRealTimePortion(
+          real_time_portion_id, meeting_id, qr_scans)
+    }
+    let async_portion_promise = null
+    if(async_portion_promise != null) {
+      async_portion_promise =
+        AsyncPortionHelper.deleteAsyncPortion(
+          async_portion_id, meeting_id, videos)
+    }
+    const meeting_promise = new Promise((resolve, reject) => {
+      Meeting.findByIdAndRemove(meeting_id,
+        (error) => {
+          if(error) {
+            console.log(`<ERROR> deleteMeeting deleting meeting with`
+              + ` id ${meeting_id}`)
+            reject(error)
+          } else {
+            resolve(true)
+          }
+        }
+      )
+    })
+    if(real_time_portion_promise != null) {
+      const deletion_status = await Promise.resolve(
+        real_time_portion_promise)
+      if(! deletion_status)
+        throw "<ERROR> deleteMeeting deleting real_time_portion"
+    }
+    if(async_portion_promise != null) {
+      const deletion_status = await Promise.resolve(
+        async_portion_promise)
+      if(! deletion_status)
+        throw "<ERROR> deleteMeeting deleting async_portion"
+    }
+    await Promise.resolve(meeting_promise)
+    return true
+  } catch(error) {
+    console.log(`<ERROR> deleteMeeting meeting_id ${meeting_id}`
+      + ` real_time_portion_id ${real_time_portion_id}`
+      + ` async_portion_id ${async_portion_id} qr_scans`,qr_scans,
+      + `videos`,videos,error)
+    return false
   }
 }
 
