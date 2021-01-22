@@ -61,6 +61,9 @@ export default {
 			  return 1;
 			}
 			return 0;
+		},
+		getDeepCopy(obj) {
+			return JSON.parse(JSON.stringify(obj))
 		}
 	}
 }

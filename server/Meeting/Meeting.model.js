@@ -22,7 +22,10 @@ let Meeting = new Schema({
   async_portion: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'AsyncPortion',
-  }, 
+  },
+  recurring_id:{
+    type: String,
+  }
 });
 
 // Todo - add pre validator that makes sure either real_time_portion or 

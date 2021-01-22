@@ -13,15 +13,14 @@
       </p>
     </div>
     <div class="mt-3" id="meetings-header">Meetings</div>
-    <CourseMeetingsForMonthContainer month="January"
-      :meetings="meetings" />
+    <CourseMeetingsCalendar :meetings="meetings" />
   </div>
 </template>
 
 <script>
 import SideBar from '@/components/SideBar'
-import CourseMeetingsForMonthContainer from
-'@/components/CourseMeetingsForMonthContainer'
+import CourseMeetingsCalendar from
+'@/components/CourseMeetingsCalendar'
 import SectionInfoContainer from
 '@/components/SectionInfoContainer'
 import CourseSettingsContainer from
@@ -52,7 +51,7 @@ export default {
     }
   },
   components: {
-    CourseMeetingsForMonthContainer
+    CourseMeetingsCalendar
   },
   data () {
     return {

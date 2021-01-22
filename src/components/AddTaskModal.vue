@@ -6,24 +6,16 @@
     <sui-modal-content scrolling class="center-text"
     style="padding-top: 0;">
       <sui-form class="form">
-        <p>{{ time_window_text }}</p>
-        <div class="form-field">
-          <sui-form-field required>
-            <label class="form-label">
-              {{ start_label }}
-            </label>
-            <input v-model="start" @change="updatePropTime('start')"
-            type="datetime-local">
-          </sui-form-field>
-        </div>
-        <div class="form-field">
-          <sui-form-field required>
-            <label class="form-label">
-              {{ end_label }}
-            </label>
-            <input v-model="end" @change="updatePropTime('end')"
-            type="datetime-local">
-          </sui-form-field>
+        <div v-if="edit_portion_times">
+          <p>{{ time_window_text }}</p>
+          <div class="form-field">
+            <sui-form-field required>
+              <label class="form-label">
+                {{ window_label }}
+              </label>
+              <input type="datetime-local" :id="time_window_id">
+            </sui-form-field>
+          </div>
         </div>
         <div id="radio-container">
           <p class="mb-2 mr-1">
@@ -34,14 +26,14 @@
             <sui-form-field>
               <div class="ui radio checkbox">
                 <input type="radio" name="checked_value"
-                checked="checked" id="cb-one" @click="selectValue(1)">
+                checked="checked" class="cb-one" @click="selectValue(1)">
                 <label for="cb-one">{{ radio_label_one }}</label>
               </div>
             </sui-form-field>
             <sui-form-field>
               <div class="ui radio checkbox">
                 <input type="radio" name="checked_value"
-                id="cb-two" @click="selectValue(2)" disabled>
+                class="cb-two" @click="selectValue(2)" disabled>
                 <label for="cb-two">{{ radio_label_two }}</label>
               </div>
             </sui-form-field>
@@ -54,11 +46,12 @@
           </p>
           <sui-form-field>
             <label class="form-label">Schedule Reminder</label>
-            <input v-model="task.reminder_time" type="datetime-local">
+            <input v-model="task.reminder_time" type="datetime-local"
+            id="reminder-input">
           </sui-form-field>
         </div>
         <div class="form-field" v-else>
-          <sui-form-field>
+          <sui-form-field required>
             <label class="form-label">Video Name</label>
             <input v-model="task.name" placeholder="Class Video">
           </sui-form-field>
@@ -68,7 +61,7 @@
         </div>
         <div class="form-field">
           <sui-button @click.prevent="addTask"
-          animated
+          animated :disabled="!formComplete"
           style="background-color:#00b80c; color:white;">
             <sui-button-content visible>
               Add Task
@@ -90,41 +83,63 @@
 </template>
 
 <script>
+import flatpickr from "flatpickr";
+import 'flatpickr/dist/themes/material_blue.css';
+import moment from 'moment'
+
 export default {
   name: 'AddTaskModal',
   props: {
     real_time_portion: Object,
-    async_portion: Object
+    async_portion: Object,
+    edit_portion_times: {
+      type: Boolean,
+      default: false
+    }
   },
   components: {
-
   },
   data () {
     return {
       show_modal: false,
       task: {
         reminder_time: null,
+        video_file: null
       },
       value: 1,
       is_real_time: Boolean,
       header: "",
       time_window_text: "",
       coming_soon_task: "",
-      start_label: "",
-      end_label: "",
+      window_label: "",
       start_popup_text: "",
       end_popup_text: "",
       start: Date,
       end: Date,
       radio_label_one: "",
-      radio_label_two: ""
+      radio_label_two: "",
+      time_window_id: "",
     }
   },
   computed: {
+    formComplete() {
+      if(this.is_real_time) {
+        return this.real_time_portion.real_time_start != null
+          && this.real_time_portion.real_time_end != null
+      } else {
+        return this.async_portion.async_start != null &&
+          this.async_portion.async_end != null &&
+          this.task.name != null && this.task.name !== ''
+          && this.task.video_file != null
+      }
+    }
   },
   created () {
     this.is_real_time = this.real_time_portion != null
     this.setLabelsAndDates()
+  },
+  mounted() {
+    this.initFlatPickr()
   },
   methods: {
     setLabelsAndDates() {
@@ -138,6 +153,7 @@ export default {
         this.end = this.real_time_portion.real_time_end
         this.radio_label_one = "QR Scan"
         this.radio_label_two = "Quiz"
+        this.time_window_id = "real_time_window"
       } else {
         label_prefix = "Async"
         this.time_window_text = "Choose the time window"
@@ -148,22 +164,54 @@ export default {
         this.end = this.async_portion.async_end
         this.radio_label_one = "Video"
         this.radio_label_two = "Link"
+        this.time_window_id = "async_window"
       }
       this.header = `Add ${label_prefix} Task`
-      this.start_label = `${label_prefix} start`
-      this.end_label = `${label_prefix} end`
+      this.window_label = `${label_prefix} Window`
     },
-    updatePropTime(time) {
-      if(time === "start") {
-        if(this.is_real_time)
-          this.real_time_portion.real_time_start = this.start
-        else
-          this.async_portion.async_start = this.start
+    initFlatPickr() {
+      // Time Window Input
+      const self = this
+      self.time_window_picker = flatpickr(`#${this.time_window_id}`, {
+        enableTime: true,
+        mode: "range",
+        altInput: true,
+        altFormat: "M/D, h:mm a",
+        parseDate: (datestr, format) => {
+          return moment(datestr, format, true).toDate();
+        },
+        formatDate: (date, format, locale) => {
+          // locale can also be used
+          return moment(date).format(format);
+        },
+        onChange: function (selected_dates) {
+          self.updatePropTimes(selected_dates)
+        }
+      })
+      if(this.is_real_time) {
+        // Reminder Input
+        self.reminder_picker = flatpickr('#reminder-input', {
+          enableTime: true,
+          dateFormat: "M/D, h:mm a",
+          altInput: true,
+          altFormat: "M/D, h:mm a",
+          parseDate: (datestr, format) => {
+            return moment(datestr, format, true).toDate();
+          },
+          formatDate: (date, format, locale) => {
+            // locale can also be used
+            return moment(date).format(format);
+          }
+        })
+      }
+    },
+    updatePropTimes(new_times) {
+      if(this.is_real_time){
+        this.real_time_portion.real_time_start = new_times[0]
+        this.real_time_portion.real_time_end = new_times[1]
       } else {
-        if(this.is_real_time)
-          this.real_time_portion.real_time_end = this.end
-        else
-          this.async_portion.async_end = this.end
+        this.async_portion.async_start = new_times[0]
+        this.async_portion.async_end = new_times[1]
       }
     },
     setVideoFile (e) {
@@ -181,11 +229,24 @@ export default {
       this.show_modal = true
     },
     hideModal() {
-      this.task = {
-        reminder_time: null
-      }
-      document.getElementById('file-input').value = ''
+      this.resetInputs()
       this.show_modal = false
+    },
+    resetInputs() {
+      this.task = {
+        reminder_time: null,
+        video_file: null
+      }
+      if(this.is_real_time){
+        this.reminder_picker.clear()
+      } else {
+        let file_input = document.getElementById('file-input')
+        file_input.value = ''
+      }
+    },
+    clearDateTimePicker() {
+      this.time_window_picker.clear()
+      this.resetInputs()
     }
   }
 }

@@ -113,7 +113,7 @@ export default {
 
 <style scoped>
 .meeting-task-card-container {
-  width: 37rem;
+  width: 38rem;
   display: inline-block;
   vertical-align: top;
   /*border: blue solid;*/
@@ -124,7 +124,7 @@ export default {
   margin-top: 2rem;
   height: 2.75rem;
   display: inline-block;
-  width: 36rem;
+  width: 37rem;
   padding-left: 0.45rem;
   padding-right: 0.2rem;
   padding-top: 0.35rem;
@@ -145,7 +145,7 @@ export default {
   margin-top: 0.3rem;
   font-size: 0.9rem;
   /*border: blue solid;*/
-  width: 28.5%;
+  width: 29.5%;
 }
 
 .icon-section {

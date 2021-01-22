@@ -19,14 +19,20 @@
           <MeetingInfoPortionContainer
           v-if="active_section === 'Real-Time Portion'"
           key="real-time portion"
+          ref="RealTimePortionContainer"
+          :meeting_id="meeting._id"
           :portion="meeting.real_time_portion"
           :meeting_student_ids="meeting_student_ids"
           v-on:show-qr="showQRScanningWindow"
+          v-on:set-new-portion="setNewPortion(true, ...arguments)"
           is_real_time />
           <MeetingInfoPortionContainer
           v-else-if="active_section === 'Async Portion'"
           key="async portion"
+          ref="AsyncPortionContainer"
+          :meeting_id="meeting._id"
           :portion="meeting.async_portion"
+          v-on:set-new-portion="setNewPortion(false, ...arguments)"
           :meeting_student_ids="meeting_student_ids" />
           <div v-else-if="active_section === 'Statistics'"
           key="statistics">
@@ -34,7 +40,7 @@
           </div>
           <div v-else-if="active_section === 'Settings'"
           key="settings">
-            <h1>Coming Soon</h1>
+            <MeetingSettingsContainer :meeting="meeting" />
           </div>
         </transition>
       </div>
@@ -49,6 +55,8 @@ import FullScreenQRCodeModal from
 '@/components/FullScreenQRCodeModal.vue';
 import MeetingInfoPortionContainer from
 '@/components/MeetingInfoPortionContainer.vue';
+import MeetingSettingsContainer from
+'@/components/MeetingSettingsContainer'
 import helpers from '@/helpers.js'
 
 export default {
@@ -57,7 +65,8 @@ export default {
   components: {
     SideBar,
     FullScreenQRCodeModal,
-    MeetingInfoPortionContainer
+    MeetingInfoPortionContainer,
+    MeetingSettingsContainer
   },
   data () {
     return {
@@ -99,8 +108,6 @@ export default {
         this.meeting_id = this.$route.params.meeting_id
         const response = await MeetingAPI.getMeeting(this.meeting_id)
         this.meeting = response.data
-        console.log("meeting", this.meeting)
-        console.log("Async portion", this.meeting.async_portion)
         this.meeting_course = this.meeting.sections[0].course
         this.setSideBarSubHeaders()
         this.meeting_student_ids = this.getMeetingStudentIDs(this.meeting)
@@ -137,6 +144,17 @@ export default {
     showQRScanningWindow(qr_scan) {
       this.full_screen_qr_scan = qr_scan
       this.show_full_screen_code = true
+    },
+    setNewPortion(is_real_time, portion) {
+      if(is_real_time){
+        this.meeting.real_time_portion = portion
+        this.$refs.RealTimePortionContainer.
+          setPortionTimesAndTasks()
+      } else {
+        this.meeting.async_portion = portion
+        this.$refs.AsyncPortionContainer.
+          setPortionTimesAndTasks()
+      }
     }
   }
 }
@@ -155,7 +173,7 @@ export default {
 #main {
   /*border: red solid;*/
   padding-top: 0.5rem;
-  width: 78%;
+  width: 79%;
   height: 100%;
 }
 

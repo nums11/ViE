@@ -276,6 +276,10 @@ html, body {
   text-align: center;
 }
 
+.auto {
+  margin: auto;
+}
+
 .mt-1 {
   margin-top: 1rem;
 }

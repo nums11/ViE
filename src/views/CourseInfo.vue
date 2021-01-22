@@ -116,11 +116,17 @@ export default {
       }
     },
     getMeetingsForCourse() {
+      let section_ids = new Set()
       this.course.sections.forEach(section => {
-        this.meetings = this.meetings.concat(section.meetings)
+        const section_meetings = section.meetings
+        section_meetings.forEach(meeting => {
+          if(!section_ids.has(meeting._id)) {
+            section_ids.add(meeting._id)
+            this.meetings.push(meeting)
+          }
+        })
       })
     },
-
     setSectionSelectorOptions() {
       const sections = this.course.sections
       for(let i = 0; i < sections.length; i++) {

@@ -12,7 +12,14 @@ export default {
       updated_video: video
     })
   },
-  deleteVideo (id) {
-    return API().delete('videos/delete/' + id)
+  // DELETE -----------------
+  deleteVideo(video_id, async_portion_id,
+    submission_ids) {
+    return API().delete(`videos/delete/${video_id}`, {
+      data: {
+        async_portion_id: async_portion_id,
+        submission_ids: submission_ids
+      }
+    })
   },
 }

@@ -25,12 +25,21 @@ courseRoutes.get('/get/:id/:with_meetings?',
   function (req, res, next) {
   const id = req.params.id;
   const with_meetings = req.params.with_meetings
-  console.log("with_meetings", with_meetings)
   let meetings_population  = {
     path: ''
   }
   if(with_meetings != null) {
-    meetings_population.path = 'meetings'
+    meetings_population = {
+      path: 'meetings',
+      populate: [
+        {
+          path: 'real_time_portion'
+        },
+        {
+          path: 'async_portion'
+        }
+      ]
+    }
   }
 
   Course.findById(id).
