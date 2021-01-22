@@ -198,6 +198,7 @@ function start() {
   app.use('/notifications', notificationRouter);
   app.use('/async_portions', asyncPortionRouter);
   app.use('/real_time_portions', realTimePortionRouter);
+  app.use('/qr_scans', qrScanRouter);
   app.use('/emails', emailRouter);
 
   rescheduleAllNotificationJobs()

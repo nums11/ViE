@@ -31,7 +31,9 @@
                 :placeholder="qr_scan.reminder_time == null ?
                 'No reminder' : ''" />
               </div>
-              <sui-button size="tiny" animated
+              <sui-button @click="deleteQRScanOrVideo(
+                index,qr_scan._id,true)"
+              size="tiny" animated
               style="background-color:#FF0000; 
               color:white;margin-left:2rem;">
                 <sui-button-content visible>
@@ -69,7 +71,7 @@
           <label>Async Window</label>
           <input type="datetime-local" id="async-time-input" />
         </sui-form-field>
-        <div v-for="video in
+        <div v-for="(video, index) in
         meeting_copy.async_portion.videos"
         class="mt-2">
           <div class="mt-1">
@@ -77,7 +79,9 @@
               <label>Video Name</label>
               <input type="text"
               v-model="video.name" style="width: 50%;" />
-              <sui-button size="tiny" animated
+              <sui-button @click="deleteQRScanOrVideo(
+                index,video._id,false)"
+              size="tiny" animated
               style="background-color:#FF0000; 
               color:white;margin-left:2rem;">
                 <sui-button-content visible>
@@ -135,6 +139,8 @@ import flatpickr from "flatpickr";
 import 'flatpickr/dist/themes/material_blue.css';
 import moment from 'moment'
 import MeetingAPI from '@/services/MeetingAPI'
+import QRScanAPI from '@/services/QRScanAPI'
+import VideoAPI from '@/services/VideoAPI'
 
 export default {
   name: 'MeetingSettings',
@@ -316,6 +322,53 @@ export default {
           this.meeting.async_portion.videos[i].name
             = this.meeting_copy.async_portion.videos[i].name
         }
+      }
+    },
+    async deleteQRScanOrVideo(index, id, is_qr_scan) {
+      let type = is_qr_scan ? 'QR Scan' : 'Video'
+      const confirmation = confirm(`Are you sure you want to`
+        + ` permanently delete this ${type}? This will delete all`
+        + " student submissions.")
+      if(!confirmation)
+        return
+
+      try {
+        const submission_ids = this.getSubmissionIds(index, is_qr_scan)
+        if(is_qr_scan) {
+          await QRScanAPI.deleteQRScan(id,
+            this.meeting.real_time_portion._id, submission_ids)
+        } else {
+          await VideoAPI.deleteVideo(id,
+            this.meeting.async_portion._id, submission_ids)
+        }
+        this.removeQRScanOrVideoFromCourse(index, is_qr_scan)
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
+    },
+    getSubmissionIds(index, is_qr_scan) {
+      let submissions;
+      if(is_qr_scan) {
+        submissions =
+          this.meeting.real_time_portion.qr_scans[index].submissions
+      } else {
+        submissions =
+          this.meeting.async_portion.videos[index].submissions
+      }
+      let submission_ids = []
+      submissions.forEach(submission => {
+        submission_ids.push(submission._id)
+      })
+      return submission_ids
+    },
+    removeQRScanOrVideoFromCourse(index, is_qr_scan) {
+      if(is_qr_scan) {
+        this.meeting.real_time_portion.qr_scans.splice(index,1)
+        this.meeting_copy.real_time_portion.qr_scans.splice(index,1)
+      } else {
+        this.meeting.async_portion.videos.splice(index, 1)
+        this.meeting_copy.async_portion.videos.splice(index, 1)
       }
     }
   }

@@ -1,9 +1,11 @@
 const express = require('express');
 const videoRoutes = express.Router();
+const Video = require('../Video/Video.model');
+const VideoHelper = require('../helpers/video_helper')
 
-let Video = require('../Video/Video.model');
+// GET -------------------
 
-videoRoutes.route('/').get(function (req, res) {
+videoRoutes.get('/', function (req, res) {
   Video.find(function (err, videos) {
     if (err || videos == null) {
       console.log("<ERROR> Getting all videos")
@@ -15,7 +17,7 @@ videoRoutes.route('/').get(function (req, res) {
   });
 });
 
-videoRoutes.route('/get/:id').get(function (req, res, next) {
+videoRoutes.get('/get/:id', function (req, res, next) {
   let id = req.params.id;
   Video.findById(id).
   populate({
@@ -38,7 +40,9 @@ videoRoutes.route('/get/:id').get(function (req, res, next) {
   })
 });
 
-videoRoutes.route('/update/:id').post(function (req, res) {
+// POST --------------------
+
+videoRoutes.post('/update/:id', function (req, res) {
   let id = req.params.id;
   let updated_video = req.body.updated_video;
   Video.findByIdAndUpdate(id,
@@ -56,6 +60,28 @@ videoRoutes.route('/update/:id').post(function (req, res) {
       }
     }
   );
+});
+
+// DELETE ------------------------
+
+videoRoutes.delete('/delete/:video_id',
+  async function (req, res, next) {
+  const video_id = req.params.video_id
+  const async_portion_id = req.body.async_portion_id
+  const submission_ids = req.body.submission_ids
+  
+  try {
+    const deletion_status = await VideoHelper.deleteVideo(
+      video_id, async_portion_id, submission_ids)
+    if(deletion_status == false)
+      throw "<ERROR> (videos/delete) deleting video"
+    console.log("<SUCCESS> (videos/delete)")
+    res.json(true)
+  } catch(error) {
+    console.log(`<ERROR> (videos/delete) video_id ${video_id}`
+      + ` async_portion_id ${async_portion_id}`)
+    next(error)
+  }
 });
 
 module.exports = videoRoutes;
