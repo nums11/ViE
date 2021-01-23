@@ -8,7 +8,6 @@ self.addEventListener("push", e => {
 	    body: "Click this notification to show your QR Code.",
 	    icon: "venue-logo-png.png",
       data: data.redirect_url,
-	    requireInteraction: true
 	  })
   )
 });

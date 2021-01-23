@@ -100,6 +100,7 @@ export default {
       type: Boolean,
       default: false
     },
+    instructor_id: String,
     meeting_student_ids: {
       type: Set,
       required: true
@@ -176,7 +177,8 @@ export default {
           task.reminder_time = null
         try {
           const response = await RealTimePortionAPI.addQRScan(
-            this.portion._id, task)
+            this.portion._id, task, this.meeting_id,
+            this.instructor_id)
           const new_qr_scan = response.data
           this.portion.qr_scans.push(new_qr_scan)
         } catch(error) {

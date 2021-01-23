@@ -1,4 +1,5 @@
 import moment from 'moment'
+import UserAPI from '@/services/UserAPI';
 
 export default {
 	data() {
@@ -64,6 +65,36 @@ export default {
 		},
 		getDeepCopy(obj) {
 			return JSON.parse(JSON.stringify(obj))
+		},
+		async registerServiceWorkerAndAddSubscription() {
+		 // Register service worker
+		 let register = await navigator.serviceWorker.register("worker.js", {
+		   scope: "/"
+		 });
+		 // Wait until worker is ready
+		 register = await navigator.serviceWorker.ready
+		 // Register Push
+		 const publicVapidKey =
+		   "BG5zFCphvwcm3WYs3N5d41jO85PcvpJkEYPlz9j3OjVdzI_XX0KPw_U8V5aEmaOBHXIymaGcCWyOAH-TmoobXKA"
+		 const subscription = await register.pushManager.subscribe({
+		   userVisibleOnly: true,
+		   applicationServerKey: this.urlBase64ToUint8Array(publicVapidKey)
+		 });
+		 const response = await UserAPI.addServiceWorkerSubscriptionForUser(
+		   this.state_user._id,subscription)
+		 console.log("Added subscription to user", response.data)
+		},
+		urlBase64ToUint8Array(base64String) {
+		  const padding = "=".repeat((4 - base64String.length % 4) % 4);
+		  const base64 = (base64String + padding)
+		    .replace(/\-/g, "+")
+		    .replace(/_/g, "/");
+		  const rawData = window.atob(base64);
+		  const outputArray = new Uint8Array(rawData.length);
+		  for (let i = 0; i < rawData.length; ++i) {
+		    outputArray[i] = rawData.charCodeAt(i);
+		  }
+		  return outputArray;
 		}
 	}
 }

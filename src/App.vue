@@ -29,8 +29,10 @@ import NewVersionMessage from '@/components/NewVersionMessage'
 import UserAPI from '@/services/UserAPI';
 import ExternalFooter from '@/components/ExternalFooter'
 import MobileNavSlider from '@/components/MobileNavSlider'
+import helpers from '@/helpers.js'
 
 export default {
+  mixins: [helpers],
   watch: {
     '$route' (to, from) {
       document.title = to.meta.title || 'ViE'
@@ -110,16 +112,6 @@ export default {
         clearInterval(waitForUser);
       }
     }, 100);
-
-    // load user preferences from cookies
-    // var cookies_ = document.cookie.split(";");
-    // for (var i = 0; i < cookies_.length; ++i) {
-    //   var cookie_ = Cookie.parse(cookies_[i]);
-    //   console.log(cookie_);
-    //   if (Object.prototype.hasOwnProperty.call(cookie_, "darkMode")) {
-    //     this.dark_mode = cookie_.darkMode == "true";
-    //   }
-    // }
   },
   methods: {
     async checkNotificationPermissions() {
@@ -133,36 +125,6 @@ export default {
             this.registerServiceWorkerAndAddSubscription()
         }
       }
-    },
-    async registerServiceWorkerAndAddSubscription() {
-     // Register service worker
-     let register = await navigator.serviceWorker.register("worker.js", {
-       scope: "/"
-     });
-     // Wait until worker is ready
-     register = await navigator.serviceWorker.ready
-     // Register Push
-     const publicVapidKey =
-       "BG5zFCphvwcm3WYs3N5d41jO85PcvpJkEYPlz9j3OjVdzI_XX0KPw_U8V5aEmaOBHXIymaGcCWyOAH-TmoobXKA"
-     const subscription = await register.pushManager.subscribe({
-       userVisibleOnly: true,
-       applicationServerKey: this.urlBase64ToUint8Array(publicVapidKey)
-     });
-     const response = await UserAPI.addServiceWorkerSubscriptionForUser(
-       this.current_user._id,subscription)
-     console.log("Added subscription to user", response.data)
-    },
-    urlBase64ToUint8Array(base64String) {
-      const padding = "=".repeat((4 - base64String.length % 4) % 4);
-      const base64 = (base64String + padding)
-        .replace(/\-/g, "+")
-        .replace(/_/g, "/");
-      const rawData = window.atob(base64);
-      const outputArray = new Uint8Array(rawData.length);
-      for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-      }
-      return outputArray;
     },
     showMobileNavSlider(user, user_courses) {
       this.navbar_user = user
