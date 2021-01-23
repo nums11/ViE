@@ -46,7 +46,7 @@
             You have denied notifications. In order to receive a reminder
             you must manually reenable notifications by clicking on
             the lock icon on the left side of your search bar and 
-            settings notifications to 'Allow' or
+            setting notifications to 'Allow' or
             going into the site settings.
           </p>
           <sui-form-field>
