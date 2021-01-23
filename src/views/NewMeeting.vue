@@ -37,7 +37,20 @@
         </div>
         <h5 class="mt-3">Add tasks to your meeting</h5>
         <p>Tasks can also be added after your meeting is created</p>
-        <sui-button @click.prevent="showAddTaskModal('real-time')"
+        <sui-button v-if="!realTimePortionTimesSet"
+          @click.prevent="showAddPortionModal(true)"
+          animated size="large"
+          style="background-color:#00B3FF; color:white;
+          margin-left:1rem; width:16rem;">
+          <sui-button-content visible>
+            Add real-time portion
+          </sui-button-content>
+          <sui-button-content hidden>
+            <sui-icon name="podcast" />
+          </sui-button-content>
+        </sui-button>
+        <sui-button v-if="realTimePortionTimesSet"
+          @click.prevent="showAddTaskModal('real-time')"
           animated size="large"
           style="background-color:#00b80c; color:white;
           margin-left:1rem; width:16rem;">
@@ -48,7 +61,20 @@
             <sui-icon name="podcast" />
           </sui-button-content>
         </sui-button>
-        <sui-button @click.prevent="showAddTaskModal('async')"
+        <sui-button v-if="!asyncPortionTimesSet"
+          @click.prevent="showAddPortionModal(false)"
+          animated size="large"
+          style="background-color:#00B3FF; color:white;
+          margin-left:1rem; width:16rem; margin-top:1rem;">
+          <sui-button-content visible>
+            Add async portion
+          </sui-button-content>
+          <sui-button-content hidden>
+            <sui-icon name="podcast" />
+          </sui-button-content>
+        </sui-button>
+        <sui-button v-if="asyncPortionTimesSet"
+          @click.prevent="showAddTaskModal('async')"
           animated size="large"
           style="background-color:#00b80c; color:white;
           margin-left:1rem; margin-top:1rem; width:16rem;">
@@ -95,14 +121,16 @@
           wide :disabled="!formComplete" />
         </div>
       </sui-form>
-      <AddTaskModal ref="RealTimeModal"
-      :real_time_portion="real_time_portion"
-      v-on:add-task="addTask('qr_scan', ...arguments)"
-      edit_portion_times />
-      <AddTaskModal ref="AsyncModal"
-      :async_portion="async_portion"
-      v-on:add-task="addTask('video', ...arguments)"
-      edit_portion_times />
+      <AddPortionModal
+      ref="RealTimePortionModal" :is_real_time="true"
+      v-on:add-portion="addPortion(true, ...arguments)" />
+      <AddPortionModal
+      ref="AsyncPortionModal" :is_real_time="false"
+      v-on:add-portion="addPortion(false, ...arguments)" />
+      <AddTaskModal ref="RealTimeModal" :is_real_time="true"
+      v-on:add-task="addTask('qr_scan', ...arguments)" />
+      <AddTaskModal ref="AsyncModal" :is_real_time="false"
+      v-on:add-task="addTask('video', ...arguments)" />
     </div>
   </div>
 </template>
@@ -112,6 +140,8 @@ import CourseAPI from '@/services/CourseAPI'
 import MeetingAPI from '@/services/MeetingAPI'
 import Button from '../components/Button';
 import AddTaskModal from '@/components/AddTaskModal.vue';
+import AddPortionModal from
+'@/components/AddPortionModal.vue';
 import NewMeetingPortionContainer from
 '@/components/NewMeetingPortionContainer.vue';
 import VueLottiePlayer from 'vue-lottie-player'
@@ -122,6 +152,7 @@ export default {
   components: {
     Button,
     AddTaskModal,
+    AddPortionModal,
     VueLottiePlayer,
     NewMeetingPortionContainer
   },
@@ -205,6 +236,25 @@ export default {
         alert("Sorry, something went wrong")
       }
     },
+    showAddPortionModal(is_real_time) {
+      if(is_real_time)
+        this.$refs.RealTimePortionModal.showModal()
+      else
+        this.$refs.AsyncPortionModal.showModal()
+    },
+    addPortion(is_real_time, portion) {
+      if(is_real_time) {
+        this.real_time_portion.real_time_start
+          = portion.real_time_start
+        this.real_time_portion.real_time_end 
+          = portion.real_time_end
+      } else {
+        this.async_portion.async_start
+          = portion.async_start
+        this.async_portion.async_end
+          = portion.async_end
+      }
+    },
     showAddTaskModal(task_type) {
       if(task_type === 'real-time')
         this.$refs.RealTimeModal.showModal()
@@ -216,12 +266,10 @@ export default {
         this.real_time_portion.real_time_start = null
         this.real_time_portion.real_time_end = null
         this.real_time_portion.qr_scans = []
-        this.$refs.RealTimeModal.clearDateTimePicker()
       } else {
         this.async_portion.async_start = null
         this.async_portion.async_end = null
         this.async_portion.videos = []
-        this.$refs.AsyncModal.clearDateTimePicker()
       }
     },
     addTask(task_type, task) {
