@@ -22,37 +22,23 @@ const bucket = storage.bucket('venue_videos')
 
 // GET -----------
 
-meetingRoutes.route('/all').get(function (req, res) {
+meetingRoutes.route('/all').get(
+  function (req, res, next) {
   Meeting.find().
   populate({
-    path: 'course'
+    path: 'sections',
+    populate: {
+      path: 'course'
+    }
   }).
-  populate({
-    path: 'real_time_portion',
-    populate: [{
-      path: 'qr_scans',
-      populate: {
-        path: 'submissions'
-      }
-    }, {
-      path: 'live_polls'
-    }]
-  }).
-  populate({
-    path: 'async_portion',
-    populate: [{
-      path: 'videos',
-      populate: {
-        path: 'video_submissions'
-      }
-    }]
-  }).
-  exec((err, meetings) => {
-    if (err || meetings == null) {
-      console.log("<ERROR> Getting all meetings")
-      res.json(err);
+  populate('real_time_portion').
+  populate('async_portion').
+  exec((error, meetings) => {
+    if (error) {
+      console.log("<ERROR> (meetings/all) Getting meetings")
+      next(error)
     } else {
-      console.log("<Success> Getting all meetings")
+      console.log("<Success> (meetings/all) Getting meetings")
       res.json(meetings);
     }
   });

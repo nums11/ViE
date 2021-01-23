@@ -7,52 +7,7 @@ let User = require('./User.model');
 let Course = require('../Course/Course.model');
 let Section = require('../Section/Section.model');
 
-userRoutes.route('/add').post(function (req, res) {
-  let user = new User(req.body.user);
-  bcrypt.hash(user.password, saltRounds, (err, hash) => {
-    if(err || hash == null) {
-      console.log("<ERROR> Hashing password for user:",user)
-      res.json(err)
-    } else {
-      user.password = hash
-      user.save()
-        .then(() => {
-          console.log("<SUCCESS> Adding user:",user)
-          res.status(200).json(user);
-        })
-        .catch(() => {
-          console.log("<ERROR> Adding user:",user)
-          res.status(400).send("unable to save user to database");
-        });
-    }
-  });
-});
-
-userRoutes.route('/onboard').post(function (req, res) {
-  let new_user = new User(req.body.user);
-  User.find({user_id: new_user.user_id}, (error, existing_users) => {
-    if(error || existing_users == null){
-      console.log("<ERROR> Onboarding new user with user_id:", new_user.user_id)
-      res.json(error)
-    } else {
-      if(existing_users.length === 0) {
-        new_user.save()
-          .then(() => {
-            console.log("<SUCCESS> Onboarding user with id",new_user._id)
-            res.status(200).json(new_user);
-          })
-          .catch(() => {
-            console.log("<ERROR> Onboarding user:",new_user)
-            res.status(400).send("unable to save user to database");
-          });
-      } else {
-        res.status(403).json("User with user_id " + new_user.user_id + " already exists")
-      }
-    }
-  })
-});
-
-userRoutes.get('/', (req, res) => {
+userRoutes.get('/all', (req, res) => {
   User.find(function(err, users){
     if(err || users == null) {
       console.log("<ERROR> Getting all users")
@@ -64,7 +19,7 @@ userRoutes.get('/', (req, res) => {
   })
 })
 
-userRoutes.route('/get/:id/:with_meetings?').get(
+userRoutes.get('/get/:id/:with_meetings?',
   function(req, res, next) {
   let meeting_population = null
   if(req.params.with_meetings === "true"){
@@ -117,6 +72,53 @@ userRoutes.route('/get/:id/:with_meetings?').get(
     }
   })
 });
+
+userRoutes.route('/add').post(function (req, res) {
+  let user = new User(req.body.user);
+  bcrypt.hash(user.password, saltRounds, (err, hash) => {
+    if(err || hash == null) {
+      console.log("<ERROR> Hashing password for user:",user)
+      res.json(err)
+    } else {
+      user.password = hash
+      user.save()
+        .then(() => {
+          console.log("<SUCCESS> Adding user:",user)
+          res.status(200).json(user);
+        })
+        .catch(() => {
+          console.log("<ERROR> Adding user:",user)
+          res.status(400).send("unable to save user to database");
+        });
+    }
+  });
+});
+
+userRoutes.route('/onboard').post(function (req, res) {
+  let new_user = new User(req.body.user);
+  User.find({user_id: new_user.user_id}, (error, existing_users) => {
+    if(error || existing_users == null){
+      console.log("<ERROR> Onboarding new user with user_id:", new_user.user_id)
+      res.json(error)
+    } else {
+      if(existing_users.length === 0) {
+        new_user.save()
+          .then(() => {
+            console.log("<SUCCESS> Onboarding user with id",new_user._id)
+            res.status(200).json(new_user);
+          })
+          .catch(() => {
+            console.log("<ERROR> Onboarding user:",new_user)
+            res.status(400).send("unable to save user to database");
+          });
+      } else {
+        res.status(403).json("User with user_id " + new_user.user_id + " already exists")
+      }
+    }
+  })
+});
+
+
 
 userRoutes.route('/change_password/').post((req, res) => {
 

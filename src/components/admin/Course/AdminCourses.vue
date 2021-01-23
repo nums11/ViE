@@ -76,7 +76,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   #admin-courses {
     width: 80%;
     margin: auto;

@@ -1,6 +1,10 @@
 import API from './API'
 
 export default {
+  // GET -------------------
+  getUsers() {
+    return API().get('users/all')
+  },
   signUp(user) {
     return API().post('users/signup', {
       user: user // add our data to the request body
@@ -10,9 +14,6 @@ export default {
     return API().post('users/login', {
       user: user // add our data to the request body
     })
-  },
-  getUsers() {
-    return API().get('users')
   },
   changePassword(user_id, old_password, new_password) {
     return API().post('users/change_password', {

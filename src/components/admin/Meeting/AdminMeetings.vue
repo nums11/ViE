@@ -1,36 +1,45 @@
 <template>
-  <div>
+  <div id="admin-meetings">
     <h2>Meetings</h2>
-    <table class="table table-hover">
-      <thead>
-      <tr>
-        <th>title</th>
-        <th>for_course</th>
-        <th>course_or_org</th>
-        <th>has_real_time_portion</th>
-        <th>has_async_portion</th>
-      </tr>
-      </thead>
-      <tbody>
-        <tr v-for="meeting in meetings" :key="meeting._id">
-          <td>{{ meeting.title }}</td>
-          <td>{{ meeting.for_course }}</td>
-          <td v-if="meeting.for_course">{{ meeting.course.name }}</td>
-          <td v-else>{{ meeting.org.name }}</td>
-          <td>{{ meeting.has_real_time_portion }}</td>
-          <td>{{ meeting.has_async_portion }}</td>
-          <td>
-            <router-link :to="{name: 'admin_edit_meeting', params: { meeting_id: meeting._id }}" class="btn btn-primary">Edit</router-link>
-          </td>
-          <td>
-            <button class="btn btn-danger" @click.prevent="deleteMeeting(meeting)">Delete</button>
-          </td>
-<!--           <div v-else>
-            <td><button class="btn btn-secondary" @click.prevent="$emit('select-meeting', meeting)">Select</button></td>
-          </div> -->
-        </tr>
-      </tbody>
-    </table>
+    <sui-table>
+      <sui-table-header>
+        <sui-table-row>
+          <sui-table-header-cell>Title</sui-table-header-cell>
+          <sui-table-header-cell>Course</sui-table-header-cell>
+          <sui-table-header-cell># Sections</sui-table-header-cell>
+          <sui-table-header-cell>Real-Time Portion</sui-table-header-cell>
+          <sui-table-header-cell>Async portion</sui-table-header-cell>
+          <sui-table-header-cell>Recurring ID</sui-table-header-cell>
+          <sui-table-header-cell>View Meting</sui-table-header-cell>
+        </sui-table-row>
+      </sui-table-header>
+      <sui-table-body>
+        <sui-table-row v-for="meeting in meetings">
+          <sui-table-cell>{{ meeting.title }}</sui-table-cell>
+          <sui-table-cell>{{ meeting.sections[0].course.name }}</sui-table-cell>
+          <sui-table-cell>{{ meeting.sections.length }}</sui-table-cell>
+          <sui-table-cell v-if="meeting.real_time_portion == null">
+            No Real-Time Portion
+          </sui-table-cell>
+          <sui-table-cell v-else>
+            {{ meeting.real_time_portion.qr_scans.length }} QR Scan(s)
+          </sui-table-cell>
+          <sui-table-cell v-if="meeting.async_portion == null">
+            No Async Portion
+          </sui-table-cell>
+          <sui-table-cell v-else>
+            {{ meeting.async_portion.videos.length }} Video(s)
+          </sui-table-cell>
+          <sui-table-cell>{{ meeting.recurring_id }}</sui-table-cell>
+          <sui-table-cell>
+            <router-link :to="{name: 'meeting_info',
+            params: {meeting_id: meeting._id}}">
+              <sui-button color="blue">View Meeting</sui-button>
+            </router-link>
+          </sui-table-cell>
+        </sui-table-row>
+      </sui-table-body>
+    </sui-table>
   </div>
 </template>
 
@@ -64,3 +73,11 @@
     }
   }
 </script>
+
+<style scoped>
+  #admin-meetings {
+    width: 80%;
+    margin: auto;
+    margin-top: 2rem;
+  }
+</style>

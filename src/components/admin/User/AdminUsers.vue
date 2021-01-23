@@ -77,7 +77,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   #admin-users {
     width: 80%;
     margin: auto;
