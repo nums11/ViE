@@ -35,8 +35,17 @@
             <input v-model="meeting.title">
           </sui-form-field>
         </div>
-        <h5 class="mt-3">Add tasks to your meeting</h5>
-        <p>Tasks can also be added after your meeting is created</p>
+        <h5 class="mt-3">
+          Add portions and tasks to your meeting
+        </h5>
+        <p>
+          You must have at least 1 portion to create
+          your meeting
+        </p>
+        <p>
+          Portions and tasks can also be added after 
+          your meeting is created
+        </p>
         <sui-button v-if="!realTimePortionTimesSet"
           @click.prevent="showAddPortionModal(true)"
           animated size="large"
