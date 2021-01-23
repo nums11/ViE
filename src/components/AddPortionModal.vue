@@ -26,6 +26,7 @@
           </div>
         </div>
         <div class="form-field">
+          <p v-if="show_error" class="error">Start time must be after end time</p>
           <sui-button @click.prevent="addPortion"
           animated :disabled="!formComplete"
           style="background-color:#00b80c; color:white;">
@@ -73,7 +74,8 @@ export default {
       end: null,
       start_input_id: "",
       end_input_id: "",
-      time_window_text: ""
+      time_window_text: "",
+      show_error: false
     }
   },
   computed: {
@@ -158,6 +160,12 @@ export default {
       this.value = value
     },
     addPortion(){
+      this.show_error = false
+      if(!moment(this.end).isAfter(this.start)) {
+        this.show_error = true
+        return
+      }
+
       let portion;
       if(this.is_real_time) {
         portion = {
