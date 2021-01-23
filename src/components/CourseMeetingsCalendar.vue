@@ -1,11 +1,9 @@
 <template>
-  <div class="course-meetings-for-month-container">
-    <FullCalendar :options="calendar_options" />
-  </div>
+  <FullCalendar class="mt-3"
+  :options="calendar_options" />
 </template>
 
 <script>
-import CourseMeetingCard from '@/components/CourseMeetingCard'
 import FullCalendar from '@fullcalendar/vue'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
@@ -20,7 +18,6 @@ export default {
     }
   },
   components: {
-    CourseMeetingCard,
     FullCalendar
   },
   data () {
@@ -36,7 +33,8 @@ export default {
         },
         eventClick: this.handleEventClick,
         events: [],
-        editable: true
+        editable: true,
+        fixedWeekCount: false,
       }
     }
   },
@@ -93,21 +91,4 @@ export default {
 </script>
 
 <style scoped>
-.course-meetings-for-month-container {
-  margin-top: 3rem;
-}
-
-.month {
-  font-size: 1.5rem;
-}
-
-.meeting-cards {
-  width: 97%;
-  margin: auto;
-}
-
-.no-meetings-text {
-  margin-top: 3rem;
-  text-align: center;
-}
 </style>
