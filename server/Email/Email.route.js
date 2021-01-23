@@ -53,10 +53,11 @@ emailRoutes.route('/invite').post(
 emailRoutes.route('/reset_password').post(
   async function (req, res, next) {
   const email = req.body.email
-
+  const user_id = req.body.user_id
   const subject = "ViE - Reset Your Password"
-  const body = "Someone requested a password reset for your "
-    + "account. If this was not you, please contact viengagecontact@gmail.com "
+  const body = "Someone requested a password reset for your account "
+    + ` with the user id <strong>${user_id}</strong>.`
+    + "If this was not you, please contact viengagecontact@gmail.com "
     + "so we can take the proper security measures.<br/><br/> "
     + "Follow this link to reset your password: "
     + `https://viengage.com/#/reset_password/${email}`
