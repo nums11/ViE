@@ -5,8 +5,11 @@
     </sui-modal-header>
     <sui-modal-content scrolling class="center-text">
       <p>Watch this video to get started</p>
-      <iframe v-if="is_instructor" id="getting-started-video" src="https://www.youtube.com/embed/LDn55wPsx3Y" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-      <iframe v-else width="560" id="getting-started-video" height="315" src="https://www.youtube.com/embed/Q_P20sig254" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <iframe v-if="is_instructor" class="getting-started-video" src="https://www.youtube.com/embed/LDn55wPsx3Y" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <iframe v-else width="560" class="getting-started-video" height="315" src="https://www.youtube.com/embed/Q_P20sig254" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      <p class="mt-2">How to Schedule a Meeting</p>
+      <!-- Add video below -->
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/plSTuu35o9o" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </sui-modal-content>
     <sui-modal-actions>
       <sui-button @click="hideModal"
@@ -58,14 +61,14 @@ export default {
 </script>
 
 <style scoped>
-#getting-started-video {
+.getting-started-video {
   width: 40rem;
   height: 20rem;
 
 }
 
 @media (max-width: 744px) {
-  #getting-started-video {
+  .getting-started-video {
     width: 90%;
   }
 }
