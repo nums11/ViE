@@ -18,7 +18,7 @@
         Password Required
       </p>
       <p @click="showForgotPasswordModal"
-      id="forgot-password-text">Forgot Password?</p>
+      id="forgot-password-text">Forgot User Id or Password?</p>
     </div>
     <div class="mt-2" @click="login">
       <Button text="Login" color="blue" size="large"

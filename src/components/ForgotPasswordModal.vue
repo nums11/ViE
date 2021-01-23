@@ -74,7 +74,9 @@ export default {
       try {
         const response = await AuthAPI.getNonRPIUserIDsAndEmails()
         const data = response.data
+        console.log("data", data)
         this.non_rpi_emails = data.emails
+        this.non_rpi_user_ids = data.user_ids
         this.emails_loaded = true
       } catch(error) {
         console.log(error)
@@ -83,15 +85,17 @@ export default {
     },
     async sendPasswordResetEmail() {
       this.show_error = false
-      if(!this.non_rpi_emails.includes(this.email)) {
+      const index = this.non_rpi_emails.indexOf(this.email)
+      if(index === -1) {
         this.show_error = true
         return
       }
 
       try {
         this.emails_loaded = false
+        const user_id = this.non_rpi_user_ids[index]
         const response = await EmailAPI.sendPasswordResetEmail(
-          this.email)
+          this.email, user_id)
         alert("Email Sent")
       } catch(error) {
         console.log(error)
