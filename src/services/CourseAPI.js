@@ -3,7 +3,7 @@ import API from '@/services/API'
 export default {
   // GET ---------------
   getCourses() {
-    return API().get('courses')
+    return API().get('courses/all')
   },
   getCourse(id) {
     return API().get(`courses/get/${id}`)

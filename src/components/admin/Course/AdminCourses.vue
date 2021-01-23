@@ -1,29 +1,35 @@
 <template>
-  <div>
+  <div id="admin-courses">
     <h2>Courses</h2>
-    <table class="table table-hover">
-        <thead>
-        <tr>
-          <th>name</th>
-          <th>dept</th>
-          <th>course_number</th>
-          <th>instructor</th>
-        </tr>
-        </thead>
-        <tbody>
-            <tr v-for="course in courses" :key="course._id">
-              <td>{{ course.name }}</td>
-              <td>{{ course.dept }}</td>
-              <td>{{ getFormattedCourseNumber(course.course_number) }}</td>
-              <td v-if="course.instructor">{{ course.instructor.first_name }} {{ course.instructor.last_name }}</td>
-              <div v-if="is_course_view">
-                <td><router-link :to="{name: 'admin_edit_course', params: { id: course._id }}" class="btn btn-primary">Edit</router-link></td>
-                <td><button class="btn btn-danger" @click.prevent="deleteCourse(course._id)">Delete</button></td>
-              </div>
-              <td v-else><button class="btn btn-secondary" @click.prevent="$emit('select-course', course)">Select</button></td>
-            </tr>
-        </tbody>
-    </table>
+    <sui-table>
+      <sui-table-header>
+        <sui-table-row>
+          <sui-table-header-cell>Name</sui-table-header-cell>
+          <sui-table-header-cell>Dept</sui-table-header-cell>
+          <sui-table-header-cell>Course Number</sui-table-header-cell>
+          <sui-table-header-cell>Instructor</sui-table-header-cell>
+          <sui-table-header-cell># Sections</sui-table-header-cell>
+          <sui-table-header-cell>View Course</sui-table-header-cell>
+        </sui-table-row>
+      </sui-table-header>
+      <sui-table-body>
+        <sui-table-row v-for="course in courses">
+          <sui-table-cell>{{ course.name }}</sui-table-cell>
+          <sui-table-cell>{{ course.dept }}</sui-table-cell>
+          <sui-table-cell>{{ course.course_number }}</sui-table-cell>
+          <sui-table-cell>
+            {{ course.instructor.first_name }} {{ course.instructor.last_name }}
+          </sui-table-cell>
+          <sui-table-cell>{{ course.sections.length }}</sui-table-cell>
+          <sui-table-cell>
+            <router-link :to="{name: 'course_info',
+            params: {id: course._id}}">
+              <sui-button color="blue">View Course</sui-button>
+            </router-link>
+          </sui-table-cell>
+        </sui-table-row>
+      </sui-table-body>
+    </sui-table>
   </div>
 </template>
 
@@ -39,20 +45,13 @@
       }
     },
     created() {
-      this.loadCourses()
+      this.getCourses()
       this.setIsCourseView()
     },
     methods: {
-      async loadCourses () {
+      async getCourses () {
         const response = await CourseAPI.getCourses()
         this.courses = response.data
-        this.getInstructorsForCourses()
-      },
-      async getInstructorsForCourses(){
-        this.courses.forEach(async course => {
-          const response = await CourseAPI.getInstructor(course._id)
-          course.instructor = response.data
-        })
       },
       async deleteCourse(id){
         let confirmation = confirm("Are you sure you want to delete this course?")
@@ -76,3 +75,11 @@
     }
   }
 </script>
+
+<style>
+  #admin-courses {
+    width: 80%;
+    margin: auto;
+    margin-top: 2rem;
+  }
+</style>
