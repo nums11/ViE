@@ -41,8 +41,8 @@
         </div>
         <div class="form-field" v-if='is_real_time'>
           <p class="mb-2">
-            Optionally schedule a reminder to receive a notification
-            for this task.
+            Schedule a reminder to receive a notification
+            for this task (recommended)
           </p>
           <sui-form-field>
             <label class="form-label">Schedule Reminder</label>
