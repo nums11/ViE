@@ -1,19 +1,5 @@
 <template>
   <div class="course-meetings-for-month-container">
-
-<!--     <div class="month">{{ month }}</div>
-    <div class="meeting-cards">
-      <p v-if="meetings.length === 0" class="no-meetings-text">
-        No Meetings.
-        <span v-if="is_instructor">
-          Click on the green button above to schedule a meeting.
-        </span>
-      </p>
-      <div v-else>
-        <CourseMeetingCard v-for="(meeting,index) in meetings"
-        :meeting="meeting" />
-      </div>
-    </div> -->
     <FullCalendar :options="calendar_options" />
   </div>
 </template>
@@ -55,7 +41,6 @@ export default {
     }
   },
   async created () {
-    console.log("meetings", this.meetings)
     this.addMeetingsToCalendar()
   },
   mounted () {

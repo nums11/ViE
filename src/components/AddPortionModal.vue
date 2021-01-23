@@ -11,10 +11,18 @@
           <div class="form-field">
             <sui-form-field required>
               <label class="form-label">
-                {{ window_label }}
+                {{ start_label }}
               </label>
-              <input type="datetime-local" :id="time_window_id">
+              <input type="datetime-local" :id="start_input_id">
             </sui-form-field>
+            <div class="mt-2">
+              <sui-form-field required>
+                <label class="form-label">
+                  {{ end_label }}
+                </label>
+                <input type="datetime-local" :id="end_input_id">
+              </sui-form-field>
+            </div>
           </div>
         </div>
         <div class="form-field">
@@ -59,10 +67,13 @@ export default {
     return {
       show_modal: false,
       header: "",
-      window_label: "",
+      start_label: "",
+      end_label: "",
       start: null,
       end: null,
-      time_window_id: ""
+      start_input_id: "",
+      end_input_id: "",
+      time_window_text: ""
     }
   },
   computed: {
@@ -79,28 +90,28 @@ export default {
   },
   methods: {
     setLabelsAndDates() {
-      let label_prefix = ""
       if(this.is_real_time) {
-        label_prefix = "Real-Time"
+        this.label_prefix = "Real-Time"
         this.time_window_text = "Choose the time window"
           + " for the real-time portion of your meeting"
-        this.time_window_id = "real_time_window"
       } else {
-        label_prefix = "Async"
+        this.label_prefix = "Async"
         this.time_window_text = "Choose the time window"
           + " for which students will be able to submit"
           + " to async tasks"
-        this.time_window_id = "async_window"
       }
-      this.header = `Add ${label_prefix} Portion`
-      this.window_label = `${label_prefix} Window`
+      this.header = `Add ${this.label_prefix} Portion`
+      this.start_label = `${this.label_prefix} Start`
+      this.end_label = `${this.label_prefix} End`
+      this.start_input_id = `${this.label_prefix}-start-input`
+      this.end_input_id = `${this.label_prefix}-end-input`
     },
     initFlatPickr() {
-      // Time Window Input
       const self = this
-      self.time_window_picker = flatpickr(`#${this.time_window_id}`, {
+
+      self.start_picker = flatpickr(
+        `#${this.start_input_id}`, {
         enableTime: true,
-        mode: "range",
         altInput: true,
         altFormat: "M/D, h:mm a",
         parseDate: (datestr, format) => {
@@ -111,13 +122,33 @@ export default {
           return moment(date).format(format);
         },
         onChange: function (selected_dates) {
-          self.updatePropTimes(selected_dates)
+          self.updateTime(true, selected_dates)
+        }
+      })
+      self.end_picker = flatpickr(
+        `#${this.end_input_id}`, {
+        enableTime: true,
+        altInput: true,
+        altFormat: "M/D, h:mm a",
+        parseDate: (datestr, format) => {
+          return moment(datestr, format, true).toDate();
+        },
+        formatDate: (date, format, locale) => {
+          // locale can also be used
+          return moment(date).format(format);
+        },
+        onChange: function (selected_dates) {
+          self.updateTime(false, selected_dates)
+
+          // self.updatePropTimes(selected_dates)
         }
       })
     },
-    updatePropTimes(new_times) {
-      this.start = new_times[0]
-      this.end = new_times[1]
+    updateTime(is_start, time) {
+      if(is_start)
+        this.start = time[0]
+      else
+        this.end = time[0]
     },
     setVideoFile (e) {
       // todo check if valid file extension
@@ -148,13 +179,10 @@ export default {
     hideModal() {
       this.start = null
       this.end = null
-      this.time_window_picker.clear()
       this.show_modal = false
+      this.start_picker.clear()
+      this.end_picker.clear()
     },
-    clearDateTimePicker() {
-      this.time_window_picker.clear()
-      this.resetInputs()
-    }
   }
 }
 </script>
