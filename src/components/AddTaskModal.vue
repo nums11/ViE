@@ -46,7 +46,7 @@
           </p>
           <sui-form-field>
             <label class="form-label">Schedule Reminder</label>
-            <input v-model="task.reminder_time" type="datetime-local"
+            <input type="datetime-local"
             id="reminder-input">
           </sui-form-field>
         </div>
@@ -201,9 +201,15 @@ export default {
           formatDate: (date, format, locale) => {
             // locale can also be used
             return moment(date).format(format);
+          },
+          onChange: function (selected_dates) {
+            self.updateTaskReminderTime(selected_dates)
           }
         })
       }
+    },
+    updateTaskReminderTime(new_times) {
+      this.task.reminder_time = new_times[0]
     },
     updatePropTimes(new_times) {
       if(this.is_real_time){
