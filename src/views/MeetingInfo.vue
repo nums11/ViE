@@ -23,6 +23,7 @@
           :meeting_id="meeting._id"
           :portion="meeting.real_time_portion"
           :meeting_student_ids="meeting_student_ids"
+          :instructor_id="meeting.sections[0].course.instructor._id"
           v-on:show-qr="showQRScanningWindow"
           v-on:set-new-portion="setNewPortion(true, ...arguments)"
           is_real_time />
@@ -108,6 +109,7 @@ export default {
         this.meeting_id = this.$route.params.meeting_id
         const response = await MeetingAPI.getMeeting(this.meeting_id)
         this.meeting = response.data
+        console.log("Meeting", this.meeting)
         this.meeting_course = this.meeting.sections[0].course
         this.setSideBarSubHeaders()
         this.meeting_student_ids = this.getMeetingStudentIDs(this.meeting)

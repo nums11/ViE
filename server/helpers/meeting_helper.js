@@ -1,15 +1,14 @@
 const Meeting = require('../Meeting/Meeting.model');
-const NotificationJob = require('../Notification/NotificationJob.model');
 const RealTimePortion = require('../RealTimePortion/RealTimePortion.model');
 const AsyncPortion = require('../AsyncPortion/AsyncPortion.model');
 const Section = require('../Section/Section.model');
 const User = require('../User/User.model');
 const QRScan = require('../QRScan/QRScan.model');
 const Video = require('../Video/Video.model');
-const schedule = require('node-schedule');
 const QRScanHelper = require('./qr_scan_helper')
 const RealTimePortionHelper = require('./real_time_portion_helper')
 const AsyncPortionHelper = require('./async_portion_helper')
+const NotificationHelper = require('./notification_helper')
 const moment = require("moment");
 
 module.exports = {addMeeting, getEarlierStartDate,
@@ -496,7 +495,8 @@ async function createQRScans(qr_scans, instructor_id, meeting_id) {
       if(reminder_time != null) {
         console.log("reminder_time", reminder_time)
         notifcation_schedule_promises.push(new Promise(async (resolve, reject) => {
-          const updated_notification_job = await scheduleShowQRNotification(
+          const updated_notification_job =
+            await NotificationHelper.scheduleShowQRNotification(
             reminder_time, instructor_id, meeting_id)
           if(updated_notification_job == null)
             reject(null)
@@ -532,57 +532,6 @@ async function createVideos(videos) {
     return saved_videos
   } catch(error) {
     console.log(`<ERROR> createVideos videos:`,videos, error)
-    return null
-  }
-}
-
-async function scheduleShowQRNotification(
-  scheduled_time, instructor_id, meeting_id) {
-  try {
-    const notification_job = new NotificationJob({
-      scheduled_time: scheduled_time,
-      primary_instructor_id: instructor_id,
-      secondary_instructor_id: "null",
-      meeting_id: meeting_id
-    })
-    const saved_notification_job = await notification_job.save()
-
-    const job = schedule.scheduleJob(scheduled_time, function(){
-      saved_notification_job.sendScheduledShowQRNotificationsToInstructors()
-      NotificationJob.findByIdAndRemove(saved_notification_job._id, (error) => {
-        if (error) {
-          console.log("<ERROR> (scheduleShowQRNotification) Deleting NotificationJob with ID:",
-            saved_notification_job._id, error)
-        } else {
-          console.log("<SUCCESS> (scheduleShowQRNotification) Deleting NotificationJob")
-        }
-      });
-    });
-
-    // The global index is used to reschedule all notifications on server
-    // restarts
-    all_notification_jobs.push(job)
-    const global_index = all_notification_jobs.length - 1
-    const update_promise = new Promise((resolve, reject) => {
-      NotificationJob.findByIdAndUpdate(saved_notification_job._id,
-        {global_index: global_index},
-        (error, notification_job) => {
-          if(error || notification_job == null) {
-            console.log("<ERROR> (scheduleShowQRNotification) Updating NotificationJob with ID:",
-              saved_notification_job._id, error)
-            reject(error)
-          } else {
-            resolve(notification_job)
-          }
-        }
-      )
-    })
-    const updated_notification_job = await Promise.resolve(update_promise)
-    return updated_notification_job
-  } catch(error) {
-    console.log(`<ERROR> (scheduleShowQRNotification) scheduled_time:`
-      + ` ${scheduled_time} instructor_id: ${instructor_id}`
-      + ` meeting_id: ${meeting_id}`, error)
     return null
   }
 }
