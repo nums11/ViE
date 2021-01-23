@@ -6,17 +6,6 @@
     <sui-modal-content scrolling class="center-text"
     style="padding-top: 0;">
       <sui-form class="form">
-        <div v-if="edit_portion_times">
-          <p>{{ time_window_text }}</p>
-          <div class="form-field">
-            <sui-form-field required>
-              <label class="form-label">
-                {{ window_label }}
-              </label>
-              <input type="datetime-local" :id="time_window_id">
-            </sui-form-field>
-          </div>
-        </div>
         <div id="radio-container">
           <p class="mb-2 mr-1">
             Choose the task type ({{ coming_soon_task}}
@@ -41,8 +30,8 @@
         </div>
         <div class="form-field" v-if='is_real_time'>
           <p class="mb-2">
-            Optionally schedule a reminder to receive a notification
-            for this task.
+            Schedule a reminder to receive a notification
+            for this task (recommended)
           </p>
           <sui-form-field>
             <label class="form-label">Schedule Reminder</label>
@@ -90,11 +79,9 @@ import moment from 'moment'
 export default {
   name: 'AddTaskModal',
   props: {
-    real_time_portion: Object,
-    async_portion: Object,
-    edit_portion_times: {
+    is_real_time: {
       type: Boolean,
-      default: false
+      required: true
     }
   },
   components: {
@@ -107,9 +94,7 @@ export default {
         video_file: null
       },
       value: 1,
-      is_real_time: Boolean,
       header: "",
-      time_window_text: "",
       coming_soon_task: "",
       window_label: "",
       start_popup_text: "",
@@ -118,24 +103,20 @@ export default {
       end: Date,
       radio_label_one: "",
       radio_label_two: "",
-      time_window_id: "",
     }
   },
   computed: {
     formComplete() {
       if(this.is_real_time) {
-        return this.real_time_portion.real_time_start != null
-          && this.real_time_portion.real_time_end != null
+        return true
       } else {
-        return this.async_portion.async_start != null &&
-          this.async_portion.async_end != null &&
-          this.task.name != null && this.task.name !== ''
-          && this.task.video_file != null
+        return this.task.name != null && 
+        this.task.name !== '' &&
+        this.task.video_file != null
       }
     }
   },
   created () {
-    this.is_real_time = this.real_time_portion != null
     this.setLabelsAndDates()
   },
   mounted() {
@@ -146,50 +127,20 @@ export default {
       let label_prefix = ""
       if(this.is_real_time) {
         label_prefix = "Real-Time"
-        this.time_window_text = "Choose the time window"
-          + " for the real-time portion of your meeting"
         this.coming_soon_task = "quizzes"
-        this.start = this.real_time_portion.real_time_start
-        this.end = this.real_time_portion.real_time_end
         this.radio_label_one = "QR Scan"
         this.radio_label_two = "Quiz"
-        this.time_window_id = "real_time_window"
       } else {
         label_prefix = "Async"
-        this.time_window_text = "Choose the time window"
-          + " for which students will be able to submit"
-          + " to async tasks"
         this.coming_soon_task = "links"
-        this.start = this.async_portion.async_start
-        this.end = this.async_portion.async_end
         this.radio_label_one = "Video"
         this.radio_label_two = "Link"
-        this.time_window_id = "async_window"
       }
       this.header = `Add ${label_prefix} Task`
-      this.window_label = `${label_prefix} Window`
     },
     initFlatPickr() {
-      // Time Window Input
       const self = this
-      self.time_window_picker = flatpickr(`#${this.time_window_id}`, {
-        enableTime: true,
-        mode: "range",
-        altInput: true,
-        altFormat: "M/D, h:mm a",
-        parseDate: (datestr, format) => {
-          return moment(datestr, format, true).toDate();
-        },
-        formatDate: (date, format, locale) => {
-          // locale can also be used
-          return moment(date).format(format);
-        },
-        onChange: function (selected_dates) {
-          self.updatePropTimes(selected_dates)
-        }
-      })
       if(this.is_real_time) {
-        // Reminder Input
         self.reminder_picker = flatpickr('#reminder-input', {
           enableTime: true,
           dateFormat: "M/D, h:mm a",
@@ -210,15 +161,6 @@ export default {
     },
     updateTaskReminderTime(new_times) {
       this.task.reminder_time = new_times[0]
-    },
-    updatePropTimes(new_times) {
-      if(this.is_real_time){
-        this.real_time_portion.real_time_start = new_times[0]
-        this.real_time_portion.real_time_end = new_times[1]
-      } else {
-        this.async_portion.async_start = new_times[0]
-        this.async_portion.async_end = new_times[1]
-      }
     },
     setVideoFile (e) {
       // todo check if valid file extension
@@ -249,10 +191,6 @@ export default {
         let file_input = document.getElementById('file-input')
         file_input.value = ''
       }
-    },
-    clearDateTimePicker() {
-      this.time_window_picker.clear()
-      this.resetInputs()
     }
   }
 }

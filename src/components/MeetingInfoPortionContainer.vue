@@ -60,10 +60,10 @@
       </div>
       <div v-if="portion != null">
         <AddTaskModal v-if="is_real_time"
-        ref="AddTaskModal" :real_time_portion="portion"
+        ref="AddTaskModal" :is_real_time="true"
         v-on:add-task="addTask('qr_scan', ...arguments)" />
         <AddTaskModal v-else
-        ref="AddTaskModal" :async_portion="portion"
+        ref="AddTaskModal" :is_real_time="false"
         v-on:add-task="addTask('video', ...arguments)" />
       </div>
       <AddPortionModal v-if="portion == null"
