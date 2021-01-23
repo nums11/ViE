@@ -1,31 +1,43 @@
 <template>
-  <div>
-    <h2 v-if="is_users_view">Users</h2>
-      <table class="table table-hover">
-          <thead>
-          <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>is_instructor</th>
-            <th>user_id</th>
-          </tr>
-          </thead>
-          <tbody>
-              <tr v-for="user in users" :key="user._id">
-                <td>{{ user.first_name }}</td>
-                <td>{{ user.last_name }}</td>
-                <td>{{ user.is_instructor }}</td>
-                <td>{{ user.user_id }}</td>
-                <div v-if="is_users_view">
-                  <td><router-link :to="{name: 'admin_edit_user', params: { id: user._id }}" class="btn btn-primary">Edit</router-link></td>
-                  <td><button class="btn btn-danger" @click.prevent="deleteUser(user._id)">Delete</button></td>
-                </div>
-                <div v-else>
-                  <td><button class="btn btn-secondary" @click.prevent="$emit('select-user', user)">Select</button></td>
-                </div>
-              </tr>
-          </tbody>
-      </table>
+  <div id="admin-users">
+    <h2 v-if="is_users_view">Users ({{ users.length }})</h2>
+    <sui-table>
+      <sui-table-header>
+        <sui-table-row>
+          <sui-table-header-cell>First Name</sui-table-header-cell>
+          <sui-table-header-cell>Last Name</sui-table-header-cell>
+          <sui-table-header-cell>Is Instructor</sui-table-header-cell>
+          <sui-table-header-cell>User ID</sui-table-header-cell>
+          <sui-table-header-cell>Email</sui-table-header-cell>
+          <sui-table-header-cell>Is RPI Member</sui-table-header-cell>
+          <sui-table-header-cell># Instructor Courses</sui-table-header-cell>
+          <sui-table-header-cell># Student Sections</sui-table-header-cell>
+          <sui-table-header-cell>View User</sui-table-header-cell>
+        </sui-table-row>
+      </sui-table-header>
+      <sui-table-body>
+        <sui-table-row v-for="user in users">
+          <sui-table-cell>{{ user.first_name }}</sui-table-cell>
+          <sui-table-cell>{{ user.last_name }}</sui-table-cell>
+          <sui-table-cell>{{ user.is_instructor }}</sui-table-cell>
+          <sui-table-cell>{{ user.user_id }}</sui-table-cell>
+          <sui-table-cell>{{ user.email }}</sui-table-cell>
+          <sui-table-cell>{{ user.is_rpi_member }}</sui-table-cell>
+          <sui-table-cell>
+            {{ user.instructor_courses.length }}
+          </sui-table-cell>
+          <sui-table-cell>
+            {{ user.student_sections.length }}
+          </sui-table-cell>
+          <sui-table-cell>
+            <router-link :to="{name: 'admin_edit_user',
+            params: {id: user._id}}">
+              <sui-button color="blue">View User</sui-button>
+            </router-link>
+          </sui-table-cell>
+        </sui-table-row>
+      </sui-table-body>
+    </sui-table>
   </div>
 </template>
 
@@ -64,3 +76,11 @@
     }
   }
 </script>
+
+<style>
+  #admin-users {
+    width: 80%;
+    margin: auto;
+    margin-top: 2rem;
+  }
+</style>

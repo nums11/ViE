@@ -9,8 +9,10 @@ const SectionHelper = require('../helpers/section_helper')
 
 // GET --------------------
 
-courseRoutes.get('/', function (req, res, next) {
-  Course.find(function (error, courses) {
+courseRoutes.get('/all', function (req, res, next) {
+  Course.find()
+  .populate('instructor')
+  .exec(function (error, courses) {
     if (error) {
       console.log("<ERROR> (courses/) Getting all courses")
       next(error)
