@@ -477,10 +477,11 @@ export default {
             real_time_portion_id, async_portion_id, qr_scans,
             videos)
         }
+        console.log("here, pushing")
         this.$router.push({name: 'course_info',
           params: {id: this.meeting.sections[0].course._id}})
       } catch (error) {
-        console.log(error)
+        console.log("error", error)
         alert("Sorry, something went wrong")
       }
     }
