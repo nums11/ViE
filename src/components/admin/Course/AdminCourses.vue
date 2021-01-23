@@ -1,6 +1,6 @@
 <template>
   <div id="admin-courses">
-    <h2>Courses</h2>
+    <h2>Courses ({{ courses.length }})</h2>
     <sui-table>
       <sui-table-header>
         <sui-table-row>

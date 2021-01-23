@@ -1,6 +1,6 @@
 <template>
   <div id="admin-users">
-    <h2 v-if="is_users_view">Users</h2>
+    <h2 v-if="is_users_view">Users ({{ users.length }})</h2>
     <sui-table>
       <sui-table-header>
         <sui-table-row>
