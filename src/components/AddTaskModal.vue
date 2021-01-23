@@ -33,6 +33,22 @@
             Schedule a reminder to receive a notification
             for this task (recommended)
           </p>
+          <p v-if="show_default_notification_message">
+            You currently do not have notifications enabled
+            so you will not be able to receive a reminder.
+            Click
+            <span style="cursor:pointer" @click="requestNotificationPermission">
+              <strong>here</strong>
+            </span>
+            to enable notifications.
+          </p>
+          <p v-if="show_denied_notification_message">
+            You have denied notifications. In order to receive a reminder
+            you must manually reenable notifications by clicking on
+            the lock icon on the left side of your search bar and 
+            settings notifications to 'Allow' or
+            going into the site settings.
+          </p>
           <sui-form-field>
             <label class="form-label">Schedule Reminder</label>
             <input type="datetime-local"
@@ -75,9 +91,11 @@
 import flatpickr from "flatpickr";
 import 'flatpickr/dist/themes/material_blue.css';
 import moment from 'moment'
+import helpers from '@/helpers.js'
 
 export default {
   name: 'AddTaskModal',
+  mixins: [helpers],
   props: {
     is_real_time: {
       type: Boolean,
@@ -103,6 +121,8 @@ export default {
       end: Date,
       radio_label_one: "",
       radio_label_two: "",
+      show_default_notification_message: false,
+      show_denied_notification_message: false
     }
   },
   computed: {
@@ -117,6 +137,9 @@ export default {
     }
   },
   created () {
+    if(this.is_real_time) {
+      this.getNotificationPermissionStatus()
+    }
     this.setLabelsAndDates()
   },
   mounted() {
@@ -191,6 +214,29 @@ export default {
         let file_input = document.getElementById('file-input')
         file_input.value = ''
       }
+    },
+    getNotificationPermissionStatus() {
+      if(("Notification") in window) {
+        console.log("permission", Notification.permission)
+        if(Notification.permission === "default")
+          this.show_default_notification_message = true
+        else if(Notification.permission === "denied")
+          this.show_denied_notification_message = true
+      }
+    },
+    async requestNotificationPermission() {
+     let permission = await Notification.requestPermission()
+     if (permission === "granted") {
+       this.notification_permission_status = "granted"
+       this.show_default_notification_message = false
+       this.registerServiceWorkerAndAddSubscription()
+     } else if(permission === "default") {
+       this.notification_permission_status = "default"
+     } else {
+       this.show_default_notification_message = false
+       this.show_denied_notification_message = true
+       this.notification_permission_status = "blocked"
+     }
     }
   }
 }
