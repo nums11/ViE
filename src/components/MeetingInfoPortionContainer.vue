@@ -47,7 +47,7 @@
         v-on:view-submissions="viewSubmissions" />
       </div>
       <div class="add-portion-btn-container" v-else>
-        <sui-button @click="showAddPortionModal"
+        <sui-button v-if="is_instructor" @click="showAddPortionModal"
         size="large" animated
         style="background-color:#00B3FF; color:white;">
             <sui-button-content visible>
