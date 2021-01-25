@@ -109,7 +109,7 @@
         </div>
         <sui-dropdown selection
         v-model="repeat_selection"
-        :options="repeat_options" class="mt-3 ml-1" />
+        :options="repeat_options" class="mt-2 ml-1" />
         <div v-if="repeat_selection == 3" class="mt-1 ml-1">
           <sui-dropdown
           multiple selection v-model="repeat_days_selection"
@@ -503,6 +503,7 @@ export default {
   padding-top: 0.2rem;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .selected-section {
