@@ -268,10 +268,14 @@ async function createSubmission(qr_scan_id, submission) {
         {$push: {submissions: saved_submission}},
         {new: true},
         async (error, qr_scan) => {
-          if(error || qr_scan == null) {
+          if(error) {
             console.log("<ERROR> (createSubmission) updating qr_scan by id",
               qr_scan_id, "with submission", submission, error)
             reject(error)
+          } else if(qr_scan == null) {
+            console.log(`<ERROR> (createSubmission) qr_scan with id`,
+              ` ${qr_scan_id} not found`)
+            reject(null)
           } else {
             resolve(qr_scan)
           }

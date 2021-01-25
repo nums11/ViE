@@ -70,12 +70,7 @@ export default {
   methods: {
     getExistingSubmissions() {
       this.qr_scan.submissions.forEach(submission => {
-        const submitter = submission.submitter
-        this.addStudentSubmission({
-          first_name: submitter.first_name,
-          last_name: submitter.last_name,
-          user_id: submitter.user_id
-        })
+        this.addStudentSubmission(submission)
       })
     },
     startRealTimeQRScan() {
@@ -83,8 +78,10 @@ export default {
       this.client_io = io (url, {forceNew: true})
       this.client_io.emit('startRealTimeQRScan', this.qr_scan._id)
       this.client_io.on('addStudentSubmission', (submission) => {
-        console.log("Adding student submission", submission)
-        this.addStudentSubmission(submission)
+        console.log("Adding student submission", submitter)
+        this.addStudentSubmission({
+          submitter: submitter
+        })
       })
     },
     endRealTimeQRScan() {
