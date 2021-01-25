@@ -32,18 +32,17 @@
     <AddSectionModal
     ref="AddSectionModal" :course="course"
     v-on:add-section="addSection" />
-    <div v-for="section in course_copy.sections"
+    <div v-for="(section,index) in course_copy.sections"
     class="mt-2">
       Section <sui-input type="number" min="0"
       onkeypress="return event.charCode >= 48 && event.charCode <= 57"
       v-model="section.section_number"
       class="section-number-input" />
-      <p class="enrollment-status">
-        {{ section.has_open_enrollment ?
-        "Open Enrollment" : "Closed Enrollment" }}
-      </p>
-      <sui-checkbox v-model="section.has_open_enrollment"
-      class="enrollment-checkbox" />
+      <sui-dropdown selection
+      class="ml-2"
+      placeholder="Enrollment Status"
+      :options="options"
+      v-model="selected_options[index]" />
       <sui-button @click="deleteSection(section)" size="small" animated
       style="background-color:#FF0000; 
       color:white;margin-left:2rem;" :disabled="courseHas1Section">
@@ -100,6 +99,17 @@ export default {
   data () {
     return {
       course_copy: null,
+      options: [
+        {
+          text: "Open Enrollment",
+          value: 1
+        },
+        {
+          text: "Closed Enrollment",
+          value: 2
+        }
+      ],
+      selected_options: []
     }
   },
   computed: {
@@ -127,6 +137,10 @@ export default {
           has_open_enrollment: section.has_open_enrollment,
           _id: section._id
         })
+        if(section.has_open_enrollment)
+          this.selected_options.push(1)
+        else
+          this.selected_options.push(2)
       })
     },
     async updateCourse() {
@@ -137,6 +151,7 @@ export default {
       }
 
       try {
+        this.updateSectionEnrollmentStatuses()
         await CourseAPI.updateCourse(this.course._id,
           this.course_copy)
         this.updateCourseAndSectionValues()
@@ -144,6 +159,16 @@ export default {
       } catch(error) {
         console.log(error)
         alert("Sorry, something went wrong")
+      }
+    },
+    updateSectionEnrollmentStatuses() {
+      for(let i = 0; i < this.course_copy.sections.length;
+        i++) {
+        const enrollment_value = this.selected_options[i]
+        if(enrollment_value === 1)
+          this.course_copy.sections[i].has_open_enrollment = true
+        else
+          this.course_copy.sections[i].has_open_enrollment = false
       }
     },
     updateCourseAndSectionValues() {

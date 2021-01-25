@@ -105,6 +105,7 @@ export default {
           this.$emit('add-section', added_section)
         }
         this.show_modal = false
+        this.selected_option = null
         this.resetSection()
       } catch(error) {
         console.log(error)
