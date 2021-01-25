@@ -27,6 +27,10 @@
         </div>
         <div class="form-field">
           <p v-if="show_error" class="error">Start time must be after end time</p>
+          <sui-button @click.prevent="clearTimes"
+          style="margin-right:5rem;">
+              Clear Times
+          </sui-button>
           <sui-button @click.prevent="addPortion"
           animated :disabled="!formComplete"
           style="background-color:#00b80c; color:white;">
@@ -40,12 +44,6 @@
         </div>
       </sui-form>
     </sui-modal-content>
-    <sui-modal-actions>
-      <sui-button @click="hideModal"
-      style="background-color:#00B3FF; color:white;">
-        Done
-      </sui-button>
-    </sui-modal-actions>
   </sui-modal>
 </template>
 
@@ -185,12 +183,15 @@ export default {
       this.show_modal = true
     },
     hideModal() {
+      this.clearTimes()
+      this.show_modal = false
+    },
+    clearTimes() {
       this.start = null
       this.end = null
-      this.show_modal = false
       this.start_picker.clear()
       this.end_picker.clear()
-    },
+    }
   }
 }
 </script>
