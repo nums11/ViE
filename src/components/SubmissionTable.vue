@@ -77,6 +77,7 @@ export default {
   },
   created () {
     console.log("task", this.task)
+    console.log("meeting_students", this.meeting_students)
     this.getPresentAndAbsentStudents()
   },
   methods: {

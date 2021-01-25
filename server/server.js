@@ -119,8 +119,8 @@ function start() {
           }
         });
 
-        socket.on('attemptQRScanSubmission', async (qr_scan_id, user_id,
-          user_object_id, cb) => {
+        socket.on('attemptQRScanSubmission', async (qr_scan_id, first_name,
+          last_name, user_id, user_object_id, cb) => {
           console.log(`received submitToQRScan event for qr_scan_id ${qr_scan_id}`
             + ` user_id ${user_id}`)
           const instructor_socket_id = real_time_qr_scan_ids.get(qr_scan_id)
@@ -137,7 +137,12 @@ function start() {
             } else {
               cb(true, true)
               io.to(instructor_socket_id).emit('addStudentSubmission',
-                user_id)
+                {
+                  first_name: first_name,
+                  last_name: last_name,
+                  user_id: user_id
+                }
+              )
             }
           }
         })
@@ -263,10 +268,14 @@ async function createSubmission(qr_scan_id, submission) {
         {$push: {submissions: saved_submission}},
         {new: true},
         async (error, qr_scan) => {
-          if(error || qr_scan == null) {
+          if(error) {
             console.log("<ERROR> (createSubmission) updating qr_scan by id",
               qr_scan_id, "with submission", submission, error)
             reject(error)
+          } else if(qr_scan == null) {
+            console.log(`<ERROR> (createSubmission) qr_scan with id`,
+              ` ${qr_scan_id} not found`)
+            reject(null)
           } else {
             resolve(qr_scan)
           }

@@ -14,15 +14,17 @@
           </div>
           <div class="progress-bar-area">
             <div class="title-area">
-              {{ submissions.size }}/{{ student_ids.size }} submissions
+              {{ submissions.length }}/{{ student_ids.size }} submissions
             </div>
             <ProgressBar
             :value="student_ids.length === 0 ? 0 :
-            submissions.size / student_ids.size" />
+            submissions.length / student_ids.size" />
           </div>
         </div>
         <div class="bottom-controls">
-            <sui-button @click="$emit('hide-modal')">Close</sui-button>
+            <sui-button @click="$emit('hide-modal', submissions)">
+              Close
+            </sui-button>
         </div>
       </div>
     </transition>
@@ -54,7 +56,7 @@ export default {
   },
   data() {
     return {
-      submissions: new Set()
+      submissions: []
     }
   },
   created() {
@@ -68,16 +70,18 @@ export default {
   methods: {
     getExistingSubmissions() {
       this.qr_scan.submissions.forEach(submission => {
-        this.addStudentSubmission(submission.user_id)
+        this.addStudentSubmission(submission)
       })
     },
     startRealTimeQRScan() {
       const url = this.getBaseURL()
       this.client_io = io (url, {forceNew: true})
       this.client_io.emit('startRealTimeQRScan', this.qr_scan._id)
-      this.client_io.on('addStudentSubmission', (user_id) => {
-        console.log("Adding student submission", user_id)
-        this.addStudentSubmission(user_id)
+      this.client_io.on('addStudentSubmission', (submitter) => {
+        console.log("Adding student submission", submitter)
+        this.addStudentSubmission({
+          submitter: submitter
+        })
       })
     },
     endRealTimeQRScan() {
@@ -93,8 +97,8 @@ export default {
       return `${url}#/attend/${this.$route.params.meeting_id}/`
         + `${this.qr_scan._id}/${this.qr_scan.code}`
     },
-    addStudentSubmission(user_id) {
-      this.submissions.add(user_id)
+    addStudentSubmission(submission) {
+      this.submissions.push(submission)
       this.$forceUpdate()
     }
   }
