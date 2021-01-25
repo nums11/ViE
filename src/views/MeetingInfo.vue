@@ -3,7 +3,7 @@
     <FullScreenQRCodeModal v-if="show_full_screen_code"
       v-on:hide-modal="hideFullScreenQRCodeModal"
       :qr_scan="full_screen_qr_scan"
-      :student_ids="meeting_student_ids"
+      :student_ids="meeting_students"
     />
 
     <div v-if="!meeting_has_loaded">
@@ -22,7 +22,7 @@
           ref="RealTimePortionContainer"
           :meeting_id="meeting._id"
           :portion="meeting.real_time_portion"
-          :meeting_student_ids="meeting_student_ids"
+          :meeting_students="meeting_students"
           :instructor_id="meeting.sections[0].course.instructor._id"
           v-on:show-qr="showQRScanningWindow"
           v-on:set-new-portion="setNewPortion(true, ...arguments)"
@@ -34,7 +34,7 @@
           :meeting_id="meeting._id"
           :portion="meeting.async_portion"
           v-on:set-new-portion="setNewPortion(false, ...arguments)"
-          :meeting_student_ids="meeting_student_ids" />
+          :meeting_students="meeting_students" />
           <div v-else-if="active_section === 'Statistics'"
           key="statistics">
             <h1>Coming Soon</h1>
@@ -73,7 +73,7 @@ export default {
     return {
       meeting: {},
       meeting_course: {},
-      meeting_student_ids: [],
+      meeting_students: [],
       sidebar_sub_headers: [],
       meeting_has_loaded: false,
       active_section: "Real-Time Portion",
@@ -112,7 +112,7 @@ export default {
         console.log("Meeting", this.meeting)
         this.meeting_course = this.meeting.sections[0].course
         this.setSideBarSubHeaders()
-        this.meeting_student_ids = this.getMeetingStudentIDs(this.meeting)
+        this.meeting_students = this.getMeetingStudents(this.meeting)
         this.meeting_has_loaded = true
       } catch(error) {
         console.log(error)

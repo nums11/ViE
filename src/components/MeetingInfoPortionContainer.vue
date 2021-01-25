@@ -38,7 +38,7 @@
         <SubmissionTable v-if="show_submission_table"
         :task="table_task"
         :is_qr="is_real_time"
-        :student_ids="meeting_student_ids"
+        :meeting_students="meeting_students"
         v-on:hide-submission-table="hideSubmissionTable" />
         <MeetingTasksContainer v-else
         :task_type="is_real_time ? 'qr_scan' : 'video'"
@@ -101,7 +101,7 @@ export default {
       default: false
     },
     instructor_id: String,
-    meeting_student_ids: {
+    meeting_students: {
       type: Set,
       required: true
     }

@@ -31,11 +31,11 @@ export default {
   async created() {
     this.video_id = this.$route.params.video_id
     await this.getAsyncPortion()
-    // if(!this.is_instructor && this.getWindowStatus(this.video, false) === "open"){
-    //     await this.createOrRetrieveStudentSubmission()
-    //     if(this.submission.video_percent_watched < 100)
-    //       this.preventSeekingAndPeriodicallyUpdateSubmission()
-    // }
+    if(!this.is_instructor && this.getWindowStatus(this.video, false) === "open"){
+        await this.createOrRetrieveStudentSubmission()
+        if(this.submission.video_percent_watched < 100)
+          this.preventSeekingAndPeriodicallyUpdateSubmission()
+    }
   },
   computed: {
   },
