@@ -22,22 +22,28 @@ emailRoutes.route('/invite').post(
   const body = getEmailBody(instructor_name, course_name,
     course_subject_code, course_number, section_number, join_code)
   try {
-    let mail_promises = []
-    student_emails.forEach(student_email => {
-      mail_promises.push(new Promise((resolve,reject) => {
-        const mail_options = getMailOptions(student_email,
-          subject, body)
+    // let mail_promises = []
+    let email_statuses = []
+    student_emails.forEach(async student_email => {
+      // mail_promises.push(new Promise((resolve,reject) => {
+      const mail_options = getMailOptions(student_email,
+        subject, body)
+      const mail_promise = new Promise((resolve, reject) => {
         transporter.sendMail(mail_options, function(error, info){
           if (error) {
             console.log("<ERROR> sending invite email", error);
             reject(student_email)
           } else {
+            console.log("sent mail", student_email)
             resolve(student_email)
           }
         });
-      }))
+      })
+      const email_status = await Promise.resolve(mail_promise)
+      email_statuses.push(email_status)
+      // }))
     })
-    const email_statuses = await Promise.allSettled(mail_promises)
+    // const email_statuses = await Promise.allSettled(mail_promises)
     console.log("<SUCCESS> (emails/invite)")
     res.json(email_statuses)
   } catch(error) {

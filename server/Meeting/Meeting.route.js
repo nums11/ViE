@@ -77,7 +77,7 @@ meetingRoutes.route('/get/:id').get(function (req, res, next) {
     populate: [{
       path: 'videos',
       populate: {
-        path: 'video_submissions',
+        path: 'submissions',
         populate: {
           path: 'submitter'
         }

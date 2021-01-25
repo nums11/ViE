@@ -1,6 +1,7 @@
 const express = require('express');
 const videoRoutes = express.Router();
 const Video = require('../Video/Video.model');
+const Submission = require('../Submission/Submission.model');
 const VideoHelper = require('../helpers/video_helper')
 
 // GET -------------------
@@ -60,6 +61,42 @@ videoRoutes.post('/update/:id', function (req, res) {
       }
     }
   );
+});
+
+videoRoutes.post('/add_submission/:video_id',
+  async function (req, res, next) {
+  const video_id = req.params.video_id;
+  const submission = req.body.submission;
+
+  try {
+    const new_submission = new Submission(submission)
+    const saved_submission = await new_submission.save()
+    const video_promise = new Promise((resolve, reject) => {
+      Video.findByIdAndUpdate(video_id,
+        {$push: {submissions: saved_submission}},
+        (error, video) => {
+          if(error) {
+            console.log(`<ERROR> (videos/add_submission) updating`
+              + ` video with id ${video_id} with submission`,
+              saved_submission, error)
+            reject(error)
+          } else if(video == null) {
+            console.log(`<ERROR> (videos/add_submission) video`
+              + ` with id ${video_id} not found`)
+            reject(null)
+          } else {
+            resolve(video)
+          }
+        }
+      )
+    })
+    await Promise.resolve(video_promise)
+    res.json(saved_submission)
+  } catch(error) {
+    console.log(`<ERROR> (videos/add_submission) video_id ${video_id}`,
+      ` submission`, submission)
+    next(error)
+  }
 });
 
 // DELETE ------------------------

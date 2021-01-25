@@ -11,11 +11,11 @@
       <p class="inline-block">
         Join Code: {{ section.join_code }}
       </p>
-      <div @click="showModal"
+<!--       <div @click="showModal"
       class="inline-block float-right">
         <Button text="Invite Students" color="blue"
         size="extra-small" wide />
-      </div>
+      </div> -->
     </div>
     <SectionTable v-if="!section.has_open_enrollment"
     table_name="Pending Approval" :section_id="section._id"

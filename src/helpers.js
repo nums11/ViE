@@ -47,6 +47,21 @@ export default {
 			}
 			return meeting_student_ids
 		},
+		getMeetingStudents(meeting) {
+			let meeting_students = new Set()
+			for(let i = 0; i < meeting.sections.length; i++) {
+				const section_students = meeting.sections[i].students
+				for(let j = 0; j < section_students.length; j++) {
+					const student = section_students[j]
+					meeting_students.add({
+						first_name: student.first_name,
+						last_name: student.last_name,
+						user_id: student.user_id
+					})
+				}
+			}
+			return meeting_students
+		},
 		getBaseURL() {
 			if(process.env.NODE_ENV === "production") {
 			  return "https://viengage.com/"

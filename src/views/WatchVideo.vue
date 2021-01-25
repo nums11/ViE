@@ -13,8 +13,10 @@
 
 <script>
 import videojs from "video.js"
-import AsyncPortionAPI from '@/services/AsyncPortionAPI.js';
-// import AsyncSubmissionAPI from '@/services/AsyncSubmissionAPI.js';
+import AsyncPortionAPI from '@/services/AsyncPortionAPI.js'
+import VideoAPI from '@/services/VideoAPI.js'
+import SubmissionAPI from '@/services/SubmissionAPI.js'
+import moment from 'moment'
 
 export default {
   name: "WatchVideo",
@@ -31,11 +33,11 @@ export default {
   async created() {
     this.video_id = this.$route.params.video_id
     await this.getAsyncPortion()
-    // if(!this.is_instructor && this.getWindowStatus(this.video, false) === "open"){
-    //     await this.createOrRetrieveStudentSubmission()
-    //     if(this.submission.video_percent_watched < 100)
-    //       this.preventSeekingAndPeriodicallyUpdateSubmission()
-    // }
+    if(!this.is_instructor && this.isWithinAsyncPortionWindow()){
+        await this.createOrRetrieveStudentSubmission()
+        if(this.submission.video_percent_watched < 100)
+          this.preventSeekingAndPeriodicallyUpdateSubmission()
+    }
   },
   computed: {
   },
@@ -65,48 +67,40 @@ export default {
         }
       }
     },
-    getWindowStatus(attendance, is_qr) {
-      let current_time = new Date()
-      let window_start = null
-      let window_end = null
-      if(is_qr) {
-        window_start = new Date(attendance.qr_scan_start_time)
-        window_end = new Date(attendance.qr_scan_end_time)
-      } else {
-        window_start = new Date(attendance.video_submission_start_time)
-        window_end = new Date(attendance.video_submission_end_time)
-      }
-      let window_status = ""
-      if(current_time > window_end)
-        window_status = "closed"
-      else if(current_time < window_start)
-        window_status = "upcoming"
-      else
-        window_status = "open"
-      return window_status
+    isWithinAsyncPortionWindow() {
+      const current_time = new Date()
+      return moment(current_time).isSameOrAfter(
+        this.async_portion.async_start) &&
+        moment(current_time).isBefore(this.async_portion.async_end)
     },
     async createOrRetrieveStudentSubmission() {
-      let student_submission_status = this.submissionExistsForStudent()
-      let submission_exists = student_submission_status[0]
-      let submission = student_submission_status[1]
+      const [submission_exists, submission]
+        = this.submissionExistsForStudent()
       if(submission_exists) {
         this.submission = submission
       } else {
-        let async_submission = {
-          submitter: this.$store.state.user.current_user,
-          is_video: true,
-          video: this.video
+        const submission = {
+          submitter: this.state_user._id,
+          task_type: "Video",
+          furthest_video_time: 0,
+          video_percent_watched: 0
         }
-        const response = await AsyncSubmissionAPI.addAsyncSubmission(async_submission)
-        this.submission = response.data
+        try {
+          const response = await
+            VideoAPI.addVideoSubmission(this.video._id,submission)
+          this.submission = response.data
+        } catch(error) {
+          console.log(error)
+          alert("Sorry, something went wrong")
+        }
       }
     },
     submissionExistsForStudent() {
       let submission_exists = false
       let student_submission = null
-      for(let i=0; i < this.video.video_submissions.length; i++) {
-        let submission = this.video.video_submissions[i]
-        if(submission.submitter.user_id === this.current_user.user_id) {
+      for(let i=0; i < this.video.submissions.length; i++) {
+        const submission = this.video.submissions[i]
+        if(submission.submitter.user_id === this.state_user.user_id) {
           student_submission = submission
           submission_exists = true
           break
@@ -158,9 +152,16 @@ export default {
     },
     async updateVideoSubmission(current_time, video_duration) {
       this.submission.furthest_video_time = current_time
-      this.submission.video_percent_watched = (current_time / video_duration) * 100
-      const response = await AsyncSubmissionAPI.updateAsyncSubmission(this.submission._id, this.submission)
-      this.submission = response.data
+      this.submission.video_percent_watched
+        = (current_time / video_duration) * 100
+      try {
+        const response = await SubmissionAPI.updateSubmission(
+          this.submission._id, this.submission)
+        this.submission = response.data
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
     }
   }
 };

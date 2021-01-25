@@ -34,4 +34,26 @@ submissionRoutes.route('/add/:qr_scan_id').post(async function (req, res) {
   }
 });
 
+submissionRoutes.post('/update/:submission_id',
+  function (req, res, next) {
+  const submission_id = req.params.submission_id
+  const submission = req.body.submission
+  Submission.findByIdAndUpdate(submission_id,
+    {
+      furthest_video_time: submission.furthest_video_time,
+      video_percent_watched: submission.video_percent_watched
+    },
+    (error, submission) => {
+      if(error) {
+        console.log(`<ERROR> (submissions/update) updating submission`
+          + ` with id ${submission_id} and submission`, submission)
+        next(error)
+      } else {
+        console.log("<SUCCESS> (submissions/update)")
+        res.json(submission)
+      }
+    }
+  )
+});
+
 module.exports = submissionRoutes;
