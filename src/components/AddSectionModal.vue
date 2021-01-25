@@ -20,14 +20,10 @@
             Sections with open enrollment do not require
             instructor approval for students to join.
           </p>
-          <sui-form-field inline>
-            <label>
-              {{ section.has_open_enrollment ?
-              "Open Enrollment" : "Closed Enrollment" }}
-            </label>
-            <sui-checkbox style="vertical-align:top;"
-            v-model="section.has_open_enrollment" />
-          </sui-form-field>
+          <sui-dropdown selection
+          placeholder="Enrollment Status"
+          :options="options"
+          v-model="selected_option" />
         </div>
         <sui-button
           :disabled="disableAddBtn"
@@ -61,14 +57,26 @@ export default {
       show_modal: false,
       section: {
         section_number: null,
-        has_open_enrollment: false
-      }
+        has_open_enrollment: null
+      },
+      options: [
+        {
+          text: "Open Enrollment",
+          value: 1
+        },
+        {
+          text: "Closed Enrollment",
+          value: 2
+        }
+      ],
+      selected_option: null
     }
   },
   computed: {
     disableAddBtn() {
       return this.section.section_number == null ||
-        this.section.section_number === ''
+        this.section.section_number === '' ||
+        this.selected_option == null
     }
   },
   created () {
@@ -79,6 +87,10 @@ export default {
   methods: {
     async addSection() {
       try {
+        if(this.selected_option === 1) 
+          this.section.has_open_enrollment = true
+        else
+          this.section.has_open_enrollment = false
         // Don't actually create the section on the Register
         // Course view
         if(this.course == null) {
@@ -93,6 +105,7 @@ export default {
           this.$emit('add-section', added_section)
         }
         this.show_modal = false
+        this.selected_option = null
         this.resetSection()
       } catch(error) {
         console.log(error)
