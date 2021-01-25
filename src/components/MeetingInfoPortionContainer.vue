@@ -21,7 +21,7 @@
         <div v-else>
           No {{ portion_type }} Portion
         </div>
-        <sui-button @click="showAddTaskModal"
+        <sui-button v-if="is_instructor" @click="showAddTaskModal"
           animated size="small"
           style="background-color:#00b80c; color:white;
           float:right;" :disabled="portion == null">
