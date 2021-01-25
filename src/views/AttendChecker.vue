@@ -120,6 +120,7 @@ export default {
       const url = this.getBaseURL()
       const client_io = io(url, {forceNew: true})
       client_io.emit('attemptQRScanSubmission', this.qr_scan._id,
+        this.current_user.first_name, this.current_user.last_name,
         this.current_user.user_id, this.current_user._id,
         (instructor_showing_qr, submission_created) => {
           if(instructor_showing_qr) {

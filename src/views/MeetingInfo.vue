@@ -147,7 +147,8 @@ export default {
       this.full_screen_qr_scan = qr_scan
       this.show_qr_code_modal = true
     },
-    hideFullScreenQRCodeModal() {
+    hideFullScreenQRCodeModal(submissions) {
+      this.full_screen_qr_scan.submissions = submissions
       this.show_full_screen_code = false
       this.full_screen_qr_scan = null
     },
