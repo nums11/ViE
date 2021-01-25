@@ -65,6 +65,10 @@
           </sui-form-field>
         </div>
         <div class="form-field">
+          <sui-button @click.prevent="clearInputs"
+          style="margin-right:5rem;">
+              Clear
+          </sui-button>
           <sui-button @click.prevent="addTask"
           animated :disabled="!formComplete"
           style="background-color:#00b80c; color:white;">
@@ -78,12 +82,12 @@
         </div>
       </sui-form>
     </sui-modal-content>
-    <sui-modal-actions>
+<!--     <sui-modal-actions>
       <sui-button @click="hideModal"
       style="background-color:#00B3FF; color:white;">
         Done
       </sui-button>
-    </sui-modal-actions>
+    </sui-modal-actions> -->
   </sui-modal>
 </template>
 
@@ -237,6 +241,17 @@ export default {
        this.show_denied_notification_message = true
        this.notification_permission_status = "blocked"
      }
+    },
+    clearInputs() {
+      this.task.name = null
+      this.task.reminder_time = null
+      this.task.video_file = null
+      if(this.is_real_time){
+        this.reminder_picker.clear()
+      } else {
+        let file_input = document.getElementById('file-input')
+        file_input.value = ''
+      }
     }
   }
 }
