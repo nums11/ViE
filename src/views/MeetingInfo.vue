@@ -6,8 +6,11 @@
       :student_ids="meeting_students"
     />
 
-    <div v-if="!meeting_has_loaded">
-      <sui-loader active />
+    <div v-if="!meeting_has_loaded || deleting_meeting">
+      <sui-loader active>
+        {{!meeting_has_loaded ? "Loading": "Deleting"}}
+        Meeting...
+      </sui-loader>
     </div>
     <div v-else>
       <SideBar :header="meeting.title"
@@ -41,7 +44,11 @@
           </div>
           <div v-else-if="active_section === 'Settings'"
           key="settings">
-            <MeetingSettingsContainer :meeting="meeting" />
+            <MeetingSettingsContainer :meeting="meeting"
+            v-on:show-deleting-meeting-loader="
+            toggleDeletingMeetingLoader(true)"
+            v-on:hide-deleting-meeting-loader="
+            toggleDeletingMeetingLoader(false)"/>
           </div>
         </transition>
       </div>
@@ -76,6 +83,7 @@ export default {
       meeting_students: [],
       sidebar_sub_headers: [],
       meeting_has_loaded: false,
+      deleting_meeting: false,
       active_section: "Real-Time Portion",
       links: [
         {
@@ -157,6 +165,9 @@ export default {
         this.$refs.AsyncPortionContainer.
           setPortionTimesAndTasks()
       }
+    },
+    toggleDeletingMeetingLoader(value) {
+      this.deleting_meeting = value
     }
   }
 }
