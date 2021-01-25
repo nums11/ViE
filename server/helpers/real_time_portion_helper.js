@@ -14,6 +14,12 @@ async function deleteRealTimePortion(real_time_portion_id,
 					qr_scan.submission_ids)
 			)
 		})
+		const qr_scan_deletion_statuses =
+			await Promise.all(qr_scan_promises)
+		qr_scan_deletion_statuses.forEach(status => {
+			if(!status)
+				throw "<ERROR> deleteRealTimePortion deleting qr_scans"
+		})
 		const real_time_portion_promise = new Promise((resolve, reject) => {
 			RealTimePortion.findByIdAndRemove(real_time_portion_id,
 				(error) => {
@@ -26,12 +32,6 @@ async function deleteRealTimePortion(real_time_portion_id,
 					}
 				}
 			)
-		})
-		const qr_scan_deletion_statuses =
-			await Promise.all(qr_scan_promises)
-		qr_scan_deletion_statuses.forEach(status => {
-			if(!status)
-				throw "<ERROR> deleteRealTimePortion deleting qr_scans"
 		})
 		await Promise.resolve(real_time_portion_promise)
 		return true

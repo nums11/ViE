@@ -14,6 +14,12 @@ async function deleteAsyncPortion(async_portion_id,
 					video.submission_ids)
 			)
 		})
+		const video_deletion_statuses =
+			await Promise.all(video_promises)
+		video_deletion_statuses.forEach(status => {
+			if(!status)
+				throw "<ERROR> deleteAsyncPortion deleting videos"
+		})
 		const async_portion_promise = new Promise((resolve, reject) => {
 			AsyncPortion.findByIdAndRemove(async_portion_id,
 				(error) => {
@@ -26,12 +32,6 @@ async function deleteAsyncPortion(async_portion_id,
 					}
 				}
 			)
-		})
-		const video_deletion_statuses =
-			await Promise.all(video_promises)
-		video_deletion_statuses.forEach(status => {
-			if(!status)
-				throw "<ERROR> deleteAsyncPortion deleting videos"
 		})
 		await Promise.resolve(async_portion_promise)
 		return true
