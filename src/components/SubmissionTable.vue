@@ -1,6 +1,6 @@
 <template>
   <div class="submission-table">
-    <sui-table celled striped>
+    <sui-table celled>
       <sui-table-header>
         <sui-table-row>
           <sui-table-header-cell colspan="2">
@@ -23,6 +23,9 @@
               {{ present_students[i-1].first_name }}
               {{ present_students[i-1].last_name }}
               ({{ present_students[i-1].user_id }})
+              <span v-if="!is_qr">
+                {{ (present_students[i-1].video_percent_watched).toFixed(2) }} %
+              </span>
             </span>
           </sui-table-cell>
           <sui-table-cell :width="3">
@@ -73,24 +76,36 @@ export default {
     }
   },
   created () {
+    console.log("task", this.task)
     this.getPresentAndAbsentStudents()
   },
   methods: {
     getPresentAndAbsentStudents() {
-      let submitter_ids = new Set()
-      this.task.submissions.forEach(submission => {
-        submitter_ids.add(submission.submitter.user_id)
-      })
       this.meeting_students.forEach(student => {
-        if(submitter_ids.has(student.user_id))
-          this.present_students.push(student)
-        else
+        let student_submission = null
+        for(let i = 0; i < this.task.submissions.length;
+          i++) {
+          const submission = this.task.submissions[i]
+          if(submission.submitter.user_id === student.user_id){
+            student_submission = {
+              first_name: student.first_name,
+              last_name: student.last_name,
+              user_id: student.user_id,
+              video_percent_watched: submission.video_percent_watched
+            }
+            break
+          }
+        }
+        if(student_submission == null)
           this.absent_students.push(student)
+        else
+          this.present_students.push(student_submission)
       })
-      if(this.present_students.length > this.absent_students.length)
-        this.num_table_rows = this.present_students.length
-      else
+      if(this.absent_students.length > this.present_students.length)
         this.num_table_rows = this.absent_students.length
+      else
+        this.num_table_rows = this.present_students.length
+      console.log("present_students", this.present_students)
     }
   }
 }

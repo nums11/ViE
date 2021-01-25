@@ -4,7 +4,8 @@
       <div class="meeting-title wrap-text">
         {{ card_title }}
       </div>
-      <div class="reminder-container inline-block">
+      <div v-if="is_instructor"
+      class="reminder-container inline-block">
         <div v-if="is_qr">
           <div v-if="task.reminder_time == null">
             No Scheduled Reminder
@@ -18,9 +19,9 @@
           2h 3m, No Quiz
         </div>
       </div>
-      <div class="divider"></div>
+      <div class="divider" v-if="is_instructor"></div>
       <div class="btn-container">
-        <sui-button v-if="is_qr" @click="$emit('show-qr')"
+        <sui-button v-if="is_qr && is_instructor" @click="$emit('show-qr')"
         animated size="mini"
         style="background-color:#00B3FF; color:white;">
           <sui-button-content visible>
@@ -30,11 +31,10 @@
               <sui-icon name="qrcode" />
           </sui-button-content>
         </sui-button>
-        <router-link v-else :to="{name: 'watch_video',
+        <router-link v-if="!is_qr" :to="{name: 'watch_video',
         params: {async_portion_id: portion._id,
           video_id: task._id}}">
-          <sui-button @click="$emit('show-qr')"
-          animated size="mini"
+          <sui-button animated size="mini"
           style="background-color:#00B3FF; color:white;">
             <sui-button-content visible>
               {{ first_button_text }}
@@ -45,8 +45,8 @@
           </sui-button>
         </router-link>
       </div>
-      <div class="divider"></div>
-      <div class="btn-container">
+      <div class="divider" v-if="is_instructor"></div>
+      <div class="btn-container" v-if="is_instructor">
         <sui-button animated size="mini"
         @click="$emit('view-submissions')"
         style="background-color:#00B3FF; color:white;">
