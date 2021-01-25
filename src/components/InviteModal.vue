@@ -34,7 +34,7 @@
             </sui-button>
           </sui-form-field>
         </sui-form>
-        <p class="mt-2">Or</p>
+<!--         <p class="mt-2">Or</p>
         <p class="mt-2 bold">Invite Students via CSV</p>
         <input type="file" id="file-input" @change="selectFile"
         accept=".csv">
@@ -90,7 +90,7 @@
               </sui-table-row>
             </sui-table-body>
           </sui-table>
-        </div>
+        </div> -->
       </div>
      </div>
     </sui-modal-content>
@@ -205,7 +205,8 @@ export default {
           const student_emails_two_d = results.data
           const student_emails = self.convertToOneDArray(
             student_emails_two_d)
-          self.inviteStudents(student_emails)
+          console.log("emails", student_emails)
+          self.inviteStudents([student_emails[0]])
         }
       });
     },
