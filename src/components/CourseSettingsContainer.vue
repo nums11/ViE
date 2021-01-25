@@ -283,7 +283,7 @@ export default {
 }
 
 .section-number-input {
-  width: 5rem;
+  width: 8rem;
   margin-left: 0.5rem;
 }
 
