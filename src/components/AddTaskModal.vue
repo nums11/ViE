@@ -82,12 +82,6 @@
         </div>
       </sui-form>
     </sui-modal-content>
-<!--     <sui-modal-actions>
-      <sui-button @click="hideModal"
-      style="background-color:#00B3FF; color:white;">
-        Done
-      </sui-button>
-    </sui-modal-actions> -->
   </sui-modal>
 </template>
 

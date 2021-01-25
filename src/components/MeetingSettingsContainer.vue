@@ -15,8 +15,12 @@
       </div>
       <sui-form v-else class="portion-form">
         <sui-form-field>
-          <label>Real-Time Window</label>
-          <input type="datetime-local" id="real-time-input" />
+          <label>Real-Time Start</label>
+          <input type="datetime-local" id="real-time-start" />
+        </sui-form-field>
+        <sui-form-field>
+          <label>Real-Time End</label>
+          <input type="datetime-local" id="real-time-end" />
         </sui-form-field>
         <div v-for="(qr_scan, index) in
         meeting_copy.real_time_portion.qr_scans"
@@ -70,8 +74,12 @@
       </div>
       <sui-form v-else class="portion-form">
         <sui-form-field>
-          <label>Async Window</label>
-          <input type="datetime-local" id="async-time-input" />
+          <label>Async Start</label>
+          <input type="datetime-local" id="async-start" />
+        </sui-form-field>
+        <sui-form-field>
+          <label>Async End</label>
+          <input type="datetime-local" id="async-end" />
         </sui-form-field>
         <div v-for="(video, index) in
         meeting_copy.async_portion.videos"
@@ -180,7 +188,7 @@ export default {
     this.setCopyVariables()
   },
   mounted () {
-    this.initTimePicker()
+    this.initTimePickers()
   },
   methods: {
     setCopyVariables() {
@@ -221,16 +229,15 @@ export default {
         })
       }
     },
-    initTimePicker() {
+    initTimePickers() {
       let self = this
       if(this.meeting_copy.real_time_portion != null) {
-        self.real_time_picker = flatpickr('#real-time-input', {
+        self.real_time_start_startpicker =
+        flatpickr('#real-time-start', {
           enableTime: true,
-          mode: "range",
           altInput: true,
           altFormat: "M/D, h:mm a",
-          defaultDate: `${self.meeting_copy.real_time_portion.real_time_start}`
-          + ` to ${self.meeting_copy.real_time_portion.real_time_end}`,
+          defaultDate: self.meeting_copy.real_time_portion.real_time_start,
           parseDate: (datestr, format) => {
             return moment(datestr, format, true).toDate();
           },
@@ -239,7 +246,24 @@ export default {
             return moment(date).format(format);
           },
           onChange: function (selected_dates) {
-            self.updateTimeWindowTimes(true,selected_dates)
+            self.updateTimeWindowTimes(true, true,selected_dates)
+          }
+        })
+        self.real_time_end_startpicker =
+        flatpickr('#real-time-end', {
+          enableTime: true,
+          altInput: true,
+          altFormat: "M/D, h:mm a",
+          defaultDate: self.meeting_copy.real_time_portion.real_time_end,
+          parseDate: (datestr, format) => {
+            return moment(datestr, format, true).toDate();
+          },
+          formatDate: (date, format, locale) => {
+            // locale can also be used
+            return moment(date).format(format);
+          },
+          onChange: function (selected_dates) {
+            self.updateTimeWindowTimes(true,false,selected_dates)
           }
         })
         const qr_scans = self.meeting_copy.real_time_portion.qr_scans
@@ -263,13 +287,12 @@ export default {
         }
       }
       if(this.meeting_copy.async_portion != null) {
-        self.async_time_picker = flatpickr('#async-time-input', {
+        self.async_time_picker =
+        flatpickr('#async-start', {
           enableTime: true,
-          mode: "range",
           altInput: true,
           altFormat: "M/D, h:mm a",
-          defaultDate: `${self.meeting_copy.async_portion.async_start}`
-          + ` to ${self.meeting_copy.async_portion.async_end}`,
+          defaultDate: self.meeting_copy.async_portion.async_start,
           parseDate: (datestr, format) => {
             return moment(datestr, format, true).toDate();
           },
@@ -278,18 +301,45 @@ export default {
             return moment(date).format(format);
           },
           onChange: function (selected_dates) {
-            self.updateTimeWindowTimes(false, selected_dates)
+            self.updateTimeWindowTimes(false,true, selected_dates)
+          }
+        })
+        self.async_time_picker =
+        flatpickr('#async-end', {
+          enableTime: true,
+          altInput: true,
+          altFormat: "M/D, h:mm a",
+          defaultDate: self.meeting_copy.async_portion.async_end,
+          parseDate: (datestr, format) => {
+            return moment(datestr, format, true).toDate();
+          },
+          formatDate: (date, format, locale) => {
+            // locale can also be used
+            return moment(date).format(format);
+          },
+          onChange: function (selected_dates) {
+            self.updateTimeWindowTimes(false,false, selected_dates)
           }
         })
       }
     },
-    updateTimeWindowTimes(is_real_time, new_times) {
+    updateTimeWindowTimes(is_real_time, is_start, new_times) {
       if(is_real_time) {
-        this.meeting_copy.real_time_portion.real_time_start = new_times[0]
-        this.meeting_copy.real_time_portion.real_time_end = new_times[1]
+        if(is_start) {
+          this.meeting_copy.real_time_portion.real_time_start
+            = new_times[0]
+        } else {
+          this.meeting_copy.real_time_portion.real_time_end
+            = new_times[0]
+        }
       } else {
-        this.meeting_copy.async_portion.async_start = new_times[0]
-        this.meeting_copy.async_portion.async_end = new_times[1]
+        if(is_start) {
+          this.meeting_copy.async_portion.async_start
+            = new_times[0]
+        } else {
+          this.meeting_copy.async_portion.async_end
+            = new_times[0]
+        }
       }
     },
     updateQRTime(index, new_times) {
