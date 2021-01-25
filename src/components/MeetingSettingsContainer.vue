@@ -452,6 +452,7 @@ export default {
       }
     },
     async deleteMeeting(delete_all_recurring) {
+      this.$emit('show-deleting-meeting-loader')
       try {
         if(delete_all_recurring) {
           await MeetingAPI.deleteAllRecurringMeetings(
@@ -484,6 +485,7 @@ export default {
         console.log("error", error)
         alert("Sorry, something went wrong")
       }
+      this.$emit('hide-deleting-meeting-loader')
     }
   }
 }
