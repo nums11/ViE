@@ -93,14 +93,6 @@ export default {
         {
           link_name: "Async Portion",
           icon_name: "clock"
-        },
-        {
-          link_name: "Statistics",
-          icon_name: "chart bar"
-        },
-        {
-          link_name: "Settings",
-          icon_name: "cog"
         }
       ],
       show_qr_scanning_window: false,
@@ -119,7 +111,7 @@ export default {
         this.meeting = response.data
         console.log("Meeting", this.meeting)
         this.meeting_course = this.meeting.sections[0].course
-        this.setSideBarSubHeaders()
+        this.setSideBarSubHeadersAndLinks()
         this.meeting_students = this.getMeetingStudents(this.meeting)
         this.meeting_has_loaded = true
       } catch(error) {
@@ -130,7 +122,7 @@ export default {
     showSection(section_name) {
       this.active_section = section_name
     },
-    setSideBarSubHeaders() {
+    setSideBarSubHeadersAndLinks() {
       this.sidebar_sub_headers.push(this.meeting_course.name)
       let sections_sub_header = 
         `Section${this.meeting.sections.length > 1 ? 's' : ''} `
@@ -142,6 +134,16 @@ export default {
         i++
       })
       this.sidebar_sub_headers.push(sections_sub_header)
+      if(this.is_instructor) {
+        this.links.push({
+          link_name: "Statistics",
+          icon_name: "chart bar"
+        })
+        this.links.push({
+          link_name: "Settings",
+          icon_name: "cog"
+        })
+      }
     },
     showFullScreenQRCodeModal(qr_scan) {
       this.full_screen_qr_scan = qr_scan
