@@ -27,7 +27,7 @@
     </div>
     <div v-else id="right-section" class="inline-block">
       <h1>Schedule Meeting</h1>
-      <div id="course-name">RCOS</div>
+      <div id="course-name">{{ course.name }}</div>
       <sui-form class="form"">
         <div class="form-field">
           <sui-form-field required>
