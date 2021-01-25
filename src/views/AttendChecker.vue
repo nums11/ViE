@@ -82,8 +82,8 @@ export default {
     attemptQRScanSubmission(scanned_code) {
       if(this.getRealTimePortionStatus(
         this.meeting.real_time_portion) !== "open") {
-        alert("Submission Failed: This meeting does not have any ongoing "
-          + "real-time tasks.")
+        alert("Submission Failed: The real-time portion of the meeting is "
+          + "not open. Your instructor may need to adjust the meeting times.")
         this.redirectToDashboard()
         return
       }
