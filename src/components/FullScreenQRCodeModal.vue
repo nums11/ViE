@@ -77,7 +77,7 @@ export default {
       const url = this.getBaseURL()
       this.client_io = io (url, {forceNew: true})
       this.client_io.emit('startRealTimeQRScan', this.qr_scan._id)
-      this.client_io.on('addStudentSubmission', (submission) => {
+      this.client_io.on('addStudentSubmission', (submitter) => {
         console.log("Adding student submission", submitter)
         this.addStudentSubmission({
           submitter: submitter
