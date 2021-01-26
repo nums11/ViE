@@ -8,7 +8,7 @@
               :style="{margin: '0 auto'}"
               :value="getUrlEncoded()"
               :options="{
-                  width: 650,
+                  width: 550,
               }"
             />
           </div>
@@ -22,8 +22,14 @@
           </div>
         </div>
         <div class="bottom-controls">
-            <sui-button @click="$emit('hide-modal', submissions)">
-              Close
+          <p class="share-link">
+            <strong>Share this link with students who can't scan:</strong>
+            {{ getUrlEncoded() }}
+          </p>
+            <sui-button @click="$emit('hide-modal', submissions)"
+            size="large" class="float-right" 
+            style="margin-right:5rem;">
+              Close Window
             </sui-button>
         </div>
       </div>
@@ -116,15 +122,9 @@ export default {
   background-color: white;
 }
 
-.bottom-controls {
-  position: absolute;
-  bottom: 40px;
-  right: 40px;
-}
-
 .qr-code-fullscreen {
-    width: 650px;
-    margin: 0 auto;
+  width: 550px;
+  margin: 0 auto;
 }
 
 .progress-bar-area {
@@ -136,6 +136,22 @@ export default {
 .title-area {
   font-size: 1.2rem;
   font-weight: 600;
+}
+
+.share-link {
+  /*border: red solid;*/
+  /*margin: auto;*/
+  text-align: center;
+  line-height: 2rem;
+  display: inline-block;
+}
+
+.bottom-controls {
+  /*padding-right: 5rem;*/
+  margin-top: 2rem;
+/*  position: absolute;
+  bottom: 40px;
+  right: 40px;*/
 }
 
 </style>
