@@ -36,7 +36,7 @@
       <sui-icon :name="real_time_caret_name"
       class="caret-icon float-right" />
     </div>
-    <div v-if="show_real_time_list">
+    <div v-if="show_real_time_list && meeting.real_time_portion != null">
       <MeetingTaskCard
       v-for="(qr_scan, index) in meeting.real_time_portion.qr_scans"
       task_type="qr_scan" :portion="meeting.real_time_portion"
@@ -57,7 +57,7 @@
       <sui-icon :name="async_caret_name"
       class="caret-icon float-right" />
     </div>
-    <div v-if="show_async_list">
+    <div v-if="show_async_list && meeting.async_portion != null">
       <MeetingTaskCard
       v-for="(video, index) in meeting.async_portion.videos"
       task_type="video" :portion="meeting.async_portion"
