@@ -56,7 +56,8 @@ export default {
 					meeting_students.add({
 						first_name: student.first_name,
 						last_name: student.last_name,
-						user_id: student.user_id
+						user_id: student.user_id,
+						_id: student._id
 					})
 				}
 			}
