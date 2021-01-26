@@ -28,7 +28,7 @@
       </div>
     </div>
     <div class="nav-link-container">
-      <div class="nav-link" @click="changeRoute('register_course')">
+      <div class="nav-link" @click="changeRoute('settings')">
         Settings
       </div>
     </div>
@@ -132,7 +132,7 @@ export default {
 #user-name {
   text-align: center;
   color: white;
-  margin-top: 4rem;
+  margin-top: 3rem;
   font-size: 1.25rem;
 }
 
@@ -148,7 +148,7 @@ export default {
 
 #logout-btn {
   text-align: center;
-  margin-top: 2rem;
+  margin-top: 1rem;
   font-size: 2rem;
   color: white;
   font-weight: bold;
