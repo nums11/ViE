@@ -183,7 +183,7 @@ export default {
           this.portion.qr_scans.push(new_qr_scan)
         } catch(error) {
           console.log(error)
-          alert("Sorry, something went wrong")
+          window.alert("Sorry, something went wrong")
         }
         this.adding_task = false
       } else {
@@ -199,7 +199,7 @@ export default {
           this.portion.videos.push(new_video)
         } catch(error) {
           console.log(error)
-          alert("Sorry, something went wrong")
+          window.alert("Sorry, something went wrong")
         }
         this.adding_video = false
       }
@@ -216,7 +216,7 @@ export default {
         this.$emit('set-new-portion',new_portion)
       } catch(error){
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     }
   }

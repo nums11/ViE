@@ -139,7 +139,7 @@ export default {
         this.removeStudent(student._id)
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     },
     getConfirmationMsg(student, operation) {

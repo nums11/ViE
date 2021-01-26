@@ -178,7 +178,7 @@ export default {
         this.selected_btn_indexes = []
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     },
     removeSelectedBackgroundColors() {

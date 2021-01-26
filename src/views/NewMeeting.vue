@@ -245,7 +245,7 @@ export default {
         this.course_has_loaded = true
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     },
     showAddPortionModal(is_real_time) {
@@ -378,7 +378,7 @@ export default {
           saved_meetings[0]._id}})        
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong creating your meeting")
+        window.alert("Sorry, something went wrong creating your meeting")
         this.creating_meeting = false
       }
     },

@@ -298,7 +298,7 @@ const router = new VueRouter({
     },
     {
       name: 'meeting_info',
-      path: '/meeting_info/:meeting_id',
+      path: '/meeting_info/:meeting_id/:qr_scan_id?',
       component: MeetingInfo,
       meta: {
         title: "ViE - Meeting Info",

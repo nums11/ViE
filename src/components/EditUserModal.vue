@@ -79,7 +79,7 @@ export default {
         this.$router.go()
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     },
     showModal() {

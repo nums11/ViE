@@ -59,9 +59,9 @@ export default {
           const response = await SectionAPI.getSectionByJoinCode(this.join_code)
           const section = response.data
           if(this.userIsStudentForCourse(section.course)) {
-            alert("You are already a student for a section within this course")
+            window.alert("You are already a student for a section within this course")
           } else if(this.userIsAlreadyPendingAprroval(section)) {
-            alert("You have already requested to join this section. Please wait"
+            window.alert("You have already requested to join this section. Please wait"
               + " until you are approved by the instructor")
           } else {
             const confirmation = confirm(`Are you sure you want to join `
@@ -72,12 +72,12 @@ export default {
                 section.has_open_enrollment)
               if(section.has_open_enrollment) {
                 this.sendNewStudentEmailToInstructor(section, true)
-                alert("Section successfully joined")
+                window.alert("Section successfully joined")
                 this.$router.push({name: 'course_info',
                   params: {id: section.course._id, reload_page: true}})
               } else {
                 this.sendNewStudentEmailToInstructor(section, false)
-                alert("Requested to join section. You will be notified when the instructor grants approval")
+                window.alert("Requested to join section. You will be notified when the instructor grants approval")
                 this.user.pending_approval_sections.push(section)
               }
             }
@@ -85,10 +85,10 @@ export default {
         } catch(error) {
           console.log("Error", error)
           if(error.response.status === 404)
-            alert("No Section with this join code found. Please make sure you"
+            window.alert("No Section with this join code found. Please make sure you"
               + " copied the join code correctly.")
           else
-            alert("Something went wrong. Please try again")
+            window.alert("Something went wrong. Please try again")
         }
         this.join_code = ""
       }

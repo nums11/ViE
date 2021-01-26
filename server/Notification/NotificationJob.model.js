@@ -31,14 +31,18 @@ let NotificationJob = new Schema({
 	meeting_id: {
 		type: String,
 		required: true
+	},
+	qr_scan_id: {
+		type: String,
+		required: true
 	}
 });
 
 NotificationJob.methods.sendScheduledShowQRNotificationsToInstructors = 
 	async function() {
 	  const redirect_url = process.env.NODE_ENV === "production" ?
-	  `https://viengage.com/#/meeting_info/${this.meeting_id}` :
-	  `http://localhost:8080/#/meeting_info/${this.meeting_id}`
+	  `https://viengage.com/#/meeting_info/${this.meeting_id}/${this.qr_scan_id}` :
+	  `http://localhost:8080/#/meeting_info/${this.meeting_id}/${this.qr_scan_id}`
 	  const payload = JSON.stringify({
 	    title: "ViE - It's time to show your QR Code!",
 	    redirect_url: redirect_url

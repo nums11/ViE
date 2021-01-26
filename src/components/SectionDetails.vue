@@ -151,7 +151,7 @@ export default {
         this.show_section_edit_forms = false
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong updating the section.")
+        window.alert("Sorry, something went wrong updating the section.")
       }
     },
     async inviteStudent() {
@@ -161,7 +161,7 @@ export default {
       if(confirmation) {
         console.log(this.section.invited_students)
         if(this.invitedStudentIsStudentForCourse()){
-          alert(`Cannot invite student with id ${this.invite_student_id} ` +
+          window.alert(`Cannot invite student with id ${this.invite_student_id} ` +
             `since they are already a student for a section within this course.`)
           return
         }
@@ -177,10 +177,10 @@ export default {
             `${this.course.instructor.first_name} ${this.course.instructor.last_name}`)
           const updated_section = response.data
           this.section.invited_students = updated_section.invited_students
-          alert("Invite sent")
+          window.alert("Invite sent")
         } catch(error) {
           console.log(error)
-          alert("Sorry, something went wrong.")
+          window.alert("Sorry, something went wrong.")
         }
       }
       this.invite_student_id = ""
@@ -213,7 +213,7 @@ export default {
         this.section.invited_students = updated_section.invited_students
       } catch(error) {
         console.log(error)
-        alert("Sorry. Something went wrong")
+        window.alert("Sorry. Something went wrong")
       }
     }
   }

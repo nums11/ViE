@@ -142,7 +142,7 @@ export default {
     },
     addSection(section) {
       if(this.sectionWithSectionNumberAlreadyAdded(section)) {
-        alert("Already added a section with this section number")
+        window.alert("Already added a section with this section number")
       } else {
         this.sections.push(section)
         this.sections.sort(this.sectionCompare)

@@ -285,7 +285,7 @@ export default {
           this.show_course_edit_forms = false
         } catch(error) {
           console.log(error)
-          alert("Sorry, something went wrong updating the course.")
+          window.alert("Sorry, something went wrong updating the course.")
         }
       }
     },

@@ -171,10 +171,10 @@ export default {
         const num_successful = this.getNumSuccessfulEmails()
         const num_failed = this.email_statuses.length - num_successful
         this.invite_email = ""
-        alert(`${num_successful} emails sent, ${num_failed} failed`)
+        window.alert(`${num_successful} emails sent, ${num_failed} failed`)
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong sending your email")
+        window.alert("Sorry, something went wrong sending your email")
       }
       this.sending_email = false
     },

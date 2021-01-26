@@ -145,7 +145,7 @@ export default {
     },
     async updateCourse() {
       if(this.sectionsHaveDuplicateNumbers()) {
-        alert("Cannot have 2 or more sections with the same"
+        window.alert("Cannot have 2 or more sections with the same"
           + " section number")
         return
       }
@@ -155,10 +155,10 @@ export default {
         await CourseAPI.updateCourse(this.course._id,
           this.course_copy)
         this.updateCourseAndSectionValues()
-        alert("Course Updated")
+        window.alert("Course Updated")
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     },
     updateSectionEnrollmentStatuses() {
@@ -224,7 +224,7 @@ export default {
         this.removeSectionFromCourse(index)
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     },
     getStudentIDsAndMeetingIDS(section) {
@@ -272,7 +272,7 @@ export default {
           {reload_page: true}});
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     },
     getCourseSectionsAndMeetingIDsForDeletion() {

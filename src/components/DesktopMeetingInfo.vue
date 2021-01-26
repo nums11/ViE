@@ -110,9 +110,32 @@ export default {
     }
   },
   created () {
+    if(this.$route.params.qr_scan_id) {
+      const qr_scan = this.getQRScanByID(
+        this.$route.params.qr_scan_id)
+      console.log("qr_scan", qr_scan)
+      if(qr_scan != null) {
+        console.log("showing")
+        this.showQRScanningWindow(qr_scan)
+      }
+    }
     this.setSideBarSubHeadersAndLinks()
   },
   methods: {
+    getQRScanByID(qr_scan_id) {
+      if(this.meeting.real_time_portion == null)
+        return null
+
+      let qr_scan = null
+      const qr_scans = this.meeting.real_time_portion.qr_scans
+      for(let i = 0; i < qr_scans.length; i++) {
+        if(qr_scans[i]._id === qr_scan_id) {
+          qr_scan = qr_scans[i]
+          break
+        }
+      }
+      return qr_scan
+    },
     showSection(section_name) {
       this.active_section = section_name
     },
@@ -140,6 +163,7 @@ export default {
       }
     },
     showFullScreenQRCodeModal(qr_scan) {
+      console.log("here")
       this.full_screen_qr_scan = qr_scan
       this.show_qr_code_modal = true
     },

@@ -185,7 +185,7 @@ export default {
           else
             this.loginCas()
         } catch(error) {
-          alert("Something went wrong")
+          window.alert("Something went wrong")
           console.log("Error creating user", error)
         }
       }
@@ -208,7 +208,7 @@ export default {
         this.non_rpi_emails = data.emails
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     },
     loginCas() {
@@ -223,7 +223,7 @@ export default {
           params: {first_login: true}})
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     }
   }

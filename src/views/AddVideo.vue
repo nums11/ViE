@@ -148,7 +148,7 @@ export default {
           this.meeting_saving = false;
           this.$router.push({name: 'meeting_info', params: {meeting_id: this.$route.params.meeting_id}})
         }catch(error) {
-          alert("Error saving video")
+          window.alert("Error saving video")
           this.$router.go()
         }
       }
