@@ -5,6 +5,10 @@
         <sui-table-row>
           <sui-table-header-cell colspan="2">
             {{ is_qr ? 'QR Scan' : 'Video' }} Submissions
+            <sui-button @click="$emit('hide-submission-table')"
+            content="Back" icon="arrow left"
+            label-position="left" size="small"
+            class="float-right" />
           </sui-table-header-cell>
         </sui-table-row>
         <sui-table-row>
