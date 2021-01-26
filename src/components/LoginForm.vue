@@ -81,7 +81,7 @@ export default {
             this.show_invalid_credentials = true
           else {
             console.log(error)
-            alert("Something went wrong. Please try again")
+            window.alert("Something went wrong. Please try again")
           }
         }
       }

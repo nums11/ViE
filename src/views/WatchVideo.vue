@@ -53,7 +53,7 @@ export default {
         this.video_has_loaded = true
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong.")
+        window.alert("Sorry, something went wrong.")
       }
     },
     getVideo() {
@@ -91,7 +91,7 @@ export default {
           this.submission = response.data
         } catch(error) {
           console.log(error)
-          alert("Sorry, something went wrong")
+          window.alert("Sorry, something went wrong")
         }
       }
     },
@@ -160,7 +160,7 @@ export default {
         this.submission = response.data
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     }
   }

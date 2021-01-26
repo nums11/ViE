@@ -58,7 +58,7 @@ export default {
         this.user = response.data
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong getting your info")
+        window.alert("Sorry, something went wrong getting your info")
       }
     },
     // Todo: come back and fix error when navigating to the same route
@@ -71,7 +71,7 @@ export default {
         this.$store.dispatch('logout')
       } catch(error) {
         console.log(error)
-        alert("Sorry something went wrong when trying to log out")
+        window.alert("Sorry something went wrong when trying to log out")
       }
     },
   }

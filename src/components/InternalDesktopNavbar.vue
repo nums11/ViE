@@ -99,7 +99,7 @@ export default {
         this.$store.dispatch('logout')
       } catch(error) {
         console.log(error)
-        alert("Sorry something went wrong when trying to log out")
+        window.alert("Sorry something went wrong when trying to log out")
       }
     },
     showGettingStartedModal() {

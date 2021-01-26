@@ -27,7 +27,7 @@ export default {
       let confirmation = confirm("Are you sure you want to add async attendance to all meetings?")
       if(confirmation){
         const response = await MeetingAPI.addAsyncPortionToMeetings()
-        alert("Async attendance successfully added to all meetings")
+        window.alert("Async attendance successfully added to all meetings")
         console.log(response.data)
       }
     },
@@ -42,7 +42,7 @@ export default {
       let confirmation = confirm("Are you sure you want to add service worker subscriptions to all users?")
       if(confirmation) {
         const response = await UserAPI.addServiceWorkerSubscriptionsToAllUsers()
-        alert("Service worker subscriptions successfully added")
+        window.alert("Service worker subscriptions successfully added")
         console.log(response.data)
       }
     },
@@ -57,7 +57,7 @@ export default {
             meeting.course.instructor, meeting.course.secondary_instructor, meeting._id,
             meeting.real_time_portion.qr_scans[0].qr_scan_start_time)
         })
-        alert("Scheduled jobs for all upcoming_meetings")
+        window.alert("Scheduled jobs for all upcoming_meetings")
       }
     }
   }

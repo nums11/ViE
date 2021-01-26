@@ -72,7 +72,7 @@ export default {
         this.user = response.data
       } catch(error) {
         console.log(error)
-        alert("Sorry something went wrong")
+        window.alert("Sorry something went wrong")
       }
     },
     categorizeMeetings() {
