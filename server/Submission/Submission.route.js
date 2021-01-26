@@ -1,35 +1,32 @@
 const express = require('express');
 const submissionRoutes = express.Router();
 const Submission = require('./Submission.model');
+const SubmissionHelper = require('../helpers/submission_helper');
 const QRScan = require('../QRScan/QRScan.model');
 
-submissionRoutes.route('/add/:qr_scan_id').post(async function (req, res) {
+submissionRoutes.route('/add/:qr_scan_id').post(
+  async function (req, res, next) {
   const qr_scan_id = req.params.qr_scan_id
-  const submission = req.body.submission;
-
+  const submissions = req.body.submissions;
   try {
-    const new_submission = new Submission(submission)
-    const saved_submission = await new_submission.save()
-    const update_promise = new Promise((resolve, reject) => {
-      QRScan.findByIdAndUpdate(qr_scan_id,
-        {$push: {submissions: saved_submission}},
-        {new: true},
-        async (error, qr_scan) => {
-          if(error || qr_scan == null) {
-            console.log("<ERROR> (submissions/add) with qr_scan_id", qr_scan_id,
-              "and submission", submission)
-            reject(error)
-          } else {
-            resolve(qr_scan)
-          }
-        }
-      )
+    let submission_promises = []
+    submissions.forEach(submission => {
+      submission_promises.push(new Promise(
+        async (resolve, reject) => {
+        const updated_qr_scan = await
+          SubmissionHelper.addQRSubmission(qr_scan_id, submission)
+        if(updated_qr_scan == null)
+          reject(null)
+        else
+          resolve(updated_qr_scan)
+      }))
     })
-    const updated_qr_scan = await Promise.resolve(update_promise)
+    const updated_qr_scans = await Promise.all(submission_promises)
     console.log("<SUCCESS> (submissions/add)")
-    res.json(updated_qr_scan)
+    res.json(updated_qr_scans)
   } catch(error) {
-    console.log("I got the error ----------------")
+    console.log(`<ERROR> (submissions/add) qr_scan_id ${qr_scan_id}`,
+      ` submissions`, submissions, error)
     next(error)
   }
 });

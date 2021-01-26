@@ -58,6 +58,20 @@
           </sui-button-content>
         </sui-button>
       </div>
+      <div v-else class="student-submission-status inline-block">
+        <div v-if="student_submitted">
+          <div v-if="is_qr">
+            Submission Recorded
+            <sui-icon name="check" color="green" />
+          </div>
+          <div v-else>
+            {{ percent_watched.toFixed(2) }}% watched
+          </div>
+        </div>
+        <div v-else>
+          No Submission <sui-icon name="x" color="red" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -90,12 +104,16 @@ export default {
         course_name: null,
         is_qr: Boolean,
         card_title: "",
-        first_button_text: ""
+        first_button_text: "",
+        student_submitted: false,
+        percent_watched: 0
       }
   },
   created () {
     this.is_qr = this.task_type === 'qr_scan'
     this.setLabelsBasedOnTaskType()
+    if(!this.is_instructor)
+      this.checkIfStudentSubmittedToTask()
   },
   methods: {
     setLabelsBasedOnTaskType() {
@@ -105,6 +123,19 @@ export default {
       } else {
         this.card_title = this.task.name
         this.first_button_text = "View"
+      }
+    },
+    checkIfStudentSubmittedToTask() {
+      const submissions = this.task.submissions
+      console.log("submissions", submissions)
+      for(let i = 0; i < submissions.length; i++) {
+        const submitter = submissions[i].submitter
+        if(submitter.user_id === this.state_user.user_id) {
+          this.student_submitted = true
+          this.percent_watched =
+            submissions[i].video_percent_watched
+          break
+        }
       }
     }
   }
@@ -116,7 +147,6 @@ export default {
   width: 38rem;
   display: inline-block;
   vertical-align: top;
-  /*border: blue solid;*/
 }
 
 .meeting-task-card {
@@ -173,7 +203,23 @@ export default {
   margin-left: 0.65rem;
 }
 
-/*meeting-task-card:not(:first-child) {
-  margin-left: 3rem;
-}*/
+.student-submission-status {
+  margin-top: 0.25rem;
+  float: right;
+  margin-right: 0.25rem;
+}
+
+/* Phone */
+@media (max-width: 768px) {
+  .meeting-task-card-container {
+    width: 100%;
+  }
+  .meeting-task-card {
+    width: 100%;
+  }
+  .meeting-title {
+    float: left;
+    text-align: left;
+  }
+}
 </style>

@@ -5,6 +5,10 @@
         <sui-table-row>
           <sui-table-header-cell colspan="2">
             {{ is_qr ? 'QR Scan' : 'Video' }} Submissions
+            <sui-button @click="$emit('hide-submission-table')"
+            content="Back" icon="arrow left"
+            label-position="left" size="small"
+            class="float-right" />
           </sui-table-header-cell>
         </sui-table-row>
         <sui-table-row>
@@ -29,21 +33,44 @@
             </span>
           </sui-table-cell>
           <sui-table-cell :width="3">
-            <span v-if="i-1 < absent_students.length" class="bold">
-              {{ absent_students[i-1].first_name }}
-              {{ absent_students[i-1].last_name }}
-              ({{ absent_students[i-1].user_id }})
-            </span>
+            <div v-if="i-1 < absent_students.length">
+              <div v-if="is_qr">
+                <sui-popup content="Mark Present" position="top center"
+                inverted>
+                  <sui-button @click="markPresent(i-1)"
+                  size="small"slot="trigger"
+                  style="background-color:#e83e8c; color:white;"
+                  :id="`absent-student-${i-1}`">
+                      {{ absent_students[i-1].first_name }}
+                      {{ absent_students[i-1].last_name }}
+                      ({{ absent_students[i-1].user_id }})
+                  </sui-button>
+                </sui-popup>
+              </div>
+              <span v-else class="bold">
+                {{ absent_students[i-1].first_name }}
+                {{ absent_students[i-1].last_name }}
+                ({{ absent_students[i-1].user_id }})
+              </span>
+            </div>
           </sui-table-cell>
         </sui-table-row>
       </sui-table-body>
       <sui-table-footer>
         <sui-table-row>
           <sui-table-header-cell colspan="2">
+            <div v-if="selected_btn_indexes.length > 0"
+              class="float-right bold" >
+              <span class="mr-2">
+                Mark ({{ selected_btn_indexes.length }}) students present
+              </span>
+              <sui-button @click="overrideStudents"
+              content="Save Changes" size="small" 
+              style="background-color:#00b80c; color:white;" />
+            </div>
             <sui-button @click="$emit('hide-submission-table')"
             content="Back" icon="arrow left"
-            label-position="left" size="small"
-            class="float-right" />
+            label-position="left" size="small"/>
           </sui-table-header-cell>
         </sui-table-row>
       </sui-table-footer>
@@ -52,6 +79,8 @@
 </template>
 
 <script>
+import SubmissionAPI from '@/services/SubmissionAPI'
+
 export default {
   name: 'SubmissionTable',
   props:{
@@ -72,12 +101,11 @@ export default {
     return {
       present_students: [],
       absent_students: [],
-      num_table_rows: 0
+      num_table_rows: 0,
+      selected_btn_indexes: []
     }
   },
   created () {
-    console.log("task", this.task)
-    console.log("meeting_students", this.meeting_students)
     this.getPresentAndAbsentStudents()
   },
   methods: {
@@ -92,7 +120,8 @@ export default {
               first_name: student.first_name,
               last_name: student.last_name,
               user_id: student.user_id,
-              video_percent_watched: submission.video_percent_watched
+              video_percent_watched: submission.video_percent_watched,
+              _id: student._id
             }
             break
           }
@@ -106,7 +135,50 @@ export default {
         this.num_table_rows = this.absent_students.length
       else
         this.num_table_rows = this.present_students.length
-      console.log("present_students", this.present_students)
+    },
+    markPresent(index) {
+      const button =
+        document.getElementById(`absent-student-${index}`)
+      if(this.selected_btn_indexes.includes(index)) {
+        let slice_index;
+        for(let i = 0; i < this.selected_btn_indexes.length;
+          i++) {
+          if(this.selected_btn_indexes[i] === index) {
+            slice_index = i
+            break
+          }
+        }
+        this.selected_btn_indexes.splice(slice_index, 1)
+        button.style.backgroundColor = "#e83e8c"
+      } else {
+        this.selected_btn_indexes.push(index)
+        button.style.backgroundColor = "#ad316a"
+      }
+    },
+    async overrideStudents() {
+      let submissions = []
+      this.selected_btn_indexes.forEach(index => {
+        submissions.push({
+          submitter: this.absent_students[index]._id,
+          task_type:"QRScan"
+        })
+      })
+
+      try {
+        const response = await SubmissionAPI.addQRSubmissions(
+          submissions, this.task._id)
+        const updated_qr_scans = response.data
+        this.task.submissions =
+          updated_qr_scans[updated_qr_scans.length-1].submissions
+        console.log("New submissions", this.task.submissions)
+        this.absent_students = []
+        this.present_students = []
+        this.getPresentAndAbsentStudents()
+        this.selected_btn_indexes = []
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
     }
   }
 }

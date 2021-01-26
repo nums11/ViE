@@ -13,6 +13,7 @@ const session = require('express-session')
 var cookieParser = require('cookie-parser');
 const NotificationJob = require('./Notification/NotificationJob.model');
 const Submission = require('./Submission/Submission.model');
+const SubmissionHelper = require('./helpers/submission_helper');
 const QRScan = require('./QRScan/QRScan.model');
 const schedule = require('node-schedule');
 const nodemailer = require("nodemailer");
@@ -131,7 +132,8 @@ function start() {
               submitter: user_object_id,
               task_type:"QRScan"
             }
-            const updated_qr_scan = await createSubmission(qr_scan_id, submission)
+            const updated_qr_scan = await SubmissionHelper.addSubmission(
+              qr_scan_id, submission)
             if(updated_qr_scan == null) {
               cb(true, false)
             } else {
@@ -258,35 +260,3 @@ function rescheduleAllNotificationJobs() {
     }
   })
 }
-
-async function createSubmission(qr_scan_id, submission) {
-  try {
-    const new_submission = new Submission(submission)
-    const saved_submission = await new_submission.save()
-    const update_promise = new Promise((resolve, reject) => {
-      QRScan.findByIdAndUpdate(qr_scan_id,
-        {$push: {submissions: saved_submission}},
-        {new: true},
-        async (error, qr_scan) => {
-          if(error) {
-            console.log("<ERROR> (createSubmission) updating qr_scan by id",
-              qr_scan_id, "with submission", submission, error)
-            reject(error)
-          } else if(qr_scan == null) {
-            console.log(`<ERROR> (createSubmission) qr_scan with id`,
-              ` ${qr_scan_id} not found`)
-            reject(null)
-          } else {
-            resolve(qr_scan)
-          }
-        }
-      )
-    })
-    const updated_qr_scan = await Promise.resolve(update_promise)
-    return updated_qr_scan
-  } catch(error) {
-    console.log(`<ERROR> (createSubmission) qr_scan_id: ${qr_scan_id}`
-      + ` submission`, submission, error)
-    return null
-  }
-} 

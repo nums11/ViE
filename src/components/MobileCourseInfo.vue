@@ -71,8 +71,9 @@ export default {
 
 <style scoped>
 #mobile-course-info {
-  /*border: green solid;*/
-  width: 100%;
+  width: 95%;
+  margin: auto;
+  margin-top: 1rem;
 }
 
 #instructor-name {
