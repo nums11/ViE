@@ -4,13 +4,14 @@ const schedule = require('node-schedule');
 module.exports = {scheduleShowQRNotification}
 
 async function scheduleShowQRNotification(
-  scheduled_time, instructor_id, meeting_id) {
+  scheduled_time, instructor_id, meeting_id, qr_scan_id) {
   try {
     const notification_job = new NotificationJob({
       scheduled_time: scheduled_time,
       primary_instructor_id: instructor_id,
       secondary_instructor_id: "null",
-      meeting_id: meeting_id
+      meeting_id: meeting_id,
+      qr_scan_id: qr_scan_id
     })
     const saved_notification_job = await notification_job.save()
 
