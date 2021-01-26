@@ -171,6 +171,7 @@ export default {
         this.task.submissions =
           updated_qr_scans[updated_qr_scans.length-1].submissions
         console.log("New submissions", this.task.submissions)
+        this.removeSelectedBackgroundColors()
         this.absent_students = []
         this.present_students = []
         this.getPresentAndAbsentStudents()
@@ -178,6 +179,14 @@ export default {
       } catch(error) {
         console.log(error)
         alert("Sorry, something went wrong")
+      }
+    },
+    removeSelectedBackgroundColors() {
+      for(let i = 0; i < this.absent_students.length;
+        i++) {
+        const button =
+          document.getElementById(`absent-student-${i}`)
+        button.style.backgroundColor = "#e83e8c"
       }
     }
   }
