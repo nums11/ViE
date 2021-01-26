@@ -106,8 +106,8 @@ export default {
       for(let i = 0; i < meeting.async_portion.videos.length;
         i++) {
         const video = meeting.async_portion.videos[i]
-        if(moment(now).isBetween(video.video_submission_start_time,
-          video.video_submission_end_time)) {
+        if(moment(now).isBetween(meeting.async_portion.async_start,
+          meeting.async_portion.async_end)) {
           is_async = true
           break
         }
