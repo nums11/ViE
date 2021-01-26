@@ -215,7 +215,6 @@ export default {
     },
     getNotificationPermissionStatus() {
       if(("Notification") in window) {
-        console.log("permission", Notification.permission)
         if(Notification.permission === "default")
           this.show_default_notification_message = true
         else if(Notification.permission === "denied")
