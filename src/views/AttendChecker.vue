@@ -61,6 +61,7 @@ export default {
       } catch(error) {
         console.log(error)
         this.showInvalidURLAlert()
+        this.redirectToDashboard()
       }
     },
     getQRScan() {
@@ -72,8 +73,10 @@ export default {
           break
         }
       }
-      if(this.qr_scan == null)
+      if(this.qr_scan == null) {
         this.showInvalidURLAlert()
+        this.redirectToDashboard()
+      }
     },
     showInvalidURLAlert() {
       window.alert("Something went wrong. Please make sure you "
