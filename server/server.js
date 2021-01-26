@@ -132,7 +132,7 @@ function start() {
               submitter: user_object_id,
               task_type:"QRScan"
             }
-            const updated_qr_scan = await SubmissionHelper.addSubmission(
+            const updated_qr_scan = await SubmissionHelper.addQRSubmission(
               qr_scan_id, submission)
             if(updated_qr_scan == null) {
               cb(true, false)
