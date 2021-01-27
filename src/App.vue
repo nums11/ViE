@@ -238,6 +238,10 @@ html, body {
   text-align: center;
 }
 
+.right-text {
+  text-align: right;
+}
+
 .auto {
   margin: auto;
 }

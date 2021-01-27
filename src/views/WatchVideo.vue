@@ -1,13 +1,41 @@
 <template>
-  <div>
+  <div id="watch-video">
     <div v-if="!video_has_loaded">
-      <sui-loader active />
+      <sui-loader active size="large">
+        Loading Video...
+      </sui-loader>
     </div>
-    <video v-else id="video_player"
-    class="video-js vjs-big-play-centered video_video"
-    data-setup='{"fluid": true}' controls>
-      <source v-bind:src="video.url">
-    </video>
+    <div v-else>
+      <div id="header-container">
+        <div>
+          <h2 style="margin-left: 4rem;" class="inline-block ml-4">{{ video.name }}</h2>
+<!--           <router-link id="back-to-course-btn"
+          :to="{name: 'course_info', params: {id: course_id}}"> -->
+            <sui-button content="Back to Course" icon="arrow left"
+            label-position="left" class="inline-block float-right" />
+          <!-- </router-link> -->
+        </div>
+        <div class="mt-1">
+          <div class="inline-block sub-header-container center-text">
+            Submission Window: 1/27 2pm - 2/4 4pm
+          </div>
+          <div class="inline-block sub-header-container center-text">
+            50% watched
+          </div>
+          <div class="inline-block sub-header-container center-text">
+            Unrestricted View
+          </div>
+        </div>
+      </div>
+      <div id="video-container">
+        <video id="video_player"
+        class="video-js vjs-big-play-centered "
+        data-setup='{"fluid": true}' controls>
+          <source v-bind:src="video.url">
+        </video>
+      </div>
+
+    </div>
   </div>
 </template>
 
@@ -168,8 +196,37 @@ export default {
 </script>
 
 <style scoped>
-.video_video {
+#watch-video {
+  padding-left: 8rem;
+  padding-right: 8rem;
+  padding-top: 2rem;
+}
+
+#header-container {
+  margin-bottom: 1rem;
+}
+
+.sub-header-container {
+  width: 33.3%;
+}
+
+#video-container {
+  width: 90%;
+  margin: auto;
+  height: 40rem;
+}
+
+#video_player {
+  width: 100%;
+  height: 100%;
+  /*width: 10%;*/
+  /*width: 40rem;*/
+  /*height: 10rem;*/
+  /*width: 80%;*/
+}
+
+/*.video_video {
   width: 100%;
   height: 80%;
-}
+}*/
 </style>
