@@ -347,15 +347,38 @@ export default {
         = new_times[0]
     },
     async updateMeeting() {
+      if(!this.portionTimesAreValid()) {
+        window.alert("Could not update: portion End Times must be"
+          + " after portion start times")
+        return
+      }
+
       try {
         await MeetingAPI.updateMeeting(
           this.meeting._id, this.meeting_copy)
         this.updateMeetingValues()
-        alert("Meeting updated")
+        window.alert("Meeting updated")
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
+    },
+    portionTimesAreValid() {
+      if(this.meeting_copy.real_time_portion != null) {
+        if(!moment(this.meeting_copy.real_time_portion.real_time_end)
+              .isAfter(
+                this.meeting_copy.real_time_portion.real_time_start)) {
+          return false
+        }
+      }
+      if(this.meeting_copy.async_portion != null) {
+        if(!moment(this.meeting_copy.async_portion.async_endc)
+              .isAfter(
+                this.meeting_copy.async_portion.async_start)) {
+          return false
+        }
+      }
+      return true
     },
     updateMeetingValues() {
       // Changed Dates to ISOString to fix flatpickr format bug
@@ -407,7 +430,7 @@ export default {
         this.removeQRScanOrVideoFromCourse(index, is_qr_scan)
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     },
     getSubmissionIds(index, is_qr_scan) {
@@ -456,7 +479,7 @@ export default {
         this.removePortionFromCourse(is_real_time)
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     },
     getTasksWithSubmissionIds(is_real_time) {
@@ -533,7 +556,7 @@ export default {
           params: {id: this.meeting.sections[0].course._id}})
       } catch (error) {
         console.log("error", error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
       this.$emit('hide-deleting-meeting-loader')
     }

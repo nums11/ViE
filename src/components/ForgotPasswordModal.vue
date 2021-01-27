@@ -80,7 +80,7 @@ export default {
         this.emails_loaded = true
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong.")
+        window.alert("Sorry, something went wrong.")
       }
     },
     async sendPasswordResetEmail() {
@@ -96,10 +96,10 @@ export default {
         const user_id = this.non_rpi_user_ids[index]
         const response = await EmailAPI.sendPasswordResetEmail(
           this.email, user_id)
-        alert("Email Sent")
+        window.alert("Email Sent")
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
       this.emails_loaded = true
       this.email = ""

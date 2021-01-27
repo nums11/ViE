@@ -112,7 +112,7 @@ export default {
         this.course_has_loaded = true
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong getting your course")
+        window.alert("Sorry, something went wrong getting your course")
       }
     },
     getMeetingsForCourse() {

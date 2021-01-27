@@ -139,7 +139,7 @@ export default {
         this.removeStudent(student._id)
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     },
     getConfirmationMsg(student, operation) {
@@ -151,7 +151,11 @@ export default {
       else
         msg += "remove "
       msg += `${student.first_name} ${student.last_name}`
-        + ` from your course?`
+      if(operation === "deny" || operation === "remove")
+        msg += " from"
+      else
+        msg += " into"
+       msg += " your course?"
       return msg
     },
     removeStudent(student_object_id) {

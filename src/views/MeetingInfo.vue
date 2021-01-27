@@ -68,7 +68,7 @@ export default {
         this.meeting_has_loaded = true
       } catch(error) {
         console.log(error)
-        alert("Sorry something went wrong")
+        window.alert("Sorry something went wrong")
       }
     },
   }

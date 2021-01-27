@@ -488,22 +488,28 @@ async function createQRScans(qr_scans, instructor_id, meeting_id) {
           code: random_code,
           reminder_time: qr_scans[i].reminder_time
         })
-        const saved_qr_scan = await qr_scan.save()
-        resolve(saved_qr_scan)
+        try {
+          const saved_qr_scan = await qr_scan.save()
+          resolve(saved_qr_scan)
+          const reminder_time = qr_scans[i].reminder_time
+          if(reminder_time != null) {
+            console.log("reminder_time", reminder_time)
+            notifcation_schedule_promises.push(new Promise(async (resolve, reject) => {
+              const updated_notification_job =
+                await NotificationHelper.scheduleShowQRNotification(
+                reminder_time, instructor_id, meeting_id,
+                saved_qr_scan._id)
+              if(updated_notification_job == null)
+                reject(null)
+              else
+                resolve(updated_notification_job)
+            }))
+          }
+        } catch(error) {
+          reject(null)
+          console.log("<ERROR> createQRScans saving QR Scan")
+        }
       }))
-      const reminder_time = qr_scans[i].reminder_time
-      if(reminder_time != null) {
-        console.log("reminder_time", reminder_time)
-        notifcation_schedule_promises.push(new Promise(async (resolve, reject) => {
-          const updated_notification_job =
-            await NotificationHelper.scheduleShowQRNotification(
-            reminder_time, instructor_id, meeting_id)
-          if(updated_notification_job == null)
-            reject(null)
-          else
-            resolve(updated_notification_job)
-        }))
-      }
     }
     const saved_qr_scans = await Promise.all(qr_scan_promises)
     const updated_notification_jobs = await 

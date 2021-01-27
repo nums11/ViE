@@ -75,19 +75,32 @@ export default {
       if(form_valid) {
         try {
           const response = await this.$store.dispatch('login', this.user)
-          this.$router.push({name: 'dashboard'})
+          if(this.$route.params.submit_to_qr)
+            this.redirectToAttendChecker()
+          else
+            this.$router.push({name: 'dashboard'})
         } catch(error) {
           if(error.response.status === 404)
             this.show_invalid_credentials = true
           else {
             console.log(error)
-            alert("Something went wrong. Please try again")
+            window.alert("Something went wrong. Please try again")
           }
         }
       }
     },
     showForgotPasswordModal() {
       this.$refs.ForgotPasswordModal.showModal()
+    },
+    redirectToAttendChecker() {
+      this.$router.push({
+        name: 'attend_checker',
+        params: {
+          meeting_id: this.$route.params.meeting_id,
+          qr_scan_id: this.$route.params.qr_scan_id,
+          code: this.$route.params.code
+        }
+      })
     }
   }
 }

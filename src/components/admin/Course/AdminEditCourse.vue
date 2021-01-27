@@ -155,7 +155,7 @@
       },
       async addSecondaryInstructor(instructor) {
         if(this.course.instructor.user_id === instructor.user_id)
-          alert("User is already primary instructor")
+          window.alert("User is already primary instructor")
         else {
           let confirmation = confirm("Are you sure you want to add this user as a secondary instructor?")
           if(confirmation){
@@ -184,7 +184,7 @@
             this.$router.go()
           }
         } else {
-          alert("Student already in course")
+          window.alert("Student already in course")
         }
       },
       async removeStudent(student){

@@ -84,11 +84,11 @@ export default {
           course.course_number, section.section_number, 
           `${instructor.first_name} ${instructor.last_name}`,
           section.join_code, this.invite_email)
-        alert(`Join code sent to ${this.invite_email}`)
+        window.alert(`Join code sent to ${this.invite_email}`)
         this.invite_email = ""
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong sending your email")
+        window.alert("Sorry, something went wrong sending your email")
       }
       this.sending_email = false
     },

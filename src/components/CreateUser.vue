@@ -185,7 +185,7 @@ export default {
           else
             this.loginCas()
         } catch(error) {
-          alert("Something went wrong")
+          window.alert("Something went wrong")
           console.log("Error creating user", error)
         }
       }
@@ -208,13 +208,13 @@ export default {
         this.non_rpi_emails = data.emails
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     },
     loginCas() {
       window.location.href = process.env.NODE_ENV === 'production' ?
-      "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fviengage.com%2Fauth%2FloginCAS-null-null-true":
-      "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS-null-null-true"
+      "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fviengage.com%2Fauth%2FloginCAS-null-null-null-true":
+      "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS-null-null-null-true"
     },
     async loginNonCas() {
       try {
@@ -223,7 +223,7 @@ export default {
           params: {first_login: true}})
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     }
   }

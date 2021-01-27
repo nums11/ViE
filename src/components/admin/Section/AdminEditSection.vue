@@ -79,7 +79,7 @@
             student_in_section = true
         })
         if(student_in_section){
-          alert("Student already in section")
+          window.alert("Student already in section")
         } else {
           let confirmation = confirm(`Are you sure you want to add ${student.user_id}?`)
           if(confirmation) {

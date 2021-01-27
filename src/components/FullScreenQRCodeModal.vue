@@ -8,7 +8,7 @@
               :style="{margin: '0 auto'}"
               :value="getUrlEncoded()"
               :options="{
-                  width: 650,
+                width: 550,
               }"
             />
           </div>
@@ -22,9 +22,22 @@
           </div>
         </div>
         <div class="bottom-controls">
-            <sui-button @click="$emit('hide-modal', submissions)">
-              Close
-            </sui-button>
+          <p class="share-link">
+            <strong>Share this link with students who can't scan:</strong>
+            {{ getUrlEncoded() }}
+          </p>
+          <p class="inline-block error" id="outside-portion-msg">
+            <span v-if="show_outside_portion_msg">
+              The current time is outside of the real-time portion of your
+              meeting so students will not be able to scan. You must edit
+              the real-time portion of your meeting to allow scanning.
+            </span>
+          </p>
+          <sui-button @click="$emit('hide-modal', submissions)"
+          size="large" 
+          style="">
+            Close Window
+          </sui-button>
         </div>
       </div>
     </transition>
@@ -36,6 +49,7 @@ import ProgressBar from '@/components/ProgressBar.vue'
 import QRCode from '@chenfengyuan/vue-qrcode';
 import io from 'socket.io-client';
 import helpers from '@/helpers.js'
+import moment from 'moment'
 
 export default {
   name: 'FullScreenQRCodeModal',
@@ -52,26 +66,42 @@ export default {
     student_ids: {
       type: Set,
       required: true
+    },
+    real_time_portion: {
+      type: Object,
+      required: true
     }
   },
   data() {
     return {
-      submissions: []
+      submissions: [],
+      show_outside_portion_msg: false
     }
   },
   created() {
     this.getExistingSubmissions()
-    this.startRealTimeQRScan()
+    const real_time_window_open = 
+      this.checkIfRealTimeWindowIsOpen()
+    if(real_time_window_open)
+      this.startRealTimeQRScan()
+    else
+      this.show_outside_portion_msg = true
     this.students = []
   },
   beforeDestroy() {
-    this.endRealTimeQRScan()
+    if(this.real_time_window_open)
+      this.endRealTimeQRScan()
   },
   methods: {
     getExistingSubmissions() {
       this.qr_scan.submissions.forEach(submission => {
         this.addStudentSubmission(submission)
       })
+    },
+    checkIfRealTimeWindowIsOpen() {
+      const now = Date.now()
+      return moment(now).isBetween(this.real_time_portion.real_time_start,
+        this.real_time_portion.real_time_end)
     },
     startRealTimeQRScan() {
       const url = this.getBaseURL()
@@ -94,8 +124,12 @@ export default {
       } else {
         url = "http://localhost:8080/"
       }
-      return `${url}#/attend/${this.$route.params.meeting_id}/`
+      let encoded_url = `${url}#/attend/${this.$route.params.meeting_id}/`
         + `${this.qr_scan._id}/${this.qr_scan.code}`
+      if(this.state_user.is_rpi_member)
+        encoded_url += '/true'
+      console.log("encoded_url", encoded_url)
+      return encoded_url
     },
     addStudentSubmission(submission) {
       this.submissions.push(submission)
@@ -116,15 +150,9 @@ export default {
   background-color: white;
 }
 
-.bottom-controls {
-  position: absolute;
-  bottom: 40px;
-  right: 40px;
-}
-
 .qr-code-fullscreen {
-    width: 650px;
-    margin: 0 auto;
+  width: 550px;
+  margin: 0 auto;
 }
 
 .progress-bar-area {
@@ -136,6 +164,26 @@ export default {
 .title-area {
   font-size: 1.2rem;
   font-weight: 600;
+}
+
+.share-link {
+  text-align: center;
+  line-height: 2rem;
+  display: inline-block;
+}
+
+.bottom-controls {
+  margin-top: 2rem;
+}
+
+#outside-portion-msg {
+  width: 65%;
+  margin-left: 15%;
+  margin-right: 2rem;
+  /*margin-left: 15rem;*/
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-align: center;
 }
 
 </style>

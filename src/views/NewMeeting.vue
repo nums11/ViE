@@ -155,9 +155,11 @@ import NewMeetingPortionContainer from
 '@/components/NewMeetingPortionContainer.vue';
 import VueLottiePlayer from 'vue-lottie-player'
 import moment from 'moment'
+import helpers from '@/helpers.js'
 
 export default {
   name: 'NewMeeting',
+  mixins: [helpers],
   components: {
     Button,
     AddTaskModal,
@@ -239,10 +241,11 @@ export default {
         this.course_id = this.$route.params.course_id
         const response = await CourseAPI.getCourse(this.course_id)
         this.course = response.data
+        this.course.sections.sort(this.sectionCompare)
         this.course_has_loaded = true
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     },
     showAddPortionModal(is_real_time) {
@@ -375,7 +378,7 @@ export default {
           saved_meetings[0]._id}})        
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong creating your meeting")
+        window.alert("Sorry, something went wrong creating your meeting")
         this.creating_meeting = false
       }
     },

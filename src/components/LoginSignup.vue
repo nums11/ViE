@@ -98,9 +98,9 @@ export default {
     },
     getLoginURL() {
       if(process.env.NODE_ENV === "production")
-        return "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fviengage.com%2Fauth%2FloginCAS-null-null-false"
+        return "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fviengage.com%2Fauth%2FloginCAS-null-null-null-false"
       else
-        return "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS-null-null-false"
+        return "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS-null-null-null-false"
     },
     getSignUpURL() {
       if(process.env.NODE_ENV === "production")

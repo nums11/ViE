@@ -81,11 +81,11 @@ export default {
         try {
           const response = await AuthAPI.updatePassword(this.email,
             this.new_password)
-          alert("Password Reset")
+          window.alert("Password Reset")
           this.$router.push({name: 'login'})
         } catch(error) {
           console.log(error)
-          alert("Sorry, something went wrong")
+          window.alert("Sorry, something went wrong")
         }
       }
     }

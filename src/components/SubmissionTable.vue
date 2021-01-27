@@ -39,7 +39,7 @@
                 inverted>
                   <sui-button @click="markPresent(i-1)"
                   size="small"slot="trigger"
-                  style="background-color:#e83e8c; color:white;"
+                  style="background-color:#e83e8c; color:white; width: 50%;"
                   :id="`absent-student-${i-1}`">
                       {{ absent_students[i-1].first_name }}
                       {{ absent_students[i-1].last_name }}
@@ -178,7 +178,7 @@ export default {
         this.selected_btn_indexes = []
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     },
     removeSelectedBackgroundColors() {

@@ -298,7 +298,7 @@ const router = new VueRouter({
     },
     {
       name: 'meeting_info',
-      path: '/meeting_info/:meeting_id',
+      path: '/meeting_info/:meeting_id/:qr_scan_id?',
       component: MeetingInfo,
       meta: {
         title: "ViE - Meeting Info",
@@ -315,7 +315,7 @@ const router = new VueRouter({
     },
     {
       name: 'redirect_cas_login',
-      path: '/redirectCASLogin/:optional_meeting_id/:optional_code/:first_login',
+      path: '/redirectCASLogin/:optional_meeting_id/:optional_qr_scan_id/:optional_code/:first_login',
       component: RedirectCASLogin,
       meta: {
         title: "ViE - Redirecting",
@@ -361,7 +361,7 @@ const router = new VueRouter({
     },
     {
       name: 'attend_checker',
-      path: '/attend/:meeting_id/:qr_scan_id/:code',
+      path: '/attend/:meeting_id/:qr_scan_id/:code/:is_rpi?',
       component: AttendChecker,
     },
     {

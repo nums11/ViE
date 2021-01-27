@@ -17,13 +17,25 @@ export default {
   mixins: [helpers],
   async created () {
     if(!this.userIsLoggedIn()) {
-      if(process.env.NODE_ENV === "production") {
-        this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fviengage.com%2Fauth%2FloginCAS-"
-          + `${this.$route.params.meeting_id}-${this.$route.params.code}-false`
+      // Redirect RPI students to CAS Login
+      if(this.$route.params.is_rpi === "true") {
+        if(process.env.NODE_ENV === "production") {
+          this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fviengage.com%2Fauth%2FloginCAS-"
+            + `${this.$route.params.meeting_id}-${this.$route.params.qr_scan_id}-${this.$route.params.code}-false`
+        } else {
+          this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS-" + `${this.$route.params.meeting_id}-${this.$route.params.qr_scan_id}-${this.$route.params.code}-false`
+        }
+        window.location.href = this.cas_url;
       } else {
-        this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS-" + `${this.$route.params.meeting_id}-${this.$route.params.code}-false`
+        this.$router.push({name: 'login',
+          params: {
+            submit_to_qr: true,
+            meeting_id: this.$route.params.meeting_id,
+            qr_scan_id: this.$route.params.qr_scan_id,
+            code: this.$route.params.code
+          }
+        })
       }
-      window.location.href = this.cas_url;
     } else {
       await this.getMeeting()
       if(this.meeting == null)
@@ -61,6 +73,7 @@ export default {
       } catch(error) {
         console.log(error)
         this.showInvalidURLAlert()
+        this.redirectToDashboard()
       }
     },
     getQRScan() {
@@ -72,34 +85,36 @@ export default {
           break
         }
       }
-      if(this.qr_scan == null)
+      if(this.qr_scan == null) {
         this.showInvalidURLAlert()
+        this.redirectToDashboard()
+      }
     },
     showInvalidURLAlert() {
-      alert("Something went wrong. Please make sure you "
+      window.alert("Something went wrong. Please make sure you "
         + " scanned the correct code")
     },
     attemptQRScanSubmission(scanned_code) {
       if(this.getRealTimePortionStatus(
         this.meeting.real_time_portion) !== "open") {
-        alert("Submission Failed: The real-time portion of the meeting is "
+        window.alert("Submission Failed: The real-time portion of the meeting is "
           + "not open. Your instructor may need to adjust the meeting times.")
         this.redirectToDashboard()
         return
       }
       if(!this.userIsStudentForMeetingSection()) {
-        alert("Submission Failed: You are not a student for this course.")
+        window.alert("Submission Failed: You are not a student for this course.")
         this.redirectToDashboard()
         return
       }
       if(this.studentSubmittedToQRScan(this.current_user.user_id,
         this.qr_scan)) {
-        alert("Submission Failed: You have already submitted to this QR SCan.")
+        window.alert("Submission Failed: You have already submitted to this QR SCan.")
         this.redirectToDashboard()
         return
       }
       if(!this.scannedCodeIsValid()){
-        alert("Submission Failed: Scanned invalid code!")
+        window.alert("Submission Failed: Scanned invalid code!")
         this.redirectToDashboard()
         return
       }
@@ -125,11 +140,11 @@ export default {
         (instructor_showing_qr, submission_created) => {
           if(instructor_showing_qr) {
             if(submission_created)
-              alert("Submisssion Recorded.")
+              window.alert("Submisssion Recorded.")
             else
-              alert("Sorry, something went wrong creating your submission")
+              window.alert("Sorry, something went wrong creating your submission")
           } else {
-            alert("Submission Failed: Instructor must be showing the QR")
+            window.alert("Submission Failed: Instructor must be showing the QR")
           }
           this.show_qr_success_animation = false
           this.$router.push({name: 'meeting_info',

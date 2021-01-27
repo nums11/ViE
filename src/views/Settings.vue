@@ -51,7 +51,7 @@ export default {
         this.$store.dispatch('logout')
       } catch(error) {
         console.log(error)
-        alert("Sorry, something went wrong")
+        window.alert("Sorry, something went wrong")
       }
     },
     showEditUserModal() {

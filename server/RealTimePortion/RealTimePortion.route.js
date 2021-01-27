@@ -36,7 +36,7 @@ realTimePortionRoutes.post('/add_qr_scan/:real_time_portion_id',
           if(saved_qr_scan.reminder_time != null) {
             NotificationHelper.scheduleShowQRNotification(
               saved_qr_scan.reminder_time, instructor_id,
-              meeting_id)
+              meeting_id, saved_qr_scan._id)
           }
           console.log("<SUCCESS> (real_time_portions/add_qr_scan)")
           res.json(saved_qr_scan)
