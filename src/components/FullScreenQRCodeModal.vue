@@ -8,7 +8,7 @@
               :style="{margin: '0 auto'}"
               :value="getUrlEncoded()"
               :options="{
-                  width: 550,
+                width: 550,
               }"
             />
           </div>
@@ -26,11 +26,18 @@
             <strong>Share this link with students who can't scan:</strong>
             {{ getUrlEncoded() }}
           </p>
-            <sui-button @click="$emit('hide-modal', submissions)"
-            size="large" class="float-right" 
-            style="margin-right:5rem;">
-              Close Window
-            </sui-button>
+          <p class="inline-block error" id="outside-portion-msg">
+            <span v-if="show_outside_portion_msg">
+              The current time is outside of the real-time portion of your
+              meeting so students will not be able to scan. You must edit
+              the real-time portion of your meeting to allow scanning.
+            </span>
+          </p>
+          <sui-button @click="$emit('hide-modal', submissions)"
+          size="large" 
+          style="">
+            Close Window
+          </sui-button>
         </div>
       </div>
     </transition>
@@ -42,6 +49,7 @@ import ProgressBar from '@/components/ProgressBar.vue'
 import QRCode from '@chenfengyuan/vue-qrcode';
 import io from 'socket.io-client';
 import helpers from '@/helpers.js'
+import moment from 'moment'
 
 export default {
   name: 'FullScreenQRCodeModal',
@@ -58,26 +66,42 @@ export default {
     student_ids: {
       type: Set,
       required: true
+    },
+    real_time_portion: {
+      type: Object,
+      required: true
     }
   },
   data() {
     return {
-      submissions: []
+      submissions: [],
+      show_outside_portion_msg: false
     }
   },
   created() {
     this.getExistingSubmissions()
-    this.startRealTimeQRScan()
+    const real_time_window_open = 
+      this.checkIfRealTimeWindowIsOpen()
+    if(real_time_window_open)
+      this.startRealTimeQRScan()
+    else
+      this.show_outside_portion_msg = true
     this.students = []
   },
   beforeDestroy() {
-    this.endRealTimeQRScan()
+    if(this.real_time_window_open)
+      this.endRealTimeQRScan()
   },
   methods: {
     getExistingSubmissions() {
       this.qr_scan.submissions.forEach(submission => {
         this.addStudentSubmission(submission)
       })
+    },
+    checkIfRealTimeWindowIsOpen() {
+      const now = Date.now()
+      return moment(now).isBetween(this.real_time_portion.real_time_start,
+        this.real_time_portion.real_time_end)
     },
     startRealTimeQRScan() {
       const url = this.getBaseURL()
@@ -139,19 +163,23 @@ export default {
 }
 
 .share-link {
-  /*border: red solid;*/
-  /*margin: auto;*/
   text-align: center;
   line-height: 2rem;
   display: inline-block;
 }
 
 .bottom-controls {
-  /*padding-right: 5rem;*/
   margin-top: 2rem;
-/*  position: absolute;
-  bottom: 40px;
-  right: 40px;*/
+}
+
+#outside-portion-msg {
+  width: 65%;
+  margin-left: 15%;
+  margin-right: 2rem;
+  /*margin-left: 15rem;*/
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-align: center;
 }
 
 </style>
