@@ -17,13 +17,25 @@ export default {
   mixins: [helpers],
   async created () {
     if(!this.userIsLoggedIn()) {
-      if(process.env.NODE_ENV === "production") {
-        this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fviengage.com%2Fauth%2FloginCAS-"
-          + `${this.$route.params.meeting_id}-${this.$route.params.qr_scan_id}-${this.$route.params.code}-false`
+      // Redirect RPI students to CAS Login
+      if(this.$route.params.is_rpi === "true") {
+        if(process.env.NODE_ENV === "production") {
+          this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=https%3A%2F%2Fviengage.com%2Fauth%2FloginCAS-"
+            + `${this.$route.params.meeting_id}-${this.$route.params.qr_scan_id}-${this.$route.params.code}-false`
+        } else {
+          this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS-" + `${this.$route.params.meeting_id}-${this.$route.params.qr_scan_id}-${this.$route.params.code}-false`
+        }
+        window.location.href = this.cas_url;
       } else {
-        this.cas_url = "https://cas-auth.rpi.edu/cas/login?service=http%3A%2F%2Flocalhost%3A4000%2Fauth%2FloginCAS-" + `${this.$route.params.meeting_id}-${this.$route.params.qr_scan_id}-${this.$route.params.code}-false`
+        this.$router.push({name: 'login',
+          params: {
+            submit_to_qr: true,
+            meeting_id: this.$route.params.meeting_id,
+            qr_scan_id: this.$route.params.qr_scan_id,
+            code: this.$route.params.code
+          }
+        })
       }
-      window.location.href = this.cas_url;
     } else {
       await this.getMeeting()
       if(this.meeting == null)
