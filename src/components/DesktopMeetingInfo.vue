@@ -4,6 +4,7 @@
       v-on:hide-modal="hideFullScreenQRCodeModal"
       :qr_scan="full_screen_qr_scan"
       :student_ids="meeting_students"
+      :real_time_portion="meeting.real_time_portion"
     />
 
     <div v-if="deleting_meeting">
@@ -106,7 +107,7 @@ export default {
       ],
       show_qr_scanning_window: false,
       full_screen_qr_scan: null,
-      show_full_screen_code: false,
+      show_full_screen_code: false
     }
   },
   created () {

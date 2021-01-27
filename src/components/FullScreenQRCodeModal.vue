@@ -3,12 +3,19 @@
     <transition name="fade" mode="out-in">
       <div class="fullscreen-modal">
         <div class="full-content-area">
+          <p class="outside-of-window-msg">
+            You are currently outside of the real-time portion
+            of your meeting so students will not be able to submit
+            to this QR Scan. To Allow students to scan, close this
+            window and go to the meeting settings tab where you can 
+            edit the real-time portion of your meeting.
+          </p>
           <div class="qr-code-fullscreen">
             <QRCode 
               :style="{margin: '0 auto'}"
               :value="getUrlEncoded()"
               :options="{
-                  width: 550,
+                width: 550,
               }"
             />
           </div>
@@ -120,6 +127,16 @@ export default {
   bottom: 0;
   z-index: 2000;
   background-color: white;
+}
+
+.outside-of-window-msg {
+  width: 90%;
+  margin: auto;
+  margin-bottom: 0;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.25rem;
+  margin-top: 1rem;
 }
 
 .qr-code-fullscreen {
