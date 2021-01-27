@@ -124,8 +124,12 @@ export default {
       } else {
         url = "http://localhost:8080/"
       }
-      return `${url}#/attend/${this.$route.params.meeting_id}/`
+      let encoded_url = `${url}#/attend/${this.$route.params.meeting_id}/`
         + `${this.qr_scan._id}/${this.qr_scan.code}`
+      if(this.state_user.is_rpi_member)
+        encoded_url += '/true'
+      console.log("encoded_url", encoded_url)
+      return encoded_url
     },
     addStudentSubmission(submission) {
       this.submissions.push(submission)
