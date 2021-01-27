@@ -138,10 +138,12 @@ authRoutes.route('/set_permanent_pasword').post(function (req, res) {
   }
 });
 
-authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code-:first_login", (req, res, next) => {
-  let optional_meeting_id = req.params.optional_meeting_id
-  let optional_code = req.params.optional_code
-  let first_login = req.params.first_login
+authRoutes.get("/loginCAS-:optional_meeting_id-:optional_qr_scan_id-:optional_code-:first_login",
+  (req, res, next) => {
+  const optional_meeting_id = req.params.optional_meeting_id
+  const optional_qr_scan_id = req.params.optional_qr_scan_id
+  const optional_code = req.params.optional_code
+  const first_login = req.params.first_login
   passport.authenticate('cas', function (err, user, info) {
     if (err) {
       console.log("<ERROR> (auth/loginCAS) authenticating", err)
@@ -158,7 +160,8 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code-:first_login", (re
           let venueSID = generateSID()
           Promise.resolve(venueSID).then(resolvedSID => {
             if(resolvedSID != null) {
-              User.findOneAndUpdate({user_id: user.user_id},{connect_sid: resolvedSID},{new:true},function(err,user) {
+              User.findOneAndUpdate({user_id: user.user_id},{connect_sid: resolvedSID},
+                {new:true},function(err,user) {
                 if(err || user == null) {
                   console.log("<ERROR> (auth/loginCAS) updating user by id", user.user_id,
                     err)
@@ -166,7 +169,8 @@ authRoutes.get("/loginCAS-:optional_meeting_id-:optional_code-:first_login", (re
                 } else {
                   res.header("Set-Cookie","connect_sid="+resolvedSID)
                   console.log("<SUCCESS> (auth/loginCAS) updating user and setting cookie.")
-                  res.redirect(`${base_url}/redirectCASLogin/${optional_meeting_id}/${optional_code}/${first_login}`)
+                  res.redirect(`${base_url}/redirectCASLogin/${optional_meeting_id}/`
+                    + `${optional_qr_scan_id}/${optional_code}/${first_login}`)
                 }
               })
             } else {
