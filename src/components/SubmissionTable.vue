@@ -12,11 +12,16 @@
           </sui-table-header-cell>
         </sui-table-row>
         <sui-table-row>
-          <sui-table-header-cell>
+          <sui-table-header-cell style="vertical-align:top;">
             Present ({{ present_students.length }}/{{ meeting_students.size }})
           </sui-table-header-cell>
           <sui-table-header-cell>
             Absent ({{ absent_students.length }}/{{ meeting_students.size }})
+            <br/>
+            <div id="manual-override-text">
+              Click on students then select the 'Save Changes' button at the
+              bottom to manually mark them as present.
+            </div>
           </sui-table-header-cell>
         </sui-table-row>
       </sui-table-header>
@@ -196,5 +201,10 @@ export default {
 <style scoped>
 .submission-table {
   margin-top: 4rem;
+}
+
+#manual-override-text {
+  font-weight: normal;
+  margin-top: 0.25rem;
 }
 </style>
