@@ -19,7 +19,9 @@
         </div>
         <div class="mt-1">
           <div class="inline-block sub-header-container center-text">
-            Submission Window: 1/27 2pm - 2/4 4pm
+            Submission Window:
+            {{ async_portion.async_start | moment("M/D h:mm a") }} -
+            {{ async_portion.async_end | moment("M/D h:mm a") }}
           </div>
           <div class="inline-block sub-header-container center-text">
             50% watched
