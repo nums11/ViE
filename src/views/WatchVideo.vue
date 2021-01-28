@@ -11,7 +11,7 @@
           <h2 style="margin-left: 4rem;" class="inline-block ml-4">{{ video.name }}</h2>
 <!--           <router-link id="back-to-course-btn"
           :to="{name: 'course_info', params: {id: course_id}}"> -->
-            <sui-button content="Back to Course" icon="arrow left"
+            <sui-button content="Back to Meeting" icon="arrow left"
             label-position="left" class="inline-block float-right" />
           <!-- </router-link> -->
         </div>
