@@ -27,7 +27,11 @@
             50% watched
           </div>
           <div class="inline-block sub-header-container center-text">
-            Unrestricted View
+            {{ view_mode }}
+            <sui-popup :content="popup_content" position="top center"
+            inverted>
+              <sui-icon slot="trigger" name="info circle" />
+            </sui-popup>
           </div>
         </div>
       </div>
@@ -65,7 +69,9 @@ export default {
       video: {},
       video_has_loaded: false,
       submission: {},
-      meeting_id: ""
+      meeting_id: "",
+      view_mode: "",
+      popup_content: ""
     }
   },
   props: {
@@ -77,8 +83,13 @@ export default {
     await this.getAsyncPortion()
     if(!this.is_instructor && this.isWithinAsyncPortionWindow()){
         await this.createOrRetrieveStudentSubmission()
-        if(this.submission.video_percent_watched < 100)
+        if(this.submission.video_percent_watched < 100) {
           this.preventSeekingAndPeriodicallyUpdateSubmission()
+          this.setViewMode(true)
+        } else
+          this.setViewMode(false)
+    } else {
+      this.setViewMode(false)
     }
   },
   computed: {
@@ -204,6 +215,17 @@ export default {
         console.log(error)
         window.alert("Sorry, something went wrong")
       }
+    },
+    setViewMode(is_restricted) {
+      if(is_restricted) {
+        this.view_mode = "Restricted Mode"
+        this.popup_content = "You cannot scrub forward and the"
+          + " percentage of the video you watch is being periodically tracked."
+      } else {
+        this.view_mode = "Unrestricted Mode"
+        this.popup_content = "You can scrub through the video freely. No submission"
+        + " is being tracked."
+      }
     }
   }
 };
@@ -230,6 +252,8 @@ export default {
 
 .sub-header-container {
   width: 33.3%;
+  color: #2C3E50;
+  font-weight: bold;
 }
 
 #video-container {
