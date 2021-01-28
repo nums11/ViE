@@ -34,7 +34,7 @@ export default {
   mixins: [helpers],
   components: {
     DesktopMeetingInfo,
-    MobileMeetingInfo
+    MobileMeetingInfo,
   },
   data () {
     return {
@@ -51,7 +51,7 @@ export default {
           link_name: "Async Portion",
           icon_name: "clock"
         }
-      ],
+      ]
     }
   },
   created () {

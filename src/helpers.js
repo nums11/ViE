@@ -48,12 +48,12 @@ export default {
 			return meeting_student_ids
 		},
 		getMeetingStudents(meeting) {
-			let meeting_students = new Set()
+			let meeting_students_arr = []
 			for(let i = 0; i < meeting.sections.length; i++) {
 				const section_students = meeting.sections[i].students
 				for(let j = 0; j < section_students.length; j++) {
 					const student = section_students[j]
-					meeting_students.add({
+					meeting_students_arr.push({
 						first_name: student.first_name,
 						last_name: student.last_name,
 						user_id: student.user_id,
@@ -61,6 +61,8 @@ export default {
 					})
 				}
 			}
+			meeting_students_arr.sort(this.userCompare)
+			let meeting_students = new Set(meeting_students_arr)
 			return meeting_students
 		},
 		getBaseURL() {
@@ -75,6 +77,15 @@ export default {
 			  return -1;
 			}
 			if ( a.section_number > b.section_number ){
+			  return 1;
+			}
+			return 0;
+		},
+		userCompare(a, b) {
+			if ( a.user_id < b.user_id ){
+			  return -1;
+			}
+			if ( a.user_id > b.user_id ){
 			  return 1;
 			}
 			return 0;
