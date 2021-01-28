@@ -60,8 +60,10 @@
             <label class="form-label">Video Name</label>
             <input v-model="task.name" placeholder="Class Video">
           </sui-form-field>
-          <sui-form-field>
-            <input @change="setVideoFile" type="file" id="file-input">
+          <sui-form-field required>
+            <label class="form-label">Video File (.mp4)</label>
+            <input @change="setVideoFile" type="file" id="file-input"
+            accept=".mp4">
           </sui-form-field>
         </div>
         <div class="form-field">
