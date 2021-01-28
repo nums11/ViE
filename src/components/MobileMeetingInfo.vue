@@ -37,6 +37,12 @@
       class="caret-icon float-right" />
     </div>
     <div v-if="show_real_time_list && meeting.real_time_portion != null">
+      <p v-if="show_real_time_cant_submit_yet_msg" id="cant-submit-yet-msg">
+        You will be able to submit to these tasks once the
+        portion window opens on 
+        {{ meeting.real_time_portion.real_time_start | moment("MMM Do") }}
+        at {{ meeting.real_time_portion.real_time_start | moment("h:mm a") }}.
+      </p>
       <MeetingTaskCard
       :meeting_id="meeting._id"
       v-for="(qr_scan, index) in meeting.real_time_portion.qr_scans"
@@ -59,6 +65,12 @@
       class="caret-icon float-right" />
     </div>
     <div v-if="show_async_list && meeting.async_portion != null">
+      <p v-if="show_async_cant_submit_yet_msg" id="cant-submit-yet-msg">
+        You will be able to submit to these tasks once the
+        portion window opens on 
+        {{ meeting.async_portion.async_start | moment("MMM Do") }}
+        at {{ meeting.async_portion.async_start | moment("h:mm a") }}.
+      </p>
       <MeetingTaskCard
       :meeting_id="meeting._id"
       v-for="(video, index) in meeting.async_portion.videos"
@@ -70,6 +82,7 @@
 
 <script>
 import MeetingTaskCard from '@/components/MeetingTaskCard'
+import moment from 'moment'
 
 export default {
   name: 'MobileCourseInfo',
@@ -92,9 +105,12 @@ export default {
       show_async_list: true,
       real_time_caret_name: "caret down",
       async_caret_name: "caret down",
+      show_real_time_cant_submit_yet_msg: false,
+      show_async_cant_submit_yet_msg: false
     }
   },
   mounted () {
+    this.checkToShowCantSumbitYetMessages()
   },
   methods: {
     toggleList(is_real_time) {
@@ -111,6 +127,32 @@ export default {
         else
           this.async_caret_name = "caret up"
       }
+    },
+    checkToShowRealTimeCantSubmitYetMsg() {
+      if(this.meeting.real_time_portion == null ||
+        this.meeting.real_time_portion.qr_scans.length === 0)
+        return
+
+      const current_time = Date.now()
+      if(moment(current_time).isBefore(
+        this.meeting.real_time_portion.real_time_start))
+        this.show_real_time_cant_submit_yet_msg = true
+    },
+    checkToShowAsyncCantSubmitYetMsg() {
+      if(this.meeting.async_portion == null ||
+        this.meeting.async_portion.videos.length === 0)
+        return
+
+      const current_time = Date.now()
+      if(moment(current_time).isBefore(
+        this.meeting.async_portion.async_start))
+        this.show_async_cant_submit_yet_msg = true
+    },
+    checkToShowCantSumbitYetMessages() {
+      if(this.state_user.is_instructor)
+        return
+      this.checkToShowRealTimeCantSubmitYetMsg()
+      this.checkToShowAsyncCantSubmitYetMsg()
     }
   }
 }
@@ -153,5 +195,12 @@ export default {
   /*border: blue solid;*/
   /*margin-left: 1rem;*/
   margin-top: 0.7rem;
+}
+
+#cant-submit-yet-msg {
+  margin-top: 1rem;
+  margin-bottom: 0rem;
+  font-weight: bold;
+  color: #252B36BF;
 }
 </style>

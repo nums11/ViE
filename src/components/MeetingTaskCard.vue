@@ -132,7 +132,6 @@ export default {
     },
     checkIfStudentSubmittedToTask() {
       const submissions = this.task.submissions
-      console.log("submissions", submissions)
       for(let i = 0; i < submissions.length; i++) {
         const submitter = submissions[i].submitter
         if(submitter.user_id === this.state_user.user_id) {

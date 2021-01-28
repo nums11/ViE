@@ -30,17 +30,19 @@
       </div>
       <div v-if="(is_real_time && portion != null)
         || (!is_real_time && portion != null)">
-        <SubmissionTable v-if="show_submission_table"
-        :task="table_task"
-        :is_qr="is_real_time"
-        :meeting_students="meeting_students"
-        v-on:hide-submission-table="hideSubmissionTable" />
-        <MeetingTasksContainer v-else
-        :meeting_id="meeting_id"
-        :task_type="is_real_time ? 'qr_scan' : 'video'"
-        :tasks="portion_tasks" :portion="portion"
-        v-on:show-qr="showQR"
-        v-on:view-submissions="viewSubmissions" />
+        <div v-if="portion_times_and_tasks_set">
+          <SubmissionTable v-if="show_submission_table"
+          :task="table_task"
+          :is_qr="is_real_time"
+          :meeting_students="meeting_students"
+          v-on:hide-submission-table="hideSubmissionTable" />
+          <MeetingTasksContainer v-else
+          :meeting_id="meeting_id"
+          :task_type="is_real_time ? 'qr_scan' : 'video'"
+          :tasks="portion_tasks" :portion="portion"
+          v-on:show-qr="showQR"
+          v-on:view-submissions="viewSubmissions" />
+        </div>
       </div>
       <div class="add-portion-btn-container" v-else>
         <sui-button v-if="is_instructor" @click="showAddPortionModal"
@@ -118,7 +120,8 @@ export default {
       start: null,
       end: null,
       adding_task: false,
-      adding_video: false
+      adding_video: false,
+      portion_times_and_tasks_set: false
     }
   },
   created () {
@@ -148,6 +151,7 @@ export default {
           this.end = this.portion.async_end
           this.portion_tasks = this.portion.videos
         }
+        this.portion_times_and_tasks_set = true
       })
     },
     viewSubmissions(task) {
