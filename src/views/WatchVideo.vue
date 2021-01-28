@@ -24,7 +24,9 @@
             {{ async_portion.async_end | moment("M/D h:mm a") }}
           </div>
           <div class="inline-block sub-header-container center-text">
-            50% watched
+            <span v-if="view_mode === 'Restricted Mode'">
+              {{ this.submission.video_percent_watched.toFixed(2) }}% watched
+            </span>
           </div>
           <div class="inline-block sub-header-container center-text">
             {{ view_mode }}
