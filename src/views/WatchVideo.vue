@@ -8,12 +8,14 @@
     <div v-else>
       <div id="header-container">
         <div>
-          <h2 style="margin-left: 4rem;" class="inline-block ml-4">{{ video.name }}</h2>
-          <router-link
-          :to="{name: 'meeting_info', params: {meeting_id: meeting_id}}">
-            <sui-button content="Back to Meeting" icon="arrow left"
-            label-position="left" class="inline-block float-right" />
-          </router-link>
+          <h2 class="wrap-text" id="video-name">{{ video.name }}</h2>
+          <hide-at breakpoint="small">
+            <router-link
+            :to="{name: 'meeting_info', params: {meeting_id: meeting_id}}">
+              <sui-button content="Back to Meeting" icon="arrow left"
+              label-position="left" class="inline-block float-right" />
+            </router-link>
+          </hide-at>
         </div>
         <div class="mt-1">
           <div class="inline-block sub-header-container center-text">
@@ -34,7 +36,15 @@
           <source v-bind:src="video.url">
         </video>
       </div>
-
+      <show-at breakpoint="small">
+        <div id="back-to-meeting-btn">
+          <router-link
+          :to="{name: 'meeting_info', params: {meeting_id: meeting_id}}">
+            <sui-button content="Back to Meeting" icon="arrow left"
+            label-position="left" style="margin:auto;" />
+          </router-link>
+        </div>
+      </show-at>
     </div>
   </div>
 </template>
@@ -202,10 +212,18 @@ export default {
   padding-left: 8rem;
   padding-right: 8rem;
   padding-top: 2rem;
+  /*border: red solid;*/
 }
 
 #header-container {
   margin-bottom: 1rem;
+}
+
+#video-name {
+  display: inline-block;
+  vertical-align: top;
+  margin-left: 4rem;
+  /*border: blue solid;*/
 }
 
 .sub-header-container {
@@ -221,14 +239,32 @@ export default {
 #video_player {
   width: 100%;
   height: 100%;
-  /*width: 10%;*/
-  /*width: 40rem;*/
-  /*height: 10rem;*/
-  /*width: 80%;*/
 }
 
-/*.video_video {
-  width: 100%;
-  height: 80%;
-}*/
+@media (max-width: 768px) {
+  #watch-video {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  #video-name {
+    display: block;
+    margin-left: 0;
+    text-align: center;
+  }
+  .sub-header-container {
+    width: 100%;
+    margin-top: 1rem;
+  }
+  #video-container {
+    width: 100%;
+    height: 20rem;
+  }
+  #back-to-meeting-btn {
+    /*border: blue solid;*/
+    width: 10rem;
+    margin: auto;
+    margin-top: 2rem;
+  }
+}
+
 </style>
