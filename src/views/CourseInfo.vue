@@ -108,16 +108,18 @@ export default {
           this.$route.params.id)
         this.course = response.data
         this.course.sections.sort(this.sectionCompare)
-        this.getMeetingsForCourse()
+        this.getMeetingsForCourseAndSortStudents()
         this.course_has_loaded = true
       } catch(error) {
         console.log(error)
         window.alert("Sorry, something went wrong getting your course")
       }
     },
-    getMeetingsForCourse() {
+    getMeetingsForCourseAndSortStudents() {
       let section_ids = new Set()
       this.course.sections.forEach(section => {
+        section.students.sort(this.userCompare)
+        section.pending_approval_students.sort(this.userCompare)
         const section_meetings = section.meetings
         section_meetings.forEach(meeting => {
           if(!section_ids.has(meeting._id)) {
