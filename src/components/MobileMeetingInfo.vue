@@ -47,7 +47,8 @@
       :meeting_id="meeting._id"
       v-for="(qr_scan, index) in meeting.real_time_portion.qr_scans"
       task_type="qr_scan" :portion="meeting.real_time_portion"
-      :task="qr_scan" :index="index" />
+      :task="qr_scan" :index="index"
+      :window_is_open="!show_real_time_cant_submit_yet_msg" />
     </div>
     <div class="portion-dropdown mt-2" @click="toggleList(false)"">
       <div class="portion-text inline-block float-left bold">
@@ -75,7 +76,8 @@
       :meeting_id="meeting._id"
       v-for="(video, index) in meeting.async_portion.videos"
       task_type="video" :portion="meeting.async_portion"
-      :task="video" :index="index" />
+      :task="video" :index="index"
+      :window_is_open="!show_async_cant_submit_yet_msg" />
     </div>
   </div>
 </template>

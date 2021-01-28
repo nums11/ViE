@@ -31,20 +31,24 @@
               <sui-icon name="qrcode" />
           </sui-button-content>
         </sui-button>
-        <router-link v-if="!is_qr" :to="{name: 'watch_video',
-        params: {meeting_id: meeting_id, 
-          async_portion_id: portion._id,
-          video_id: task._id}}">
-          <sui-button animated size="mini"
-          style="background-color:#00B3FF; color:white;">
-            <sui-button-content visible>
-              {{ first_button_text }}
-            </sui-button-content>
-            <sui-button-content hidden>
-                <sui-icon name="play circle outline" />
-            </sui-button-content>
-          </sui-button>
-        </router-link>
+        <div v-if="!is_qr">
+          <router-link v-if="is_instructor ||
+          (!is_instructor && window_is_open)"
+          :to="{name: 'watch_video',
+          params: {meeting_id: meeting_id, 
+            async_portion_id: portion._id,
+            video_id: task._id}}">
+            <sui-button animated size="mini"
+            style="background-color:#00B3FF; color:white;">
+              <sui-button-content visible>
+                {{ first_button_text }}
+              </sui-button-content>
+              <sui-button-content hidden>
+                  <sui-icon name="play circle outline" />
+              </sui-button-content>
+            </sui-button>
+          </router-link>
+        </div>
       </div>
       <div class="divider" v-if="is_instructor"></div>
       <div class="btn-container" v-if="is_instructor">
@@ -99,6 +103,10 @@ export default {
     },
     index: {
       type: Number,
+      required: true
+    },
+    window_is_open: {
+      type: Boolean,
       required: true
     }
   },
