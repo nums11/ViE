@@ -6,13 +6,10 @@
       :student_ids="meeting_students"
       :real_time_portion="meeting.real_time_portion"
     />
-    <div id="lottie-player-container" v-if="show_lottie_player">
-      <VueLottiePlayer 
-        name="QR CODE"
-        :animationData="require('@/assets/lottie/uploading.json')"
-        loop height="100%" width="100%" autoplay
-      />
-    </div>
+    <VueLottiePlayer v-if="show_lottie_player"
+      :animationData="require('@/assets/lottie/uploading.json')"
+      loop height="100%" width="100%" autoplay
+    />
 
     <div v-if="deleting_meeting">
       <sui-loader active>
