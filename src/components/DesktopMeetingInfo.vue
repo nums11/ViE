@@ -6,11 +6,13 @@
       :student_ids="meeting_students"
       :real_time_portion="meeting.real_time_portion"
     />
-    <VueLottiePlayer v-if="show_lottie_player"
-      name="QR CODE"
-      :animationData="require('@/assets/lottie/uploading.json')"
-      loop height="100%" width="100%" autoplay
-    />
+    <div id="lottie-player-container" v-if="show_lottie_player">
+      <VueLottiePlayer 
+        name="QR CODE"
+        :animationData="require('@/assets/lottie/uploading.json')"
+        loop height="100%" width="100%" autoplay
+      />
+    </div>
 
     <div v-if="deleting_meeting">
       <sui-loader active>
@@ -230,6 +232,15 @@ export default {
   padding-top: 0.5rem;
   width: 79%;
   height: 100%;
+}
+
+#lottie-player-container {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  margin-left: -7rem;
+  margin-top: -2rem;
+  z-index: 10;
 }
 
 #section-header {
