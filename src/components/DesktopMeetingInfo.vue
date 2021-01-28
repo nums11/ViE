@@ -6,6 +6,13 @@
       :student_ids="meeting_students"
       :real_time_portion="meeting.real_time_portion"
     />
+    <div id="lottie-player-container" v-if="show_lottie_player">
+      <VueLottiePlayer 
+        name="QR CODE"
+        :animationData="require('@/assets/lottie/uploading.json')"
+        loop height="100%" width="100%" autoplay
+      />
+    </div>
 
     <div v-if="deleting_meeting">
       <sui-loader active>
@@ -27,6 +34,8 @@
           :portion="meeting.real_time_portion"
           :meeting_students="meeting_students"
           :instructor_id="meeting.sections[0].course.instructor._id"
+          v-on:show-lottie-player="showLottiePlayer"
+          v-on:hide-lottie-player="hideLottiePlayer"
           v-on:show-qr="showQRScanningWindow"
           v-on:set-new-portion="setNewPortion(true, ...arguments)"
           is_real_time />
@@ -36,6 +45,8 @@
           ref="AsyncPortionContainer"
           :meeting_id="meeting._id"
           :portion="meeting.async_portion"
+          v-on:show-lottie-player="showLottiePlayer"
+          v-on:hide-lottie-player="hideLottiePlayer"
           v-on:set-new-portion="setNewPortion(false, ...arguments)"
           :meeting_students="meeting_students" />
           <div v-else-if="active_section === 'Statistics'"
@@ -66,6 +77,7 @@ import MeetingInfoPortionContainer from
 import MeetingSettingsContainer from
 '@/components/MeetingSettingsContainer'
 import helpers from '@/helpers.js'
+import VueLottiePlayer from 'vue-lottie-player'
 
 export default {
   name: 'DesktopMeetingInfo',
@@ -74,7 +86,8 @@ export default {
     SideBar,
     FullScreenQRCodeModal,
     MeetingInfoPortionContainer,
-    MeetingSettingsContainer
+    MeetingSettingsContainer,
+    VueLottiePlayer
   },
   props: {
     meeting: {
@@ -107,7 +120,8 @@ export default {
       ],
       show_qr_scanning_window: false,
       full_screen_qr_scan: null,
-      show_full_screen_code: false
+      show_full_screen_code: false,
+      show_lottie_player: false
     }
   },
   created () {
@@ -190,6 +204,14 @@ export default {
     },
     toggleDeletingMeetingLoader(value) {
       this.deleting_meeting = value
+    },
+    showLottiePlayer() {
+      console.log("showing player")
+      this.show_lottie_player = true
+    },
+    hideLottiePlayer() {
+      console.log("hiding player")
+      this.show_lottie_player = false
     }
   }
 }
@@ -210,6 +232,15 @@ export default {
   padding-top: 0.5rem;
   width: 79%;
   height: 100%;
+}
+
+#lottie-player-container {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  margin-left: -7rem;
+  margin-top: -2rem;
+  z-index: 10;
 }
 
 #section-header {
