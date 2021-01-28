@@ -38,6 +38,7 @@
     </div>
     <div v-if="show_real_time_list && meeting.real_time_portion != null">
       <MeetingTaskCard
+      :meeting_id="meeting._id"
       v-for="(qr_scan, index) in meeting.real_time_portion.qr_scans"
       task_type="qr_scan" :portion="meeting.real_time_portion"
       :task="qr_scan" :index="index" />
@@ -59,6 +60,7 @@
     </div>
     <div v-if="show_async_list && meeting.async_portion != null">
       <MeetingTaskCard
+      :meeting_id="meeting._id"
       v-for="(video, index) in meeting.async_portion.videos"
       task_type="video" :portion="meeting.async_portion"
       :task="video" :index="index" />

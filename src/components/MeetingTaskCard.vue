@@ -32,7 +32,8 @@
           </sui-button-content>
         </sui-button>
         <router-link v-if="!is_qr" :to="{name: 'watch_video',
-        params: {async_portion_id: portion._id,
+        params: {meeting_id: meeting_id, 
+          async_portion_id: portion._id,
           video_id: task._id}}">
           <sui-button animated size="mini"
           style="background-color:#00B3FF; color:white;">
@@ -80,6 +81,10 @@
 export default {
   name: 'MeetingTaskCard',
   props:{
+    meeting_id: {
+      type: String,
+      required: true
+    },
     task_type: {
       type: String,
       required: true

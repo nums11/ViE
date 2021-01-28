@@ -36,6 +36,7 @@
         :meeting_students="meeting_students"
         v-on:hide-submission-table="hideSubmissionTable" />
         <MeetingTasksContainer v-else
+        :meeting_id="meeting_id"
         :task_type="is_real_time ? 'qr_scan' : 'video'"
         :tasks="portion_tasks" :portion="portion"
         v-on:show-qr="showQR"

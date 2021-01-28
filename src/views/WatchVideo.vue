@@ -9,11 +9,11 @@
       <div id="header-container">
         <div>
           <h2 style="margin-left: 4rem;" class="inline-block ml-4">{{ video.name }}</h2>
-<!--           <router-link id="back-to-course-btn"
-          :to="{name: 'course_info', params: {id: course_id}}"> -->
+          <router-link
+          :to="{name: 'meeting_info', params: {meeting_id: meeting_id}}">
             <sui-button content="Back to Meeting" icon="arrow left"
             label-position="left" class="inline-block float-right" />
-          <!-- </router-link> -->
+          </router-link>
         </div>
         <div class="mt-1">
           <div class="inline-block sub-header-container center-text">
@@ -52,13 +52,15 @@ export default {
     return {
       video: {},
       video_has_loaded: false,
-      submission: {}
+      submission: {},
+      meeting_id: ""
     }
   },
   props: {
 
   },
   async created() {
+    this.meeting_id = this.$route.params.meeting_id
     this.video_id = this.$route.params.video_id
     await this.getAsyncPortion()
     if(!this.is_instructor && this.isWithinAsyncPortionWindow()){
