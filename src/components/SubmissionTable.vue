@@ -18,7 +18,7 @@
           <sui-table-header-cell>
             Absent ({{ absent_students.length }}/{{ meeting_students.size }})
             <br/>
-            <div id="manual-override-text">
+            <div v-if="is_qr" id="manual-override-text">
               Click on students then select the 'Save Changes' button at the
               bottom to manually mark them as present.
             </div>
