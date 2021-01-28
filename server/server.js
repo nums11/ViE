@@ -171,6 +171,15 @@ function start() {
         next()
     })
   }
+  
+  // For connecting to localhost from mobile
+  // app.use(cors({
+  //   origin: [origin_url, 'http://192.168.1.122:8080',
+  //   'http://192.168.1.118:8080'],
+  //   methods:['GET','POST','DELETE','PUT'],
+  //   credentials:true, 
+  // }))
+
   app.use(cors({
     origin: origin_url,
     methods:['GET','POST','DELETE','PUT'],

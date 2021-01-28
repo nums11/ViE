@@ -4,21 +4,33 @@
       {{ task_type === 'qr_scan' ? 'QR Scans' : 'Videos' }}
        ({{ tasks.length }})
     </div>
+    <p v-if="show_cant_submit_yet_msg" id="cant-submit-yet-msg">
+      You will be able to submit to these tasks once the
+      portion window opens on {{ portion_start | moment("MMM Do") }}
+      at {{ portion_start | moment("h:mm a") }}.
+    </p>
     <div class="task-cards">
       <MeetingTaskCard v-for="(task, index) in tasks"
+      :meeting_id="meeting_id"
       :key="index" :task="task" :index="index" :portion="portion"
       :task_type="task_type" v-on:show-qr="$emit('show-qr',task)"
-      v-on:view-submissions="$emit('view-submissions',task)" />
+      v-on:view-submissions="$emit('view-submissions',task)"
+      :window_is_open="!show_cant_submit_yet_msg" />
     </div>
   </div>
 </template>
 
 <script>
 import MeetingTaskCard from '@/components/MeetingTaskCard'
+import moment from 'moment'
 
 export default {
   name: 'MeetingTasksContainer',
   props: {
+    meeting_id: {
+      type: String,
+      required: true
+    },
     task_type: {
       type: String,
       required: true
@@ -37,16 +49,28 @@ export default {
   },
   data () {
     return {
-
+      show_cant_submit_yet_msg: false,
+      portion_start: null
     }
   },
   async created () {
-
+    this.showCantSubmitYetMsg()
   },
   mounted () {
   },
   methods: {
-
+    showCantSubmitYetMsg() {
+      if(this.state_user.is_instructor ||
+        this.tasks.length === 0)
+        return
+      if(this.portion.real_time_start != null)
+        this.portion_start = this.portion.real_time_start
+      else
+        this.portion_start = this.portion.async_start
+      const current_time = Date.now()
+      if(moment(current_time).isBefore(this.portion_start))
+        this.show_cant_submit_yet_msg = true
+    }
   },
 }
 </script>
@@ -59,6 +83,13 @@ export default {
 
 .header {
   font-size: 1.5rem;
+}
+
+#cant-submit-yet-msg {
+  margin-top: 1rem;
+  margin-bottom: 0rem;
+  font-weight: bold;
+  color: #252B36BF;
 }
 
 .task-cards {

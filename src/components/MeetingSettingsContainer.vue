@@ -372,7 +372,7 @@ export default {
         }
       }
       if(this.meeting_copy.async_portion != null) {
-        if(!moment(this.meeting_copy.async_portion.async_endc)
+        if(!moment(this.meeting_copy.async_portion.async_end)
               .isAfter(
                 this.meeting_copy.async_portion.async_start)) {
           return false

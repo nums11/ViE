@@ -289,7 +289,7 @@ const router = new VueRouter({
     },
     {
       name: 'watch_video',
-      path: '/watch_video/:async_portion_id/:video_id',
+      path: '/watch_video/:meeting_id/:async_portion_id/:video_id',
       component: WatchVideo,
       meta: {
         title: "ViE - Watch Video",
