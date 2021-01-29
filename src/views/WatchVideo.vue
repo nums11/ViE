@@ -91,29 +91,26 @@ export default {
     this.video_id = this.$route.params.video_id
     try {
       await this.getAsyncPortion()
-      console.log("value", this.video.allow_unrestricted_viewing_for_real_time_submitters)
-      if(!this.is_instructor && this.isWithinAsyncPortionWindow()){
-        if(this.video.allow_unrestricted_viewing_for_real_time_submitters) {
-          console.log(" allow Unrestricted")
-          const response = await MeetingAPI.getMeeting(this.meeting_id)
-          const meeting = response.data
-          const student_submitted_to_any_qr =
-            this.checkIfStudentSubmittedToAnyQR(meeting)
-          console.log("student_submitted_to_any_qr", student_submitted_to_any_qr)
-          if(student_submitted_to_any_qr)
-            this.setViewMode(false)
-          else
-            this.checkToRestrictStudent()
-        } else {
-          console.log("No allowing Unrestricted")
-          this.checkToRestrictStudent()
-        }
-      } else {
+      if(this.is_instructor || !this.isWithinAsyncPortionWindow()) {
         this.setViewMode(false)
+        return
       }
-      if(this.view_mode === 'Unrestricted Mode')
-        this.allowFasterVideoViewing()
-      this.video_has_loaded = true
+
+      if(this.video.allow_unrestricted_viewing_for_real_time_submitters) {
+        const response = await MeetingAPI.getMeeting(this.meeting_id)
+        const meeting = response.data
+        const student_submitted_to_any_qr =
+          this.checkIfStudentSubmittedToAnyQR(meeting)
+        console.log("student_submitted_to_any_qr", student_submitted_to_any_qr)
+        if(student_submitted_to_any_qr) {
+          this.setViewMode(false)
+        } else {
+          this.restrictStudentIfTheyHaveNotCompletedTheVideo()
+        }
+        return
+      }
+
+      this.restrictStudentIfTheyHaveNotCompletedTheVideo()
     } catch(error) {
       console.log(error)
       alert("Sorry, something went wrong")
@@ -124,8 +121,9 @@ export default {
     // restricted playback still works. videojs .dispose
     // function was broken
     if(this.player != null) {
-      console.log()
+      console.log("players before", videojs.getPlayers())
       delete videojs.getPlayers().video_player
+      console.log("players after", videojs.getPlayers())
     }
   },
   computed: {
@@ -176,12 +174,11 @@ export default {
       }
       return student_submitted_to_any_qr
     },
-    async checkToRestrictStudent() {
+    async restrictStudentIfTheyHaveNotCompletedTheVideo() {
       await this.createOrRetrieveStudentSubmission()
-      if(this.submission.video_percent_watched < 100) {
-        this.preventSeekingAndPeriodicallyUpdateSubmission()
+      if(this.submission.video_percent_watched < 100)
         this.setViewMode(true)
-      } else
+      else
         this.setViewMode(false)
     },
     async createOrRetrieveStudentSubmission() {
@@ -219,48 +216,58 @@ export default {
       }
       return [submission_exists, student_submission]
     },
-    preventSeekingAndPeriodicallyUpdateSubmission() {
+    initVideo() {
       let self = this
       this.$nextTick(() => {
         videojs("video_player").ready(function() {
           self.player = this
           let video = this
-          let current_time = 0
-          // start the video at a different time if user has watched
-          if(self.submission.furthest_video_time > 0){
-            current_time = self.submission.furthest_video_time
-            video.currentTime(current_time)
+          if(self.view_mode === "Restricted Mode") {
+            let current_time = 0
+            // start the video at a different time if user has watched
+            if(self.submission.furthest_video_time > 0){
+              current_time = self.submission.furthest_video_time
+              video.currentTime(current_time)
+            }
+            console.log("video current time", video.currentTime())
+
+            video.on("seeking", () => {
+              if(video.currentTime() > self.submission.furthest_video_time) {
+                video.currentTime(current_time);
+              }
+            });
+            video.on("seeked", () => {
+              if(video.currentTime() > self.submission.furthest_video_time) {
+                video.currentTime(current_time);
+              }
+            });
+            video.on('ended', () => {
+              console.log("In ended")
+              self.updateVideoSubmission(video.duration(), video.duration())
+            });
+
+            video.on('error', () => {
+              console.log("Some error happened")
+            })
+
+            // Update the current time once every half second
+            setInterval(function() {
+              if (!video.paused())
+                current_time = video.currentTime();
+            }, 500);
+            // Update user's submission every 5 seconds
+            video.on('timeupdate', () => {
+              if(Math.floor(video.currentTime()) % 5 === 0
+                && video.currentTime() > self.submission.furthest_video_time) {
+                  self.updateVideoSubmission(current_time, video.duration())
+              }
+              // console.log("Video time updating", Math.floor(video.currentTime()))
+            })
+            // setInterval(async function() {
+            //   if(current_time > self.submission.furthest_video_time)
+            //     self.updateVideoSubmission(current_time, video.duration())
+            // }, 5000);
           }
-          console.log("video current time", video.currentTime())
-
-          video.on("seeking", () => {
-            if(video.currentTime() > self.submission.furthest_video_time) {
-              video.currentTime(current_time);
-            }
-          });
-          video.on("seeked", () => {
-            if(video.currentTime() > self.submission.furthest_video_time) {
-              video.currentTime(current_time);
-            }
-          });
-          video.on('ended', () => {
-            console.log("In ended")
-            self.updateVideoSubmission(video.duration(), video.duration())
-          });
-
-          video.on('error', () => {
-            console.log("Some error happened")
-          })
-          // Update the current time once every half second
-          setInterval(function() {
-            if (!video.paused())
-              current_time = video.currentTime();
-          }, 500);
-          // Update user's submission every 5 seconds
-          setInterval(async function() {
-            if(current_time > self.submission.furthest_video_time)
-              self.updateVideoSubmission(current_time, video.duration())
-          }, 5000);
         })
       })
     },
@@ -268,10 +275,16 @@ export default {
       this.submission.furthest_video_time = current_time
       this.submission.video_percent_watched
         = (current_time / video_duration) * 100
+      if(this.submission.video_percent_watched === 100)
+        console.log("Just finished video - before API call. percent", this.submission.video_percent_watched)
       try {
         const response = await SubmissionAPI.updateSubmission(
           this.submission._id, this.submission)
         this.submission = response.data
+        if(this.submission.video_percent_watched === 100)
+          console.log("Just finished video - after API call")
+        else
+          console.log("After call and not 100% - ", this.submission.video_percent_watched)
       } catch(error) {
         console.log(error)
         window.alert("Sorry, something went wrong")
@@ -286,9 +299,12 @@ export default {
         this.view_mode = "Unrestricted Mode"
         this.popup_content = "You can scrub through the video freely. No submission"
         + " is being tracked."
+        this.allowFasterViewing()
       }
+      this.video_has_loaded = true
+      this.initVideo()
     },
-    allowFasterVideoViewing() {
+    allowFasterViewing() {
       this.data_setup.playbackRates.push(1.5)
       this.data_setup.playbackRates.push(2)
     }

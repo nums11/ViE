@@ -78,6 +78,17 @@
               </sui-popup>
             </sui-form-field>
           </div>
+          <div class="mt-2">
+            <sui-form-field>
+              <sui-popup content="Checking this box will allow students to
+              view the video in up to 2x speed. This option is automatically
+              enabled after students watch 100% of the video." inverted>
+                <sui-checkbox label="Allow faster viewing (up to 2x) speed"
+                slot="trigger"
+                v-model="task.allow_faster_viewing" />
+              </sui-popup>
+            </sui-form-field>
+          </div>
         </div>
         <div class="form-field">
           <sui-button @click.prevent="clearInputs"
@@ -123,7 +134,8 @@ export default {
       task: {
         reminder_time: null,
         video_file: null,
-        allow_unrestricted_viewing_for_real_time_submitters: false
+        allow_unrestricted_viewing_for_real_time_submitters: false,
+        allow_faster_viewing: false
       },
       value: 1,
       header: "",

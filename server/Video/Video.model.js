@@ -24,6 +24,10 @@ const Video = new Schema({
 	allow_unrestricted_viewing_for_real_time_submitters: {
 		type: Boolean,
 		default: false
+	},
+	allow_faster_viewing: {
+		type: Boolean,
+		default: false
 	}
 });
 

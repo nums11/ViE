@@ -35,6 +35,7 @@ submissionRoutes.post('/update/:submission_id',
   function (req, res, next) {
   const submission_id = req.params.submission_id
   const submission = req.body.submission
+  console.log("Updating submission to percent watched", submission.video_percent_watched)
   Submission.findByIdAndUpdate(submission_id,
     {
       furthest_video_time: submission.furthest_video_time,
