@@ -62,10 +62,13 @@ import videojs from "video.js"
 import AsyncPortionAPI from '@/services/AsyncPortionAPI.js'
 import VideoAPI from '@/services/VideoAPI.js'
 import SubmissionAPI from '@/services/SubmissionAPI.js'
+import MeetingAPI from '@/services/MeetingAPI.js'
 import moment from 'moment'
+import helpers from '@/helpers.js'
 
 export default {
   name: "WatchVideo",
+  mixins: [helpers],
   data() {
     return {
       video: {},
@@ -82,16 +85,31 @@ export default {
   async created() {
     this.meeting_id = this.$route.params.meeting_id
     this.video_id = this.$route.params.video_id
-    await this.getAsyncPortion()
-    if(!this.is_instructor && this.isWithinAsyncPortionWindow()){
-        await this.createOrRetrieveStudentSubmission()
-        if(this.submission.video_percent_watched < 100) {
-          this.preventSeekingAndPeriodicallyUpdateSubmission()
-          this.setViewMode(true)
-        } else
-          this.setViewMode(false)
-    } else {
-      this.setViewMode(false)
+    try {
+      await this.getAsyncPortion()
+      if(!this.is_instructor && this.isWithinAsyncPortionWindow()){
+        if(this.video.allow_unrestricted_viewing_for_real_time_submitters) {
+          console.log(" allow Unrestricted")
+          const response = await MeetingAPI.getMeeting(this.meeting_id)
+          const meeting = response.data
+          const student_submitted_to_any_qr =
+            this.checkIfStudentSubmittedToAnyQR(meeting)
+          console.log("student_submitted_to_any_qr", student_submitted_to_any_qr)
+          if(student_submitted_to_any_qr)
+            this.setViewMode(false)
+          else
+            this.checkToRestrictStudent()
+        } else {
+          console.log("No allowing Unrestricted")
+          this.checkToRestrictStudent()
+        }
+      } else {
+        this.setViewMode(false)
+      }
+      this.video_has_loaded = true
+    } catch(error) {
+      console.log(error)
+      alert("Sorry, something went wrong")
     }
   },
   beforeDestroy() {
@@ -113,7 +131,6 @@ export default {
           async_portion_id)
         this.async_portion = response.data
         this.getVideo()
-        this.video_has_loaded = true
       } catch(error) {
         console.log(error)
         window.alert("Sorry, something went wrong.")
@@ -135,6 +152,27 @@ export default {
       return moment(current_time).isSameOrAfter(
         this.async_portion.async_start) &&
         moment(current_time).isBefore(this.async_portion.async_end)
+    },
+    checkIfStudentSubmittedToAnyQR(meeting) {
+      let student_submitted_to_any_qr = false
+      const qr_scans = meeting.real_time_portion.qr_scans
+      for(let i = 0; i < qr_scans.length; i++) {
+        const [student_submitted, percent_watched] =
+          this.checkIfStudentSubmittedToTask(qr_scans[i])
+        if(student_submitted) {
+          student_submitted_to_any_qr = true
+          break
+        }
+      }
+      return student_submitted_to_any_qr
+    },
+    async checkToRestrictStudent() {
+      await this.createOrRetrieveStudentSubmission()
+      if(this.submission.video_percent_watched < 100) {
+        this.preventSeekingAndPeriodicallyUpdateSubmission()
+        this.setViewMode(true)
+      } else
+        this.setViewMode(false)
     },
     async createOrRetrieveStudentSubmission() {
       const [submission_exists, submission]

@@ -20,7 +20,11 @@ const Video = new Schema({
 	submissions: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Submission'
-	}]
+	}],
+	allow_unrestricted_viewing_for_real_time_submitters: {
+		type: Boolean,
+		default: false
+	}
 });
 
 module.exports = mongoose.model('Video', Video);
