@@ -112,7 +112,6 @@ export default {
         const response = await AsyncPortionAPI.getAsyncPortion(
           async_portion_id)
         this.async_portion = response.data
-        console.log("async_portion", this.async_portion)
         this.getVideo()
         this.video_has_loaded = true
       } catch(error) {
@@ -187,14 +186,12 @@ export default {
           console.log("video current time", video.currentTime())
 
           video.on("seeking", () => {
-            if (current_time < video.currentTime() ||
-              current_time < self.submission.furthest_video_time){
+            if(video.currentTime() > self.submission.furthest_video_time) {
               video.currentTime(current_time);
             }
           });
           video.on("seeked", () => {
-            if (current_time < video.currentTime() ||
-              current_time < self.submission.furthest_video_time){
+            if(video.currentTime() > self.submission.furthest_video_time) {
               video.currentTime(current_time);
             }
           });
