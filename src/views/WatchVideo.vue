@@ -87,6 +87,7 @@ export default {
     this.video_id = this.$route.params.video_id
     try {
       await this.getAsyncPortion()
+      console.log("value", this.video.allow_unrestricted_viewing_for_real_time_submitters)
       if(!this.is_instructor && this.isWithinAsyncPortionWindow()){
         if(this.video.allow_unrestricted_viewing_for_real_time_submitters) {
           console.log(" allow Unrestricted")
@@ -154,6 +155,9 @@ export default {
         moment(current_time).isBefore(this.async_portion.async_end)
     },
     checkIfStudentSubmittedToAnyQR(meeting) {
+      if(meeting.real_time_portion == null)
+        return false
+
       let student_submitted_to_any_qr = false
       const qr_scans = meeting.real_time_portion.qr_scans
       for(let i = 0; i < qr_scans.length; i++) {

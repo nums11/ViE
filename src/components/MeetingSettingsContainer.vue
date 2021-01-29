@@ -102,6 +102,12 @@
                 </sui-button-content>
               </sui-button>
             </sui-form-field>
+            <sui-form-field>
+              <sui-checkbox
+              v-model="video.allow_unrestricted_viewing_for_real_time_submitters"
+              label="Allow students with real-time submissions to watch
+              without restrictions" />
+            </sui-form-field>
           </div>
         </div>
         <div class="inline-block mt-2 ">
@@ -224,6 +230,8 @@ export default {
         videos.forEach(video => {
           this.meeting_copy.async_portion.videos.push({
             name: video.name,
+            allow_unrestricted_viewing_for_real_time_submitters:
+            video.allow_unrestricted_viewing_for_real_time_submitters,
             _id: video._id
           })
         })
@@ -407,6 +415,10 @@ export default {
           i++) {
           this.meeting.async_portion.videos[i].name
             = this.meeting_copy.async_portion.videos[i].name
+          this.meeting.async_portion.videos[i].
+            allow_unrestricted_viewing_for_real_time_submitters
+            = this.meeting_copy.async_portion.videos[i].
+                allow_unrestricted_viewing_for_real_time_submitters
         }
       }
     },

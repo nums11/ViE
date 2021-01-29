@@ -250,7 +250,11 @@ async function updateVideos(videos) {
     videos.forEach(video => {
       video_promises.push(new Promise((resolve,reject) => {
         Video.findByIdAndUpdate(video._id,
-          {name: video.name},
+          {
+            name: video.name,
+            allow_unrestricted_viewing_for_real_time_submitters:
+            video.allow_unrestricted_viewing_for_real_time_submitters
+          },
           {new: true},
           (error, updated_video) => {
             if(error) {
