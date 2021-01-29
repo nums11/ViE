@@ -94,6 +94,15 @@ export default {
       this.setViewMode(false)
     }
   },
+  beforeDestroy() {
+    // Deletes player so that if user returns to this page
+    // restricted playback still works. videojs .dispose
+    // function was broken
+    if(this.player != null) {
+      console.log()
+      delete videojs.getPlayers().video_player
+    }
+  },
   computed: {
   },
   methods: {
@@ -103,7 +112,6 @@ export default {
         const response = await AsyncPortionAPI.getAsyncPortion(
           async_portion_id)
         this.async_portion = response.data
-        console.log("async_portion", this.async_portion)
         this.getVideo()
         this.video_has_loaded = true
       } catch(error) {
@@ -167,6 +175,7 @@ export default {
       let self = this
       this.$nextTick(() => {
         videojs("video_player").ready(function() {
+          self.player = this
           let video = this
           let current_time = 0
           // start the video at a different time if user has watched
@@ -177,14 +186,12 @@ export default {
           console.log("video current time", video.currentTime())
 
           video.on("seeking", () => {
-            if (current_time < video.currentTime() ||
-              current_time < self.submission.furthest_video_time){
+            if(video.currentTime() > self.submission.furthest_video_time) {
               video.currentTime(current_time);
             }
           });
           video.on("seeked", () => {
-            if (current_time < video.currentTime() ||
-              current_time < self.submission.furthest_video_time){
+            if(video.currentTime() > self.submission.furthest_video_time) {
               video.currentTime(current_time);
             }
           });
@@ -192,6 +199,10 @@ export default {
             console.log("In ended")
             self.updateVideoSubmission(video.duration(), video.duration())
           });
+
+          video.on('error', () => {
+            console.log("Some error happened")
+          })
           // Update the current time once every half second
           setInterval(function() {
             if (!video.paused())
@@ -262,6 +273,7 @@ export default {
   width: 90%;
   margin: auto;
   height: 40rem;
+  /*border: blue solid;*/
 }
 
 #video_player {
