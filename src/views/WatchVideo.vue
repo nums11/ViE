@@ -94,6 +94,15 @@ export default {
       this.setViewMode(false)
     }
   },
+  beforeDestroy() {
+    // Deletes player so that if user returns to this page
+    // restricted playback still works. videojs .dispose
+    // function was broken
+    if(this.player != null) {
+      console.log()
+      delete videojs.getPlayers().video_player
+    }
+  },
   computed: {
   },
   methods: {
@@ -167,6 +176,7 @@ export default {
       let self = this
       this.$nextTick(() => {
         videojs("video_player").ready(function() {
+          self.player = this
           let video = this
           let current_time = 0
           // start the video at a different time if user has watched
@@ -192,6 +202,10 @@ export default {
             console.log("In ended")
             self.updateVideoSubmission(video.duration(), video.duration())
           });
+
+          video.on('error', () => {
+            console.log("Some error happened")
+          })
           // Update the current time once every half second
           setInterval(function() {
             if (!video.paused())
@@ -262,6 +276,7 @@ export default {
   width: 90%;
   margin: auto;
   height: 40rem;
+  /*border: blue solid;*/
 }
 
 #video_player {
