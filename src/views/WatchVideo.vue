@@ -40,7 +40,7 @@
       <div id="video-container">
         <video id="video_player"
         class="video-js vjs-big-play-centered "
-        data-setup='{"fluid": true}' controls>
+        :data-setup="JSON.stringify(data_setup)" controls>
           <source v-bind:src="video.url">
         </video>
       </div>
@@ -76,7 +76,11 @@ export default {
       submission: {},
       meeting_id: "",
       view_mode: "",
-      popup_content: ""
+      popup_content: "",
+      data_setup: {
+        "fluid": true,
+        "playbackRates": [0.5,1]
+      }
     }
   },
   props: {
@@ -107,6 +111,8 @@ export default {
       } else {
         this.setViewMode(false)
       }
+      if(this.view_mode === 'Unrestricted Mode')
+        this.allowFasterVideoViewing()
       this.video_has_loaded = true
     } catch(error) {
       console.log(error)
@@ -281,6 +287,10 @@ export default {
         this.popup_content = "You can scrub through the video freely. No submission"
         + " is being tracked."
       }
+    },
+    allowFasterVideoViewing() {
+      this.data_setup.playbackRates.push(1.5)
+      this.data_setup.playbackRates.push(2)
     }
   }
 };
