@@ -97,6 +97,7 @@ export default {
       }
 
       if(this.video.allow_unrestricted_viewing_for_real_time_submitters) {
+        console.log("Allowing for Unrestricted")
         const response = await MeetingAPI.getMeeting(this.meeting_id)
         const meeting = response.data
         const student_submitted_to_any_qr =
@@ -109,6 +110,7 @@ export default {
         }
         return
       }
+      console.log("not allowing for unrestricted")
 
       this.restrictStudentIfTheyHaveNotCompletedTheVideo()
     } catch(error) {
