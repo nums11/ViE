@@ -82,8 +82,11 @@
 </template>
 
 <script>
+import helpers from '@/helpers.js'
+
 export default {
   name: 'MeetingTaskCard',
+  mixins: [helpers],
   props:{
     meeting_id: {
       type: String,
@@ -125,8 +128,12 @@ export default {
   created () {
     this.is_qr = this.task_type === 'qr_scan'
     this.setLabelsBasedOnTaskType()
-    if(!this.is_instructor)
-      this.checkIfStudentSubmittedToTask()
+    if(!this.is_instructor) {
+      let [student_submitted, percent_watched] =
+        this.checkIfStudentSubmittedToTask(this.task)
+      this.student_submitted = student_submitted
+      this.percent_watched = percent_watched
+    }
   },
   methods: {
     setLabelsBasedOnTaskType() {
@@ -136,18 +143,6 @@ export default {
       } else {
         this.card_title = this.task.name
         this.first_button_text = "View"
-      }
-    },
-    checkIfStudentSubmittedToTask() {
-      const submissions = this.task.submissions
-      for(let i = 0; i < submissions.length; i++) {
-        const submitter = submissions[i].submitter
-        if(submitter.user_id === this.state_user.user_id) {
-          this.student_submitted = true
-          this.percent_watched =
-            submissions[i].video_percent_watched
-          break
-        }
       }
     }
   }

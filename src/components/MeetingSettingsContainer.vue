@@ -102,6 +102,17 @@
                 </sui-button-content>
               </sui-button>
             </sui-form-field>
+            <sui-form-field>
+              <sui-checkbox
+              v-model="video.allow_unrestricted_viewing_for_real_time_submitters"
+              label="Allow students with real-time submissions to watch
+              without restrictions" />
+            </sui-form-field>
+            <sui-form-field>
+              <sui-checkbox
+              v-model="video.allow_faster_viewing"
+              label="Allow faster viewing (up to 2x) speed" />
+            </sui-form-field>
           </div>
         </div>
         <div class="inline-block mt-2 ">
@@ -224,7 +235,10 @@ export default {
         videos.forEach(video => {
           this.meeting_copy.async_portion.videos.push({
             name: video.name,
-            _id: video._id
+            allow_unrestricted_viewing_for_real_time_submitters:
+            video.allow_unrestricted_viewing_for_real_time_submitters,
+            _id: video._id,
+            allow_faster_viewing: video.allow_faster_viewing
           })
         })
       }
@@ -407,6 +421,12 @@ export default {
           i++) {
           this.meeting.async_portion.videos[i].name
             = this.meeting_copy.async_portion.videos[i].name
+          this.meeting.async_portion.videos[i].
+            allow_unrestricted_viewing_for_real_time_submitters
+            = this.meeting_copy.async_portion.videos[i].
+                allow_unrestricted_viewing_for_real_time_submitters
+          this.meeting.async_portion.videos[i].allow_faster_viewing
+            = this.meeting_copy.async_portion.videos[i].allow_faster_viewing
         }
       }
     },

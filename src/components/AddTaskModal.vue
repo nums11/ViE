@@ -60,11 +60,35 @@
             <label class="form-label">Video Name</label>
             <input v-model="task.name" placeholder="Class Video">
           </sui-form-field>
-          <sui-form-field required>
-            <label class="form-label">Video File (.mp4)</label>
-            <input @change="setVideoFile" type="file" id="file-input"
-            accept=".mp4">
-          </sui-form-field>
+          <div class="mt-2">
+            <sui-form-field required>
+              <label class="form-label">Video File (.mp4)</label>
+              <input @change="setVideoFile" type="file" id="file-input"
+              accept=".mp4">
+            </sui-form-field>
+          </div>
+          <div class="mt-2">
+            <sui-form-field>
+              <sui-popup content="Checking this box will allow students
+              who scan qr codes to skip through this video freely, without
+              any restrictions." position="top left" inverted>
+                <sui-checkbox label="Allow students with real-time
+                submissions to watch without restrictions" slot="trigger"
+                v-model="task.allow_unrestricted_viewing_for_real_time_submitters" />
+              </sui-popup>
+            </sui-form-field>
+          </div>
+          <div class="mt-2">
+            <sui-form-field>
+              <sui-popup content="Checking this box will allow students to
+              view the video in up to 2x speed. This option is automatically
+              enabled after students watch 100% of the video." inverted>
+                <sui-checkbox label="Allow faster viewing (up to 2x) speed"
+                slot="trigger"
+                v-model="task.allow_faster_viewing" />
+              </sui-popup>
+            </sui-form-field>
+          </div>
         </div>
         <div class="form-field">
           <sui-button @click.prevent="clearInputs"
@@ -109,7 +133,9 @@ export default {
       show_modal: false,
       task: {
         reminder_time: null,
-        video_file: null
+        video_file: null,
+        allow_unrestricted_viewing_for_real_time_submitters: false,
+        allow_faster_viewing: false
       },
       value: 1,
       header: "",

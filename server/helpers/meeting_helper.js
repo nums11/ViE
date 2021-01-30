@@ -250,7 +250,12 @@ async function updateVideos(videos) {
     videos.forEach(video => {
       video_promises.push(new Promise((resolve,reject) => {
         Video.findByIdAndUpdate(video._id,
-          {name: video.name},
+          {
+            name: video.name,
+            allow_unrestricted_viewing_for_real_time_submitters:
+            video.allow_unrestricted_viewing_for_real_time_submitters,
+            allow_faster_viewing: video.allow_faster_viewing
+          },
           {new: true},
           (error, updated_video) => {
             if(error) {
@@ -528,7 +533,10 @@ async function createVideos(videos) {
       video_promises.push(new Promise(async (resolve, reject) => {
         const new_video = new Video({
           name: video.name,
-          url: video.url
+          url: video.url,
+          allow_unrestricted_viewing_for_real_time_submitters:
+          video.allow_unrestricted_viewing_for_real_time_submitters,
+          allow_faster_viewing: video.allow_faster_viewing
         })
         const saved_video = await new_video.save()
         resolve(saved_video)
