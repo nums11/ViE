@@ -41,6 +41,7 @@ submissionRoutes.post('/update/:submission_id',
       furthest_video_time: submission.furthest_video_time,
       video_percent_watched: submission.video_percent_watched
     },
+    {new: true},
     (error, submission) => {
       if(error) {
         console.log(`<ERROR> (submissions/update) updating submission`

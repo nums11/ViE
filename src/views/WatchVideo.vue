@@ -232,13 +232,15 @@ export default {
             console.log("video current time", video.currentTime())
 
             video.on("seeking", () => {
+              console.log("seeking")
               if(video.currentTime() > self.submission.furthest_video_time) {
-                video.currentTime(current_time);
+                video.currentTime(self.submission.furthest_video_time);
               }
             });
             video.on("seeked", () => {
+              console.log("seeked")
               if(video.currentTime() > self.submission.furthest_video_time) {
-                video.currentTime(current_time);
+                video.currentTime(self.submission.furthest_video_time);
               }
             });
             video.on('ended', () => {
@@ -255,18 +257,23 @@ export default {
               if (!video.paused())
                 current_time = video.currentTime();
             }, 500);
+
             // Update user's submission every 5 seconds
+            // update_time_stamps is used to record every time the video is
+            // updated so that only one API call is made every 5 seconds.
+            // Otherwise multiple calls would be made since the 'timeupdate'
+            // event fires multiple times a second
+            let update_time_stamps = new Set()
             video.on('timeupdate', () => {
-              if(Math.floor(video.currentTime()) % 5 === 0
-                && video.currentTime() > self.submission.furthest_video_time) {
+              const floored_time = Math.floor(video.currentTime())
+              if(floored_time % 5 === 0
+                && video.currentTime() > self.submission.furthest_video_time
+                && !update_time_stamps.has(floored_time)) {
+                  console.log("in timeupdate updating submission", video.currentTime())
+                  update_time_stamps.add(floored_time)
                   self.updateVideoSubmission(current_time, video.duration())
               }
-              // console.log("Video time updating", Math.floor(video.currentTime()))
             })
-            // setInterval(async function() {
-            //   if(current_time > self.submission.furthest_video_time)
-            //     self.updateVideoSubmission(current_time, video.duration())
-            // }, 5000);
           }
         })
       })
@@ -275,16 +282,11 @@ export default {
       this.submission.furthest_video_time = current_time
       this.submission.video_percent_watched
         = (current_time / video_duration) * 100
-      if(this.submission.video_percent_watched === 100)
-        console.log("Just finished video - before API call. percent", this.submission.video_percent_watched)
       try {
         const response = await SubmissionAPI.updateSubmission(
           this.submission._id, this.submission)
-        this.submission = response.data
-        if(this.submission.video_percent_watched === 100)
-          console.log("Just finished video - after API call")
-        else
-          console.log("After call and not 100% - ", this.submission.video_percent_watched)
+        const updated_submission = response.data
+        this.submission = updated_submission
       } catch(error) {
         console.log(error)
         window.alert("Sorry, something went wrong")
