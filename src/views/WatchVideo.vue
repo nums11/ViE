@@ -30,7 +30,27 @@
           </div>
           <div class="inline-block sub-header-container center-text">
             {{ view_mode }}
-            <sui-popup :content="popup_content" position="top center"
+            <sui-popup :content="viewing_mode_popup_content" position="top center"
+            inverted>
+              <sui-icon slot="trigger" name="info circle" />
+            </sui-popup>
+          </div>
+        </div>
+        <div id="viewing-options-container">
+          <div v-if="video.allow_unrestricted_viewing_for_real_time_submitters"
+          class="inline-block sub-header-container center-text">
+            Unrestricted viewing for real-time submitters enabled
+            <sui-popup content="Students with real-time submissions
+            can view this video in unrestricted mode" position="top center"
+            inverted>
+              <sui-icon slot="trigger" name="info circle" />
+            </sui-popup>
+          </div>
+          <div v-if="video.allow_faster_viewing"
+          class="inline-block sub-header-container center-text">
+            Faster viewing enabled
+            <sui-popup content="Students viewing this video in restricted
+            mode can watch in up to 2x speed." position="top center"
             inverted>
               <sui-icon slot="trigger" name="info circle" />
             </sui-popup>
@@ -76,11 +96,11 @@ export default {
       submission: {},
       meeting_id: "",
       view_mode: "",
-      popup_content: "",
+      viewing_mode_popup_content: "",
       data_setup: {
         "fluid": true,
         "playbackRates": [0.5,1]
-      }
+      },
     }
   },
   props: {
@@ -295,14 +315,16 @@ export default {
     setViewMode(is_restricted) {
       if(is_restricted) {
         this.view_mode = "Restricted Mode"
-        this.popup_content = "You cannot scrub forward and the"
-          + " percentage of the video you watch is being periodically tracked."
+        this.viewing_mode_popup_content = "You cannot scrub forward to parts"
+        + " of the video you haven't seen and the percentage of the video you"
+        + " watch is being periodically tracked."
         if(this.video.allow_faster_viewing)
           this.allowFasterViewing()
       } else {
         this.view_mode = "Unrestricted Mode"
-        this.popup_content = "You can scrub through the video freely. No submission"
-        + " is being tracked."
+        this.viewing_mode_popup_content = "You can scrub through the video freely."
+        + " No submission is being tracked and the video can be viewed in up to"
+        + " 2x speed."
         this.allowFasterViewing()
       }
       this.video_has_loaded = true
@@ -341,6 +363,10 @@ export default {
   font-weight: bold;
 }
 
+#viewing-options-container {
+  margin-top: 1rem;
+}
+
 #video-container {
   width: 90%;
   margin: auto;
@@ -366,6 +392,9 @@ export default {
   .sub-header-container {
     width: 100%;
     margin-top: 1rem;
+  }
+  #viewing-options-container {
+    margin-top: 0rem;
   }
   #video-container {
     width: 100%;
