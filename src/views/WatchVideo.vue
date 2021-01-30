@@ -307,6 +307,11 @@ export default {
           this.submission._id, this.submission)
         const updated_submission = response.data
         this.submission = updated_submission
+        if(this.submission.video_percent_watched === 100) {
+          window.alert("Video completed. You may now view this video"
+            + " in unrestricted mode")
+          this.$router.go()
+        }
       } catch(error) {
         console.log(error)
         window.alert("Sorry, something went wrong")
