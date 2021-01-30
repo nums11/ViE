@@ -97,7 +97,6 @@ export default {
       }
 
       if(this.video.allow_unrestricted_viewing_for_real_time_submitters) {
-        console.log("Allowing for Unrestricted")
         const response = await MeetingAPI.getMeeting(this.meeting_id)
         const meeting = response.data
         const student_submitted_to_any_qr =
@@ -110,7 +109,6 @@ export default {
         }
         return
       }
-      console.log("not allowing for unrestricted")
 
       this.restrictStudentIfTheyHaveNotCompletedTheVideo()
     } catch(error) {
@@ -299,6 +297,8 @@ export default {
         this.view_mode = "Restricted Mode"
         this.popup_content = "You cannot scrub forward and the"
           + " percentage of the video you watch is being periodically tracked."
+        if(this.video.allow_faster_viewing)
+          this.allowFasterViewing()
       } else {
         this.view_mode = "Unrestricted Mode"
         this.popup_content = "You can scrub through the video freely. No submission"
