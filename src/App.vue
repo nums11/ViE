@@ -190,6 +190,10 @@ html, body {
   font-weight: bold;
 }
 
+.pointer {
+  cursor: pointer;
+}
+
 .float-left {
   float: left;
 }

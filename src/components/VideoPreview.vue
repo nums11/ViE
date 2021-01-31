@@ -37,6 +37,7 @@ export default {
   mounted() {
     this.createVideoElement()
     this.player = videojs(`video-player`, this.video_options)
+    this.$emit('created-player',this.player)
   },
   beforeDestroy() {
     this.video_options.sources = []

@@ -120,7 +120,7 @@
           </sui-button>
         </div>
       </sui-form>
-      <AddQuizModal ref="AddQuizModal" />
+      <AddQuizModal v-if="!is_real_time" ref="AddQuizModal" />
     </sui-modal-content>
   </sui-modal>
 </template>
