@@ -272,6 +272,9 @@ export default {
       } else {
         let file_input = document.getElementById('file-input')
         file_input.value = ''
+        this.task.allow_unrestricted_viewing_for_real_time_submitters
+          = false
+        this.task.allow_faster_viewing = false
       }
     }
   }
