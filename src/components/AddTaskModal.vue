@@ -89,6 +89,19 @@
               </sui-popup>
             </sui-form-field>
           </div>
+          <div class="mt-2">
+            <sui-form-field>
+              <sui-button @click.prevent="showAddQuizModal"
+              :disabled="disableAddQuizBtn"
+              size="small" animated
+              style="background-color:#00B3FF; color:white;">
+                  <sui-button-content visible>Add Quiz</sui-button-content>
+                  <sui-button-content hidden>
+                      <sui-icon name="pencil alternate" />
+                  </sui-button-content>
+              </sui-button>
+            </sui-form-field>
+          </div>
         </div>
         <div class="form-field">
           <sui-button @click.prevent="clearInputs"
@@ -107,6 +120,7 @@
           </sui-button>
         </div>
       </sui-form>
+      <AddQuizModal ref="AddQuizModal" />
     </sui-modal-content>
   </sui-modal>
 </template>
@@ -116,6 +130,7 @@ import flatpickr from "flatpickr";
 import 'flatpickr/dist/themes/material_blue.css';
 import moment from 'moment'
 import helpers from '@/helpers.js'
+import AddQuizModal from '@/components/AddQuizModal'
 
 export default {
   name: 'AddTaskModal',
@@ -127,6 +142,7 @@ export default {
     }
   },
   components: {
+    AddQuizModal
   },
   data () {
     return {
@@ -152,6 +168,9 @@ export default {
     }
   },
   computed: {
+    disableAddQuizBtn() {
+      return this.task.video_file == null
+    },
     formComplete() {
       if(this.is_real_time) {
         return true
@@ -274,8 +293,11 @@ export default {
         file_input.value = ''
         this.task.allow_unrestricted_viewing_for_real_time_submitters
           = false
-        this.task.allow_faster_viewing = false
+        this.task.allow_faster_viewing = falsesui 
       }
+    },
+    showAddQuizModal() {
+      this.$refs.AddQuizModal.showModal(this.task.video_file)
     }
   }
 }
