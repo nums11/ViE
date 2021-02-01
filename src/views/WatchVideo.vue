@@ -468,19 +468,41 @@ export default {
   box-shadow: 0px 15px 15px #c7c7c7;
 }
 
-@media (max-width: 768px) {
+/* Tablets */
+@media (max-width: 1128px) {
   #watch-video {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
+  }
+  #left-side {
+    width: 60%;
+    margin-left: 2rem;
+  }
+  #right-side {
+    width: 35%;
+    /*border: blue solid;*/
+  }
+}
+
+@media (max-width: 768px) {
+  #watch-video {
+    padding-bottom: 1rem;
   }
   #video-name {
     display: block;
     margin-left: 0;
     text-align: center;
   }
+  #left-side {
+    /*border: blue solid;*/
+    width: 100%;
+    margin: auto;
+  }
   .sub-header-container {
     width: 100%;
     margin-top: 1rem;
+    text-align: center;
+    /*border: black solid;*/
   }
   #viewing-options-container {
     margin-top: 0rem;
@@ -488,9 +510,24 @@ export default {
   #video-container {
     width: 100%;
     height: 20rem;
+    margin-bottom: 1rem;
+  }
+  #right-side {
+    /*border: green solid;*/
+    width: 100%;
+    max-height: 15rem;
+    overflow-y: auto;
+  }
+  #right-side-content {
+    /*border: red solid;*/
+    height: 6rem;
+    min-height: 6rem;
+    max-height: 300rem;
+  }
+  #no-quiz {
+    margin-top: 2rem;
   }
   #back-to-meeting-btn {
-    /*border: blue solid;*/
     width: 10rem;
     margin: auto;
     margin-top: 2rem;
