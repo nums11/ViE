@@ -89,8 +89,8 @@
               </sui-popup>
             </sui-form-field>
           </div>
-          <div class="mt-2">
-            <sui-form-field>
+          <div v-if="!is_real_time" class="mt-2">
+            <sui-form-field v-if="task.quiz == null">
               <sui-button @click.prevent="showAddQuizModal"
               :disabled="disableAddQuizBtn"
               size="small" animated
@@ -101,6 +101,39 @@
                   </sui-button-content>
               </sui-button>
             </sui-form-field>
+            <div v-else class="light-border-shadow" id="quiz-container">
+              <div class="float-left" id="quiz-title">Quiz</div>
+              <div class="float-left" id="num-questions">
+                {{ task.quiz.questions.length }} questions
+              </div>
+              <div class="float-right">
+                <sui-button @click.prevent="deleteQuiz"
+                animated size="mini"
+                style="background-color:#FF0000; color:white;
+                margin-top:0.5rem; margin-left: 0.5rem;">
+                  <sui-button-content visible>
+                    Delete
+                  </sui-button-content>
+                  <sui-button-content hidden>
+                      <sui-icon name="trash" />
+                  </sui-button-content>
+                </sui-button>
+              </div>
+              <div class="divider float-right"></div>
+              <div class="float-right">
+                <sui-button
+                animated size="mini"
+                style="background-color:#00B3FF; color:white;
+                margin-top:0.5rem;">
+                  <sui-button-content visible>
+                    Edit
+                  </sui-button-content>
+                  <sui-button-content hidden>
+                      <sui-icon name="edit outline" />
+                  </sui-button-content>
+                </sui-button>
+              </div>
+            </div>
           </div>
         </div>
         <div class="form-field">
@@ -120,7 +153,8 @@
           </sui-button>
         </div>
       </sui-form>
-      <AddQuizModal v-if="!is_real_time" ref="AddQuizModal" />
+      <AddQuizModal v-if="!is_real_time && task.quiz == null"
+      ref="AddQuizModal" v-on:save-quiz="saveQuiz" />
     </sui-modal-content>
   </sui-modal>
 </template>
@@ -151,7 +185,8 @@ export default {
         reminder_time: null,
         video_file: null,
         allow_unrestricted_viewing_for_real_time_submitters: false,
-        allow_faster_viewing: false
+        allow_faster_viewing: false,
+        quiz: null
       },
       value: 1,
       header: "",
@@ -298,6 +333,14 @@ export default {
     },
     showAddQuizModal() {
       this.$refs.AddQuizModal.showModal(this.task.video_file)
+    },
+    saveQuiz(questions) {
+      this.task.quiz = {
+        questions: questions
+      }
+    },
+    deleteQuiz() {
+      this.task.quiz = null
     }
   }
 }
@@ -306,10 +349,6 @@ export default {
 <style scoped>
 #add-task-modal {
   margin-top: 2rem;
-}
-.form {
-  /*border: black solid;*/
-  /*width: 80%;*/
 }
 
 .date-input {
@@ -322,5 +361,39 @@ export default {
   width: 12rem;
   margin: auto;
   margin-top: 3rem;
+}
+
+#quiz-container {
+  /*border: black solid;*/
+  width: 25rem;
+  height: 3rem;
+  margin: auto;
+  border-radius: 3px;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+#quiz-title {
+  font-weight: bold;
+  margin-top: 0.75rem;
+  /*border: black solid;*/
+}
+
+#num-questions {
+  /*border: blue solid;*/
+  margin-top: 0.75rem;
+  margin-left: 2rem;
+  /*margin-left: 3rem;*/
+}
+
+.divider {
+  border-left: #c7c7c7 solid thin;
+  background-color: #c7c7c7;
+  height: 90%;
+  width: 0.005rem;
+  display: inline-block;
+  vertical-align: top;
+  margin-left: 0.5rem;
+  margin-top: 0.15rem;
 }
 </style>

@@ -10,11 +10,9 @@
         ref="VideoPreview"
         v-on:created-player="assignPlayer" />
         <h3>Questions ({{ questions.length }})</h3>
-        <QuizQuestionCard v-for="question in questions"
-        :question="question" />
-<!--         <div v-for="question in questions" class="question-container">
-          {{ question.video_timestamp }}
-        </div> -->
+        <QuizQuestionCard v-for="(question,index) in questions"
+        :question="question"
+        v-on:remove-question="removeQuestion(index)" />
       </div>
       <div v-if="video_player != null"
       class="inline-block" id="right-side">
@@ -22,10 +20,9 @@
         <sui-form id="question-form">
           <sui-form-field>
             <label class="form-label">Timestamp</label>
-            <input type="number" min="0"
+            <input type="number" min="0" id="timestamp-input" 
             :max="video_player.duration"
-            :value="Math.floor(video_player.currentTime())"
-            v-on:change="(event) => updateTimestamp(event.target.value)" />
+            :value="Math.floor(video_player.currentTime())" />
           </sui-form-field>
           <sui-form-field>
             <label class="form-label">Question</label>
@@ -69,7 +66,8 @@
     <sui-modal-actions>
       <div id="action-btns-container">
         <sui-button @click="cancelQuiz">Cancel</sui-button>
-        <sui-button style="background-color:#00b80c;
+        <sui-button @click="saveQuiz"
+        style="background-color:#00b80c;
         color:white; margin-left:2rem;">
           Save Quiz
         </sui-button>
@@ -137,15 +135,11 @@ export default {
     removeChoice(index) {
       this.question.answer_choices.splice(index, 1)
     },
-    updateTimestamp(value) {
-      this.question.video_timestamp = value
-    },
     assignPlayer(player) {
       this.video_player = player
     },
     markCorrect(index) {
       this.question.correct_answer_index = index
-      console.log("Mark correct called", this.question.correct_answer_index)
     },
     clearQuestion() {
       this.question = {
@@ -159,8 +153,17 @@ export default {
       }
     },
     saveQuestion() {
+      this.question.video_timestamp =
+        document.getElementById('timestamp-input').value
       this.questions.push(this.question)
       this.clearQuestion()
+    },
+    saveQuiz() {
+      this.$emit('save-quiz', this.questions)
+      this.cancelQuiz()
+    },
+    removeQuestion(index) {
+      this.questions.splice(index, 1)
     }
   }
 }

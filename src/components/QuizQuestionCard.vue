@@ -9,12 +9,12 @@
         {{ question.question }}
       </div>
       <div class="float-right">
-        <sui-button
+        <sui-button @click="$emit('remove-question')"
         animated size="mini"
         style="background-color:#FF0000; color:white;
         margin-top:0.2rem; margin-left: 0.5rem;">
           <sui-button-content visible>
-            Delete
+            Remove
           </sui-button-content>
           <sui-button-content hidden>
               <sui-icon name="trash" />
@@ -79,7 +79,7 @@ export default {
   margin-left: 1rem;
   text-align: left;
   padding-left: 1rem;
-  padding-right: 1rem;
+  padding-right: 0.25rem;
 }
 
 .question {
