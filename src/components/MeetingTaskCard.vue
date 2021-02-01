@@ -16,8 +16,10 @@
           </div>
         </div>
         <div v-else>
-          2h 3m, No Quiz
-        </div>
+          {{ task.quiz == null ? 'No Quiz':
+              `Quiz, ${task.quiz.questions.length} questions`
+          }}
+          </div>
       </div>
       <div class="divider" v-if="is_instructor"></div>
       <div class="btn-container">
@@ -126,6 +128,7 @@ export default {
       }
   },
   created () {
+    console.log("task", this.task)
     this.is_qr = this.task_type === 'qr_scan'
     this.setLabelsBasedOnTaskType()
     if(!this.is_instructor) {

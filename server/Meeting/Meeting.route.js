@@ -76,12 +76,14 @@ meetingRoutes.route('/get/:id').get(function (req, res, next) {
     path: 'async_portion',
     populate: [{
       path: 'videos',
-      populate: {
+      populate: [{
         path: 'submissions',
         populate: {
           path: 'submitter'
         }
-      }
+      }, {
+        path: 'quiz'
+      }]
     }]
   }).
   exec((error,meeting) => {
