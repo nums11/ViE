@@ -64,23 +64,27 @@
       </div>
       <div class="mt-1 inline-block center-text" id="right-side">
         <h3 >Quiz</h3>
-<!--         <h4 v-if="quiz != null">
+        <h4 v-if="quiz != null">
           {{ quiz.questions.length }} questions
-        </h4> -->
+        </h4>
         <div id="right-side-content">
           <p id="no-quiz" v-if="quiz == null">No Quiz</p>
           <div v-else>
-<!--             <div v-for="(question, index) in quiz.questions"
-            class="question-time">
-              <li style="color:#00B3FF;">
-                <span style="color: black;font-weight: bold;">
-                  {{ formatted_question_timestamps[index] }}
-                </span>
-              </li>
-              <div v-if="index < quiz.questions.length-1"
-              class="line"></div>
-            </div> -->
-            <QuestionCard />
+            <div v-if="!show_question">
+              <div v-for="(question, index) in quiz.questions"
+              class="question-time">
+                <li style="color:#00B3FF;">
+                  <span style="color: black;font-weight: bold;">
+                    {{ formatted_question_timestamps[index] }}
+                  </span>
+                </li>
+                <div v-if="index < quiz.questions.length-1"
+                class="line"></div>
+              </div>
+            </div>
+            <QuestionCard ref="QuestionCard"
+            v-on:submit="updateQuizSubmission"
+            v-on:resume-video="resumeVideo" />
           </div>
         </div>
       </div>
@@ -104,8 +108,6 @@ import VideoAPI from '@/services/VideoAPI.js'
 import SubmissionAPI from '@/services/SubmissionAPI.js'
 import MeetingAPI from '@/services/MeetingAPI.js'
 import moment from 'moment'
-import momentDurationFormatSetup from "moment-duration-format"
-momentDurationFormatSetup(moment)
 import helpers from '@/helpers.js'
 import QuestionCard from '@/components/QuestionCard'
 
@@ -126,6 +128,8 @@ export default {
         "fluid": true,
         "playbackRates": [0.5,1]
       },
+      show_question: false,
+      current_question_index: 0
     }
   },
   props: {
@@ -205,17 +209,8 @@ export default {
     assignQuizAndFormattedQuestionTimestamps() {
       this.quiz = this.video.quiz
       this.quiz.questions.forEach(question => {
-        const timestamp = question.video_timestamp
-        console.log("timestamp", timestamp)
-        let format_string;
-        // 1 hour
-        if(timestamp > 3600)
-          format_string = "h:m:ss"
-        else
-          format_string = "m:ss"
-        const formatted_timestamp = moment.duration(
-          timestamp, "seconds").format(format_string, {trim: false})
-        console.log("formatted_timestamp", formatted_timestamp)
+        const formatted_timestamp =
+          this.getFormattedVideoTimestamp(question.video_timestamp)
         this.formatted_question_timestamps.push(formatted_timestamp)
       })
     },
@@ -256,9 +251,7 @@ export default {
       } else {
         const submission = {
           submitter: this.state_user._id,
-          task_type: "Video",
-          furthest_video_time: 0,
-          video_percent_watched: 0
+          task_type: "Video"
         }
         try {
           const response = await
@@ -340,6 +333,18 @@ export default {
                   update_time_stamps.add(floored_time)
                   self.updateVideoSubmission(current_time, video.duration())
               }
+              if(self.quiz != null) {
+                // Show quiz at the right timestamp
+                if(self.current_question_index < self.quiz.questions.length && 
+                  self.quiz.questions[self.current_question_index].video_timestamp
+                  === floored_time) {
+                  video.pause()
+                  self.show_question = true
+                  self.$refs.QuestionCard.showQuestion(
+                    self.quiz.questions[self.current_question_index])
+                  self.current_question_index++
+                }
+              }
             })
           }
         })
@@ -363,6 +368,26 @@ export default {
         console.log(error)
         window.alert("Sorry, something went wrong")
       }
+    },
+    async updateQuizSubmission(selected_answer_index,
+      user_was_correct) {
+      try {
+        this.submission.quiz_answer_indices.push(
+          selected_answer_index)
+        if(user_was_correct)
+          this.submission.num_correct_answer++
+        const response = await SubmissionAPI.updateSubmission(
+          this.submission._id, this.submission)
+        const updated_submission = response.data
+        this.submission = updated_submission
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
+    },
+    resumeVideo() {
+      this.show_question = false
+      this.player.play()
     },
     setViewMode(is_restricted) {
       if(is_restricted) {

@@ -3,6 +3,7 @@ const asyncPortionRoutes = express.Router();
 const AsyncPortion = require('./AsyncPortion.model');
 const Video = require('../Video/Video.model');
 const AsyncPortionHelper = require('../helpers/async_portion_helper')
+const QuizHelper = require('../helpers/quiz_helper')
 
 // GET --------------
 
@@ -57,6 +58,12 @@ asyncPortionRoutes.post('/add_video/:async_portion_id',
   const video = req.body.video
 
   try {
+    if(video.quiz != null) {
+      const saved_quiz = await QuizHelper.createQuiz(video.quiz)
+      if(saved_quiz == null)
+        throw "<ERROR> (async_portions/add_video) saving video quiz"
+      video.quiz = saved_quiz
+    }
     const new_video = new Video(video)
     const saved_video = await new_video.save()
     AsyncPortion.findByIdAndUpdate(async_portion_id,

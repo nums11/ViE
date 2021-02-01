@@ -10,7 +10,7 @@
         ref="VideoPreview"
         v-on:created-player="assignPlayer" />
         <h3>Questions ({{ questions.length }})</h3>
-        <QuizQuestionCard v-for="(question,index) in questions"
+        <NewQuizQuestionCard v-for="(question,index) in questions"
         :question="question"
         v-on:remove-question="removeQuestion(index)" />
       </div>
@@ -82,7 +82,7 @@
 
 <script>
 import VideoPreview from '@/components/VideoPreview'
-import QuizQuestionCard from '@/components/QuizQuestionCard'
+import NewQuizQuestionCard from '@/components/NewQuizQuestionCard'
 
 export default {
   name: 'AddQuizModal',
@@ -107,7 +107,7 @@ export default {
   },
   components: {
     VideoPreview,
-    QuizQuestionCard
+    NewQuizQuestionCard
   },
   computed: {
 

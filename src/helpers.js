@@ -1,4 +1,6 @@
 import moment from 'moment'
+import momentDurationFormatSetup from "moment-duration-format"
+momentDurationFormatSetup(moment)
 import UserAPI from '@/services/UserAPI';
 
 export default {
@@ -137,6 +139,17 @@ export default {
 		    }
 		  }
 		  return [student_submitted, percent_watched]
+		},
+		getFormattedVideoTimestamp(timestamp) {
+			let format_string;
+			// 1 hour
+			if(timestamp > 3600)
+			  format_string = "h:m:ss"
+			else
+			  format_string = "m:ss"
+			const formatted_timestamp = moment.duration(
+			  timestamp, "seconds").format(format_string, {trim: false})
+			return formatted_timestamp
 		}
 	}
 }

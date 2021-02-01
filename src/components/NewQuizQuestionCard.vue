@@ -1,9 +1,10 @@
 <template>
-  <div class="quiz-question-card-container mt-1">
+  <div class="new-quiz-question-card-container mt-1">
     <div class="inline-block timestamp">
-      {{ question.video_timestamp }}
+      {{ getFormattedVideoTimestamp(
+        question.video_timestamp) }}
     </div>
-    <div class="quiz-question-card inline-block
+    <div class="new-quiz-question-card inline-block
     light-border-shadow">
       <div class="question inline-block wrap-text">
         {{ question.question }}
@@ -41,8 +42,11 @@
 </template>
 
 <script>
+import helpers from '@/helpers.js'
+
 export default {
-  name: 'QuizQuestionCard',
+  name: 'NewQuizQuestionCard',
+  mixins: [helpers],
   props: {
     question: {
       type: Object,
@@ -51,7 +55,6 @@ export default {
   },
   data () {
     return {
-
     }
   },
   components: {
@@ -72,7 +75,7 @@ export default {
   margin-top: 0.5rem;
 }
 
-.quiz-question-card {
+.new-quiz-question-card {
   border-radius: 3px;
   height: 2.5rem;
   width: 85%;
