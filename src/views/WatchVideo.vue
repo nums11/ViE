@@ -64,13 +64,13 @@
       </div>
       <div class="mt-1 inline-block center-text" id="right-side">
         <h3 >Quiz</h3>
-        <h4 v-if="quiz != null">
+<!--         <h4 v-if="quiz != null">
           {{ quiz.questions.length }} questions
-        </h4>
+        </h4> -->
         <div id="right-side-content">
           <p id="no-quiz" v-if="quiz == null">No Quiz</p>
           <div v-else>
-            <div v-for="(question, index) in quiz.questions"
+<!--             <div v-for="(question, index) in quiz.questions"
             class="question-time">
               <li style="color:#00B3FF;">
                 <span style="color: black;font-weight: bold;">
@@ -79,7 +79,8 @@
               </li>
               <div v-if="index < quiz.questions.length-1"
               class="line"></div>
-            </div>
+            </div> -->
+            <QuestionCard />
           </div>
         </div>
       </div>
@@ -106,6 +107,7 @@ import moment from 'moment'
 import momentDurationFormatSetup from "moment-duration-format"
 momentDurationFormatSetup(moment)
 import helpers from '@/helpers.js'
+import QuestionCard from '@/components/QuestionCard'
 
 export default {
   name: "WatchVideo",
@@ -128,6 +130,9 @@ export default {
   },
   props: {
 
+  },
+  components: {
+    QuestionCard
   },
   async created() {
     this.meeting_id = this.$route.params.meeting_id
@@ -484,7 +489,7 @@ export default {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 760px) {
   #watch-video {
     padding-bottom: 1rem;
   }
@@ -515,12 +520,12 @@ export default {
   #right-side {
     /*border: green solid;*/
     width: 100%;
-    max-height: 15rem;
+    max-height: 35rem;
     overflow-y: auto;
   }
   #right-side-content {
     /*border: red solid;*/
-    height: 6rem;
+    /*height: 6rem;*/
     min-height: 6rem;
     max-height: 300rem;
   }
