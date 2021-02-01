@@ -5,6 +5,8 @@ const Section = require('../Section/Section.model');
 const User = require('../User/User.model');
 const QRScan = require('../QRScan/QRScan.model');
 const Video = require('../Video/Video.model');
+const Quiz = require('../Quiz/Quiz.model');
+const QuizQuestion = require('../QuizQuestion/QuizQuestion.model');
 const QRScanHelper = require('./qr_scan_helper')
 const RealTimePortionHelper = require('./real_time_portion_helper')
 const AsyncPortionHelper = require('./async_portion_helper')
@@ -531,21 +533,81 @@ async function createVideos(videos) {
     let video_promises = []
     videos.forEach(video => {
       video_promises.push(new Promise(async (resolve, reject) => {
-        const new_video = new Video({
-          name: video.name,
-          url: video.url,
-          allow_unrestricted_viewing_for_real_time_submitters:
-          video.allow_unrestricted_viewing_for_real_time_submitters,
-          allow_faster_viewing: video.allow_faster_viewing
-        })
-        const saved_video = await new_video.save()
-        resolve(saved_video)
+        try {
+          const saved_quiz = await createQuiz(video.quiz)
+          if(saved_quiz == null)
+            throw "Error saving quiz"
+          const new_video = new Video({
+            name: video.name,
+            url: video.url,
+            allow_unrestricted_viewing_for_real_time_submitters:
+            video.allow_unrestricted_viewing_for_real_time_submitters,
+            allow_faster_viewing: video.allow_faster_viewing,
+            quiz: saved_quiz
+          })
+          const saved_video = await new_video.save()
+          resolve(saved_video)
+        } catch(error) {
+          console.log("<ERROR> createVideos saving quiz",
+            video.quiz, error)
+          reject(error)
+        }
       }))
     })
     const saved_videos = await Promise.all(video_promises)
     return saved_videos
   } catch(error) {
     console.log(`<ERROR> createVideos videos:`,videos, error)
+    return null
+  }
+}
+
+async function createQuiz(quiz) {
+  try {
+    const saved_questions = await createQuizQuestions(quiz.questions)
+    if(saved_questions == null)
+      throw "<ERROR> createQuiz saving questions"
+    const new_quiz = new Quiz({
+      questions: saved_questions
+    })
+    const saved_quiz = await new_quiz.save()
+    return saved_quiz
+  } catch(error) {
+    console.log("<ERROR> createQuiz quiz", quiz, error)
+    return null
+  }
+}
+
+async function createQuizQuestions(questions) {
+  try {
+    let question_promises = []
+    questions.forEach(question => {
+      question_promises.push(new Promise(
+        async (resolve,reject) => {
+        try {
+          let answer_choices = []
+          question.answer_choices.forEach(choice => {
+            answer_choices.push(choice.text)
+          })
+          const new_question = new QuizQuestion({
+            question: question.question,
+            answer_choices: answer_choices,
+            correct_answer_index: question.correct_answer_index,
+            video_timestamp: question.video_timestamp
+          })
+          const saved_question = await new_question.save()
+          resolve(saved_question)
+        } catch(error) {
+          console.log("<ERROR> createQuizQuestions saving question",
+            question, error)
+          reject(error)
+        }
+      }))
+    })
+    const saved_questions = await Promise.all(question_promises)
+    return saved_questions
+  } catch(error) {
+    console.log("<ERROR> createQuizQuestions questions", questions)
     return null
   }
 }

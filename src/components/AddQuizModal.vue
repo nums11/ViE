@@ -19,10 +19,14 @@
         <h3>Add Question</h3>
         <sui-form id="question-form">
           <sui-form-field>
+            <p>
+              Set the video to the timestamp that you want this
+              question to appear at.
+            </p>
             <label class="form-label">Timestamp</label>
             <input type="number" min="0" id="timestamp-input" 
             :max="video_player.duration"
-            :value="Math.floor(video_player.currentTime())" />
+            :value="Math.floor(video_player.currentTime())" disabled />
           </sui-form-field>
           <sui-form-field>
             <label class="form-label">Question</label>

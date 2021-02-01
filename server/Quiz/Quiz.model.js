@@ -6,8 +6,7 @@ const Submission = require('../Submission/Submission.model');
 //Define collection and schema for User
 const Quiz = new Schema({
 	name: {
-		type: String,
-		required: true
+		type: String
 	},
 	questions: [{
 		type: mongoose.Schema.Types.ObjectId,
