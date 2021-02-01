@@ -64,11 +64,23 @@
       </div>
       <div class="mt-1 inline-block center-text" id="right-side">
         <h3 >Quiz</h3>
-        <h4 v-if="video.quiz != null">
-          {{ video.quiz.questions.length }} questions
+        <h4 v-if="quiz != null">
+          {{ quiz.questions.length }} questions
         </h4>
         <div id="right-side-content">
-          <p id="no-quiz" v-if="video.quiz == null">No Quiz</p>
+          <p id="no-quiz" v-if="quiz == null">No Quiz</p>
+          <div v-else>
+            <div v-for="(question, index) in quiz.questions"
+            class="question-time">
+              <li style="color:#00B3FF;">
+                <span style="color: black;font-weight: bold;">
+                  {{ formatted_question_timestamps[index] }}
+                </span>
+              </li>
+              <div v-if="index < quiz.questions.length-1"
+              class="line"></div>
+            </div>
+          </div>
         </div>
       </div>
       <show-at breakpoint="small">
@@ -91,6 +103,8 @@ import VideoAPI from '@/services/VideoAPI.js'
 import SubmissionAPI from '@/services/SubmissionAPI.js'
 import MeetingAPI from '@/services/MeetingAPI.js'
 import moment from 'moment'
+import momentDurationFormatSetup from "moment-duration-format"
+momentDurationFormatSetup(moment)
 import helpers from '@/helpers.js'
 
 export default {
@@ -99,6 +113,8 @@ export default {
   data() {
     return {
       video: {},
+      quiz: null,
+      formatted_question_timestamps: [],
       video_has_loaded: false,
       submission: {},
       meeting_id: "",
@@ -118,6 +134,8 @@ export default {
     this.video_id = this.$route.params.video_id
     try {
       await this.getAsyncPortion()
+      if(this.video.quiz != null)
+        this.assignQuizAndFormattedQuestionTimestamps()
       if(this.is_instructor || !this.isWithinAsyncPortionWindow()) {
         this.setViewMode(false)
         return
@@ -178,6 +196,23 @@ export default {
           break
         }
       }
+    },
+    assignQuizAndFormattedQuestionTimestamps() {
+      this.quiz = this.video.quiz
+      this.quiz.questions.forEach(question => {
+        const timestamp = question.video_timestamp
+        console.log("timestamp", timestamp)
+        let format_string;
+        // 1 hour
+        if(timestamp > 3600)
+          format_string = "h:m:ss"
+        else
+          format_string = "m:ss"
+        const formatted_timestamp = moment.duration(
+          timestamp, "seconds").format(format_string, {trim: false})
+        console.log("formatted_timestamp", formatted_timestamp)
+        this.formatted_question_timestamps.push(formatted_timestamp)
+      })
     },
     isWithinAsyncPortionWindow() {
       const current_time = new Date()
@@ -382,7 +417,6 @@ export default {
 }
 
 #right-side-content {
-  /*border: orange solid;*/
   height: 30rem;
 }
 
@@ -391,6 +425,19 @@ export default {
   font-weight: bold;
   color: #949494;
   margin-top: 8rem;
+}
+
+.question-time {
+  width: 5rem;
+  text-align: left;
+  margin: auto;
+}
+
+.line {
+  background-color: #00B3FF;
+  width: 0.25rem;
+  height: 3rem;
+  margin-left: 0.05rem;
 }
 
 .sub-header-container {
@@ -410,13 +457,15 @@ export default {
   /*width: 90%;*/
   margin: auto;
   height: 35rem;
-  margin-bottom: 2rem;
+  margin-bottom: 4rem;
   /*border: blue solid;*/
 }
 
 #video_player {
   width: 100%;
   height: 100%;
+  border: #c7c7c7 solid;
+  box-shadow: 0px 15px 15px #c7c7c7;
 }
 
 @media (max-width: 768px) {
