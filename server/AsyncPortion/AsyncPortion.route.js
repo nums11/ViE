@@ -23,12 +23,17 @@ asyncPortionRoutes.get('/get/:id', function (req, res, next) {
   AsyncPortion.findById(id).
   populate({
     path: 'videos',
-    populate: {
+    populate: [{
       path: 'submissions',
       populate: {
         path: 'submitter'
       }
-    }
+    }, {
+      path: 'quiz',
+      populate: {
+        path: 'questions'
+      }
+    }]
   }).
   exec((error,async_portion) => {
     if(error){

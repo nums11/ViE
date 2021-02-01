@@ -7,38 +7,36 @@
     </div>
     <div v-else>
       <div id="header-container">
-        <div>
-          <h2 class="wrap-text" id="video-name">{{ video.name }}</h2>
-          <hide-at breakpoint="small">
-            <router-link
-            :to="{name: 'meeting_info', params: {meeting_id: meeting_id}}">
-              <sui-button content="Back to Meeting" icon="arrow left"
-              label-position="left" class="inline-block float-right" />
-            </router-link>
-          </hide-at>
+        <h2 class="wrap-text" id="video-name">{{ video.name }}</h2>
+        <hide-at breakpoint="small">
+          <router-link
+          :to="{name: 'meeting_info', params: {meeting_id: meeting_id}}">
+            <sui-button content="Back to Meeting" icon="arrow left"
+            label-position="left" class="inline-block float-right" />
+          </router-link>
+        </hide-at>
+      </div>
+      <div class="mt-1 inline-block" id="left-side">
+        <div class="inline-block sub-header-container">
+          Window:
+          {{ async_portion.async_start | moment("M/D h:mm a") }} -
+          {{ async_portion.async_end | moment("M/D h:mm a") }}
         </div>
-        <div class="mt-1">
-          <div class="inline-block sub-header-container center-text">
-            Submission Window:
-            {{ async_portion.async_start | moment("M/D h:mm a") }} -
-            {{ async_portion.async_end | moment("M/D h:mm a") }}
-          </div>
-          <div class="inline-block sub-header-container center-text">
-            <span v-if="view_mode === 'Restricted Mode'">
-              {{ this.submission.video_percent_watched.toFixed(2) }}% watched
-            </span>
-          </div>
-          <div class="inline-block sub-header-container center-text">
-            {{ view_mode }}
-            <sui-popup :content="viewing_mode_popup_content" position="top center"
-            inverted>
-              <sui-icon slot="trigger" name="info circle" />
-            </sui-popup>
-          </div>
+        <div class="inline-block sub-header-container center-text">
+          <span v-if="view_mode === 'Restricted Mode'">
+            {{ this.submission.video_percent_watched.toFixed(2) }}% watched
+          </span>
+        </div>
+        <div class="inline-block sub-header-container right-text">
+          {{ view_mode }}
+          <sui-popup :content="viewing_mode_popup_content" position="top center"
+          inverted>
+            <sui-icon slot="trigger" name="info circle" />
+          </sui-popup>
         </div>
         <div id="viewing-options-container">
           <div v-if="video.allow_unrestricted_viewing_for_real_time_submitters"
-          class="inline-block sub-header-container center-text">
+          class="inline-block">
             Unrestricted viewing for real-time submitters enabled
             <sui-popup content="Students with real-time submissions
             can view this video in unrestricted mode" position="top center"
@@ -56,13 +54,22 @@
             </sui-popup>
           </div>
         </div>
+        <div id="video-container">
+          <video id="video_player"
+          class="video-js vjs-big-play-centered "
+          :data-setup="JSON.stringify(data_setup)" controls>
+            <source v-bind:src="video.url">
+          </video>
+        </div>
       </div>
-      <div id="video-container">
-        <video id="video_player"
-        class="video-js vjs-big-play-centered "
-        :data-setup="JSON.stringify(data_setup)" controls>
-          <source v-bind:src="video.url">
-        </video>
+      <div class="mt-1 inline-block center-text" id="right-side">
+        <h3 >Quiz</h3>
+        <h4 v-if="video.quiz != null">
+          {{ video.quiz.questions.length }} questions
+        </h4>
+        <div id="right-side-content">
+          <p id="no-quiz" v-if="video.quiz == null">No Quiz</p>
+        </div>
       </div>
       <show-at breakpoint="small">
         <div id="back-to-meeting-btn">
@@ -345,14 +352,14 @@ export default {
 
 <style scoped>
 #watch-video {
-  padding-left: 8rem;
-  padding-right: 8rem;
+  padding-left: 3rem;
+  padding-right: 3rem;
   padding-top: 2rem;
   /*border: red solid;*/
 }
 
 #header-container {
-  margin-bottom: 1rem;
+  /*margin-bottom: 1rem;*/
 }
 
 #video-name {
@@ -362,20 +369,48 @@ export default {
   /*border: blue solid;*/
 }
 
+#left-side {
+  /*border: blue solid;*/
+  width: 65%;
+  margin-left: 4rem;
+  margin-bottom: 1rem;
+}
+
+#right-side {
+  /*border: green solid;*/
+  width: 31%;
+}
+
+#right-side-content {
+  /*border: orange solid;*/
+  height: 30rem;
+}
+
+#no-quiz {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #949494;
+  margin-top: 8rem;
+}
+
 .sub-header-container {
   width: 33.3%;
   color: #2C3E50;
+  /*border: black solid;*/
   font-weight: bold;
 }
 
 #viewing-options-container {
   margin-top: 1rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
 }
 
 #video-container {
-  width: 90%;
+  /*width: 90%;*/
   margin: auto;
-  height: 40rem;
+  height: 35rem;
+  margin-bottom: 2rem;
   /*border: blue solid;*/
 }
 
