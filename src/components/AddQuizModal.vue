@@ -38,8 +38,9 @@
             <label class="float-left" style="margin-left:2rem;">
               Choice {{ index + 1 }}
             </label>
-            <sui-icon @click="removeChoice(index)"
-            name="x" class="float-right pointer" style="margin-right:1rem;" />
+            <sui-icon v-if="question.answer_choices.length > 2"
+            @click="removeChoice(index)" name="x" class="float-right pointer"
+            style="margin-right:1rem;" />
             <sui-form-field>
               <sui-popup content="Mark this choice as the correct answer"
               position="top center" inverted>
@@ -56,9 +57,15 @@
           <p @click="addChoice" id="add-choice">
             + Add another answer choice
           </p>
+          <p v-if="questionInputsFilled && disableSaveQuestionBtn"
+          id="warning-msg">
+            <sui-icon name="exclamation triangle" size="small" />
+            You must select at least 1 correct answer
+          </p>
           <div class="mt-2">
             <sui-button @click.prevent="clearQuestion">Clear</sui-button>
             <sui-button @click.prevent="saveQuestion"
+            :disabled="disableSaveQuestionBtn"
             style="background-color:#00B3FF;
             color:white; margin-left:2rem;">
               Save Question
@@ -71,6 +78,7 @@
       <div id="action-btns-container">
         <sui-button @click="cancelQuiz">Cancel</sui-button>
         <sui-button @click="saveQuiz"
+        :disabled="disableSaveQuizBtn"
         style="background-color:#00b80c;
         color:white; margin-left:2rem;">
           Save Quiz
@@ -98,7 +106,7 @@ export default {
           {text: ""},
           {text: ""}
         ],
-        correct_answer_index: 0,
+        correct_answer_index: null,
         video_timestamp: 0
       },
       player_created: false,
@@ -110,7 +118,24 @@ export default {
     NewQuizQuestionCard
   },
   computed: {
-
+    questionInputsFilled() {
+      if(this.question.question.length === 0)
+        return false
+      const answer_choices = this.question.answer_choices
+      for(let i =0; i < answer_choices.length; i++) {
+        if(answer_choices[i].text.length === 0) {
+          return false
+        }
+      }
+      return true
+    },
+    disableSaveQuestionBtn() {
+      return !this.questionInputsFilled ||
+      this.question.correct_answer_index == null
+    },
+    disableSaveQuizBtn() {
+      return this.questions.length === 0
+    }
   },
   created () {
   },
@@ -152,9 +177,11 @@ export default {
           {text: ""},
           {text: ""}
         ],
-        correct_answer_index: 0,
+        correct_answer_index: null,
         video_timestamp: 0
       }
+      document.querySelector(
+        'input[name="correct_answer_index"]:checked').checked = false;
     },
     saveQuestion() {
       this.question.video_timestamp =
@@ -201,5 +228,13 @@ export default {
   cursor: pointer;
   font-weight: bold;
   color: #a6a6a6;
+}
+
+#warning-msg {
+  /*font-weight: bold;*/
+  background-color: #fff4d3;
+  border-radius: 2px;
+  padding: 0;
+  /*border: black solid;*/
 }
 </style>
