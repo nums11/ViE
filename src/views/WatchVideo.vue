@@ -248,6 +248,8 @@ export default {
         = this.submissionExistsForStudent()
       if(submission_exists) {
         this.submission = submission
+        this.current_question_index =
+          this.submission.quiz_answer_indices.length
       } else {
         const submission = {
           submitter: this.state_user._id,
@@ -338,17 +340,21 @@ export default {
                 if(self.current_question_index < self.quiz.questions.length && 
                   self.quiz.questions[self.current_question_index].video_timestamp
                   === floored_time) {
-                  video.pause()
-                  self.show_question = true
-                  self.$refs.QuestionCard.showQuestion(
+                  self.showQuizQuestion(
                     self.quiz.questions[self.current_question_index])
-                  self.current_question_index++
                 }
               }
             })
           }
         })
       })
+    },
+    showQuizQuestion(question) {
+      this.player.pause()
+      this.player.controls(false)
+      this.show_question = true
+      this.$refs.QuestionCard.showQuestion(question)
+      this.current_question_index++
     },
     async updateVideoSubmission(current_time, video_duration) {
       this.submission.furthest_video_time = current_time
@@ -387,6 +393,7 @@ export default {
     },
     resumeVideo() {
       this.show_question = false
+      this.player.controls(true)
       this.player.play()
     },
     setViewMode(is_restricted) {
