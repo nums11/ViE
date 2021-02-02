@@ -187,7 +187,17 @@ export default {
       this.question.video_timestamp =
         document.getElementById('timestamp-input').value
       this.questions.push(this.question)
+      this.questions.sort(this.questionCompare)
       this.clearQuestion()
+    },
+    questionCompare(a,b) {
+      if ( a.video_timestamp < b.video_timestamp ){
+        return -1;
+      }
+      if ( a.video_timestamp > b.video_timestamp ){
+        return 1;
+      }
+      return 0;
     },
     saveQuiz() {
       this.$emit('save-quiz', this.questions)

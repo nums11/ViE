@@ -22,21 +22,6 @@
           </sui-button-content>
         </sui-button>
       </div>
-      <div class="divider float-right"></div>
-      <div class="float-right">
-        <sui-button
-        animated size="mini"
-        style="background-color:#00B3FF; color:white;
-        margin-top:0.2rem;">
-          <sui-button-content visible>
-            Edit
-          </sui-button-content>
-          <sui-button-content hidden>
-              <sui-icon name="edit outline" />
-          </sui-button-content>
-        </sui-button>
-      </div>
-
     </div>
   </div>
 </template>
@@ -86,7 +71,7 @@ export default {
 }
 
 .question {
-  width: 60%;
+  width: 75%;
   margin-top: 0.35rem;
 }
 
