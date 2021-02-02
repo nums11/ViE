@@ -127,18 +127,15 @@ export default {
 		},
 		checkIfStudentSubmittedToTask(task) {
 		  const submissions = task.submissions
-		  let student_submitted = false
-		  let percent_watched = null
+		  let submission = null
 		  for(let i = 0; i < submissions.length; i++) {
 		    const submitter = submissions[i].submitter
 		    if(submitter.user_id === this.state_user.user_id) {
-		      student_submitted = true
-		      percent_watched =
-		        submissions[i].video_percent_watched
+		    	submission = submissions[i]
 		      break
 		    }
 		  }
-		  return [student_submitted, percent_watched]
+		  return submission
 		},
 		getFormattedVideoTimestamp(timestamp) {
 			let format_string;

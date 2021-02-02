@@ -227,9 +227,9 @@ export default {
       let student_submitted_to_any_qr = false
       const qr_scans = meeting.real_time_portion.qr_scans
       for(let i = 0; i < qr_scans.length; i++) {
-        const [student_submitted, percent_watched] =
+        const submission =
           this.checkIfStudentSubmittedToTask(qr_scans[i])
-        if(student_submitted) {
+        if(submission != null) {
           student_submitted_to_any_qr = true
           break
         }

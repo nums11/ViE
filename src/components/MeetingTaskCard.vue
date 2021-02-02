@@ -73,6 +73,12 @@
           </div>
           <div v-else>
             {{ percent_watched.toFixed(2) }}% watched
+            <div v-if="task.quiz != null" class="inline-block">
+              <hide-at breakpoint="small">
+                , {{ num_correct_answers }}/{{ num_quiz_questions }} correct
+                ({{ (num_correct_answers/num_quiz_questions).toFixed(2) }}%)
+              </hide-at>
+            </div>
           </div>
         </div>
         <div v-else>
@@ -124,7 +130,9 @@ export default {
         card_title: "",
         first_button_text: "",
         student_submitted: false,
-        percent_watched: 0
+        percent_watched: 0,
+        num_quiz_questions: 0,
+        num_correct_answers: 0
       }
   },
   created () {
@@ -132,10 +140,14 @@ export default {
     this.is_qr = this.task_type === 'qr_scan'
     this.setLabelsBasedOnTaskType()
     if(!this.is_instructor) {
-      let [student_submitted, percent_watched] =
+      const submission =
         this.checkIfStudentSubmittedToTask(this.task)
-      this.student_submitted = student_submitted
-      this.percent_watched = percent_watched
+      this.student_submitted = submission != null
+      this.percent_watched = submission.video_percent_watched
+      if(this.task.quiz != null) {
+        this.num_correct_answers = submission.num_correct_answers
+        this.num_quiz_questions = this.task.quiz.questions.length
+      }
     }
   },
   methods: {
@@ -209,7 +221,6 @@ export default {
 .btn-container {
   display: inline-block;
   vertical-align: top;
-  /*border: red solid;*/
   margin-left: 0.65rem;
 }
 
