@@ -33,7 +33,7 @@
         </div>
         <div class="inline-block sub-header-container center-text">
           <span v-if="view_mode === 'Restricted Mode'">
-            {{ submission.video_percent_watched.toFixed(2) }}% 
+            {{ submission.video_percent_watched.toFixed(1) }}% 
             watched<span v-if="quiz != null">,
               {{ submission.num_correct_answers }}/{{ quiz.questions.length }}
               Correct

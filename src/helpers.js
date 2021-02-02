@@ -147,6 +147,41 @@ export default {
 			const formatted_timestamp = moment.duration(
 			  timestamp, "seconds").format(format_string, {trim: false})
 			return formatted_timestamp
+		},
+		getPresentAndAbsentStudents(meeting_students) {
+			let absent_students = [], present_students = [],
+			num_table_rows = 0
+		  meeting_students.forEach(student => {
+		    let student_submission = null
+		    for(let i = 0; i < this.task.submissions.length;
+		      i++) {
+		      const submission = this.task.submissions[i]
+		      if(submission.submitter.user_id === student.user_id){
+		        student_submission = {
+		          first_name: student.first_name,
+		          last_name: student.last_name,
+		          user_id: student.user_id,
+		          num_correct_answers: submission.num_correct_answers,
+		          video_percent_watched: submission.video_percent_watched,
+		          _id: student._id
+		        }
+		        break
+		      }
+		    }
+		    if(student_submission == null)
+		     	absent_students.push(student)
+		    else
+		      present_students.push(student_submission)
+		  })
+		  if(absent_students.length > present_students.length)
+		    num_table_rows = absent_students.length
+		  else
+		    num_table_rows = present_students.length
+		  return {
+		  	present_students: present_students,
+		  	absent_students: absent_students,
+		  	num_table_rows: num_table_rows
+		  }
 		}
 	}
 }

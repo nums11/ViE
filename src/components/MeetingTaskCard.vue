@@ -72,7 +72,7 @@
             <sui-icon name="check" color="green" />
           </div>
           <div v-else>
-            {{ percent_watched.toFixed(2) }}%
+            {{ percent_watched.toFixed(1) }}%
             watched<span v-if="task.quiz != null">, </span>
             <div v-if="task.quiz != null" class="quiz-percentage">
               {{ num_correct_answers }}/{{ num_quiz_questions }} correct
