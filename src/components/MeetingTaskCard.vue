@@ -72,12 +72,12 @@
             <sui-icon name="check" color="green" />
           </div>
           <div v-else>
-            {{ percent_watched.toFixed(2) }}% watched
-            <div v-if="task.quiz != null" class="inline-block">
-              <hide-at breakpoint="small">
-                , {{ num_correct_answers }}/{{ num_quiz_questions }} correct
-                ({{ (num_correct_answers/num_quiz_questions).toFixed(2) }}%)
-              </hide-at>
+            {{ percent_watched.toFixed(2) }}%
+            watched<span v-if="task.quiz != null">, </span>
+            <div v-if="task.quiz != null" class="quiz-percentage">
+              {{ num_correct_answers }}/{{ num_quiz_questions }} correct
+              ({{ ((num_correct_answers/
+                num_quiz_questions) *100).toFixed(1) }}%)
             </div>
           </div>
         </div>
@@ -143,10 +143,12 @@ export default {
       const submission =
         this.checkIfStudentSubmittedToTask(this.task)
       this.student_submitted = submission != null
-      this.percent_watched = submission.video_percent_watched
-      if(this.task.quiz != null) {
-        this.num_correct_answers = submission.num_correct_answers
-        this.num_quiz_questions = this.task.quiz.questions.length
+      if(this.student_submitted) {
+        this.percent_watched = submission.video_percent_watched
+        if(this.task.quiz != null) {
+          this.num_correct_answers = submission.num_correct_answers
+          this.num_quiz_questions = this.task.quiz.questions.length
+        }
       }
     }
   },
@@ -230,6 +232,11 @@ export default {
   margin-right: 0.25rem;
 }
 
+.quiz-percentage {
+  display: inline-block;
+  vertical-align: top;
+}
+
 /* Phone */
 @media (max-width: 768px) {
   .meeting-task-card-container {
@@ -237,10 +244,17 @@ export default {
   }
   .meeting-task-card {
     width: 100%;
+    height: auto;
   }
   .meeting-title {
     float: left;
     text-align: left;
+  }
+  .student-submission-status {
+    margin-top: 0;
+  }
+  .quiz-percentage {
+    display: block;
   }
 }
 </style>

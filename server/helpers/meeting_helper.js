@@ -535,9 +535,12 @@ async function createVideos(videos) {
     videos.forEach(video => {
       video_promises.push(new Promise(async (resolve, reject) => {
         try {
-          const saved_quiz = await QuizHelper.createQuiz(video.quiz)
-          if(saved_quiz == null)
-            throw "Error saving quiz"
+          let saved_quiz = null
+          if(video.quiz != null) {
+            saved_quiz = await QuizHelper.createQuiz(video.quiz)
+            if(saved_quiz == null)
+              throw "Error saving quiz"
+          }
           const new_video = new Video({
             name: video.name,
             url: video.url,

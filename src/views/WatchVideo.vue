@@ -6,6 +6,15 @@
       </sui-loader>
     </div>
     <div v-else>
+      <show-at breakpoint="small">
+        <div id="back-to-meeting-btn">
+          <router-link
+          :to="{name: 'meeting_info', params: {meeting_id: meeting_id}}">
+            <sui-button content="Back to Meeting" icon="arrow left"
+            label-position="left" style="margin:auto;" />
+          </router-link>
+        </div>
+      </show-at>
       <div id="header-container">
         <h2 class="wrap-text" id="video-name">{{ video.name }}</h2>
         <hide-at breakpoint="small">
@@ -24,7 +33,13 @@
         </div>
         <div class="inline-block sub-header-container center-text">
           <span v-if="view_mode === 'Restricted Mode'">
-            {{ this.submission.video_percent_watched.toFixed(2) }}% watched
+            {{ submission.video_percent_watched.toFixed(2) }}% 
+            watched<span v-if="quiz != null">,
+              {{ submission.num_correct_answers }}/{{ quiz.questions.length }}
+              Correct
+              ({{  ((submission.num_correct_answers/
+                quiz.questions.length) * 100).toFixed(1) }}%)
+            </span>
           </span>
         </div>
         <div class="inline-block sub-header-container right-text">
@@ -88,15 +103,6 @@
           </div>
         </div>
       </div>
-      <show-at breakpoint="small">
-        <div id="back-to-meeting-btn">
-          <router-link
-          :to="{name: 'meeting_info', params: {meeting_id: meeting_id}}">
-            <sui-button content="Back to Meeting" icon="arrow left"
-            label-position="left" style="margin:auto;" />
-          </router-link>
-        </div>
-      </show-at>
     </div>
   </div>
 </template>
@@ -381,7 +387,7 @@ export default {
         this.submission.quiz_answer_indices.push(
           selected_answer_index)
         if(user_was_correct)
-          this.submission.num_correct_answer++
+          this.submission.num_correct_answers++
         const response = await SubmissionAPI.updateSubmission(
           this.submission._id, this.submission)
         const updated_submission = response.data
@@ -551,6 +557,7 @@ export default {
   }
   #right-side {
     /*border: green solid;*/
+    margin-top: 2rem;
     width: 100%;
     max-height: 35rem;
     overflow-y: auto;
@@ -567,7 +574,8 @@ export default {
   #back-to-meeting-btn {
     width: 10rem;
     margin: auto;
-    margin-top: 2rem;
+    /*margin-top: 2rem;*/
+    margin-bottom: 2rem;
   }
 }
 
