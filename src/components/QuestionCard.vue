@@ -18,15 +18,20 @@
             <sui-form-field>
               <div class="ui radio checkbox correct-answer">
                 <input @click="selectAnswer(index)"
-                type="radio" name="answer" />
+                type="radio" name="answer" :disabled="unrestricted_mode"
+                />
                 <label :id="`label-${index}`">{{ answer }}</label>
               </div>
             </sui-form-field>
           </div>
         </div>
-        <div @click="submit" class="btn-container">
-          <Button :text="getButtonText" size="small" color="blue"
-          :disabled="disableSubmit" />
+        <div class="btn-container">
+          <sui-button v-if="unrestricted_mode" @click="hideCard"
+          content="Back" icon="arrow left" label-position="left" />
+          <div v-else @click="submit" >
+            <Button :text="getButtonText" size="small" color="blue"
+            :disabled="disableSubmit" />
+          </div>
         </div>
       </sui-form>
     </div>
@@ -46,7 +51,8 @@ export default {
       question: null,
       selected_answer_index: null,
       user_was_correct: false,
-      user_has_answered: false
+      user_has_answered: false,
+      unrestricted_mode: false
     }
   },
   components: {
@@ -103,6 +109,17 @@ export default {
       this.selected_answer_index = null
       this.user_has_answered = false
       this.user_was_correct = false
+    },
+    showQuestionUnrestricted(question) {
+      this.question = question
+      this.unrestricted_mode = true
+      this.$nextTick(function() {
+        this.changeAnswerColors()
+      })
+    },
+    hideCard() {
+      this.$emit('hide-card')
+      this.reset()
     }
   }
 };

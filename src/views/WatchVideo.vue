@@ -85,21 +85,17 @@
         <div id="right-side-content">
           <p id="no-quiz" v-if="quiz == null">No Quiz</p>
           <div v-else>
-            <div v-if="!show_question">
-              <div v-for="(question, index) in quiz.questions"
-              class="question-time">
-                <li style="color:#00B3FF;">
-                  <span style="color: black;font-weight: bold;">
-                    {{ formatted_question_timestamps[index] }}
-                  </span>
-                </li>
-                <div v-if="index < quiz.questions.length-1"
-                class="line"></div>
-              </div>
-            </div>
+            <QuizQuestionTimeline v-if="!show_question"
+            :questions="quiz.questions"
+            :formatted_question_timestamps="
+            formatted_question_timestamps"
+            :unrestricted_mode="view_mode !== 'Restricted Mode'"
+            v-on:show-quiz-question-unrestricted="
+            showQuizQuestionUnrestricted" />
             <QuestionCard ref="QuestionCard"
             v-on:submit="updateQuizSubmission"
-            v-on:resume-video="resumeVideo" />
+            v-on:resume-video="resumeVideo"
+            v-on:hide-card="hideCard" />
           </div>
         </div>
       </div>
@@ -115,6 +111,8 @@ import SubmissionAPI from '@/services/SubmissionAPI.js'
 import MeetingAPI from '@/services/MeetingAPI.js'
 import moment from 'moment'
 import helpers from '@/helpers.js'
+import QuizQuestionTimeline from
+'@/components/QuizQuestionTimeline'
 import QuestionCard from '@/components/QuestionCard'
 
 export default {
@@ -142,6 +140,7 @@ export default {
 
   },
   components: {
+    QuizQuestionTimeline,
     QuestionCard
   },
   async created() {
@@ -362,6 +361,13 @@ export default {
       this.$refs.QuestionCard.showQuestion(question)
       this.current_question_index++
     },
+    showQuizQuestionUnrestricted(question) {
+      this.show_question = true
+      this.$refs.QuestionCard.showQuestionUnrestricted(question)
+    },
+    hideCard() {
+      this.show_question = false
+    },
     async updateVideoSubmission(current_time, video_duration) {
       this.submission.furthest_video_time = current_time
       this.submission.video_percent_watched
@@ -468,19 +474,6 @@ export default {
   font-weight: bold;
   color: #949494;
   margin-top: 8rem;
-}
-
-.question-time {
-  width: 5rem;
-  text-align: left;
-  margin: auto;
-}
-
-.line {
-  background-color: #00B3FF;
-  width: 0.25rem;
-  height: 3rem;
-  margin-left: 0.05rem;
 }
 
 .sub-header-container {
