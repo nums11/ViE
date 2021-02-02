@@ -149,10 +149,10 @@ export default {
       this.show_video_preview = true
     },
     cancelQuiz() {
+      this.clearQuestion()
       this.show_video_preview = false
       this.video_player = null
       this.video_source = null
-      this.clearQuestion()
       this.questions = []
       this.show_modal = false
     },
@@ -180,8 +180,10 @@ export default {
         correct_answer_index: null,
         video_timestamp: 0
       }
-      document.querySelector(
-        'input[name="correct_answer_index"]:checked').checked = false;
+      let checked_inputs = document.querySelector(
+        'input[name="correct_answer_index"]:checked')
+      if(checked_inputs != null)
+        checked_inputs.checked = false;
     },
     saveQuestion() {
       this.question.video_timestamp =
