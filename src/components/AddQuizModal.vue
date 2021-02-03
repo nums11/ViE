@@ -35,7 +35,7 @@
           </sui-form-field>
           <sui-form-field
             v-for="(choice,index) in question.answer_choices">
-            <label class="float-left" style="margin-left:2rem;">
+            <label class="float-left" style="margin-left:2.5rem;">
               Choice {{ index + 1 }}
             </label>
             <sui-icon v-if="question.answer_choices.length > 2"
@@ -44,11 +44,12 @@
             <sui-form-field>
               <sui-popup content="Mark this choice as the correct answer"
               position="top center" inverted>
-                <sui-checkbox :value="index.toString()"
-                @click="markCorrect(index)"
-                name="correct_answer_index"
-                radio slot="trigger"
-                style="float:left; margin-top:0.65rem;"/>
+                <div class="ui radio checkbox" slot="trigger"
+                style="float:left; margin-top:0.65rem;">
+                  <input @click="markCorrect(index)" 
+                  type="radio" name="correct_answer_index" />
+                  <label></label>
+                </div>
               </sui-popup>
               <textarea v-model="choice.text" style="width:85%;height: 3rem;" 
               placeholder="Type your choice here"  />
@@ -190,6 +191,8 @@ export default {
         document.getElementById('timestamp-input').value
       this.questions.push(this.question)
       this.questions.sort(this.questionCompare)
+      this.$refs.VideoPreview.addMarker(
+        this.question.video_timestamp, this.question.question)
       this.clearQuestion()
     },
     questionCompare(a,b) {
@@ -207,6 +210,7 @@ export default {
     },
     removeQuestion(index) {
       this.questions.splice(index, 1)
+      this.$refs.VideoPreview.removeMarker(index)
     }
   }
 }

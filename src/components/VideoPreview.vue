@@ -5,6 +5,8 @@
 
 <script>
 import videojs from "video.js";
+import markers from 'videojs-markers'
+import 'videojs-markers/dist/videojs.markers.css'
 
 export default {
   name: 'VideoPreview',
@@ -37,6 +39,20 @@ export default {
   mounted() {
     this.createVideoElement()
     this.player = videojs(`video-player`, this.video_options)
+    this.player.markers({
+      markerStyle: {
+        'background-color': '#00B3FF',
+        'position': 'absolute',
+        'margin-bottom': '-3px',
+        'height': '10px'
+      },
+      markerTip: {
+        text: function(marker) {
+           return marker.text;
+        },
+      },
+      markers: []
+    })
     this.$emit('created-player',this.player)
   },
   beforeDestroy() {
@@ -53,6 +69,15 @@ export default {
       video.classList.add('vjs-big-play-centered')
       video.id = `video-player`
       video_container.appendChild(video)
+    },
+    addMarker(timestamp, question) {
+      this.player.markers.add([{
+        time: timestamp,
+        text: question
+      }])
+    },
+    removeMarker(index) {
+      this.player.markers.remove([index])
     }
   }
 }

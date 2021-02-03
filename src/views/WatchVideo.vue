@@ -179,11 +179,8 @@ export default {
     // Deletes player so that if user returns to this page
     // restricted playback still works. videojs .dispose
     // function was broken
-    if(this.player != null) {
-      console.log("players before", videojs.getPlayers())
+    if(this.player != null)
       delete videojs.getPlayers().video_player
-      console.log("players after", videojs.getPlayers())
-    }
   },
   computed: {
   },
@@ -288,6 +285,8 @@ export default {
       this.$nextTick(() => {
         videojs("video_player").ready(function() {
           self.player = this
+          if(self.quiz != null)
+            self.setVideoMarkers()
           let video = this
           if(self.view_mode === "Restricted Mode") {
             let current_time = 0
@@ -354,6 +353,47 @@ export default {
         })
       })
     },
+    setVideoMarkers() {
+      const unrestricted_mode
+        = this.view_mode === "Unrestricted Mode"
+      const markers = []
+      for(let i = 0; i < this.quiz.questions.length; i++) {
+        const question = this.quiz.questions[i]
+        const marker_class = this.getMarkerClass(
+          unrestricted_mode, i)
+        markers.push({
+          time: question.video_timestamp,
+          text: question.question,
+          class: marker_class
+        })
+      }
+      this.player.markers({
+        markerStyle: {
+          'margin-bottom': '-3px',
+          'height': '10px'
+        },
+        markerTip: {
+          display: unrestricted_mode,
+          text: function(marker) {
+             return marker.text;
+          },
+        },
+        markers: markers
+      })
+    },
+    getMarkerClass(unrestricted_mode, question_index) {
+      if(unrestricted_mode ||
+        question_index >= this.submission.quiz_answer_indices.length)
+        return "blue-marker"
+
+      // Student has already answered the question
+      // Green marker if they got the question right, red otherwise
+      if(this.submission.quiz_answer_indices[question_index]
+        === this.quiz.questions[question_index].correct_answer_index)
+        return "green-marker"
+      else
+        return "red-marker"
+    },
     showQuizQuestion(question) {
       this.player.pause()
       this.player.controls(false)
@@ -394,6 +434,7 @@ export default {
           selected_answer_index)
         if(user_was_correct)
           this.submission.num_correct_answers++
+        this.updateMarkerColor(user_was_correct)
         const response = await SubmissionAPI.updateSubmission(
           this.submission._id, this.submission)
         const updated_submission = response.data
@@ -402,6 +443,15 @@ export default {
         console.log(error)
         alert("Sorry, something went wrong")
       }
+    },
+    updateMarkerColor(user_was_correct) {
+      const marker_class = user_was_correct ?
+      'green-marker' : 'red-marker'
+      // Deep Copy
+      let markers = JSON.parse(JSON.stringify(
+        this.player.markers.getMarkers()))
+      markers[this.current_question_index-1].class = marker_class
+      this.player.markers.reset(markers)
     },
     resumeVideo() {
       this.show_question = false
@@ -503,6 +553,8 @@ export default {
   border: #c7c7c7 solid;
   box-shadow: 0px 15px 15px #c7c7c7;
 }
+
+
 
 /* Tablets */
 @media (max-width: 1128px) {

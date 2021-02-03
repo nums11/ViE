@@ -306,6 +306,18 @@ html, body {
   color: #FF0000;
 }
 
+.green-marker {
+  background-color: #00b80c !important;
+}
+
+.blue-marker {
+  background-color: #00B3FF !important;
+}
+
+.red-marker {
+  background-color: #FF0000 !important;
+}
+
 /*Fixes loader styling in modals*/
 .ui.dimmer .ui.workaround.loader:before {
   border-color: rgba(0,0,0,.1);

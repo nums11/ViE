@@ -65,6 +65,7 @@
     "socket.io-client": "^2.3.0",
     "throng": "^4.0.0",
     "video.js": "^7.8.2",
+    "videojs-markers": "^1.0.1",
     "vue": "^2.6.11",
     "vue-axios": "^2.1.5",
     "vue-breakpoints": "^1.1.0",
