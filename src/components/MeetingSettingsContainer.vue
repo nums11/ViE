@@ -113,6 +113,8 @@
               v-model="video.allow_faster_viewing"
               label="Allow faster viewing (up to 2x) speed" />
             </sui-form-field>
+            <p v-if="video.quiz == null">No Quiz</p>
+            <p v-else>Quiz</p>
           </div>
         </div>
         <div class="inline-block mt-2 ">
@@ -203,44 +205,22 @@ export default {
   },
   methods: {
     setCopyVariables() {
-      this.meeting_copy = {
-        title: this.meeting.title,
-        real_time_portion: null,
-        async_portion: null,
-        _id: this.meeting._id
+      // Deep Copy
+      this.meeting_copy = JSON.parse(JSON.stringify(this.meeting))
+      // Remove submissions to reduce request payload size
+      if(this.meeting_copy.real_time_portion != null) {
+        this.meeting_copy.real_time_portion.qr_scans.forEach(
+          qr_scan => {
+            qr_scan.submissions = []
+          }
+        )
       }
-      if(this.meeting.real_time_portion != null) {
-        this.meeting_copy.real_time_portion = {
-          real_time_start: this.meeting.real_time_portion.real_time_start,
-          real_time_end: this.meeting.real_time_portion.real_time_end,
-          qr_scans: [],
-          _id: this.meeting.real_time_portion._id
-        }
-        const qr_scans = this.meeting.real_time_portion.qr_scans
-        qr_scans.forEach(qr_scan => {
-          this.meeting_copy.real_time_portion.qr_scans.push({
-            reminder_time: qr_scan.reminder_time,
-            _id: qr_scan._id
-          })
-        })
-      }
-      if(this.meeting.async_portion != null) {
-        this.meeting_copy.async_portion = {
-          async_start: this.meeting.async_portion.async_start,
-          async_end: this.meeting.async_portion.async_end,
-          videos: [],
-          _id: this.meeting.async_portion._id
-        }
-        const videos = this.meeting.async_portion.videos
-        videos.forEach(video => {
-          this.meeting_copy.async_portion.videos.push({
-            name: video.name,
-            allow_unrestricted_viewing_for_real_time_submitters:
-            video.allow_unrestricted_viewing_for_real_time_submitters,
-            _id: video._id,
-            allow_faster_viewing: video.allow_faster_viewing
-          })
-        })
+      if(this.meeting_copy.async_portion != null) {
+        this.meeting_copy.async_portion.videos.forEach(
+          video => {
+            video.submissions = []
+          }
+        )
       }
     },
     initTimePickers() {
