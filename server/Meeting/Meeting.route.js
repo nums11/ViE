@@ -9,6 +9,7 @@ const Video = require('../Video/Video.model');
 const Course = require('../Course/Course.model');
 const User = require('../User/User.model');
 const MeetingHelper = require('../helpers/meeting_helper')
+const QuizHelper = require('../helpers/quiz_helper')
 const {Storage} = require("@google-cloud/storage")
 const path = require('path');
 const multiparty = require('multiparty')
@@ -336,9 +337,16 @@ meetingRoutes.delete('/delete_all_recurring/:recurring_id',
           async_portion_id = meeting.async_portion._id
           let meeting_videos = meeting.async_portion.videos
           meeting_videos.forEach(video => {
+            let quiz_question_ids = []
+            if(video.quiz != null) {
+              quiz_question_ids = QuizHelper.getQuizQuestionIds(
+                video.quiz)
+            }
             videos.push({
               _id: video._id,
-              submission_ids: video.submissions
+              submission_ids: video.submissions,
+              quiz_id: video.quiz._id,
+              quiz_question_ids: quiz_question_ids
             })
           })
         }

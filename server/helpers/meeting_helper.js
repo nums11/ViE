@@ -131,7 +131,7 @@ async function deleteMeeting(meeting_id, real_time_portion_id,
           real_time_portion_id, meeting_id, qr_scans)
     }
     let async_portion_promise = null
-    if(async_portion_promise != null) {
+    if(async_portion_id != null) {
       async_portion_promise =
         AsyncPortionHelper.deleteAsyncPortion(
           async_portion_id, meeting_id, videos)
@@ -186,7 +186,10 @@ async function getRecurringMeetings(recurring_id) {
       .populate({
         path: 'async_portion',
         populate: {
-          path: 'videos'
+          path: 'videos',
+          populate: {
+            path: 'quiz'
+          }
         }
       })
       .exec((error, meetings) => {

@@ -523,9 +523,17 @@ export default {
       for(let i = 0; i < meeting_tasks.length; i++) {
         const submission_ids = this.getSubmissionIds(i,
           is_real_time)
+        let task = meeting_tasks[i]
+        let quiz_question_ids = []
+        if(task.quiz != null) {
+          quiz_question_ids = this.getQuizQuestionIds(
+            task.quiz)
+        }
         tasks_with_submission_ids.push({
-          _id: meeting_tasks[i]._id,
-          submission_ids: submission_ids
+          _id: task._id,
+          submission_ids: submission_ids,
+          quiz_id: task.quiz._id,
+          quiz_question_ids: quiz_question_ids
         })
       }
       return tasks_with_submission_ids
@@ -575,11 +583,11 @@ export default {
             videos = this.getTasksWithSubmissionIds(
               false)
           }
+          console.log("About to delete with videos", videos)
           await MeetingAPI.deleteMeeting(this.meeting._id,
             real_time_portion_id, async_portion_id, qr_scans,
             videos)
         }
-        console.log("here, pushing")
         this.$router.push({name: 'course_info',
           params: {id: this.meeting.sections[0].course._id}})
       } catch (error) {

@@ -328,7 +328,7 @@ export default {
         file_input.value = ''
         this.task.allow_unrestricted_viewing_for_real_time_submitters
           = false
-        this.task.allow_faster_viewing = falsesui 
+        this.task.allow_faster_viewing = false
       }
     },
     showAddQuizModal() {

@@ -1,7 +1,7 @@
 const Quiz = require('../Quiz/Quiz.model');
 const QuizQuestion = require('../QuizQuestion/QuizQuestion.model');
 
-module.exports = {createQuiz, deleteQuiz}
+module.exports = {createQuiz, deleteQuiz, getQuizQuestionIds}
 
 async function createQuiz(quiz) {
   try {
@@ -110,4 +110,12 @@ async function deleteQuizQuestions(quiz_question_ids) {
       quiz_question_ids)
     return false
   }
+}
+
+function getQuizQuestionIds(quiz) {
+  const ids = []
+  quiz.questions.forEach(question => {
+    ids.push(question)
+  })
+  return ids
 }
