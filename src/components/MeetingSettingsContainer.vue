@@ -90,7 +90,7 @@
               <input type="text"
               v-model="video.name" style="width: 50%;" />
               <sui-button @click="deleteQRScanOrVideo(
-                index,video._id,false)"
+                index,video._id,false, video.quiz)"
               size="tiny" animated
               style="background-color:#FF0000; 
               color:white;margin-left:2rem;">
@@ -424,7 +424,8 @@ export default {
         }
       }
     },
-    async deleteQRScanOrVideo(index, id, is_qr_scan) {
+    async deleteQRScanOrVideo(index, id, is_qr_scan,
+      quiz = null) {
       const type = is_qr_scan ? 'QR Scan' : 'Video'
       const confirmation = confirm(`Are you sure you want to`
         + ` permanently delete this ${type}? This will delete all`
@@ -438,8 +439,14 @@ export default {
           await QRScanAPI.deleteQRScan(id,
             this.meeting.real_time_portion._id, submission_ids)
         } else {
+          let quiz_id = null, quiz_question_ids = []
+          if(quiz != null) {
+            quiz_id = quiz._id
+            quiz_question_ids = this.getQuizQuestionIds(quiz)
+          }
           await VideoAPI.deleteVideo(id,
-            this.meeting.async_portion._id, submission_ids)
+            this.meeting.async_portion._id, submission_ids, quiz_id,
+            quiz_question_ids)
         }
         this.removeQRScanOrVideoFromCourse(index, is_qr_scan)
       } catch(error) {
@@ -461,6 +468,13 @@ export default {
         submission_ids.push(submission._id)
       })
       return submission_ids
+    },
+    getQuizQuestionIds(quiz) {
+      const quiz_question_ids = []
+      quiz.questions.forEach(question => {
+        quiz_question_ids.push(question._id)
+      })
+      return quiz_question_ids
     },
     removeQRScanOrVideoFromCourse(index, is_qr_scan) {
       if(is_qr_scan) {

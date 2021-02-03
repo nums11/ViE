@@ -51,7 +51,7 @@
         </div>
         <div id="viewing-options-container">
           <div v-if="video.allow_unrestricted_viewing_for_real_time_submitters"
-          class="inline-block">
+          class="inline-block" id="unrestricted-text">
             Unrestricted viewing for real-time submitters enabled
             <sui-popup content="Students with real-time submissions
             can view this video in unrestricted mode" position="top center"
@@ -533,6 +533,10 @@ export default {
   font-weight: bold;
 }
 
+#unrestricted-text {
+  color: #2C3E50;
+}
+
 #viewing-options-container {
   margin-top: 1rem;
   font-weight: bold;
@@ -591,6 +595,11 @@ export default {
     margin-top: 1rem;
     text-align: center;
     /*border: black solid;*/
+  }
+  #unrestricted-text {
+    margin-top: 1rem;
+    text-align: center;
+    display: block;
   }
   #viewing-options-container {
     margin-top: 0rem;
