@@ -1,7 +1,7 @@
 const Quiz = require('../Quiz/Quiz.model');
 const QuizQuestion = require('../QuizQuestion/QuizQuestion.model');
 
-module.exports = {createQuiz}
+module.exports = {createQuiz, deleteQuiz}
 
 async function createQuiz(quiz) {
   try {
@@ -50,5 +50,64 @@ async function createQuizQuestions(questions) {
   } catch(error) {
     console.log("<ERROR> createQuizQuestions questions", questions)
     return null
+  }
+}
+
+async function deleteQuiz(quiz_id, quiz_question_ids) {
+  try {
+    const deletion_status = await deleteQuizQuestions(
+      quiz_question_ids)
+    if(deletion_status === false)
+      throw "<ERROR> deleteQuiz deleting quiz questions"
+    const quiz_deletion_promise = new Promise(
+      (resolve, reject) => {
+        Quiz.findByIdAndRemove(quiz_id,
+          (error) => {
+            if(error) {
+              console.log(`<ERROR> deleteQuiz deleting quiz`
+                + ` with id ${quiz_id}`, error)
+              reject(error)
+            } else {
+              resolve(true)
+            }
+          }
+        )  
+      })
+    await Promise.resolve(quiz_deletion_promise)
+    return true
+  } catch(error) {
+    console.log(`<ERROR> deleteQuiz quiz_id quiz_id ${quiz_id}`
+      + ` quiz_question_ids`, quiz_question_ids, error)
+    return false
+  }
+}
+
+async function deleteQuizQuestions(quiz_question_ids) {
+  try {
+    let question_deletion_promises = []
+    quiz_question_ids.forEach(question_id => {
+      question_deletion_promises.push(new Promise(
+        (resolve, reject) => {
+          QuizQuestion.findByIdAndRemove(question_id,
+            (error) => {
+              if(error) {
+                console.log(`<ERROR> deleteQuizQuestions deleting`
+                  + ` quiz question with id ${question_id}`, error)
+                reject(error)
+              } else {
+                resolve(true)
+              }
+            }
+          )
+        })
+      )
+    })
+    const deletion_statuses = await Promise.all(
+      question_deletion_promises)
+    return true
+  } catch(error) {
+    console.log("<ERROR> deleteQuizQuestions quiz_question_ids",
+      quiz_question_ids)
+    return false
   }
 }
