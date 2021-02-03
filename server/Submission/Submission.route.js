@@ -53,7 +53,6 @@ submissionRoutes.post('/update/:submission_id',
           + ` ${submission_id} not found`)
         res.status(404).json("Submission not found")
       } else {
-        console.log("updated submission", updated_submission)
         console.log("<SUCCESS> (submissions/update)")
         res.json(updated_submission)
       }
