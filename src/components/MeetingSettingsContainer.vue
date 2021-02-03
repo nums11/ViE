@@ -114,7 +114,17 @@
               label="Allow faster viewing (up to 2x) speed" />
             </sui-form-field>
             <p v-if="video.quiz == null">No Quiz</p>
-            <p v-else>Quiz</p>
+            <sui-button v-else
+              @click="showEditQuizModal(video.quiz)"
+              animated size="small"
+              style="background-color:#00B3FF; color:white;">
+              <sui-button-content visible>
+                Edit Quiz
+              </sui-button-content>
+              <sui-button-content hidden>
+                <sui-icon name="edit" />
+              </sui-button-content>
+            </sui-button>
           </div>
         </div>
         <div class="inline-block mt-2 ">
@@ -157,6 +167,7 @@
     </div>
     <MeetingDeletionModal ref="MeetingDeletionModal"
     v-on:delete-meeting="deleteMeeting" />
+    <EditQuizModal ref="EditQuizModal" />
   </div>
 </template>
 
@@ -174,12 +185,15 @@ import AsyncPortionAPI from
 '@/services/AsyncPortionAPI'
 import MeetingDeletionModal from
 '@/components/MeetingDeletionModal'
+import EditQuizModal from
+'@/components/EditQuizModal'
 
 export default {
   name: 'MeetingSettings',
   mixins: [helpers],
   components: {
-    MeetingDeletionModal
+    MeetingDeletionModal,
+    EditQuizModal
   },
   props: {
     meeting: {
@@ -559,6 +573,9 @@ export default {
         window.alert("Sorry, something went wrong")
       }
       this.$emit('hide-deleting-meeting-loader')
+    },
+    showEditQuizModal(quiz) {
+      this.$refs.EditQuizModal.showModal(quiz)
     }
   }
 }

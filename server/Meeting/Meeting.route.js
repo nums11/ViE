@@ -82,7 +82,10 @@ meetingRoutes.route('/get/:id').get(function (req, res, next) {
           path: 'submitter'
         }
       }, {
-        path: 'quiz'
+        path: 'quiz',
+        populate: {
+          path: 'questions'
+        }
       }]
     }]
   }).
