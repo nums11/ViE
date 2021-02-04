@@ -54,12 +54,14 @@ export default {
       markers: []
     })
     this.$emit('created-player',this.player)
+    this.listenForArrowKeyPress()
   },
   beforeDestroy() {
     this.video_options.sources = []
     if (this.player) {
       this.player.dispose()
     }
+    window.removeEventListener('keydown', this.handleKeyPress)
   },
   methods: {
     createVideoElement() {
@@ -84,6 +86,29 @@ export default {
     },
     removeMarker(index) {
       this.player.markers.remove([index])
+    },
+    listenForArrowKeyPress() {
+      window.addEventListener('keydown', this.handleKeyPress)
+    },
+    handleKeyPress (e) {
+      if(e.keyCode === 37)
+       this.moveVideo5Seconds(false)
+      else if(e.keyCode === 39)
+       this.moveVideo5Seconds(true)
+    },
+    moveVideo5Seconds(forward) {
+      let current_time = this.player.currentTime()
+      if(forward) {
+        current_time += 5
+        const duration = this.player.duration()
+        if(current_time > duration)
+          current_time = duration
+      } else {
+        current_time -= 5
+        if(current_time < 0)
+          current_time = 0
+      }
+      this.player.currentTime(current_time)
     }
   }
 }
