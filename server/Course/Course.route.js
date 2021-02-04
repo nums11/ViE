@@ -45,8 +45,7 @@ courseRoutes.get('/get/:id/:with_meetings?',
   }
 
   Course.findById(id).
-  populate('instructor').
-  populate('secondary_instructor').
+  populate('instructors').
   populate({
     path: 'sections',
     populate: [
