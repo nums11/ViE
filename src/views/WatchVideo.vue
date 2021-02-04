@@ -342,8 +342,12 @@ export default {
               }
               if(self.quiz != null) {
                 if(self.shouldShowQuizQuestion()) {
-                  if(video.isFullscreen())
+                  if(video.isFullscreen()) {
                     video.exitFullscreen()
+                  }
+                  setTimeout(function() {
+                    window.scrollTo(0,document.body.scrollHeight);
+                  }, 250)
                   self.showQuizQuestion()
                 }
               }
