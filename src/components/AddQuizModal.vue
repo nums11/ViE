@@ -9,7 +9,10 @@
         :video_source="video_source"
         ref="VideoPreview"
         v-on:created-player="assignPlayer" />
-        <p class="mt-1">Use the left and right arrow keys to move through the video more precisely</p>
+        <p class="mt-1">
+          Use the left and right arrow keys to move
+          through the video more precisely.
+        </p>
         <h3>Questions ({{ questions.length }})</h3>
         <NewQuizQuestionCard v-for="(question,index) in questions"
         :question="question"

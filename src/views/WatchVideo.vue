@@ -286,6 +286,7 @@ export default {
       this.$nextTick(() => {
         videojs("video_player").ready(function() {
           self.player = this
+          self.listenForArrowKeyPress()
           if(self.quiz != null)
             self.setVideoMarkers()
           let video = this

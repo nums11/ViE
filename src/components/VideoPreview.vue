@@ -7,9 +7,11 @@
 import videojs from "video.js";
 import markers from 'videojs-markers'
 import 'videojs-markers/dist/videojs.markers.css'
+import helpers from '@/helpers.js'
 
 export default {
   name: 'VideoPreview',
+  mixins: [helpers],
   props: {
     video_source: {
       type: Object,
@@ -86,29 +88,6 @@ export default {
     },
     removeMarker(index) {
       this.player.markers.remove([index])
-    },
-    listenForArrowKeyPress() {
-      window.addEventListener('keydown', this.handleKeyPress)
-    },
-    handleKeyPress (e) {
-      if(e.keyCode === 37)
-       this.moveVideo5Seconds(false)
-      else if(e.keyCode === 39)
-       this.moveVideo5Seconds(true)
-    },
-    moveVideo5Seconds(forward) {
-      let current_time = this.player.currentTime()
-      if(forward) {
-        current_time += 5
-        const duration = this.player.duration()
-        if(current_time > duration)
-          current_time = duration
-      } else {
-        current_time -= 5
-        if(current_time < 0)
-          current_time = 0
-      }
-      this.player.currentTime(current_time)
     }
   }
 }
