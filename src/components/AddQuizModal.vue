@@ -196,10 +196,12 @@ export default {
       this.clearQuestion()
     },
     questionCompare(a,b) {
-      if ( a.video_timestamp < b.video_timestamp ){
+      const a_timestamp = parseInt(a.video_timestamp)
+      const b_timestamp = parseInt(b.video_timestamp)
+      if ( a_timestamp < b_timestamp ){
         return -1;
       }
-      if ( a.video_timestamp > b.video_timestamp ){
+      if ( a_timestamp > b_timestamp ){
         return 1;
       }
       return 0;
