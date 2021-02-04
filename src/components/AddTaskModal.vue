@@ -121,7 +121,7 @@
               </div>
               <div class="divider float-right"></div>
               <div class="float-right">
-                <sui-button
+                <sui-button @click.prevent="editQuiz"
                 animated size="mini"
                 style="background-color:#00B3FF; color:white;
                 margin-top:0.5rem;">
@@ -153,7 +153,7 @@
           </sui-button>
         </div>
       </sui-form>
-      <AddQuizModal v-if="!is_real_time && task.quiz == null"
+      <AddQuizModal v-if="!is_real_time"
       ref="AddQuizModal" v-on:save-quiz="saveQuiz" />
     </sui-modal-content>
   </sui-modal>
@@ -341,6 +341,10 @@ export default {
     },
     deleteQuiz() {
       this.task.quiz = null
+    },
+    editQuiz() {
+      this.$refs.AddQuizModal.showModal(this.task.video_file,
+        this.task.quiz.questions)
     }
   }
 }

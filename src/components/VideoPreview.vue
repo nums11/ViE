@@ -76,6 +76,12 @@ export default {
         text: question
       }])
     },
+    addMarkers(questions) {
+      questions.forEach(question => {
+        this.addMarker(question.video_timestamp,
+          question.question)
+      })
+    },
     removeMarker(index) {
       this.player.markers.remove([index])
     }

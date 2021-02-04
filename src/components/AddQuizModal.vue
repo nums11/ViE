@@ -141,13 +141,22 @@ export default {
   created () {
   },
   methods: {
-    showModal(video_file) {
+    showModal(video_file, questions = null) {
       this.video_source = {
         src: URL.createObjectURL(video_file),
         type: "video/mp4"
       }
       this.show_modal = true
       this.show_video_preview = true
+      if(questions != null) {
+        this.questions = questions
+        // Set Timeout to avoid undefined Video Preview
+        let self = this
+        setTimeout(function() {
+          self.$refs.VideoPreview.addMarkers(
+            self.questions)
+        }, 500)
+      }
     },
     cancelQuiz() {
       this.clearQuestion()
