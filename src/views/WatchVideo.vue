@@ -341,8 +341,11 @@ export default {
                   self.updateVideoSubmission(current_time, video.duration())
               }
               if(self.quiz != null) {
-                if(self.shouldShowQuizQuestion())
+                if(self.shouldShowQuizQuestion()) {
+                  if(video.isFullscreen())
+                    video.exitFullscreen()
                   self.showQuizQuestion()
+                }
               }
             })
           }
