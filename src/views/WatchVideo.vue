@@ -396,10 +396,8 @@ export default {
         return "red-marker"
     },
     showQuizQuestion() {
-      console.log("in showQuizQuestion current_question_index", this.current_question_index)
       // For multiple questions at the same timestamp
       if(this.show_question) {
-        console.log("Currently showing question. Will wait to show next one")
         this.show_another_question = true
         return
       }
@@ -408,7 +406,6 @@ export default {
       this.player.pause()
       this.player.controls(false)
       this.show_question = true
-      console.log("Showing question", question)
       this.$refs.QuestionCard.showQuestion(question)
       this.current_question_index++
     },
