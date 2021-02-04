@@ -133,6 +133,7 @@ export default {
         "playbackRates": [0.5,1]
       },
       show_question: false,
+      show_another_question: false,
       current_question_index: 0
     }
   },
@@ -335,23 +336,23 @@ export default {
               if(floored_time % 5 === 0
                 && video.currentTime() > self.submission.furthest_video_time
                 && !update_time_stamps.has(floored_time)) {
-                  console.log("in timeupdate updating submission", video.currentTime())
                   update_time_stamps.add(floored_time)
                   self.updateVideoSubmission(current_time, video.duration())
               }
               if(self.quiz != null) {
-                // Show quiz at the right timestamp
-                if(self.current_question_index < self.quiz.questions.length && 
-                  self.quiz.questions[self.current_question_index].video_timestamp
-                  === floored_time) {
-                  self.showQuizQuestion(
-                    self.quiz.questions[self.current_question_index])
-                }
+                if(self.shouldShowQuizQuestion())
+                  self.showQuizQuestion()
               }
             })
           }
         })
       })
+    },
+    shouldShowQuizQuestion() {
+      const floored_time = Math.floor(this.player.currentTime())
+      return this.current_question_index < this.quiz.questions.length && 
+              this.quiz.questions[this.current_question_index].video_timestamp
+                  === floored_time
     },
     setVideoMarkers() {
       const unrestricted_mode
@@ -394,10 +395,20 @@ export default {
       else
         return "red-marker"
     },
-    showQuizQuestion(question) {
+    showQuizQuestion() {
+      console.log("in showQuizQuestion current_question_index", this.current_question_index)
+      // For multiple questions at the same timestamp
+      if(this.show_question) {
+        console.log("Currently showing question. Will wait to show next one")
+        this.show_another_question = true
+        return
+      }
+      const question = this.quiz.questions[
+        this.current_question_index]
       this.player.pause()
       this.player.controls(false)
       this.show_question = true
+      console.log("Showing question", question)
       this.$refs.QuestionCard.showQuestion(question)
       this.current_question_index++
     },
@@ -454,9 +465,16 @@ export default {
       this.player.markers.reset(markers)
     },
     resumeVideo() {
-      this.show_question = false
-      this.player.controls(true)
-      this.player.play()
+      // For multiple questions at the same timestamp
+      if(this.show_another_question) {
+        this.show_question = false
+        this.show_another_question = false
+        this.showQuizQuestion()
+      } else {
+        this.show_question = false
+        this.player.controls(true)
+        this.player.play()
+      }
     },
     setViewMode(is_restricted) {
       if(is_restricted) {

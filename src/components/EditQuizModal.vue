@@ -35,8 +35,8 @@
     </sui-modal-content>
     <sui-modal-actions>
       <div id="action-btns-container">
-        <sui-button @click="cancel">Cancel</sui-button>
-        <sui-button @click="updateQuiz"
+        <sui-button @click.prevent="cancel">Cancel</sui-button>
+        <sui-button @click.prevent="updateQuiz"
         :disabled="disableUpdateQuizBtn"
         style="background-color:#00b80c;
         color:white; margin-left:2rem;">

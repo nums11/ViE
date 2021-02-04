@@ -78,13 +78,12 @@ export default {
     },
     selectAnswer(index) {
       this.selected_answer_index = index
-      console.log("selected_answer", this.selected_answer_index)
     },
     submit() {
       if(!this.disableSubmit) {
         if(this.user_has_answered) {
-          this.$emit('resume-video')
           this.reset()
+          this.$emit('resume-video')
         } else {
           this.user_was_correct =
             this.selected_answer_index === this.question.correct_answer_index
@@ -104,7 +103,18 @@ export default {
           label.style.color = "#FF0000";
       }
     },
+    resetAnswerColors() {
+      for(let i = 0; i < this.question.answer_choices.length; i++) {
+        let label = document.getElementById(`label-${i}`)
+        label.style.color = "black";
+      }
+      let checked_inputs = document.querySelector(
+        'input[name="answer"]:checked')
+      if(checked_inputs != null)
+        checked_inputs.checked = false;
+    },
     reset() {
+      this.resetAnswerColors()
       this.question = null
       this.selected_answer_index = null
       this.user_has_answered = false

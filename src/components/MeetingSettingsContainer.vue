@@ -35,7 +35,7 @@
                 :placeholder="qr_scan.reminder_time == null ?
                 'No reminder' : ''" />
               </div>
-              <sui-button @click="deleteQRScanOrVideo(
+              <sui-button @click.prevent="deleteQRScanOrVideo(
                 index,qr_scan._id,true)"
               size="tiny" animated
               style="background-color:#FF0000; 
@@ -51,7 +51,7 @@
           </div>
         </div>
         <div class="inline-block mt-2 ">
-          <sui-button @click="deletePortion(true)"
+          <sui-button @click.prevent="deletePortion(true)"
           size="tiny" animated
           style="background-color:#FF0000; 
           color:white; margin:auto;"
@@ -89,7 +89,7 @@
               <label>Video Name</label>
               <input type="text"
               v-model="video.name" style="width: 50%;" />
-              <sui-button @click="deleteQRScanOrVideo(
+              <sui-button @click.prevent="deleteQRScanOrVideo(
                 index,video._id,false, video.quiz)"
               size="tiny" animated
               style="background-color:#FF0000; 
@@ -115,7 +115,7 @@
             </sui-form-field>
             <p v-if="video.quiz == null">No Quiz</p>
             <sui-button v-else
-              @click="showEditQuizModal(video.quiz)"
+              @click.prevent="showEditQuizModal(video.quiz)"
               animated size="small"
               style="background-color:#00B3FF; color:white;">
               <sui-button-content visible>
@@ -128,7 +128,7 @@
           </div>
         </div>
         <div class="inline-block mt-2 ">
-          <sui-button @click="deletePortion(false)"
+          <sui-button @click.prevent="deletePortion(false)"
           size="tiny" animated
           style="background-color:#FF0000; 
           color:white; margin:auto;"
@@ -144,7 +144,7 @@
       </sui-form>
     </div>
     <div class="course-action-btns-container">
-      <sui-button @click="updateMeeting"
+      <sui-button @click.prevent="updateMeeting"
         animated size="small"
         style="background-color:#00B3FF; color:white;">
         <sui-button-content visible>
@@ -154,7 +154,7 @@
           <sui-icon name="sync" />
         </sui-button-content>
       </sui-button>
-      <sui-button @click="promptMeetingDeletion" 
+      <sui-button @click.prevent="promptMeetingDeletion" 
         animated size="small"
         style="background-color:#FF0000; color:white;">
         <sui-button-content visible>
