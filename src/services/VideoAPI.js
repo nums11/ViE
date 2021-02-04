@@ -21,11 +21,13 @@ export default {
   },
   // DELETE -----------------
   deleteVideo(video_id, async_portion_id,
-    submission_ids) {
+    submission_ids, quiz_id, quiz_question_ids) {
     return API().delete(`videos/delete/${video_id}`, {
       data: {
         async_portion_id: async_portion_id,
-        submission_ids: submission_ids
+        submission_ids: submission_ids,
+        quiz_id: quiz_id,
+        quiz_question_ids: quiz_question_ids
       }
     })
   },

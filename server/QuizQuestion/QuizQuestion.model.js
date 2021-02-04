@@ -9,7 +9,7 @@ const QuizQuestion = new Schema({
 	answer_choices: [{
 		type: String
 	}],
-	correct_answer: {
+	correct_answer_index: {
 		type: Number,
 		required: true
 	},

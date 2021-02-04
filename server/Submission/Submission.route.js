@@ -35,21 +35,26 @@ submissionRoutes.post('/update/:submission_id',
   function (req, res, next) {
   const submission_id = req.params.submission_id
   const submission = req.body.submission
-  console.log("Updating submission to percent watched", submission.video_percent_watched)
   Submission.findByIdAndUpdate(submission_id,
     {
+      quiz_answer_indices: submission.quiz_answer_indices,
+      num_correct_answers: submission.num_correct_answers,
       furthest_video_time: submission.furthest_video_time,
       video_percent_watched: submission.video_percent_watched
     },
     {new: true},
-    (error, submission) => {
+    (error, updated_submission) => {
       if(error) {
         console.log(`<ERROR> (submissions/update) updating submission`
           + ` with id ${submission_id} and submission`, submission)
         next(error)
+      } else if(updated_submission == null) {
+        console.log(`<ERROR> (submissions/update) submission with id`
+          + ` ${submission_id} not found`)
+        res.status(404).json("Submission not found")
       } else {
         console.log("<SUCCESS> (submissions/update)")
-        res.json(submission)
+        res.json(updated_submission)
       }
     }
   )

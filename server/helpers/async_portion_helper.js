@@ -11,7 +11,7 @@ async function deleteAsyncPortion(async_portion_id,
 		videos.forEach(video => {
 			video_promises.push(
 				VideoHelper.deleteVideo(video._id, async_portion_id,
-					video.submission_ids)
+					video.submission_ids, video.quiz_id, video.quiz_question_ids)
 			)
 		})
 		const video_deletion_statuses =

@@ -69,6 +69,7 @@ function start() {
   const realTimePortionRouter =
     require('./RealTimePortion/RealTimePortion.route')
   const emailRouter = require('./Email/Email.route')
+  const quizRouter = require('./Quiz/Quiz.route')
 
   let io;
 
@@ -216,6 +217,7 @@ function start() {
   app.use('/real_time_portions', realTimePortionRouter);
   app.use('/qr_scans', qrScanRouter);
   app.use('/emails', emailRouter);
+  app.use('/quizzes', quizRouter)
 
   rescheduleAllNotificationJobs()
 }

@@ -1,16 +1,22 @@
 const Video = require('../Video/Video.model');
 const AsyncPortion = require('../AsyncPortion/AsyncPortion.model');
 const SubmissionHelper = require('./submission_helper');
+const QuizHelper = require('./quiz_helper');
 
 module.exports = {deleteVideo}
 
 async function deleteVideo(video_id, async_portion_id,
-	submission_ids) {
+	submission_ids, quiz_id = null, quiz_question_ids = []) {
 	try {
 		const async_portion_promise = removeVideoFromAsyncPortion(
 			video_id, async_portion_id)
 		const submission_promise =
 			SubmissionHelper.deleteSubmissions(submission_ids)
+		let quiz_promise = null
+		if(quiz_id != null) {
+			quiz_promise = QuizHelper.deleteQuiz(quiz_id,
+				quiz_question_ids)
+		}
 		const video_promise = new Promise((resolve, reject) => {
 			Video.findByIdAndRemove(video_id,
 				(error) => {
@@ -25,11 +31,14 @@ async function deleteVideo(video_id, async_portion_id,
 			)
 		})
 		const deletion_promises = await Promise.all([
-			async_portion_promise, submission_promise, video_promise])
+			async_portion_promise, submission_promise, quiz_promise,
+			video_promise])
 		if(deletion_promises[0] == null)
 			throw "<ERROR> deleteVideo removing qr scan from async_portion"
-		if(deletion_promises[1] == false)
+		if(deletion_promises[1] === false)
 			throw "<ERROR> deleteVideo deleting submissions"
+		if(deletion_promises[2] === false)
+			throw "<ERROR> deleteVideo deleting quiz"
 		return true
 	} catch(error) {
 		console.log(`<ERROR> deleteVideo video_id ${video_id}`,

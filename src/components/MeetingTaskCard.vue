@@ -16,8 +16,10 @@
           </div>
         </div>
         <div v-else>
-          2h 3m, No Quiz
-        </div>
+          {{ task.quiz == null ? 'No Quiz':
+              `Quiz, ${task.quiz.questions.length} questions`
+          }}
+          </div>
       </div>
       <div class="divider" v-if="is_instructor"></div>
       <div class="btn-container">
@@ -70,7 +72,13 @@
             <sui-icon name="check" color="green" />
           </div>
           <div v-else>
-            {{ percent_watched.toFixed(2) }}% watched
+            {{ percent_watched.toFixed(1) }}%
+            watched<span v-if="task.quiz != null">, </span>
+            <div v-if="task.quiz != null" class="quiz-percentage">
+              {{ num_correct_answers }}/{{ num_quiz_questions }} correct
+              ({{ ((num_correct_answers/
+                num_quiz_questions) *100).toFixed(1) }}%)
+            </div>
           </div>
         </div>
         <div v-else>
@@ -122,17 +130,26 @@ export default {
         card_title: "",
         first_button_text: "",
         student_submitted: false,
-        percent_watched: 0
+        percent_watched: 0,
+        num_quiz_questions: 0,
+        num_correct_answers: 0
       }
   },
   created () {
+    console.log("task", this.task)
     this.is_qr = this.task_type === 'qr_scan'
     this.setLabelsBasedOnTaskType()
     if(!this.is_instructor) {
-      let [student_submitted, percent_watched] =
+      const submission =
         this.checkIfStudentSubmittedToTask(this.task)
-      this.student_submitted = student_submitted
-      this.percent_watched = percent_watched
+      this.student_submitted = submission != null
+      if(this.student_submitted) {
+        this.percent_watched = submission.video_percent_watched
+        if(this.task.quiz != null) {
+          this.num_correct_answers = submission.num_correct_answers
+          this.num_quiz_questions = this.task.quiz.questions.length
+        }
+      }
     }
   },
   methods: {
@@ -206,7 +223,6 @@ export default {
 .btn-container {
   display: inline-block;
   vertical-align: top;
-  /*border: red solid;*/
   margin-left: 0.65rem;
 }
 
@@ -216,6 +232,11 @@ export default {
   margin-right: 0.25rem;
 }
 
+.quiz-percentage {
+  display: inline-block;
+  vertical-align: top;
+}
+
 /* Phone */
 @media (max-width: 768px) {
   .meeting-task-card-container {
@@ -223,10 +244,17 @@ export default {
   }
   .meeting-task-card {
     width: 100%;
+    height: auto;
   }
   .meeting-title {
     float: left;
     text-align: left;
+  }
+  .student-submission-status {
+    margin-top: 0;
+  }
+  .quiz-percentage {
+    display: block;
   }
 }
 </style>

@@ -31,11 +31,16 @@
       <div v-if="(is_real_time && portion != null)
         || (!is_real_time && portion != null)">
         <div v-if="portion_times_and_tasks_set">
-          <SubmissionTable v-if="show_submission_table"
-          :task="table_task"
-          :is_qr="is_real_time"
-          :meeting_students="meeting_students"
-          v-on:hide-submission-table="hideSubmissionTable" />
+          <div v-if="show_submission_table">
+            <QRSubmissionTable v-if="is_real_time"
+            :task="table_task"
+            :meeting_students="meeting_students"
+            v-on:hide-submission-table="hideSubmissionTable" />
+            <VideoSubmissionTable v-else
+            :task="table_task"
+            :meeting_students="meeting_students"
+            v-on:hide-submission-table="hideSubmissionTable" />
+          </div>
           <MeetingTasksContainer v-else
           :meeting_id="meeting_id"
           :task_type="is_real_time ? 'qr_scan' : 'video'"
@@ -74,8 +79,6 @@
 <script>
 import MeetingTasksContainer from 
 '@/components/MeetingTasksContainer'
-import SubmissionTable from
-'@/components/SubmissionTable.vue';
 import AddTaskModal from '@/components/AddTaskModal.vue';
 import RealTimePortionAPI from
 '@/services/RealTimePortionAPI'
@@ -84,6 +87,10 @@ import AsyncPortionAPI from
 import AddPortionModal from
 '@/components/AddPortionModal'
 import MeetingAPI from '@/services/MeetingAPI'
+import QRSubmissionTable from
+'@/components/QRSubmissionTable'
+import VideoSubmissionTable from
+'@/components/VideoSubmissionTable'
 
 export default {
   name: 'MeetingInfoPortionContainer',
@@ -105,7 +112,8 @@ export default {
   },
   components: {
     MeetingTasksContainer,
-    SubmissionTable,
+    QRSubmissionTable,
+    VideoSubmissionTable,
     AddTaskModal,
     AddPortionModal
   },

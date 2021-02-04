@@ -100,16 +100,20 @@ videoRoutes.post('/add_submission/:video_id',
 });
 
 // DELETE ------------------------
+// TODO: Remove the video from cloud storage?
 
 videoRoutes.delete('/delete/:video_id',
   async function (req, res, next) {
   const video_id = req.params.video_id
   const async_portion_id = req.body.async_portion_id
   const submission_ids = req.body.submission_ids
+  const quiz_id = req.body.quiz_id
+  const quiz_question_ids = req.body.quiz_question_ids
   
   try {
     const deletion_status = await VideoHelper.deleteVideo(
-      video_id, async_portion_id, submission_ids)
+      video_id, async_portion_id, submission_ids, quiz_id,
+      quiz_question_ids)
     if(!deletion_status)
       throw "<ERROR> (videos/delete) deleting video"
     console.log("<SUCCESS> (videos/delete)")

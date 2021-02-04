@@ -190,6 +190,10 @@ html, body {
   font-weight: bold;
 }
 
+.pointer {
+  cursor: pointer;
+}
+
 .float-left {
   float: left;
 }
@@ -300,6 +304,18 @@ html, body {
 
 .error {
   color: #FF0000;
+}
+
+.green-marker {
+  background-color: #00b80c !important;
+}
+
+.blue-marker {
+  background-color: #00B3FF !important;
+}
+
+.red-marker {
+  background-color: #FF0000 !important;
 }
 
 /*Fixes loader styling in modals*/

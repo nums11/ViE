@@ -13,12 +13,21 @@ const Submission = new Schema({
 		type: String,
 		required: true
 	},
-	quiz_answers: [{
-		type: String
+	quiz_answer_indices: [{
+		type: Number
 	}],
-	correct_percentage: Number,
-	furthest_video_time: Number,
-	video_percent_watched: Number
+	num_correct_answers: {
+		type: Number,
+		default: 0
+	},
+	furthest_video_time: {
+		type: Number,
+		default: 0
+	},
+	video_percent_watched: {
+		type: Number,
+		default: 0
+	}
 });
 
 module.exports = mongoose.model('Submission', Submission);

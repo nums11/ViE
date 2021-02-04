@@ -5,10 +5,13 @@ const Section = require('../Section/Section.model');
 const User = require('../User/User.model');
 const QRScan = require('../QRScan/QRScan.model');
 const Video = require('../Video/Video.model');
+const Quiz = require('../Quiz/Quiz.model');
+const QuizQuestion = require('../QuizQuestion/QuizQuestion.model');
 const QRScanHelper = require('./qr_scan_helper')
 const RealTimePortionHelper = require('./real_time_portion_helper')
 const AsyncPortionHelper = require('./async_portion_helper')
 const NotificationHelper = require('./notification_helper')
+const QuizHelper = require('./quiz_helper')
 const moment = require("moment");
 
 module.exports = {addMeeting, getEarlierStartDate,
@@ -128,7 +131,7 @@ async function deleteMeeting(meeting_id, real_time_portion_id,
           real_time_portion_id, meeting_id, qr_scans)
     }
     let async_portion_promise = null
-    if(async_portion_promise != null) {
+    if(async_portion_id != null) {
       async_portion_promise =
         AsyncPortionHelper.deleteAsyncPortion(
           async_portion_id, meeting_id, videos)
@@ -183,7 +186,10 @@ async function getRecurringMeetings(recurring_id) {
       .populate({
         path: 'async_portion',
         populate: {
-          path: 'videos'
+          path: 'videos',
+          populate: {
+            path: 'quiz'
+          }
         }
       })
       .exec((error, meetings) => {
@@ -531,15 +537,28 @@ async function createVideos(videos) {
     let video_promises = []
     videos.forEach(video => {
       video_promises.push(new Promise(async (resolve, reject) => {
-        const new_video = new Video({
-          name: video.name,
-          url: video.url,
-          allow_unrestricted_viewing_for_real_time_submitters:
-          video.allow_unrestricted_viewing_for_real_time_submitters,
-          allow_faster_viewing: video.allow_faster_viewing
-        })
-        const saved_video = await new_video.save()
-        resolve(saved_video)
+        try {
+          let saved_quiz = null
+          if(video.quiz != null) {
+            saved_quiz = await QuizHelper.createQuiz(video.quiz)
+            if(saved_quiz == null)
+              throw "Error saving quiz"
+          }
+          const new_video = new Video({
+            name: video.name,
+            url: video.url,
+            allow_unrestricted_viewing_for_real_time_submitters:
+            video.allow_unrestricted_viewing_for_real_time_submitters,
+            allow_faster_viewing: video.allow_faster_viewing,
+            quiz: saved_quiz
+          })
+          const saved_video = await new_video.save()
+          resolve(saved_video)
+        } catch(error) {
+          console.log("<ERROR> createVideos saving quiz",
+            video.quiz, error)
+          reject(error)
+        }
       }))
     })
     const saved_videos = await Promise.all(video_promises)

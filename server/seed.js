@@ -5,6 +5,8 @@ const AsyncPortion = require("./AsyncPortion/AsyncPortion.model")
 const Submission = require("./Submission/Submission.model")
 const QRScan = require("./QRScan/QRScan.model")
 const Video = require("./Video/Video.model")
+const Quiz = require("./Quiz/Quiz.model")
+const QuizQuestion = require("./QuizQuestion/QuizQuestion.model")
 const User = require("./User/User.model")
 const Section = require("./Section/Section.model")
 
@@ -23,11 +25,14 @@ seeder.connect(process.env.DB_URI || db, function () {
 		"./Submission/Submission.model",
 		"./QRScan/QRScan.model",
 		"./Video/Video.model",
-		"./Section/Section.model"
+		"./Section/Section.model",
+		"./Quiz/Quiz.model",
+		"./QuizQuestion/QuizQuestion.model"
 	]);
 	seeder.clearModels(['Course', 'User', 'Meeting',
 		'RealTimePortion', 'AsyncPortion', 'Submission',
-		'QRScan', 'Video', 'Section'], function () {
+		'QRScan', 'Video', 'Section', 'Quiz', 'QuizQuestion'],
+		function () {
 
 		let users = []
 		let courses = []
@@ -119,9 +124,12 @@ seeder.connect(process.env.DB_URI || db, function () {
 		sections.push(new Section({
 			section_number: 1,
 			course: courses[0]._id,
-			students: [users[2]._id, users[3]._id, users[4]._id],
-			pending_approval_students: [users[5]._id, users[6]._id,
-			users[7]._id, users[8]._id],
+			students: [users[2]._id, users[3]._id, users[4]._id,
+			users[5]._id,users[6]._id,users[7]._id,users[8]._id,
+			users[9]._id,users[10]._id,users[11]._id,users[12]._id,
+			users[13]._id,users[14]._id,users[15]._id,users[16]._id,],
+			pending_approval_students: [users[17]._id, users[18]._id,
+			users[19]._id, users[20]._id],
 			meetings: [],
 			join_code: getJoinCodeForSection(1,courses[0]._id),
 			has_open_enrollment: false
@@ -131,10 +139,22 @@ seeder.connect(process.env.DB_URI || db, function () {
 		users[2].student_sections.push(sections[0]._id)
 		users[3].student_sections.push(sections[0]._id)
 		users[4].student_sections.push(sections[0]._id)
-		users[5].pending_approval_sections.push(sections[0]._id)
-		users[6].pending_approval_sections.push(sections[0]._id)
-		users[7].pending_approval_sections.push(sections[0]._id)
-		users[8].pending_approval_sections.push(sections[0]._id)
+		users[5].instructor_courses.push(courses[0]._id)
+		users[6].student_sections.push(sections[0]._id)
+		users[7].student_sections.push(sections[0]._id)
+		users[8].student_sections.push(sections[0]._id)
+		users[9].instructor_courses.push(courses[0]._id)
+		users[10].student_sections.push(sections[0]._id)
+		users[11].student_sections.push(sections[0]._id)
+		users[12].student_sections.push(sections[0]._id)
+		users[13].instructor_courses.push(courses[0]._id)
+		users[14].student_sections.push(sections[0]._id)
+		users[15].student_sections.push(sections[0]._id)
+		users[16].student_sections.push(sections[0]._id)
+		users[17].pending_approval_sections.push(sections[0]._id)
+		users[18].pending_approval_sections.push(sections[0]._id)
+		users[19].pending_approval_sections.push(sections[0]._id)
+		users[20].pending_approval_sections.push(sections[0]._id)
 
 		courses.push(new Course({ // 1
 			name: "Data Structures",
@@ -171,36 +191,6 @@ seeder.connect(process.env.DB_URI || db, function () {
 		users[9].student_sections.push(sections[2]._id)
 		users[10].student_sections.push(sections[2]._id)
 		users[11].student_sections.push(sections[2]._id)
-
-
-		// Creating organizations
-
-		// organizations.push(new Organization({
-		// 	name: "NSBE",
-		// 	board_members: [users[2]._id, users[3]._id, users[4]._id, users[5]._id],
-		// 	general_members: [users[6],users[7],users[8]]
-		// }))
-		// users[2].user_orgs.push(organizations[0])
-		// users[3].user_orgs.push(organizations[0])
-		// users[4].user_orgs.push(organizations[0])
-		// users[5].user_orgs.push(organizations[0])
-		// users[6].user_orgs.push(organizations[0])
-		// users[7].user_orgs.push(organizations[0])
-		// users[8].user_orgs.push(organizations[0])
-
-		// organizations.push(new Organization({
-		// 	name: "BSA",
-		// 	board_members: [users[0]._id, users[1]._id],
-		// 	general_members: [users[2]._id,users[3]._id,users[4]._id,users[5]._id,users[6]._id,users[7]._id]
-		// }))
-		// users[0].user_orgs.push(organizations[1])
-		// users[1].user_orgs.push(organizations[1])
-		// users[2].user_orgs.push(organizations[1])
-		// users[3].user_orgs.push(organizations[1])
-		// users[4].user_orgs.push(organizations[1])
-		// users[5].user_orgs.push(organizations[1])
-		// users[6].user_orgs.push(organizations[1])
-		// users[7].user_orgs.push(organizations[1])
 
 		// Hash user passwords
 		for(let i=0; i < users.length; i++){
