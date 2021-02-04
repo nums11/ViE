@@ -581,7 +581,10 @@ export default {
   box-shadow: 0px 15px 15px #c7c7c7;
 }
 
-
+/*Hide iOS video controls*/
+video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+}
 
 /* Tablets */
 @media (max-width: 1128px) {
