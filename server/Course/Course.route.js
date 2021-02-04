@@ -91,7 +91,7 @@ courseRoutes.post('/add', async function (req, res, next) {
 
     // Update the instructor with the new course
     let instructor_update_promise = new Promise((resolve, reject) => {
-      User.findByIdAndUpdate(updated_course.instructor,
+      User.findByIdAndUpdate(updated_course.instructors[0],
         {$push: {instructor_courses: updated_course}},
         {new: true},
         (error, updated_instructor) => {
