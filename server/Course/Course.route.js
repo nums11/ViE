@@ -276,19 +276,35 @@ courseRoutes.delete('/delete/:course_id',
   const course_id = req.params.course_id
   const sections = req.body.sections
   const meeting_ids = req.body.meeting_ids
-  const instructor_id = req.body.instructor_id
+  const instructor_ids = req.body.instructor_ids
   const course = {
     _id: course_id,
     meetings: meeting_ids
   }
 
   try {
-    // Remove course and course meetings from instructor
-    const updated_instructor_promise = UserHelper.updateUser(
-      instructor_id, "remove_instructor_course", null, course)
-    console.log("Promise", updated_instructor_promise)
-    if(updated_instructor_promise == null)
-      throw `<ERROR> (courses/delete) removing instructor course`
+    // Remove course and course meetings from instructors
+    const instructor_update_promises = []
+    instructor_ids.forEach(instructor_id => {
+      instructor_update_promises.push(new Promise(
+        async (resolve,reject) => {
+          try {
+            const updated_instructor = await UserHelper.updateUser(
+              instructor_id, "remove_instructor_course", null, course)
+            if(updated_instructor == null) {
+              console.log("<ERROR> (courses/delete) deleting course")
+              reject(null)
+            } else {
+              resolve(updated_instructor)
+            }
+          } catch(error) {
+            console.log("<ERROR> (courses/delete) updating instructor",
+              error)
+            reject(null)
+          }
+        })
+      )
+    })
     // Delete all the sections 
     let section_deletion_promises = []
     section_deletion_promises.push(new Promise((resolve,reject) => {
@@ -296,7 +312,7 @@ courseRoutes.delete('/delete/:course_id',
         try {
           const result = await SectionHelper.deleteSection(section._id,
             section.meeting_ids, section.student_ids,
-            section.pending_approval_student_ids, instructor_id,
+            section.pending_approval_student_ids, instructor_ids,
             course_id)
           if(result)
             resolve(result)
@@ -324,7 +340,7 @@ courseRoutes.delete('/delete/:course_id',
       });
     })
     const all_promises = [].concat.apply([], [
-      [updated_instructor_promise, course_deletion_promise],
+      instructor_update_promises, [course_deletion_promise],
       section_deletion_promises])
     await Promise.all(all_promises)
     console.log("<SUCCESS> (courses/delete)")
@@ -332,7 +348,7 @@ courseRoutes.delete('/delete/:course_id',
   } catch(error) {
     console.log(`<ERROR> (courses/delete) course_id ${course_id}`,
       `sections`, sections, `meeting_ids`, meeting_ids,
-      `instructor_id ${instructor_id}`, error)
+      `instructor_ids `,instructor_ids, error)
     next(error)
   }
 });

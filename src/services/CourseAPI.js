@@ -37,12 +37,12 @@ export default {
     })
   },
   // DELETE ---------------
-  deleteCourse(course_id, sections, meeting_ids, instructor_id) {
+  deleteCourse(course_id, sections, meeting_ids, instructor_ids) {
     return API().delete(`courses/delete/${course_id}`, {
       data: {
         sections: sections,
         meeting_ids: meeting_ids,
-        instructor_id: instructor_id
+        instructor_ids: instructor_ids
       }
     })
   },

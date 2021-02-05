@@ -281,7 +281,8 @@ export default {
         const [sections, meeting_ids] =
           this.getCourseSectionsAndMeetingIDs(this.course)
         await CourseAPI.deleteCourse(this.course._id,
-          sections, meeting_ids, this.course.instructor._id)
+          sections, meeting_ids,
+          this.getObjectIdsFromObjects(this.course.instructors))
         this.$router.push({name: 'dashboard', params:
           {reload_page: true}});
       } catch(error) {
