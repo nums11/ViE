@@ -110,14 +110,14 @@ meetingRoutes.post('/add', async (req, res, next) => {
   const meeting = req.body.meeting
   const real_time_portion = req.body.real_time_portion
   const async_portion = req.body.async_portion
-  const instructor_id = req.body.instructor_id
+  const instructor_ids = req.body.instructor_ids
   const repeat_day_indices = req.body.repeat_day_indices
   const repeat_end_date = req.body.repeat_end_date
 
   try {
     let meeting_creation_promises = []
     meeting_creation_promises.push(MeetingHelper.addMeeting(
-      meeting, real_time_portion,async_portion, instructor_id))
+      meeting, real_time_portion,async_portion, instructor_ids))
 
     // Make the meeting recurring
     if(repeat_end_date != null) {
@@ -160,7 +160,7 @@ meetingRoutes.post('/add', async (req, res, next) => {
           }
           meeting_creation_promises.push(
             MeetingHelper.addMeeting(meeting, new_real_time_portion,
-              new_async_portion, instructor_id))
+              new_async_portion, instructor_ids))
         }
         i++
         start.add(1, 'days')

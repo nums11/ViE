@@ -96,8 +96,7 @@ export default {
 
     }
   },
-  async created () {
-
+  created () {
   },
   mounted () {
   },

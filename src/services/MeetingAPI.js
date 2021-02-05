@@ -22,13 +22,13 @@ export default {
     )
   },
   addMeeting(meeting, real_time_portion,
-    async_portion, instructor_id, repeat_day_indices,
+    async_portion, instructor_ids, repeat_day_indices,
     repeat_end_date) {
     return API().post(`meetings/add`, {
         meeting: meeting,
         real_time_portion: real_time_portion,
         async_portion: async_portion,
-        instructor_id: instructor_id,
+        instructor_ids: instructor_ids,
         repeat_day_indices: repeat_day_indices,
         repeat_end_date: repeat_end_date
     })

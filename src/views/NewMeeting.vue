@@ -370,8 +370,10 @@ export default {
         const repeat_day_indices = 
           this.getRepeatDayIndices(real_time_portion,
             async_portion)
+        const instructor_ids = this.getObjectIdsFromObjects(
+          this.course.instructors)
         const response = await MeetingAPI.addMeeting(this.meeting,
-          real_time_portion, async_portion, this.state_user._id,
+          real_time_portion, async_portion, instructor_ids,
           repeat_day_indices, this.repeat_end_date)
         const saved_meetings = response.data
         this.$router.push({name: 'meeting_info', params: {meeting_id:

@@ -21,6 +21,13 @@
         </sui-form-field>
       </sui-form-fields>
     </sui-form>
+    <h3>Instructors</h3>
+    <p v-for="(instructor, index) in course.instructors"
+    class="inline-block mr-1">
+      {{ instructor.first_name }} {{ instructor.last_name }}<span
+      v-if="index !== course.instructors.length -1">,</span>
+    </p>
+
     <h3 class="mt-2">Sections</h3>
     <sui-button @click="showModal" size="small"
     style="background-color:#00b80c; color:white;" animated>

@@ -30,7 +30,8 @@
           :meeting_id="meeting._id"
           :portion="meeting.real_time_portion"
           :meeting_students="meeting_students"
-          :instructor_id="meeting.sections[0].course.instructor._id"
+          :instructor_ids="getObjectIdsFromObjects(
+          meeting.sections[0].course.instructors)"
           v-on:show-lottie-player="showLottiePlayer"
           v-on:hide-lottie-player="hideLottiePlayer"
           v-on:show-qr="showQRScanningWindow"

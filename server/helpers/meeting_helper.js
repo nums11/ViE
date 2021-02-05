@@ -18,7 +18,7 @@ module.exports = {addMeeting, getEarlierStartDate,
 setRecurringIds, updateMeeting, deleteMeeting, getRecurringMeetings}
 
 async function addMeeting(meeting, real_time_portion, async_portion,
-  instructor_id) {
+  instructor_ids) {
   try {
     const new_meeting = new Meeting(meeting)
     let saved_meeting = await new_meeting.save()
@@ -27,7 +27,7 @@ async function addMeeting(meeting, real_time_portion, async_portion,
     if(real_time_portion != null) {
       const [saved_qr_scans, updated_notification_jobs] = 
         await createQRScans(real_time_portion.qr_scans,
-          instructor_id, saved_meeting._id)
+          instructor_ids, saved_meeting._id)
       if(saved_qr_scans == null) {
         throw "<ERROR> addMeeting saving qr scans and "
           + "scheduling notifications"
@@ -67,16 +67,16 @@ async function addMeeting(meeting, real_time_portion, async_portion,
       student_ids, "user", saved_meeting._id)
     if(updated_students == null)
       throw "<ERROR> addMeeting updating the students"
-    const updated_instructor = await addMeetingToObjects(
-      [instructor_id], "user", saved_meeting._id)
-    if(updated_instructor == null)
-      throw "<ERROR> addMeeting updating the instructor"
+    const updated_instructors = await addMeetingToObjects(
+      instructor_ids, "user", saved_meeting._id)
+    if(updated_instructors == null)
+      throw "<ERROR> addMeeting updating the instructors"
 
     return saved_meeting
   } catch(error) {
     console.log(`<ERROR> addMeeting meeting`, meeting,
       `real_time_portion`, real_time_portion, `async_portion`,
-      async_portion, `instructor_id ${instructor_id}`, error)
+      async_portion, `instructor_ids`,instructor_ids, error)
     return null
   }
 }
@@ -488,7 +488,7 @@ function getAllStudentsFromSections(sections) {
   return all_students
 }
 
-async function createQRScans(qr_scans, instructor_id, meeting_id) {
+async function createQRScans(qr_scans, instructor_ids, meeting_id) {
   try {
     let qr_scan_promises = []
     let notifcation_schedule_promises = []
@@ -505,16 +505,16 @@ async function createQRScans(qr_scans, instructor_id, meeting_id) {
           const reminder_time = qr_scans[i].reminder_time
           if(reminder_time != null) {
             console.log("reminder_time", reminder_time)
-            notifcation_schedule_promises.push(new Promise(async (resolve, reject) => {
-              const updated_notification_job =
-                await NotificationHelper.scheduleShowQRNotification(
-                reminder_time, instructor_id, meeting_id,
-                saved_qr_scan._id)
-              if(updated_notification_job == null)
-                reject(null)
-              else
-                resolve(updated_notification_job)
-            }))
+            // notifcation_schedule_promises.push(new Promise(async (resolve, reject) => {
+            //   const updated_notification_job =
+            //     await NotificationHelper.scheduleShowQRNotification(
+            //     reminder_time, instructor_ids, meeting_id,
+            //     saved_qr_scan._id)
+            //   if(updated_notification_job == null)
+            //     reject(null)
+            //   else
+            //     resolve(updated_notification_job)
+            // }))
           }
         } catch(error) {
           reject(null)

@@ -206,5 +206,12 @@ export default {
 		  }
 		  this.player.currentTime(current_time)
 		},
+		getObjectIdsFromObjects(objects) {
+			const object_ids = []
+			objects.forEach(object => {
+				object_ids.push(object._id)
+			})
+			return object_ids
+		}
 	}
 }

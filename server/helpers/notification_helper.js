@@ -4,12 +4,11 @@ const schedule = require('node-schedule');
 module.exports = {scheduleShowQRNotification}
 
 async function scheduleShowQRNotification(
-  scheduled_time, instructor_id, meeting_id, qr_scan_id) {
+  scheduled_time, instructor_ids, meeting_id, qr_scan_id) {
   try {
     const notification_job = new NotificationJob({
       scheduled_time: scheduled_time,
-      primary_instructor_id: instructor_id,
-      secondary_instructor_id: "null",
+      instructor_ids: instructor_ids,
       meeting_id: meeting_id,
       qr_scan_id: qr_scan_id
     })
@@ -49,7 +48,7 @@ async function scheduleShowQRNotification(
     return updated_notification_job
   } catch(error) {
     console.log(`<ERROR> (scheduleShowQRNotification) scheduled_time:`
-      + ` ${scheduled_time} instructor_id: ${instructor_id}`
+      + ` ${scheduled_time} instructor_ids: `, instructor_ids
       + ` meeting_id: ${meeting_id}`, error)
     return null
   }

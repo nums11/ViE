@@ -13,7 +13,7 @@ realTimePortionRoutes.post('/add_qr_scan/:real_time_portion_id',
   const real_time_portion_id = req.params.real_time_portion_id
   const qr_scan = req.body.qr_scan
   const meeting_id = req.body.meeting_id
-  const instructor_id = req.body.instructor_id
+  const instructor_ids = req.body.instructor_ids
 
   try {
     const new_qr_scan = new QRScan(qr_scan)
@@ -35,7 +35,7 @@ realTimePortionRoutes.post('/add_qr_scan/:real_time_portion_id',
         } else {
           if(saved_qr_scan.reminder_time != null) {
             NotificationHelper.scheduleShowQRNotification(
-              saved_qr_scan.reminder_time, instructor_id,
+              saved_qr_scan.reminder_time, instructor_ids,
               meeting_id, saved_qr_scan._id)
           }
           console.log("<SUCCESS> (real_time_portions/add_qr_scan)")

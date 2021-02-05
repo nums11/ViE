@@ -20,14 +20,9 @@ let NotificationJob = new Schema({
 		type: Date,
 		required: true
 	},
-	primary_instructor_id: {
+	instructor_ids: [{
 		type: String,
-		required: true
-	},
-	secondary_instructor_id: {
-		type: String,
-		required: true
-	},
+	}],
 	meeting_id: {
 		type: String,
 		required: true
@@ -38,23 +33,39 @@ let NotificationJob = new Schema({
 	}
 });
 
-NotificationJob.methods.sendScheduledShowQRNotificationsToInstructors = 
+NotificationJob.methods.
+	sendScheduledShowQRNotificationsToInstructors = 
 	async function() {
 	  const redirect_url = process.env.NODE_ENV === "production" ?
-	  `https://viengage.com/#/meeting_info/${this.meeting_id}/${this.qr_scan_id}` :
-	  `http://localhost:8080/#/meeting_info/${this.meeting_id}/${this.qr_scan_id}`
+	  `https://viengage.com/#/meeting_info/`
+	  + `${this.meeting_id}/${this.qr_scan_id}` :
+	  `http://localhost:8080/#/meeting_info/`
+	  + `${this.meeting_id}/${this.qr_scan_id}`
 	  const payload = JSON.stringify({
 	    title: "ViE - It's time to show your QR Code!",
 	    redirect_url: redirect_url
 	  });
 	  const route = "notifications/schedule_show_qr"
-	  let instructor_notification_promises = await sendNotificationToUser(this.primary_instructor_id,
-	  	payload, route)
-	  let secondary_instructor_notification_promises = []
-	  if(this.secondary_instructor_id !== "null"){
-	    secondary_instructor_notification_promises =
-	      await sendNotificationToUser(this.secondary_instructor_id, payload, route)
-	  }
+
+	  // const instructor_notification_promises =
+	  // 	await sendNotificationToInstructors(
+	  // 		this.instructor_ids, payload, route)
+
+	  // try {
+	  // 	const instructor_notification_promises = []
+	  // 	this.instructor_ids.forEach(instructor_id => {
+	  // 		instructor_notification_promises.push(new Promise(
+	  // 			(resolve,reject) => {
+	  // 				sendNotificationToInstructor(instructor_id,
+	  // 					payload)
+	  // 			})
+	  // 		)
+	  // 	})
+	  // } catch(error) {
+	  // 	console.log("<ERROR> NotificationJob "
+	  // 		+ "sendScheduledShowQRNotificationsToInstructors", error)
+	  // }
+
 
 	  try {
 	    const primary_instructor_subscriptions = await Promise.all(instructor_notification_promises)
@@ -76,30 +87,34 @@ NotificationJob.methods.sendScheduledShowQRNotificationsToInstructors =
 	  }
 }
 
-const sendNotificationToUser = async (user_id, payload, route) => {
-  let notification_promises = []
-  await User.findById(user_id, (error, user) => {
-    if(error || user == null) {
-      console.log(`<ERROR> (${route}) Finding user by id`,
-        user_id, error)
-    } else {
-      user.service_worker_subscriptions.forEach(subscription => {
-        notification_promises.push(new Promise((resolve, reject) => {
-          webpush
-            .sendNotification(subscription, payload)
-            .then(notification => {
-              console.log("SUCCESSFULY SENT NOTIFICATION")
-              resolve()
-            })
-            .catch(error => {
-              console.log("STALE SUBSCRIPTION")
-              resolve(subscription)
-            });
-        }))
-      })
-    }
-  })
-  return notification_promises
+async function sendNotificationToUser(user_id, payload, route) {
+	try {
+	  let notification_promises = []
+	  await User.findById(user_id, (error, user) => {
+	    if(error || user == null) {
+	      console.log(`<ERROR> (${route}) Finding user by id`,
+	        user_id, error)
+	    } else {
+	      user.service_worker_subscriptions.forEach(subscription => {
+	        notification_promises.push(new Promise((resolve, reject) => {
+	          webpush
+	            .sendNotification(subscription, payload)
+	            .then(notification => {
+	              console.log("SUCCESSFULY SENT NOTIFICATION")
+	              resolve()
+	            })
+	            .catch(error => {
+	              console.log("STALE SUBSCRIPTION")
+	              resolve(subscription)
+	            });
+	        }))
+	      })
+	    }
+	  })
+	  return notification_promises
+	} catch(error) {
+		console.log("<ERROR> sendNotificationToUser")
+	}
 }
 
 function removeUndefinedValues(array) {
