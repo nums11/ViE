@@ -248,7 +248,8 @@ export default {
           = this.getStudentIDsAndMeetingIDS(section)
         await SectionAPI.deleteSection(section._id, meeting_ids,
           student_ids, pending_approval_student_ids,
-          this.course.instructor._id, this.course._id)
+          this.getObjectIdsFromObjects(this.course.instructors),
+          this.course._id)
         this.removeSectionFromCourse(index)
       } catch(error) {
         console.log(error)

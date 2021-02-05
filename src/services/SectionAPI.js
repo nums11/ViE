@@ -32,13 +32,13 @@ export default {
   },
   // DELETE --------------
   deleteSection(section_id, meeting_ids, student_ids,
-    pending_approval_student_ids, instructor_id, course_id) {
+    pending_approval_student_ids, instructor_ids, course_id) {
     return API().delete(`sections/delete/${section_id}`, {
       data: {
         meeting_ids: meeting_ids,
         student_ids: student_ids,
         pending_approval_student_ids: pending_approval_student_ids,
-        instructor_id: instructor_id,
+        instructor_ids: instructor_ids,
         course_id: course_id
       }
     })

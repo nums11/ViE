@@ -52,7 +52,7 @@ async function handleStudent(section_id, operation, student_id) {
 }
 
 async function deleteSection(section_id, meeting_ids,
-  student_ids, pending_approval_student_ids, instructor_id,
+  student_ids, pending_approval_student_ids, instructor_ids,
   course_id) {
   console.log("in deleteSection meeting_ids", meeting_ids)
   const section = {
@@ -110,7 +110,7 @@ async function deleteSection(section_id, meeting_ids,
     console.log(`<ERROR> deleteSection section_id ${section_id}`
       + ` meeting_ids`, meeting_ids, `student_ids`, student_ids,
       ` pending_approval_student_ids`,pending_approval_student_ids,
-      ` instructor_id ${instructor_id} course_id ${course_id}`,
+      ` instructor_ids `, instructor_ids, `course_id ${course_id}`,
       error)
     return false
   }

@@ -102,13 +102,13 @@ sectionRoutes.delete('/delete/:section_id',
   const student_ids = req.body.student_ids
   const pending_approval_student_ids =
     req.body.pending_approval_student_ids
-  const instructor_id = req.body.instructor_id
+  const instructor_ids = req.body.instructor_ids
   const course_id = req.body.course_id
 
   try {
     const result = await SectionHelper.deleteSection(section_id,
       meeting_ids, student_ids, pending_approval_student_ids,
-      instructor_id, course_id)
+      instructor_ids, course_id)
     if(!result)
       throw "<ERROR> (sections/delete) deleting section"
     res.json("<SUCCESS> (sections/delete)")
