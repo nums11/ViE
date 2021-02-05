@@ -7,9 +7,11 @@
 import videojs from "video.js";
 import markers from 'videojs-markers'
 import 'videojs-markers/dist/videojs.markers.css'
+import helpers from '@/helpers.js'
 
 export default {
   name: 'VideoPreview',
+  mixins: [helpers],
   props: {
     video_source: {
       type: Object,
@@ -54,12 +56,14 @@ export default {
       markers: []
     })
     this.$emit('created-player',this.player)
+    this.listenForArrowKeyPress()
   },
   beforeDestroy() {
     this.video_options.sources = []
     if (this.player) {
       this.player.dispose()
     }
+    window.removeEventListener('keydown', this.handleKeyPress)
   },
   methods: {
     createVideoElement() {
@@ -75,6 +79,12 @@ export default {
         time: timestamp,
         text: question
       }])
+    },
+    addMarkers(questions) {
+      questions.forEach(question => {
+        this.addMarker(question.video_timestamp,
+          question.question)
+      })
     },
     removeMarker(index) {
       this.player.markers.remove([index])

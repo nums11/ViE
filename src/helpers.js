@@ -182,6 +182,29 @@ export default {
 		  	absent_students: absent_students,
 		  	num_table_rows: num_table_rows
 		  }
-		}
+		},
+		listenForArrowKeyPress() {
+		  window.addEventListener('keydown', this.handleKeyPress)
+		},
+		handleKeyPress (e) {
+		  if(e.keyCode === 37)
+		   this.moveVideo5Seconds(false)
+		  else if(e.keyCode === 39)
+		   this.moveVideo5Seconds(true)
+		},
+		moveVideo5Seconds(forward) {
+		  let current_time = this.player.currentTime()
+		  if(forward) {
+		    current_time += 5
+		    const duration = this.player.duration()
+		    if(current_time > duration)
+		      current_time = duration
+		  } else {
+		    current_time -= 5
+		    if(current_time < 0)
+		      current_time = 0
+		  }
+		  this.player.currentTime(current_time)
+		},
 	}
 }
