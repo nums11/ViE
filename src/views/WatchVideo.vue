@@ -72,7 +72,7 @@
         <div id="video-container">
           <video id="video_player"
           class="video-js vjs-big-play-centered "
-          :data-setup="JSON.stringify(data_setup)" controls>
+          :data-setup="JSON.stringify(data_setup)" playsinline >
             <source v-bind:src="video.url">
           </video>
         </div>
@@ -130,7 +130,8 @@ export default {
       viewing_mode_popup_content: "",
       data_setup: {
         "fluid": true,
-        "playbackRates": [0.5,1]
+        "playbackRates": [0.5,1],
+        controls: true
       },
       show_question: false,
       show_another_question: false,
@@ -489,6 +490,8 @@ export default {
         + " watch is being periodically tracked."
         if(this.video.allow_faster_viewing)
           this.allowFasterViewing()
+        if(this.usingiOS())
+          this.preventFullScreen()
       } else {
         this.view_mode = "Unrestricted Mode"
         this.viewing_mode_popup_content = "You can scrub through the video freely."
@@ -502,6 +505,24 @@ export default {
     allowFasterViewing() {
       this.data_setup.playbackRates.push(1.5)
       this.data_setup.playbackRates.push(2)
+    },
+    usingiOS() {
+      return [
+        'iPad Simulator',
+        'iPhone Simulator',
+        'iPod Simulator',
+        'iPad',
+        'iPhone',
+        'iPod'
+      ].includes(navigator.platform)
+      // iPad on iOS 13 detection
+      || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+    },
+    preventFullScreen() {
+      this.data_setup.playsinline = true
+      this.data_setup.controlBar = {
+        fullscreenToggle: false
+      }
     }
   }
 };
@@ -582,8 +603,11 @@ export default {
 }
 
 /*Hide iOS video controls*/
+video::-webkit-media-controls-panel,
+video::-webkit-media-controls-panel-container,
 video::-webkit-media-controls-start-playback-button {
-  display: none !important;
+    display:none !important;
+    -webkit-appearance: none;
 }
 
 /* Tablets */
