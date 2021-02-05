@@ -212,6 +212,38 @@ export default {
 				object_ids.push(object._id)
 			})
 			return object_ids
+		},
+		getStudentIDsAndMeetingIDS(section) {
+		  let meeting_ids = []
+		  let student_ids = []
+		  let pending_approval_student_ids = []
+		  section.meetings.forEach(meeting => {
+		    meeting_ids.push(meeting._id)
+		  })
+		  section.students.forEach(student => {
+		    student_ids.push(student._id)
+		  })
+		  section.pending_approval_students.forEach(student => {
+		    pending_approval_student_ids.push(student._id)
+		  })
+		  return [meeting_ids, student_ids, pending_approval_student_ids]
+		},
+		getCourseSectionsAndMeetingIDs(course) {
+		  let sections = []
+		  let course_meeting_ids = []
+		  course.sections.forEach(section => {
+		    const [meeting_ids, student_ids,
+		    pending_approval_student_ids]
+		      = this.getStudentIDsAndMeetingIDS(section)
+		    course_meeting_ids = course_meeting_ids.concat(meeting_ids)
+		    sections.push({
+		      student_ids: student_ids,
+		      pending_approval_student_ids: pending_approval_student_ids,
+		      meeting_ids: meeting_ids
+		    })
+		  })
+		  const unique_meeting_ids = [...new Set(course_meeting_ids)]
+		  return [sections, unique_meeting_ids]
 		}
 	}
 }

@@ -197,6 +197,78 @@ courseRoutes.post('/update/:id',
   }
 });
 
+courseRoutes.post('/add_instructor/:course_id',
+  async function (req, res, next) {
+  const course_id = req.params.course_id
+  const instructor_user_id = req.body.instructor_user_id
+  const is_rpi_member = req.body.is_rpi_member
+  const meeting_ids = req.body.meeting_ids
+  const course = {
+    _id: course_id,
+    meetings: meeting_ids
+  }
+
+  try {
+    const instructor_promise = new Promise((resolve, reject) => {
+      User.find({
+        is_instructor: true,
+        user_id: instructor_user_id,
+        is_rpi_member: is_rpi_member
+      }, (error, users) => {
+        if(error) {
+          console.log(`<ERROR> (courses/add_instructor) finding`
+            + ` instructor with user_id ${user_id} is_rpi_member`
+            + ` ${is_rpi_member}`, error)
+          reject(error)
+        } else if(users.length === 0) {
+          console.log(`<ERROR> (courses/add_instructor) instructor with`
+            + ` user_id ${user_id} is_rpi_member ${is_rpi_member}`
+            + ` not found`)
+          reject(null)
+        } else {
+          resolve(users[0])
+        }
+      })
+    })
+    const instructor =  await Promise.resolve(instructor_promise)
+
+    const course_update_promise =
+      new Promise((resolve, reject) => {
+        Course.findByIdAndUpdate(course_id,
+          {$push: {instructors: instructor._id}},
+          (error, course) => {
+            if(error) {
+              console.log(`<ERROR> (courses/add_instructor) adding`
+                + ` instructor with id ${instructor._id} to course`
+                + ` with id ${course_id}`, error)
+              reject(error)
+            } else if(course == null) {
+              console.log(`<ERROR> (courses/add_instructor) course`
+                + ` with id ${course_id} not found`)
+              reject(null)
+            } else {
+              resolve(course)
+            }
+          }
+        )
+      })
+    const instructor_update_promise = UserHelper.updateUser(
+      instructor._id, "add_instructor_course", null, course)
+    const resolved_promises = await Promise.all([
+      course_update_promise, instructor_update_promise])
+    if(resolved_promises[1] == null)
+      throw "<ERROR> (courses/add_instructor) updating instructor"
+
+    console.log("<SUCCESS> (courses/add_instructor)")
+    res.json(instructor)
+  } catch(error) {
+    console.log(`<ERROR> (courses/add_instructor) course_id`
+      + ` ${course_id} instructor_user_id ${instructor_user_id}`
+      + ` is_rpi_member ${is_rpi_member}`, error)
+    next(error)
+  }
+});
+
 // DELETE ---------------
 
 courseRoutes.delete('/delete/:course_id',

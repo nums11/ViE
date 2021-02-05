@@ -27,9 +27,21 @@
       {{ instructor.first_name }} {{ instructor.last_name }}<span
       v-if="index !== course.instructors.length -1">,</span>
     </p>
+    <div>
+      <sui-button @click="showAddInstructorModal" size="tiny"
+      style="background-color:#00b80c; color:white;" animated>
+        <sui-button-content visible>Add Instructor</sui-button-content>
+        <sui-button-content hidden>
+            <sui-icon name="plus" />
+        </sui-button-content>
+      </sui-button>
+    </div>
+    <AddInstructorModal ref="AddInstructorModal"
+    :course="course"
+    v-on:add-instructor="addInstructor" />
 
     <h3 class="mt-2">Sections</h3>
-    <sui-button @click="showModal" size="small"
+    <sui-button @click="showAddSectionModal" size="small"
     style="background-color:#00b80c; color:white;" animated>
       <sui-button-content visible>Add Section</sui-button-content>
       <sui-button-content hidden>
@@ -89,13 +101,16 @@ import CourseAPI from '@/services/CourseAPI'
 import SectionAPI from '@/services/SectionAPI'
 import AddSectionModal from
 '@/components/AddSectionModal'
+import AddInstructorModal from
+'@/components/AddInstructorModal'
 import helpers from '@/helpers.js'
 
 export default {
   name: 'CourseSettings',
   mixins: [helpers],
   components: {
-    AddSectionModal
+    AddSectionModal,
+    AddInstructorModal
   },
   props: {
     course: {
@@ -195,7 +210,13 @@ export default {
       this.course.sections.push(section)
       this.course_copy.sections.push(section)
     },
-    showModal() {
+    addInstructor(instructor) {
+      this.course.instructors.push(instructor)
+    },
+    showAddInstructorModal() {
+      this.$refs.AddInstructorModal.showModal()
+    },
+    showAddSectionModal() {
       this.$refs.AddSectionModal.showModal()
     },
     sectionsHaveDuplicateNumbers() {
@@ -234,21 +255,6 @@ export default {
         window.alert("Sorry, something went wrong")
       }
     },
-    getStudentIDsAndMeetingIDS(section) {
-      let meeting_ids = []
-      let student_ids = []
-      let pending_approval_student_ids = []
-      section.meetings.forEach(meeting => {
-        meeting_ids.push(meeting._id)
-      })
-      section.students.forEach(student => {
-        student_ids.push(student._id)
-      })
-      section.pending_approval_students.forEach(student => {
-        pending_approval_student_ids.push(student._id)
-      })
-      return [meeting_ids, student_ids, pending_approval_student_ids]
-    },
     getSectionIndex(section) {
       let index = -1
       let sections = this.course.sections
@@ -272,7 +278,7 @@ export default {
 
       try {
         const [sections, meeting_ids] =
-          this.getCourseSectionsAndMeetingIDsForDeletion()
+          this.getCourseSectionsAndMeetingIDs(this.course)
         await CourseAPI.deleteCourse(this.course._id,
           sections, meeting_ids, this.course.instructor._id)
         this.$router.push({name: 'dashboard', params:
@@ -282,23 +288,7 @@ export default {
         window.alert("Sorry, something went wrong")
       }
     },
-    getCourseSectionsAndMeetingIDsForDeletion() {
-      let sections = []
-      let course_meeting_ids = []
-      this.course.sections.forEach(section => {
-        const [meeting_ids, student_ids,
-        pending_approval_student_ids]
-          = this.getStudentIDsAndMeetingIDS(section)
-        course_meeting_ids = course_meeting_ids.concat(meeting_ids)
-        sections.push({
-          student_ids: student_ids,
-          pending_approval_student_ids: pending_approval_student_ids,
-          meeting_ids: meeting_ids
-        })
-      })
-      const unique_meeting_ids = [...new Set(course_meeting_ids)]
-      return [sections, unique_meeting_ids]
-    }
+
   }
 }
 </script>

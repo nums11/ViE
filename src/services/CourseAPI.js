@@ -28,6 +28,14 @@ export default {
       course: course
     })
   },
+  addInstructor(course_id, instructor_user_id, is_rpi_member,
+    meeting_ids) {
+    return API().post(`courses/add_instructor/${course_id}`, {
+      instructor_user_id: instructor_user_id,
+      is_rpi_member: is_rpi_member,
+      meeting_ids: meeting_ids
+    })
+  },
   // DELETE ---------------
   deleteCourse(course_id, sections, meeting_ids, instructor_id) {
     return API().delete(`courses/delete/${course_id}`, {
