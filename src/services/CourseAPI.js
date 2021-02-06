@@ -36,6 +36,12 @@ export default {
       meeting_ids: meeting_ids
     })
   },
+  removeInstructor(course_id, instructor_id, meeting_ids) {
+    return API().post(`courses/remove_instructor/${course_id}`, {
+      instructor_id: instructor_id,
+      meeting_ids: meeting_ids
+    })
+  },
   // DELETE ---------------
   deleteCourse(course_id, sections, meeting_ids, instructor_ids) {
     return API().delete(`courses/delete/${course_id}`, {

@@ -269,6 +269,55 @@ courseRoutes.post('/add_instructor/:course_id',
   }
 });
 
+courseRoutes.post('/remove_instructor/:course_id',
+  async function(req,res,next) {
+  const course_id = req.params.course_id
+  const instructor_id = req.body.instructor_id
+  const meeting_ids = req.body.meeting_ids
+  const course = {
+    _id: course_id,
+    meetings: meeting_ids
+  }
+
+
+  try {
+    const instructor_update_promise = UserHelper.updateUser(
+      instructor_id, "remove_instructor_course", null, course)
+    const course_update_promise =
+      new Promise((resolve, reject) => {
+        Course.findByIdAndUpdate(course_id,
+          {$pull: {instructors: instructor_id}},
+          (error, course) => {
+            if(error) {
+              console.log(`<ERROR> (courses/remove_instructor) removing`
+                + ` instructor with id ${instructor_id} from course`
+                + ` with id ${course_id}`, error)
+              reject(error)
+            } else if(course == null) {
+              console.log(`<ERROR> (courses/remove_instructor) course`
+                + ` with id ${course_id} not found`)
+              reject(null)
+            } else {
+              resolve(course)
+            }
+          }
+        )
+      })
+      const resolved_promises = await Promise.all([
+        instructor_update_promise, course_update_promise])
+      if(resolved_promises[0] == null)
+        throw "<ERROR> (courses/remove_instructor) updating instructor"
+
+      console.log("<SUCCESS> (courses/remove_instructor)")
+      res.json(course)
+  } catch(error) {
+    console.log(`<ERROR> (courses/remove_instructor) course_id`
+      + ` ${course_id} instructor_id ${instructor_id} meeting_ids`,
+      meeting_ids, error)
+    next(error)
+  }
+})
+
 // DELETE ---------------
 
 courseRoutes.delete('/delete/:course_id',

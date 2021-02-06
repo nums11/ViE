@@ -94,8 +94,8 @@ export default {
           + ` since they are already an instructor for the course.`)
         return
       }
-      const confirmation = confirm(`Are you sure you wan to add the user`
-        + ` with id ${this.instructor_user_id} as an instructor to your course?`)
+      const confirmation = confirm(`Are you sure you want to add the user`
+        + ` with id '${this.instructor_user_id}' as an instructor to your course?`)
       if(!confirmation)
         return
 

@@ -22,17 +22,22 @@
       </sui-form-fields>
     </sui-form>
     <h3>Instructors</h3>
-    <p v-for="(instructor, index) in course.instructors"
-    class="inline-block mr-1">
-      {{ instructor.first_name }} {{ instructor.last_name }}<span
-      v-if="index !== course.instructors.length -1">,</span>
-    </p>
-    <div>
-      <sui-button @click="showAddInstructorModal" size="tiny"
-      style="background-color:#00b80c; color:white;" animated>
-        <sui-button-content visible>Add Instructor</sui-button-content>
+    <sui-button @click="showAddInstructorModal" size="tiny"
+    style="background-color:#00b80c; color:white;" animated>
+      <sui-button-content visible>Add Instructor</sui-button-content>
+      <sui-button-content hidden>
+          <sui-icon name="plus" />
+      </sui-button-content>
+    </sui-button>
+    <div v-for="(instructor,index) in course.instructors"
+    class="mt-1">
+      {{ instructor.first_name }} {{ instructor.last_name }}
+      <sui-button @click="removeInstructor(index)" size="small" animated
+      style="background-color:#FF0000; 
+      color:white;margin-left:2rem;" :disabled="courseHas1Instructor">
+        <sui-button-content visible>Remove Instructor</sui-button-content>
         <sui-button-content hidden>
-            <sui-icon name="plus" />
+            <sui-icon name="trash" />
         </sui-button-content>
       </sui-button>
     </div>
@@ -138,6 +143,9 @@ export default {
     courseHas1Section() {
       return this.course_copy.sections.length
         === 1
+    },
+    courseHas1Instructor() {
+      return this.course.instructors.length === 1
     }
   },
   created () {
@@ -290,7 +298,25 @@ export default {
         window.alert("Sorry, something went wrong")
       }
     },
+    async removeInstructor(index) {
+      const instructor = this.course.instructors[index]
+      const confirmation = confirm(`Are you sure you want to remove`
+        + ` ${instructor.first_name} ${instructor.last_name} as an`
+        + ` instructor for your course?`)
+      if(!confirmation)
+        return
 
+      try {
+        const [sections, meeting_ids] =
+          this.getCourseSectionsAndMeetingIDs(this.course)
+        const response = await CourseAPI.removeInstructor(this.course._id,
+          instructor._id, meeting_ids)
+        this.course.instructors.splice(index,1)
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
+    }
   }
 }
 </script>
