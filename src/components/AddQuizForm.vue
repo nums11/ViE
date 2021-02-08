@@ -12,7 +12,8 @@
     <div class="inline-block form-side mt-1">
       <h3>Questions ({{ quiz.questions.length }})</h3>
       <div class="mt-1" v-for="question in quiz.questions">
-        <NewQuizQuestionCard :question="question" />
+        <NewQuizQuestionCard :question="question"
+        v-on:remove-question="removeQuestion(index)" />
       </div>
     </div>
   </sui-form>
@@ -41,12 +42,23 @@ export default {
     }
   },
   computed: {
+    quizHasAtLeast1Question() {
+      return this.quiz.questions.length > 0
+    }
   },
   created () {
   },
   methods: {
+    // Need to change this not to really on the number of quiz questions
+    // but rely on a computed property instead so that I can make sure the
+    // Quiz has a name
     saveQuestion(question) {
       this.quiz.questions.push(question)
+      this.$emit('add-quiz-question')
+    },
+    removeQuestion(index) {
+      this.quiz.questions.splice(index, 1)
+      this.$emit('remove-quiz-question')
     },
     clear() {
       this.quiz = {

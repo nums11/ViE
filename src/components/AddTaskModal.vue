@@ -55,7 +55,9 @@
               id="reminder-input">
             </sui-form-field>
           </div>
-          <AddQuizForm ref="AddQuizForm" v-else />
+          <AddQuizForm ref="AddQuizForm" v-else
+          v-on:add-quiz-question="addQuizQuestion"
+          v-on:remove-quiz-question="removeQuizQuestion" />
         </div>
         <div class="form-field" v-else>
           <sui-form-field class="add-task-form-field" required>
@@ -204,7 +206,8 @@ export default {
       radio_label_one: "",
       radio_label_two: "",
       show_default_notification_message: false,
-      show_denied_notification_message: false
+      show_denied_notification_message: false,
+      num_quiz_questions: 0
     }
   },
   computed: {
@@ -213,7 +216,10 @@ export default {
     },
     formComplete() {
       if(this.is_real_time) {
-        return true
+        if(this.value === 1)
+          return true
+        else
+        return this.num_quiz_questions > 0
       } else {
         return this.task.name != null && 
         this.task.name !== '' &&
@@ -352,6 +358,12 @@ export default {
     editQuiz() {
       this.$refs.AddVideoQuizModal.showModal(this.task.video_file,
         this.task.quiz.questions)
+    },
+    addQuizQuestion() {
+      this.num_quiz_questions++
+    },
+    removeQuizQuestion() {
+      this.num_quiz_questions--
     }
   }
 }
