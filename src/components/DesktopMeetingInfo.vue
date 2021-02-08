@@ -204,11 +204,9 @@ export default {
       this.deleting_meeting = value
     },
     showLottiePlayer() {
-      console.log("showing player")
       this.show_lottie_player = true
     },
     hideLottiePlayer() {
-      console.log("hiding player")
       this.show_lottie_player = false
     }
   }
