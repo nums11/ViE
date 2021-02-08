@@ -30,7 +30,7 @@
       </sui-button-content>
     </sui-button>
     <div v-for="(instructor,index) in course.instructors"
-    class="mt-1">
+    class="mt-2">
       {{ instructor.first_name }} {{ instructor.last_name }}
       <sui-button @click="removeInstructor(index)" size="small" animated
       style="background-color:#FF0000; 
