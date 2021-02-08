@@ -138,7 +138,6 @@ emailRoutes.route('/new_student').post(
 emailRoutes.route('/approve_or_deny').post(
   async function (req, res, next) {
   const student_email = req.body.student_email
-  const instructor_name = req.body.instructor_name
   const course_name = req.body.course_name
   const course_subject_code = req.body.course_subject_code
   const course_number = req.body.course_number
@@ -148,11 +147,10 @@ emailRoutes.route('/approve_or_deny').post(
   const subject =
     `ViE - Your Course Join Request Has Been `
     + `${is_approval ? 'Approved' : 'Denied'}`
-  const body =
-    `${instructor_name} has`
-    + ` ${is_approval ? 'approved you into' : 'denied you from'}`
-    + ` thier course - ${course_name}`
-    + ` (${course_subject_code} ${course_number}) Section ${section_number}`
+  const body = "You have been "
+    + ` ${is_approval ? 'approved into' : 'denied from'}`
+    + ` ${course_name} (${course_subject_code} ${course_number})`
+    + ` Section ${section_number}`
     + `<br/><br/>--<br/>`
     + `ViE - Increase Virtual Engagement</p>`
 
