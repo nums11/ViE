@@ -14,9 +14,15 @@
           through the video more precisely.
         </p>
         <h3>Questions ({{ questions.length }})</h3>
-        <NewQuizQuestionCard v-for="(question,index) in questions"
-        :question="question"
-        v-on:remove-question="removeQuestion(index)" />
+        <div v-for="(question,index) in questions" class="mt-1">
+          <div class="inline-block timestamp">
+            {{ getFormattedVideoTimestamp(
+            question.video_timestamp) }}
+          </div>
+          <NewQuizQuestionCard 
+          :question="question"
+          v-on:remove-question="removeQuestion(index)" />
+        </div>
       </div>
       <div v-if="video_player != null"
       class="inline-block" id="right-side">
@@ -55,9 +61,11 @@
 import VideoPreview from '@/components/VideoPreview'
 import NewQuizQuestionCard from '@/components/NewQuizQuestionCard'
 import QuestionForm from '@/components/QuestionForm'
+import helpers from '@/helpers.js'
 
 export default {
-  name: 'AddQuizModal',
+  name: 'AddVideoQuizModal',
+  mixins: [helpers],
   data () {
     return {
       show_modal: false,
@@ -143,8 +151,13 @@ export default {
 #left-side {
   width: 60%;
 }
+
 #right-side {
   width: 40%;
+}
+
+.timestamp {
+  margin-top: 0.5rem;
 }
 
 #action-btns-container {

@@ -90,6 +90,10 @@ export default {
     },
     removeChoice(index) {
       this.question.answer_choices.splice(index, 1)
+      if(this.question.correct_answer_index === index) {
+        this.question.correct_answer_index = null
+        this.uncheckAnswers()
+      }
     },
     markCorrect(index) {
       this.question.correct_answer_index = index
@@ -104,6 +108,9 @@ export default {
         correct_answer_index: null,
         video_timestamp: 0
       }
+      this.uncheckAnswers()
+    },
+    uncheckAnswers() {
       let checked_inputs = document.querySelector(
         'input[name="correct_answer_index"]:checked')
       if(checked_inputs != null)

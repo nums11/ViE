@@ -93,7 +93,7 @@
           </div>
           <div v-if="!is_real_time" class="mt-2">
             <sui-form-field v-if="task.quiz == null">
-              <sui-button @click.prevent="showAddQuizModal"
+              <sui-button @click.prevent="showAddVideoQuizModal"
               :disabled="disableAddQuizBtn"
               size="small" animated
               style="background-color:#00B3FF; color:white;">
@@ -139,8 +139,8 @@
           </div>
         </div>
       </sui-form>
-      <AddQuizModal v-if="!is_real_time"
-      ref="AddQuizModal" v-on:save-quiz="saveQuiz" />
+      <AddVideoQuizModal v-if="!is_real_time"
+      ref="AddVideoQuizModal" v-on:save-quiz="saveQuiz" />
     </sui-modal-content>
     <sui-modal-actions>
       <div id="action-btns">
@@ -168,7 +168,7 @@ import flatpickr from "flatpickr";
 import 'flatpickr/dist/themes/material_blue.css';
 import moment from 'moment'
 import helpers from '@/helpers.js'
-import AddQuizModal from '@/components/AddQuizModal'
+import AddVideoQuizModal from '@/components/AddVideoQuizModal'
 import AddQuizForm from '@/components/AddQuizForm'
 
 export default {
@@ -181,7 +181,7 @@ export default {
     }
   },
   components: {
-    AddQuizModal,
+    AddVideoQuizModal,
     AddQuizForm
   },
   data () {
@@ -334,8 +334,8 @@ export default {
         this.task.allow_faster_viewing = false
       }
     },
-    showAddQuizModal() {
-      this.$refs.AddQuizModal.showModal(this.task.video_file)
+    showAddVideoQuizModal() {
+      this.$refs.AddVideoQuizModal.showModal(this.task.video_file)
     },
     saveQuiz(questions) {
       this.task.quiz = {
@@ -346,7 +346,7 @@ export default {
       this.task.quiz = null
     },
     editQuiz() {
-      this.$refs.AddQuizModal.showModal(this.task.video_file,
+      this.$refs.AddVideoQuizModal.showModal(this.task.video_file,
         this.task.quiz.questions)
     }
   }

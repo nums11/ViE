@@ -1,37 +1,28 @@
 <template>
-  <div class="new-quiz-question-card-container mt-1">
-    <div class="inline-block timestamp">
-      {{ getFormattedVideoTimestamp(
-        question.video_timestamp) }}
+  <div class="new-quiz-question-card inline-block
+    light-border-shadow ">
+    <div class="question inline-block wrap-text">
+      {{ question.question }}
     </div>
-    <div class="new-quiz-question-card inline-block
-    light-border-shadow">
-      <div class="question inline-block wrap-text">
-        {{ question.question }}
-      </div>
-      <div class="float-right">
-        <sui-button @click="$emit('remove-question')"
-        animated size="mini"
-        style="background-color:#FF0000; color:white;
-        margin-top:0.2rem; margin-left: 0.5rem;">
-          <sui-button-content visible>
-            Remove
-          </sui-button-content>
-          <sui-button-content hidden>
-              <sui-icon name="trash" />
-          </sui-button-content>
-        </sui-button>
-      </div>
+    <div class="float-right">
+      <sui-button @click="$emit('remove-question')"
+      animated size="mini"
+      style="background-color:#FF0000; color:white;
+      margin-top:0.2rem; margin-left: 0.5rem;">
+        <sui-button-content visible>
+          Remove
+        </sui-button-content>
+        <sui-button-content hidden>
+            <sui-icon name="trash" />
+        </sui-button-content>
+      </sui-button>
     </div>
   </div>
 </template>
 
 <script>
-import helpers from '@/helpers.js'
-
 export default {
   name: 'NewQuizQuestionCard',
-  mixins: [helpers],
   props: {
     question: {
       type: Object,
@@ -56,10 +47,6 @@ export default {
 </script>
 
 <style scoped>
-.timestamp {
-  margin-top: 0.5rem;
-}
-
 .new-quiz-question-card {
   border-radius: 3px;
   height: 2.5rem;
