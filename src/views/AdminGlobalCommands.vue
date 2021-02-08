@@ -13,7 +13,10 @@
       Schedule jobs for all upcoming meetings
     </button>
     <button @click="changeCourseInstructorToArray">
-      Convert course instructors into an array
+      Convert course instructor into an array
+    </button>
+    <button @click="changeNotificationJobInstructorToArray">
+      Convert notification job instructor into an array
     </button>
   </div>
 </template>
@@ -76,6 +79,17 @@ export default {
       try {
         const response = 
           await GlobalCommandAPI.changeCourseInstructorToArray()
+        alert("Global command completed")
+        console.log(response.data)
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
+    },
+    async changeNotificationJobInstructorToArray() {
+      try {
+        const response = 
+          await GlobalCommandAPI.changeNotificationJobInstructorToArray()
         alert("Global command completed")
         console.log(response.data)
       } catch(error) {
