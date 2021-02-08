@@ -55,7 +55,7 @@
               id="reminder-input">
             </sui-form-field>
           </div>
-          <AddQuizForm v-else />
+          <AddQuizForm ref="AddQuizForm" v-else />
         </div>
         <div class="form-field" v-else>
           <sui-form-field class="add-task-form-field" required>
@@ -325,7 +325,11 @@ export default {
       this.task.reminder_time = null
       this.task.video_file = null
       if(this.is_real_time){
-        this.reminder_picker.clear()
+        console.log("Value", this.value)
+        if(this.value === 1)
+          this.reminder_picker.clear()
+        else
+          this.$refs.AddQuizForm.clear()
       } else {
         let file_input = document.getElementById('file-input')
         file_input.value = ''
@@ -364,7 +368,7 @@ export default {
   width: 100%;
 }
 
-.add-task-form-field {
+/deep/ .add-task-form-field {
   width:70%;
   margin: auto;
   display: inline-block;

@@ -1,16 +1,21 @@
 <template>
-  <div class="add-quiz-form">
-    <div class="inline-block form-side">
+  <sui-form class="add-quiz-form">
+    <sui-form-field class="add-task-form-field" required>
+      <label class="form-label">Quiz Name</label>
+      <input v-model="quiz.name" />
+    </sui-form-field>
+    <div class="inline-block form-side mt-1">
       <h3>Add Question</h3>
-      <QuestionForm v-on:save-question="saveQuestion" />
+      <QuestionForm ref="QuestionForm"
+      v-on:save-question="saveQuestion" />
     </div>
-    <div class="inline-block form-side">
-      <h3>Questions ({{ questions.length }})</h3>
-      <div class="mt-1" v-for="question in questions">
+    <div class="inline-block form-side mt-1">
+      <h3>Questions ({{ quiz.questions.length }})</h3>
+      <div class="mt-1" v-for="question in quiz.questions">
         <NewQuizQuestionCard :question="question" />
       </div>
     </div>
-  </div>
+  </sui-form>
 </template>
 
 <script>
@@ -29,7 +34,10 @@ export default {
   },
   data () {
     return {
-      questions: []
+      quiz: {
+        name: "",
+        questions: []
+      }
     }
   },
   computed: {
@@ -38,7 +46,14 @@ export default {
   },
   methods: {
     saveQuestion(question) {
-      this.questions.push(question)
+      this.quiz.questions.push(question)
+    },
+    clear() {
+      this.quiz = {
+        name: "",
+        questions: []
+      }
+      this.$refs.QuestionForm.clearQuestion()
     }
   }
 }
@@ -47,10 +62,11 @@ export default {
 <style scoped>
 .add-quiz-form {
   /*border: black solid;*/
+  width: 100%;
+  margin-top: 0;
 }
 
 .form-side {
-  /*border: blue solid;*/
   width: 50%;
 }
 </style>
