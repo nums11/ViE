@@ -136,7 +136,6 @@ export default {
       }
   },
   created () {
-    console.log("task", this.task)
     this.is_qr = this.task_type === 'qr_scan'
     this.setLabelsBasedOnTaskType()
     if(!this.is_instructor) {

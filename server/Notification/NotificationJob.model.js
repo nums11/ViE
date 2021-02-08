@@ -45,82 +45,98 @@ NotificationJob.methods.
 	    title: "ViE - It's time to show your QR Code!",
 	    redirect_url: redirect_url
 	  });
-	  const route = "notifications/schedule_show_qr"
-
-	  // const instructor_notification_promises =
-	  // 	await sendNotificationToInstructors(
-	  // 		this.instructor_ids, payload, route)
-
-	  // try {
-	  // 	const instructor_notification_promises = []
-	  // 	this.instructor_ids.forEach(instructor_id => {
-	  // 		instructor_notification_promises.push(new Promise(
-	  // 			(resolve,reject) => {
-	  // 				sendNotificationToInstructor(instructor_id,
-	  // 					payload)
-	  // 			})
-	  // 		)
-	  // 	})
-	  // } catch(error) {
-	  // 	console.log("<ERROR> NotificationJob "
-	  // 		+ "sendScheduledShowQRNotificationsToInstructors", error)
-	  // }
-
 
 	  try {
-	    const primary_instructor_subscriptions = await Promise.all(instructor_notification_promises)
-	    const secondary_instructor_subscriptions = await Promise.all(secondary_instructor_notification_promises)
-	    const stale_primary_instructor_subscriptions = removeUndefinedValues(primary_instructor_subscriptions)
-	    const stale_secondary_instructor_subscriptions = removeUndefinedValues(secondary_instructor_subscriptions)
-	    if(stale_primary_instructor_subscriptions.length > 0) {
-	    	removeStaleSubscriptionsFromUser(this.primary_instructor_id,
-	    		stale_primary_instructor_subscriptions)
-	    }
-	    if(stale_secondary_instructor_subscriptions.length > 0) {
-	    	removeStaleSubscriptionsFromUser(this.secondary_instructor_id,
-	    		stale_secondary_instructor_subscriptions)
-	    }
-	    console.log(`<SUCCESS> (${route}) sending notifications to instructor(s)`)
-	  } catch (error) {
-	    console.log(`<ERROR> (${route}) awaiting notifications to be sent to instructor(s)`,
-	      this.primary_instructor_id, this.secondary_instructor_id, error)
+	  	const notification_promises = []
+	  	this.instructor_ids.forEach(instructor_id => {
+	  		notification_promises.push(new Promise(
+	  			async (resolve, reject) => {
+	  			try {
+		  			const stale_subscriptions =
+		  				await sendNotificationToUser(instructor_id, payload)
+		  			if(stale_subscriptions == null) {
+		  				console.log("<ERROR> "
+		  					+ "sendScheduledShowQRNotificationsToInstructors "
+		  					+ "sending notification")
+		  				reject(null)
+		  			}
+		  			resolve(stale_subscriptions)
+		  		} catch(error) {
+		  			console.log("<ERROR> sendScheduledShowQRNotificationsToInstructors"
+		  				+ " sending notifications", error)
+		  			reject(null)
+		  		}
+	  		}))
+	  	})
+	  	const stale_instructor_subscriptions
+	  		= await Promise.all(notification_promises)
+	  	for(let i = 0; i < stale_instructor_subscriptions.length; i++) {
+	  		const stale_subscriptions = stale_instructor_subscriptions[i]
+	  		if(stale_subscriptions.length > 0) {
+		  		removeStaleSubscriptionsFromUser(this.instructor_ids[i],
+		  			stale_subscriptions)
+		  	}
+	  	}
+	  } catch(error) {
+	  	console.log("<ERROR> sendScheduledShowQRNotificationsToInstructors",
+	  		error)
 	  }
 }
 
-async function sendNotificationToUser(user_id, payload, route) {
+async function sendNotificationToUser(user_id, payload) {
 	try {
-	  let notification_promises = []
-	  await User.findById(user_id, (error, user) => {
-	    if(error || user == null) {
-	      console.log(`<ERROR> (${route}) Finding user by id`,
-	        user_id, error)
-	    } else {
-	      user.service_worker_subscriptions.forEach(subscription => {
-	        notification_promises.push(new Promise((resolve, reject) => {
-	          webpush
-	            .sendNotification(subscription, payload)
-	            .then(notification => {
-	              console.log("SUCCESSFULY SENT NOTIFICATION")
-	              resolve()
-	            })
-	            .catch(error => {
-	              console.log("STALE SUBSCRIPTION")
-	              resolve(subscription)
-	            });
-	        }))
-	      })
-	    }
-	  })
-	  return notification_promises
+	  const notification_send_promise = new Promise(
+	  	(resolve, reject) => {
+		  User.findById(user_id,
+		  	async (error, user) => {
+		    if(error) {
+		    	console.log(`<ERROR> sendNotificationToUser finding user with id`
+		    		+ `user_id`, error)
+		    	reject(null)
+		    } else if(user == null) {
+		      console.log(`<ERROR> sendNotificationToUser user with  id`
+		      	+ ` ${user_id} not found`)
+		      reject(null)
+		    } else {
+		    	try {
+	 					const notification_promises = []
+			      user.service_worker_subscriptions.forEach(subscription => {
+			        notification_promises.push(new Promise((resolve, reject) => {
+			          webpush
+			            .sendNotification(subscription, payload)
+			            .then(notification => {
+			              console.log("SUCCESSFULY SENT NOTIFICATION")
+			              resolve(true)
+			            })
+			            .catch(error => {
+			              console.log("STALE SUBSCRIPTION")
+			              reject(subscription)
+			            });
+			        }))
+			      })
+			      const statuses = await Promise.allSettled(notification_promises)
+			      const stale_subscriptions = []
+			      statuses.forEach(status => {
+			      	if(status.status === "rejected")
+			      		stale_subscriptions.push(status.value)
+			      })
+			      resolve(stale_subscriptions)
+			    } catch(error) {
+			    	console.log("<ERROR> sendNotificationToUser sending notifcations",
+			    		error)
+			    	reject(null)
+			    }
+		    }
+		  })
+		})
+		const stale_subscriptions = await Promise.resolve(
+			notification_send_promise)
+		return stale_subscriptions
 	} catch(error) {
-		console.log("<ERROR> sendNotificationToUser")
+		console.log(`<ERROR> sendNotificationToUser user_id ${user_id}`
+			+ ` payload`, payload, error)
+		return null
 	}
-}
-
-function removeUndefinedValues(array) {
-	return array.filter((el) => {
-	  return el != null;
-	});
 }
 
 function removeStaleSubscriptionsFromUser(user_id, stale_subscriptions) {

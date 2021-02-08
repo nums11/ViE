@@ -505,16 +505,16 @@ async function createQRScans(qr_scans, instructor_ids, meeting_id) {
           const reminder_time = qr_scans[i].reminder_time
           if(reminder_time != null) {
             console.log("reminder_time", reminder_time)
-            // notifcation_schedule_promises.push(new Promise(async (resolve, reject) => {
-            //   const updated_notification_job =
-            //     await NotificationHelper.scheduleShowQRNotification(
-            //     reminder_time, instructor_ids, meeting_id,
-            //     saved_qr_scan._id)
-            //   if(updated_notification_job == null)
-            //     reject(null)
-            //   else
-            //     resolve(updated_notification_job)
-            // }))
+            notifcation_schedule_promises.push(new Promise(async (resolve, reject) => {
+              const updated_notification_job =
+                await NotificationHelper.scheduleShowQRNotification(
+                reminder_time, instructor_ids, meeting_id,
+                saved_qr_scan._id)
+              if(updated_notification_job == null)
+                reject(null)
+              else
+                resolve(updated_notification_job)
+            }))
           }
         } catch(error) {
           reject(null)

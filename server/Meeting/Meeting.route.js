@@ -53,7 +53,7 @@ meetingRoutes.route('/get/:id').get(function (req, res, next) {
     populate: [{
       path: 'course',
       populate: {
-        path: 'instructor'
+        path: 'instructors'
       }
     }, {
       path: 'students'

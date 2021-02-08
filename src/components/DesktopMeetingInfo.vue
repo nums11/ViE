@@ -31,7 +31,7 @@
           :portion="meeting.real_time_portion"
           :meeting_students="meeting_students"
           :instructor_ids="getObjectIdsFromObjects(
-          meeting.sections[0].course.instructors)"
+          meeting_course.instructors)"
           v-on:show-lottie-player="showLottiePlayer"
           v-on:hide-lottie-player="hideLottiePlayer"
           v-on:show-qr="showQRScanningWindow"
