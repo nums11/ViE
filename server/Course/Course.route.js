@@ -11,7 +11,7 @@ const SectionHelper = require('../helpers/section_helper')
 
 courseRoutes.get('/all', function (req, res, next) {
   Course.find()
-  .populate('instructor')
+  .populate('instructors')
   .exec(function (error, courses) {
     if (error) {
       console.log("<ERROR> (courses/) Getting all courses")
@@ -45,8 +45,7 @@ courseRoutes.get('/get/:id/:with_meetings?',
   }
 
   Course.findById(id).
-  populate('instructor').
-  populate('secondary_instructor').
+  populate('instructors').
   populate({
     path: 'sections',
     populate: [
@@ -91,7 +90,7 @@ courseRoutes.post('/add', async function (req, res, next) {
 
     // Update the instructor with the new course
     let instructor_update_promise = new Promise((resolve, reject) => {
-      User.findByIdAndUpdate(updated_course.instructor,
+      User.findByIdAndUpdate(updated_course.instructors[0],
         {$push: {instructor_courses: updated_course}},
         {new: true},
         (error, updated_instructor) => {
@@ -198,6 +197,127 @@ courseRoutes.post('/update/:id',
   }
 });
 
+courseRoutes.post('/add_instructor/:course_id',
+  async function (req, res, next) {
+  const course_id = req.params.course_id
+  const instructor_user_id = req.body.instructor_user_id
+  const is_rpi_member = req.body.is_rpi_member
+  const meeting_ids = req.body.meeting_ids
+  const course = {
+    _id: course_id,
+    meetings: meeting_ids
+  }
+
+  try {
+    const instructor_promise = new Promise((resolve, reject) => {
+      User.find({
+        is_instructor: true,
+        user_id: instructor_user_id,
+        is_rpi_member: is_rpi_member
+      }, (error, users) => {
+        if(error) {
+          console.log(`<ERROR> (courses/add_instructor) finding`
+            + ` instructor with user_id ${user_id} is_rpi_member`
+            + ` ${is_rpi_member}`, error)
+          reject(error)
+        } else if(users.length === 0) {
+          console.log(`<ERROR> (courses/add_instructor) instructor with`
+            + ` user_id ${user_id} is_rpi_member ${is_rpi_member}`
+            + ` not found`)
+          reject(null)
+        } else {
+          resolve(users[0])
+        }
+      })
+    })
+    const instructor =  await Promise.resolve(instructor_promise)
+
+    const course_update_promise =
+      new Promise((resolve, reject) => {
+        Course.findByIdAndUpdate(course_id,
+          {$push: {instructors: instructor._id}},
+          (error, course) => {
+            if(error) {
+              console.log(`<ERROR> (courses/add_instructor) adding`
+                + ` instructor with id ${instructor._id} to course`
+                + ` with id ${course_id}`, error)
+              reject(error)
+            } else if(course == null) {
+              console.log(`<ERROR> (courses/add_instructor) course`
+                + ` with id ${course_id} not found`)
+              reject(null)
+            } else {
+              resolve(course)
+            }
+          }
+        )
+      })
+    const instructor_update_promise = UserHelper.updateUser(
+      instructor._id, "add_instructor_course", null, course)
+    const resolved_promises = await Promise.all([
+      course_update_promise, instructor_update_promise])
+    if(resolved_promises[1] == null)
+      throw "<ERROR> (courses/add_instructor) updating instructor"
+
+    console.log("<SUCCESS> (courses/add_instructor)")
+    res.json(instructor)
+  } catch(error) {
+    console.log(`<ERROR> (courses/add_instructor) course_id`
+      + ` ${course_id} instructor_user_id ${instructor_user_id}`
+      + ` is_rpi_member ${is_rpi_member}`, error)
+    next(error)
+  }
+});
+
+courseRoutes.post('/remove_instructor/:course_id',
+  async function(req,res,next) {
+  const course_id = req.params.course_id
+  const instructor_id = req.body.instructor_id
+  const meeting_ids = req.body.meeting_ids
+  const course = {
+    _id: course_id,
+    meetings: meeting_ids
+  }
+
+
+  try {
+    const instructor_update_promise = UserHelper.updateUser(
+      instructor_id, "remove_instructor_course", null, course)
+    const course_update_promise =
+      new Promise((resolve, reject) => {
+        Course.findByIdAndUpdate(course_id,
+          {$pull: {instructors: instructor_id}},
+          (error, course) => {
+            if(error) {
+              console.log(`<ERROR> (courses/remove_instructor) removing`
+                + ` instructor with id ${instructor_id} from course`
+                + ` with id ${course_id}`, error)
+              reject(error)
+            } else if(course == null) {
+              console.log(`<ERROR> (courses/remove_instructor) course`
+                + ` with id ${course_id} not found`)
+              reject(null)
+            } else {
+              resolve(course)
+            }
+          }
+        )
+      })
+      const resolved_promises = await Promise.all([
+        instructor_update_promise, course_update_promise])
+      if(resolved_promises[0] == null)
+        throw "<ERROR> (courses/remove_instructor) updating instructor"
+
+      console.log("<SUCCESS> (courses/remove_instructor)")
+      res.json(course)
+  } catch(error) {
+    console.log(`<ERROR> (courses/remove_instructor) course_id`
+      + ` ${course_id} instructor_id ${instructor_id} meeting_ids`,
+      meeting_ids, error)
+    next(error)
+  }
+})
+
 // DELETE ---------------
 
 courseRoutes.delete('/delete/:course_id',
@@ -205,19 +325,35 @@ courseRoutes.delete('/delete/:course_id',
   const course_id = req.params.course_id
   const sections = req.body.sections
   const meeting_ids = req.body.meeting_ids
-  const instructor_id = req.body.instructor_id
+  const instructor_ids = req.body.instructor_ids
   const course = {
     _id: course_id,
     meetings: meeting_ids
   }
 
   try {
-    // Remove course and course meetings from instructor
-    const updated_instructor_promise = UserHelper.updateUser(
-      instructor_id, "remove_instructor_course", null, course)
-    console.log("Promise", updated_instructor_promise)
-    if(updated_instructor_promise == null)
-      throw `<ERROR> (courses/delete) removing instructor course`
+    // Remove course and course meetings from instructors
+    const instructor_update_promises = []
+    instructor_ids.forEach(instructor_id => {
+      instructor_update_promises.push(new Promise(
+        async (resolve,reject) => {
+          try {
+            const updated_instructor = await UserHelper.updateUser(
+              instructor_id, "remove_instructor_course", null, course)
+            if(updated_instructor == null) {
+              console.log("<ERROR> (courses/delete) deleting course")
+              reject(null)
+            } else {
+              resolve(updated_instructor)
+            }
+          } catch(error) {
+            console.log("<ERROR> (courses/delete) updating instructor",
+              error)
+            reject(null)
+          }
+        })
+      )
+    })
     // Delete all the sections 
     let section_deletion_promises = []
     section_deletion_promises.push(new Promise((resolve,reject) => {
@@ -225,7 +361,7 @@ courseRoutes.delete('/delete/:course_id',
         try {
           const result = await SectionHelper.deleteSection(section._id,
             section.meeting_ids, section.student_ids,
-            section.pending_approval_student_ids, instructor_id,
+            section.pending_approval_student_ids, instructor_ids,
             course_id)
           if(result)
             resolve(result)
@@ -253,7 +389,7 @@ courseRoutes.delete('/delete/:course_id',
       });
     })
     const all_promises = [].concat.apply([], [
-      [updated_instructor_promise, course_deletion_promise],
+      instructor_update_promises, [course_deletion_promise],
       section_deletion_promises])
     await Promise.all(all_promises)
     console.log("<SUCCESS> (courses/delete)")
@@ -261,7 +397,7 @@ courseRoutes.delete('/delete/:course_id',
   } catch(error) {
     console.log(`<ERROR> (courses/delete) course_id ${course_id}`,
       `sections`, sections, `meeting_ids`, meeting_ids,
-      `instructor_id ${instructor_id}`, error)
+      `instructor_ids `,instructor_ids, error)
     next(error)
   }
 });

@@ -34,11 +34,10 @@ export default {
     })
   },
   sendApproveOrDenyEmailToStudent(student_email,
-    instructor_name, course_name, course_subject_code,
+    course_name, course_subject_code,
     course_number, section_number, is_approval) {
     return API().post('emails/approve_or_deny', {
       student_email: student_email,
-      instructor_name: instructor_name,
       course_name: course_name,
       course_subject_code: course_subject_code,
       course_number: course_number,

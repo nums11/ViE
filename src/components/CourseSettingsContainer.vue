@@ -21,8 +21,32 @@
         </sui-form-field>
       </sui-form-fields>
     </sui-form>
+    <h3>Instructors</h3>
+    <sui-button @click="showAddInstructorModal" size="tiny"
+    style="background-color:#00b80c; color:white;" animated>
+      <sui-button-content visible>Add Instructor</sui-button-content>
+      <sui-button-content hidden>
+          <sui-icon name="plus" />
+      </sui-button-content>
+    </sui-button>
+    <div v-for="(instructor,index) in course.instructors"
+    class="mt-2">
+      {{ instructor.first_name }} {{ instructor.last_name }}
+      <sui-button @click="removeInstructor(index)" size="small" animated
+      style="background-color:#FF0000; 
+      color:white;margin-left:2rem;" :disabled="courseHas1Instructor">
+        <sui-button-content visible>Remove Instructor</sui-button-content>
+        <sui-button-content hidden>
+            <sui-icon name="trash" />
+        </sui-button-content>
+      </sui-button>
+    </div>
+    <AddInstructorModal ref="AddInstructorModal"
+    :course="course"
+    v-on:add-instructor="addInstructor" />
+
     <h3 class="mt-2">Sections</h3>
-    <sui-button @click="showModal" size="small"
+    <sui-button @click="showAddSectionModal" size="small"
     style="background-color:#00b80c; color:white;" animated>
       <sui-button-content visible>Add Section</sui-button-content>
       <sui-button-content hidden>
@@ -82,13 +106,16 @@ import CourseAPI from '@/services/CourseAPI'
 import SectionAPI from '@/services/SectionAPI'
 import AddSectionModal from
 '@/components/AddSectionModal'
+import AddInstructorModal from
+'@/components/AddInstructorModal'
 import helpers from '@/helpers.js'
 
 export default {
   name: 'CourseSettings',
   mixins: [helpers],
   components: {
-    AddSectionModal
+    AddSectionModal,
+    AddInstructorModal
   },
   props: {
     course: {
@@ -116,6 +143,9 @@ export default {
     courseHas1Section() {
       return this.course_copy.sections.length
         === 1
+    },
+    courseHas1Instructor() {
+      return this.course.instructors.length === 1
     }
   },
   created () {
@@ -188,7 +218,13 @@ export default {
       this.course.sections.push(section)
       this.course_copy.sections.push(section)
     },
-    showModal() {
+    addInstructor(instructor) {
+      this.course.instructors.push(instructor)
+    },
+    showAddInstructorModal() {
+      this.$refs.AddInstructorModal.showModal()
+    },
+    showAddSectionModal() {
       this.$refs.AddSectionModal.showModal()
     },
     sectionsHaveDuplicateNumbers() {
@@ -220,27 +256,13 @@ export default {
           = this.getStudentIDsAndMeetingIDS(section)
         await SectionAPI.deleteSection(section._id, meeting_ids,
           student_ids, pending_approval_student_ids,
-          this.course.instructor._id, this.course._id)
+          this.getObjectIdsFromObjects(this.course.instructors),
+          this.course._id)
         this.removeSectionFromCourse(index)
       } catch(error) {
         console.log(error)
         window.alert("Sorry, something went wrong")
       }
-    },
-    getStudentIDsAndMeetingIDS(section) {
-      let meeting_ids = []
-      let student_ids = []
-      let pending_approval_student_ids = []
-      section.meetings.forEach(meeting => {
-        meeting_ids.push(meeting._id)
-      })
-      section.students.forEach(student => {
-        student_ids.push(student._id)
-      })
-      section.pending_approval_students.forEach(student => {
-        pending_approval_student_ids.push(student._id)
-      })
-      return [meeting_ids, student_ids, pending_approval_student_ids]
     },
     getSectionIndex(section) {
       let index = -1
@@ -265,9 +287,10 @@ export default {
 
       try {
         const [sections, meeting_ids] =
-          this.getCourseSectionsAndMeetingIDsForDeletion()
+          this.getCourseSectionsAndMeetingIDs(this.course)
         await CourseAPI.deleteCourse(this.course._id,
-          sections, meeting_ids, this.course.instructor._id)
+          sections, meeting_ids,
+          this.getObjectIdsFromObjects(this.course.instructors))
         this.$router.push({name: 'dashboard', params:
           {reload_page: true}});
       } catch(error) {
@@ -275,22 +298,24 @@ export default {
         window.alert("Sorry, something went wrong")
       }
     },
-    getCourseSectionsAndMeetingIDsForDeletion() {
-      let sections = []
-      let course_meeting_ids = []
-      this.course.sections.forEach(section => {
-        const [meeting_ids, student_ids,
-        pending_approval_student_ids]
-          = this.getStudentIDsAndMeetingIDS(section)
-        course_meeting_ids = course_meeting_ids.concat(meeting_ids)
-        sections.push({
-          student_ids: student_ids,
-          pending_approval_student_ids: pending_approval_student_ids,
-          meeting_ids: meeting_ids
-        })
-      })
-      const unique_meeting_ids = [...new Set(course_meeting_ids)]
-      return [sections, unique_meeting_ids]
+    async removeInstructor(index) {
+      const instructor = this.course.instructors[index]
+      const confirmation = confirm(`Are you sure you want to remove`
+        + ` ${instructor.first_name} ${instructor.last_name} as an`
+        + ` instructor for your course?`)
+      if(!confirmation)
+        return
+
+      try {
+        const [sections, meeting_ids] =
+          this.getCourseSectionsAndMeetingIDs(this.course)
+        const response = await CourseAPI.removeInstructor(this.course._id,
+          instructor._id, meeting_ids)
+        this.course.instructors.splice(index,1)
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
     }
   }
 }

@@ -2,10 +2,11 @@ const express = require('express');
 const userRoutes = express.Router();
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+const User = require('./User.model');
+const Course = require('../Course/Course.model');
+const Section = require('../Section/Section.model');
 
-let User = require('./User.model');
-let Course = require('../Course/Course.model');
-let Section = require('../Section/Section.model');
+// GET ---------------------------------
 
 userRoutes.get('/all', (req, res) => {
   User.find(function(err, users){
@@ -73,118 +74,26 @@ userRoutes.get('/get/:id/:with_meetings?',
   })
 });
 
-userRoutes.route('/add').post(function (req, res) {
-  let user = new User(req.body.user);
-  bcrypt.hash(user.password, saltRounds, (err, hash) => {
-    if(err || hash == null) {
-      console.log("<ERROR> Hashing password for user:",user)
-      res.json(err)
-    } else {
-      user.password = hash
-      user.save()
-        .then(() => {
-          console.log("<SUCCESS> Adding user:",user)
-          res.status(200).json(user);
-        })
-        .catch(() => {
-          console.log("<ERROR> Adding user:",user)
-          res.status(400).send("unable to save user to database");
-        });
-    }
-  });
-});
-
-userRoutes.route('/onboard').post(function (req, res) {
-  let new_user = new User(req.body.user);
-  User.find({user_id: new_user.user_id}, (error, existing_users) => {
-    if(error || existing_users == null){
-      console.log("<ERROR> Onboarding new user with user_id:", new_user.user_id)
-      res.json(error)
-    } else {
-      if(existing_users.length === 0) {
-        new_user.save()
-          .then(() => {
-            console.log("<SUCCESS> Onboarding user with id",new_user._id)
-            res.status(200).json(new_user);
-          })
-          .catch(() => {
-            console.log("<ERROR> Onboarding user:",new_user)
-            res.status(400).send("unable to save user to database");
-          });
+userRoutes.get('/instructor_user_ids',
+  function(req, res, next) {
+  User.find({is_instructor: true},
+    (error, instructors) => {
+      if(error) {
+        console.log("<ERROR> (users/instructor_user_ids)")
+        next(error)
       } else {
-        res.status(403).json("User with user_id " + new_user.user_id + " already exists")
+        const user_ids = []
+        instructors.forEach(instructor => {
+          user_ids.push(instructor.user_id)
+        })
+        console.log("<SUCCESS> (users/instructor_user_ids)")
+        res.json(user_ids)
       }
     }
-  })
-});
-
-
-
-userRoutes.route('/change_password/').post((req, res) => {
-
-  let user_id = req.body.user_id
-  let old_password = req.body.old_password
-  let new_password = req.body.new_password
-
-  User.findOne({_id: user_id}, (err, user) => {
-    if (err || user == null) {
-      console.log(`<ERROR> Error changing password for ${user_id}`)
-      res.json(false)
-    }
-    else {
-      bcrypt.compare(old_password, user.password, (err, result) => {
-        if (result) {
-          // update the password
-          bcrypt.hash(new_password, saltRounds, (err, hash) => {
-            user.password = hash
-            user.save ()
-            res.json(true)
-          })
-        }
-        else {
-          res.json(false)
-        }
-      })
-    }
-  })
-
+  )
 })
 
-userRoutes.route('/update/:id').post(function (req, res) {
-  let id = req.params.id;
-  let updated_user = req.body.updated_user;
-  User.findByIdAndUpdate(id,
-    {
-      first_name: updated_user.first_name,
-      last_name: updated_user.last_name,
-      user_id: updated_user.user_id,
-      is_instructor: updated_user.is_instructor,
-    },
-    function(err, user) {
-      if (err || user == null) {
-        console.log("<ERROR> (users/update) Updating user by ID:",id,"with:",updated_user)
-        res.json(err)
-      } else {
-        console.log("<SUCCESS> (users/update) Updating user by ID:",id)
-        res.json(user);
-      }
-    }
-  );
-});
-
-userRoutes.route('/delete/:id').delete(function (req, res) {
-  User.findByIdAndRemove({_id: req.params.id}, function(err){
-    if(err) {
-      console.log("<ERROR> Deleting user by ID:",req.params.id)
-      res.json(err);
-    } else {
-      console.log("<SUCCESS> Deleting user by ID:",req.params.id)
-      res.json('Successfully removed');
-    }
-  });
-});
-
-userRoutes.route('/instructors').get(function (req, res) {
+userRoutes.get('/instructors', function (req, res) {
   User.find({is_instructor: true},function(err, instructors){
     if(err || instructors == null) {
       console.log("<ERROR> Getting instructors")
@@ -196,7 +105,7 @@ userRoutes.route('/instructors').get(function (req, res) {
   });
 });
 
-userRoutes.route('/students').get(function (req, res) {
+userRoutes.get('/students', function (req, res) {
   User.find({is_instructor: false},function(err, students){
     if(err || students == null) {
       console.log("<ERROR> Getting students")
@@ -208,7 +117,7 @@ userRoutes.route('/students').get(function (req, res) {
   });
 });
 
-userRoutes.route('/instructor_courses/:id').get(function (req, res) {
+userRoutes.get('/instructor_courses/:id', function (req, res) {
   let instructor_id = req.params.id;
   Course.find({instructor: instructor_id},function(err, courses){
     if(err || courses == null) {
@@ -221,7 +130,7 @@ userRoutes.route('/instructor_courses/:id').get(function (req, res) {
   });
 });
 
-userRoutes.route('/student_sections/:id').get(function (req, res) {
+userRoutes.get('/student_sections/:id', function (req, res) {
   let student_id = req.params.id;
   Section.find(function(err, sections){
     if(err || sections == null) {
@@ -248,7 +157,7 @@ userRoutes.route('/student_sections/:id').get(function (req, res) {
   });
 });
 
-userRoutes.route('/students_for_course/:course_id').get(function (req, res) {
+userRoutes.get('/students_for_course/:course_id', function (req, res) {
   let course_id = req.params.course_id;
   Section.find({course: course_id}, function(err, sections) {
     if(err || sections == null) {
@@ -285,6 +194,105 @@ userRoutes.route('/students_for_course/:course_id').get(function (req, res) {
       })
     }
   })
+});
+
+// POST -------------------------------------
+
+userRoutes.post('/add', function (req, res) {
+  let user = new User(req.body.user);
+  bcrypt.hash(user.password, saltRounds, (err, hash) => {
+    if(err || hash == null) {
+      console.log("<ERROR> Hashing password for user:",user)
+      res.json(err)
+    } else {
+      user.password = hash
+      user.save()
+        .then(() => {
+          console.log("<SUCCESS> Adding user:",user)
+          res.status(200).json(user);
+        })
+        .catch(() => {
+          console.log("<ERROR> Adding user:",user)
+          res.status(400).send("unable to save user to database");
+        });
+    }
+  });
+});
+
+userRoutes.post('/onboard', function (req, res) {
+  let new_user = new User(req.body.user);
+  User.find({user_id: new_user.user_id}, (error, existing_users) => {
+    if(error || existing_users == null){
+      console.log("<ERROR> Onboarding new user with user_id:", new_user.user_id)
+      res.json(error)
+    } else {
+      if(existing_users.length === 0) {
+        new_user.save()
+          .then(() => {
+            console.log("<SUCCESS> Onboarding user with id",new_user._id)
+            res.status(200).json(new_user);
+          })
+          .catch(() => {
+            console.log("<ERROR> Onboarding user:",new_user)
+            res.status(400).send("unable to save user to database");
+          });
+      } else {
+        res.status(403).json("User with user_id " + new_user.user_id + " already exists")
+      }
+    }
+  })
+});
+
+
+
+userRoutes.post('/change_password/', (req, res) => {
+  let user_id = req.body.user_id
+  let old_password = req.body.old_password
+  let new_password = req.body.new_password
+  User.findOne({_id: user_id}, (err, user) => {
+    if (err || user == null) {
+      console.log(`<ERROR> Error changing password for ${user_id}`)
+      res.json(false)
+    }
+    else {
+      bcrypt.compare(old_password, user.password, (err, result) => {
+        if (result) {
+          // update the password
+          bcrypt.hash(new_password, saltRounds, (err, hash) => {
+            user.password = hash
+            user.save ()
+            res.json(true)
+          })
+        }
+        else {
+          res.json(false)
+        }
+      })
+    }
+  })
+
+})
+
+userRoutes.post('/update/:id', function (req, res) {
+  let id = req.params.id;
+  let updated_user = req.body.updated_user;
+  User.findByIdAndUpdate(id,
+    {
+      first_name: updated_user.first_name,
+      last_name: updated_user.last_name,
+      user_id: updated_user.user_id,
+      is_instructor: updated_user.is_instructor,
+    },
+    function(err, user) {
+      if (err || user == null) {
+        console.log("<ERROR> (users/update) Updating user by ID:",id,"with:",updated_user)
+        res.json(err)
+      } else {
+        console.log("<SUCCESS> (users/update) Updating user by ID:",id)
+        res.json(user);
+      }
+    }
+  );
 });
 
 userRoutes.post('/add_service_worker_subscription/:user_id', (req, res) => {
@@ -388,6 +396,20 @@ userRoutes.post('/update_user_name/:user_object_id',
     } else {
       console.log("<SUCCESS> (users/update_user_name)")
       res.json(updated_user);
+    }
+  });
+});
+
+// DELETE ----------------------------------
+
+userRoutes.delete('/delete/:id', function (req, res) {
+  User.findByIdAndRemove({_id: req.params.id}, function(err){
+    if(err) {
+      console.log("<ERROR> Deleting user by ID:",req.params.id)
+      res.json(err);
+    } else {
+      console.log("<SUCCESS> Deleting user by ID:",req.params.id)
+      res.json('Successfully removed');
     }
   });
 });

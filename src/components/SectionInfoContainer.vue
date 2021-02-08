@@ -102,16 +102,13 @@ export default {
     },
     sendApproveOrDenyEmail(student, is_approval) {
       const student_email = student.email
-      const instructor_name =
-      `${this.course.instructor.first_name} `
-        + `${this.course.instructor.last_name}`
       const course_name = this.course.name
       const course_subject_code = this.course.dept
       const course_number = this.course.course_number
       const section_number = this.section.section_number
       EmailAPI.sendApproveOrDenyEmailToStudent(student_email,
-        instructor_name, course_name, course_subject_code,
-        course_number, section_number, is_approval)
+        course_name, course_subject_code, course_number,
+        section_number, is_approval)
     }
   }
 }

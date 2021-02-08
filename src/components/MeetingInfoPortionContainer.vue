@@ -104,7 +104,7 @@ export default {
       type: Boolean,
       default: false
     },
-    instructor_id: String,
+    instructor_ids: Array,
     meeting_students: {
       type: Set,
       required: true
@@ -184,7 +184,7 @@ export default {
         try {
           const response = await RealTimePortionAPI.addQRScan(
             this.portion._id, task, this.meeting_id,
-            this.instructor_id)
+            this.instructor_ids)
           const new_qr_scan = response.data
           this.portion.qr_scans.push(new_qr_scan)
         } catch(error) {

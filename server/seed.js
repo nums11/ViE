@@ -95,6 +95,57 @@ seeder.connect(process.env.DB_URI || db, function () {
 			}))
 		}
 
+		users.push(new User({
+			first_name: "John",
+			last_name: "Garagely",
+			user_id: "jgarage",
+			email: "jgarage@gmail.com",
+			password: "password",
+			is_instructor: true,
+			is_admin: false,
+			instructor_courses: [],
+			student_sections: [],
+			pending_approval_sections: [],
+			users_orgs: [],
+			meetings: [],
+			submissions: [],
+			async_submissions: [],
+		}))
+
+		users.push(new User({
+			first_name: "Paul",
+			last_name: "Bart",
+			user_id: "pbart",
+			email: "pbart@gmail.com",
+			password: "password",
+			is_instructor: true,
+			is_admin: false,
+			instructor_courses: [],
+			student_sections: [],
+			pending_approval_sections: [],
+			users_orgs: [],
+			meetings: [],
+			submissions: [],
+			async_submissions: [],
+		}))
+
+		users.push(new User({
+			first_name: "William",
+			last_name: "Dickerman",
+			user_id: "wdicker",
+			email: "wdicker@gmail.com",
+			password: "password",
+			is_instructor: true,
+			is_admin: false,
+			instructor_courses: [],
+			student_sections: [],
+			pending_approval_sections: [],
+			users_orgs: [],
+			meetings: [],
+			submissions: [],
+			async_submissions: [],
+		}))
+
 		users[5] = new User({ // 1
 			first_name: "Numfor",
 			last_name: "Mbiziwo-Tiapo",

@@ -7,9 +7,12 @@
     </h3>
     <div class="mt-2">
       <sui-icon name="graduation cap" />
-      <p class="inline-block" id="instructor-name">
-        {{ course.instructor.first_name }}
-        {{ course.instructor.last_name }}
+      <p v-for="(instructor,index) in course.instructors"
+      class="inline-block" id="instructor-name">
+        {{ instructor.first_name }}
+        {{ instructor.last_name }}<span v-if="
+        index !== course.instructors.length-1">,
+        </span>
       </p>
     </div>
     <div class="mt-3" id="meetings-header">Meetings</div>

@@ -3,6 +3,7 @@
     <h1>
       {{ state_user.first_name }} {{ state_user.last_name }}
     </h1>
+    <p>User Id: {{ state_user.user_id }}</p>
     <p>Email: {{ state_user.email }}</p>
     <div class="mt-2">
       <sui-button @click="showEditUserModal" size="small" animated

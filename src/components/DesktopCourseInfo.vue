@@ -2,7 +2,7 @@
   <div id="desktop-course-info">
     <SideBar :header="course.name"
     :sub_headers="[`${course.dept} ${course.course_number}`]"
-    :links="links" :instructors="[course.instructor]"
+    :links="links" :instructors="course.instructors"
     v-on:show-section="showSection" />
     <div class="course-info-container" id="main">
       <transition name="fade" mode="out-in">
@@ -96,8 +96,7 @@ export default {
 
     }
   },
-  async created () {
-
+  created () {
   },
   mounted () {
   },

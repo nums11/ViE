@@ -5,6 +5,31 @@ export default {
   getUsers() {
     return API().get('users/all')
   },
+  getUserWithMeetings(id) {
+    return API().get(`users/get/${id}/true`)
+  },
+  getUser(id) {
+    return API().get(`users/get/${id}`)
+  },
+  getInstructorUserIds() {
+    return API().get(`users/instructor_user_ids`)
+  },
+  getInstructors() {
+    return API().get('users/instructors')
+  },
+  getStudents() {
+    return API().get('users/students')
+  },
+  getInstructorCourses(id) {
+    return API().get('users/instructor_courses/' + id)
+  },
+  getStudentSections(id) {
+    return API().get('users/student_sections/' + id)
+  },
+  getStudentsForCourse(course_id) {
+    return API().get('users/students_for_course/' + course_id)
+  },
+  // POST --------------------
   signUp(user) {
     return API().post('users/signup', {
       user: user // add our data to the request body
@@ -32,34 +57,10 @@ export default {
       user: user // add our data to the request body
     })
   },
-  getUser(id) {
-    return API().get(`users/get/${id}`)
-  },
-  getUserWithMeetings(id) {
-    return API().get(`users/get/${id}/true`)
-  },
   updateUser(id, user){
     return API().post('users/update/' + id, {
       updated_user: user
     })
-  },
-  deleteUser (id) {
-    return API().delete('users/delete/' + id)
-  },
-  getInstructors() {
-    return API().get('users/instructors')
-  },
-  getStudents() {
-    return API().get('users/students')
-  },
-  getInstructorCourses(id) {
-    return API().get('users/instructor_courses/' + id)
-  },
-  getStudentSections(id) {
-    return API().get('users/student_sections/' + id)
-  },
-  getStudentsForCourse(course_id) {
-    return API().get('users/students_for_course/' + course_id)
   },
   addServiceWorkerSubscriptionForUser(user_id, subscription) {
     return API().post(`users/add_service_worker_subscription/${user_id}`, {
@@ -74,5 +75,9 @@ export default {
       first_name: first_name,
       last_name: last_name
     })
+  },
+  // DELETE ------------------------------
+  deleteUser (id) {
+    return API().delete('users/delete/' + id)
   }
 }

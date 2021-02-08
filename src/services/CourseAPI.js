@@ -28,13 +28,27 @@ export default {
       course: course
     })
   },
+  addInstructor(course_id, instructor_user_id, is_rpi_member,
+    meeting_ids) {
+    return API().post(`courses/add_instructor/${course_id}`, {
+      instructor_user_id: instructor_user_id,
+      is_rpi_member: is_rpi_member,
+      meeting_ids: meeting_ids
+    })
+  },
+  removeInstructor(course_id, instructor_id, meeting_ids) {
+    return API().post(`courses/remove_instructor/${course_id}`, {
+      instructor_id: instructor_id,
+      meeting_ids: meeting_ids
+    })
+  },
   // DELETE ---------------
-  deleteCourse(course_id, sections, meeting_ids, instructor_id) {
+  deleteCourse(course_id, sections, meeting_ids, instructor_ids) {
     return API().delete(`courses/delete/${course_id}`, {
       data: {
         sections: sections,
         meeting_ids: meeting_ids,
-        instructor_id: instructor_id
+        instructor_ids: instructor_ids
       }
     })
   },

@@ -20,15 +20,10 @@ let Course = new Schema({
 		type: Number,
 		required: true
 	},
-	instructor: {
+	instructors: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'User',
-		required: true
-	},
-	secondary_instructor: {
-		type: mongoose.Schema.Types.ObjectId,
-		ref: 'User'
-	},
+	}],
 	sections: [{
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'Section'

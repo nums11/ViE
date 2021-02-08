@@ -129,7 +129,7 @@ export default {
     },
     async registerCourse(){
       if(this.formComplete) {
-        this.course.instructor = this.state_user._id
+        this.course.instructors = [this.state_user._id]
         const response = await CourseAPI.addCourse(this.course, this.sections);
         const new_course = response.data
         console.log("Receied new course", new_course)

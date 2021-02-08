@@ -16,9 +16,12 @@
     </h4>
     <div class="mt-2">
       <sui-icon name="graduation cap" />
-      <p class="inline-block" id="instructor-name">
-        {{ meeting_course.instructor.first_name }}
-        {{ meeting_course.instructor.last_name }}
+      <p v-for="(instructor,index) in meeting_course.instructors"
+      class="inline-block" id="instructor-name">
+        {{ instructor.first_name }}
+        {{ instructor.last_name }}<span v-if="
+        index !== meeting_course.instructors.length-1">,
+        </span>
       </p>
     </div>
     <div class="portion-dropdown mt-2" @click="toggleList(true)">
