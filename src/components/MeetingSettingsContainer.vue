@@ -523,16 +523,19 @@ export default {
       for(let i = 0; i < meeting_tasks.length; i++) {
         const submission_ids = this.getSubmissionIds(i,
           is_real_time)
-        let task = meeting_tasks[i]
-        let quiz_question_ids = []
-        if(task.quiz != null) {
+        const task = meeting_tasks[i]
+        const quiz = task.quiz
+        const quiz_question_ids = []
+        let quiz_id = null
+        if(quiz != null) {
+          quiz_id = quiz._id
           quiz_question_ids = this.getQuizQuestionIds(
             task.quiz)
         }
         tasks_with_submission_ids.push({
           _id: task._id,
           submission_ids: submission_ids,
-          quiz_id: task.quiz._id,
+          quiz_id: quiz_id,
           quiz_question_ids: quiz_question_ids
         })
       }
