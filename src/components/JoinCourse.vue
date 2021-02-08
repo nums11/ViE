@@ -71,12 +71,12 @@ export default {
               await SectionAPI.addStudentToSection(section._id, this.user._id,
                 section.has_open_enrollment)
               if(section.has_open_enrollment) {
-                this.sendNewStudentEmailToInstructor(section, true)
+                this.sendNewStudentEmailToInstructors(section, true)
                 window.alert("Section successfully joined")
                 this.$router.push({name: 'course_info',
                   params: {id: section.course._id, reload_page: true}})
               } else {
-                this.sendNewStudentEmailToInstructor(section, false)
+                this.sendNewStudentEmailToInstructors(section, false)
                 window.alert("Requested to join section. You will be notified when the instructor grants approval")
                 this.user.pending_approval_sections.push(section)
               }
@@ -84,7 +84,7 @@ export default {
           }
         } catch(error) {
           console.log("Error", error)
-          if(error.response.status === 404)
+          if(error.response != null && error.response.status === 404)
             window.alert("No Section with this join code found. Please make sure you"
               + " copied the join code correctly.")
           else
@@ -120,17 +120,22 @@ export default {
       }
       return is_pending
     },
-    sendNewStudentEmailToInstructor(section, has_open_enrollment) {
-      const instructor_email = section.course.instructor.email
+    sendNewStudentEmailToInstructors(section, has_open_enrollment) {
+      const instructor_emails = []
+      section.course.instructors.forEach(instructor => {
+        instructor_emails.push(instructor.email)
+      })
       const student_name = `${this.state_user.first_name} `
         + `${this.state_user.last_name}`
       const course_name = section.course.name
       const course_subject_code = section.course.dept
       const course_number = section.course.course_number
       const section_number = section.section_number
-      EmailAPI.sendNewStudentEmailToInstructor(instructor_email,
-        student_name, course_name, course_subject_code,
-        course_number, section_number, has_open_enrollment)
+      instructor_emails.forEach(instructor_email => {
+        EmailAPI.sendNewStudentEmailToInstructor(instructor_email,
+          student_name, course_name, course_subject_code,
+          course_number, section_number, has_open_enrollment)
+      })
     }
   },
 }

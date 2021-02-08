@@ -33,7 +33,7 @@ sectionRoutes.get('/by_join_code/:join_code', (req, res, next) => {
         }
       },
       {
-        path: 'instructor'
+        path: 'instructors'
       }
     ]
   }).
