@@ -1,9 +1,20 @@
 <template>
   <div>
-    <button @click="addAsyncPortionToMeetings">Add Async Attendance to all meetings</button>
-    <button @click="notifyAllUsers">Notify all users</button>
-    <button @click="addServiceWorkerSubscriptionsToUsers">Add service worker subscriptions to users</button>
-    <button @click="scheduleJobsForAllUpcomingMeetings">Schedule jobs for all upcoming meetings</button>
+    <button @click="addAsyncPortionToMeetings" disabled>
+      Add Async Attendance to all meetings
+    </button>
+    <button @click="notifyAllUsers" disabled>
+      Notify all users
+    </button>
+    <button @click="addServiceWorkerSubscriptionsToUsers" disabled>
+      Add service worker subscriptions to users
+    </button>
+    <button @click="scheduleJobsForAllUpcomingMeetings" disabled>
+      Schedule jobs for all upcoming meetings
+    </button>
+    <button @click="changeCourseInstructorToArray">
+      Convert course instructors into an array
+    </button>
   </div>
 </template>
 
@@ -11,6 +22,7 @@
 import MeetingAPI from '@/services/MeetingAPI.js';
 import NotificationAPI from '@/services/NotificationAPI.js';
 import UserAPI from '@/services/UserAPI.js';
+import GlobalCommandAPI from '@/services/GlobalCommandAPI'
 
 export default {
   name: 'AdminGlobalCommands',
@@ -58,6 +70,17 @@ export default {
             meeting.real_time_portion.qr_scans[0].qr_scan_start_time)
         })
         window.alert("Scheduled jobs for all upcoming_meetings")
+      }
+    },
+    async changeCourseInstructorToArray() {
+      try {
+        const response = 
+          await GlobalCommandAPI.changeCourseInstructorToArray()
+        alert("Global command completed")
+        console.log(response.data)
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
       }
     }
   }
