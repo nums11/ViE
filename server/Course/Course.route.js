@@ -11,7 +11,7 @@ const SectionHelper = require('../helpers/section_helper')
 
 courseRoutes.get('/all', function (req, res, next) {
   Course.find()
-  .populate('instructor')
+  .populate('instructors')
   .exec(function (error, courses) {
     if (error) {
       console.log("<ERROR> (courses/) Getting all courses")

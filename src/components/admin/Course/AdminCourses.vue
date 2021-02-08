@@ -7,7 +7,7 @@
           <sui-table-header-cell>Name</sui-table-header-cell>
           <sui-table-header-cell>Dept</sui-table-header-cell>
           <sui-table-header-cell>Course Number</sui-table-header-cell>
-          <sui-table-header-cell>Instructor</sui-table-header-cell>
+          <sui-table-header-cell>Instructors</sui-table-header-cell>
           <sui-table-header-cell># Sections</sui-table-header-cell>
           <sui-table-header-cell>View Course</sui-table-header-cell>
         </sui-table-row>
@@ -18,7 +18,9 @@
           <sui-table-cell>{{ course.dept }}</sui-table-cell>
           <sui-table-cell>{{ course.course_number }}</sui-table-cell>
           <sui-table-cell>
-            {{ course.instructor.first_name }} {{ course.instructor.last_name }}
+            <p v-for="instructor in course.instructors">
+            {{ instructor.first_name }} {{ instructor.last_name }}
+            </p>
           </sui-table-cell>
           <sui-table-cell>{{ course.sections.length }}</sui-table-cell>
           <sui-table-cell>
