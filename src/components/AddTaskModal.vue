@@ -136,26 +136,28 @@
             </div>
           </div>
         </div>
-        <div class="form-field">
-          <sui-button @click.prevent="clearInputs"
-          style="margin-right:5rem;">
-              Clear
-          </sui-button>
-          <sui-button @click.prevent="addTask"
-          animated :disabled="!formComplete"
-          style="background-color:#00b80c; color:white;">
-            <sui-button-content visible>
-              Add Task
-            </sui-button-content>
-            <sui-button-content hidden>
-              <sui-icon name="podcast" />
-            </sui-button-content>
-          </sui-button>
-        </div>
       </sui-form>
       <AddQuizModal v-if="!is_real_time"
       ref="AddQuizModal" v-on:save-quiz="saveQuiz" />
     </sui-modal-content>
+    <sui-modal-actions>
+      <div id="action-btns">
+        <sui-button @click.prevent="clearInputs"
+        style="margin-right:5rem;">
+            Clear
+        </sui-button>
+        <sui-button @click.prevent="addTask"
+        animated :disabled="!formComplete"
+        style="background-color:#00b80c; color:white;">
+          <sui-button-content visible>
+            Add Task
+          </sui-button-content>
+          <sui-button-content hidden>
+            <sui-icon name="podcast" />
+          </sui-button-content>
+        </sui-button>
+      </div>
+    </sui-modal-actions>
   </sui-modal>
 </template>
 
@@ -399,5 +401,10 @@ export default {
   vertical-align: top;
   margin-left: 0.5rem;
   margin-top: 0.15rem;
+}
+
+#action-btns {
+  margin: auto;
+  width: 19rem;
 }
 </style>
