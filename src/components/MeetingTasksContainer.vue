@@ -108,10 +108,7 @@ export default {
 /* Phones */
 @media (max-width: 744px) {
   .meeting-tasks-container {
-    margin-top: 0;
-  }
-  .header {
-    display: none;
+    margin-top: 2rem;
   }
   .task-cards {
     width: 100%;

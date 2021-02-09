@@ -25,8 +25,12 @@
       </p>
     </div>
     <MobileMeetingInfoPortionContainer
-    :portion="meeting.real_time_portion" :meeting_id="meeting._id"
-    :is_real_time="true" />
+    :portion="meeting.real_time_portion"
+    :meeting_id="meeting._id"
+    is_real_time />
+    <MobileMeetingInfoPortionContainer
+    :portion="meeting.async_portion"
+    :meeting_id="meeting._id" />
   </div>
 </template>
 
@@ -51,7 +55,6 @@ export default {
   },
   data() {
     return {
-
     }
   },
   mounted() {
@@ -63,7 +66,6 @@ export default {
 
 <style scoped>
 #mobile-meeting-info {
-  /*border: green solid;*/
   width: 95%;
   margin: auto;
   margin-top: 1rem;
