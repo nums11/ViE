@@ -104,4 +104,17 @@ export default {
   width: 97%;
   margin: auto;
 }
+
+/* Phones */
+@media (max-width: 744px) {
+  .meeting-tasks-container {
+    margin-top: 0;
+  }
+  .header {
+    display: none;
+  }
+  .task-cards {
+    width: 100%;
+  }
+}
 </style>

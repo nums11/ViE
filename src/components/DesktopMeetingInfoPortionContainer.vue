@@ -101,7 +101,7 @@ import VideoSubmissionTable from
 '@/components/VideoSubmissionTable'
 
 export default {
-  name: 'MeetingInfoPortionContainer',
+  name: 'DesktopMeetingInfoPortionContainer',
   props: {
     portion: Object,
     meeting_id: {
