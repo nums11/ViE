@@ -118,7 +118,7 @@ async function sendNotificationToUser(user_id, payload) {
 			      const stale_subscriptions = []
 			      statuses.forEach(status => {
 			      	if(status.status === "rejected")
-			      		stale_subscriptions.push(status.value)
+			      		stale_subscriptions.push(status.reason)
 			      })
 			      resolve(stale_subscriptions)
 			    } catch(error) {
