@@ -28,8 +28,7 @@
           </sui-button-content>
         </sui-button>
       </div>
-      <div v-if="(is_real_time && portion != null)
-        || (!is_real_time && portion != null)">
+      <div v-if="portion != null">
         <div v-if="portion_times_and_tasks_set">
           <div v-if="show_submission_table">
             <QRSubmissionTable v-if="is_real_time"
@@ -41,13 +40,30 @@
             :meeting_students="meeting_students"
             v-on:hide-submission-table="hideSubmissionTable" />
           </div>
-          <MeetingTasksContainer v-else
-          :meeting_id="meeting_id"
-          :task_type="is_real_time ? 'qr_scan' : 'video'"
-          :tasks="portion_tasks" :portion="portion"
-          v-on:show-qr="showQR"
-          v-on:view-submissions="viewSubmissions" />
+          <div v-else>
+            <div v-if="is_real_time">
+              <MeetingTasksContainer 
+              :meeting_id="meeting_id"
+              task_type="qr_scan"
+              :tasks="qr_scans" :portion="portion"
+              v-on:show-qr="showQR"
+              v-on:view-submissions="viewSubmissions" />
+              <MeetingTasksContainer 
+              :meeting_id="meeting_id"
+              task_type="quiz"
+              :tasks="quizzes" :portion="portion"
+              v-on:view-submissions="viewSubmissions" />
+            </div>
+            <MeetingTasksContainer v-else
+            :meeting_id="meeting_id"
+            task_type="video"
+            :tasks="videos" :portion="portion"
+            v-on:view-submissions="viewSubmissions" />
+          </div>
         </div>
+        <AddTaskModal ref="AddTaskModal"
+        :is_real_time="is_real_time"
+        v-on:add-task="addTask" />
       </div>
       <div class="add-portion-btn-container" v-else>
         <sui-button v-if="is_instructor" @click="showAddPortionModal"
@@ -60,15 +76,10 @@
                 <sui-icon :name="btn_icon_name" />
             </sui-button-content>
         </sui-button>
-      </div>
-      <div v-if="portion != null">
-        <AddTaskModal ref="AddTaskModal"
+        <AddPortionModal ref="AddPortionModal"
         :is_real_time="is_real_time"
-        v-on:add-task="addTask" />
+        v-on:add-portion="addPortion" />
       </div>
-      <AddPortionModal v-if="portion == null"
-      ref="AddPortionModal" :is_real_time="is_real_time"
-      v-on:add-portion="addPortion" />
     </div>
   </div>
 </template>
@@ -121,7 +132,9 @@ export default {
       portion_label: "",
       portion_type: "",
       btn_icon_name: "",
-      portion_tasks: [],
+      qr_scans: [],
+      quizzes: [],
+      videos: [],
       start: null,
       end: null,
       adding_task: false,
@@ -130,7 +143,6 @@ export default {
     }
   },
   created () {
-    console.log("Portion", this.portion)
     this.setLabelsAndDates()
   },
   methods: {
@@ -151,11 +163,12 @@ export default {
         if(this.is_real_time) {
           this.start = this.portion.real_time_start
           this.end = this.portion.real_time_end
-          this.portion_tasks = this.portion.qr_scans
+          this.qr_scans = this.portion.qr_scans
+          this.quizzes = this.portion.quizzes
         } else {
           this.start = this.portion.async_start
           this.end = this.portion.async_end
-          this.portion_tasks = this.portion.videos
+          this.videos = this.portion.videos
         }
         this.portion_times_and_tasks_set = true
       })

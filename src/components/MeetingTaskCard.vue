@@ -4,26 +4,27 @@
       <div class="meeting-title wrap-text">
         {{ card_title }}
       </div>
-      <div v-if="is_instructor"
-      class="reminder-container inline-block">
-        <div v-if="is_qr">
-          <div v-if="task.reminder_time == null">
-            No Scheduled Reminder
-          </div>
-          <div v-else>
-            Reminder: {{ task.reminder_time |
-              moment("M/D, h:mm a") }}
-          </div>
-        </div>
-        <div v-else>
-          {{ task.quiz == null ? 'No Quiz':
-              `Quiz, ${task.quiz.questions.length} questions`
+      <div v-if="is_instructor" class="reminder-container inline-block">
+        <div v-if="task_type === 'qr_scan'">
+          {{ task.reminder_time == null ?
+            'No Scheduled Reminder' :
+            task.reminder_time | moment("M/D, h:mm a")
           }}
-          </div>
+        </div>
+        <div v-else-if="task_type === 'quiz'">
+          {{ `${task.questions.length} questions` }}
+        </div>
+        <div v-else-if="task_type === 'video'">
+          {{ task.quiz == null ?
+            'No Quiz':
+            `Quiz, ${task.quiz.questions.length} questions`
+          }}
+        </div>
       </div>
       <div class="divider" v-if="is_instructor"></div>
       <div class="btn-container">
-        <sui-button v-if="is_qr && is_instructor" @click="$emit('show-qr')"
+        <sui-button v-if="task_type === 'qr_scan' && is_instructor"
+        @click="$emit('show-qr')"
         animated size="mini"
         style="background-color:#00B3FF; color:white;">
           <sui-button-content visible>
@@ -33,7 +34,18 @@
               <sui-icon name="qrcode" />
           </sui-button-content>
         </sui-button>
-        <div v-if="!is_qr">
+        <sui-button v-else-if="task_type === 'quiz'"
+        @click="$emit('show-quiz')"
+        animated size="mini"
+        style="background-color:#00B3FF; color:white;">
+          <sui-button-content visible>
+            {{ first_button_text }}
+          </sui-button-content>
+          <sui-button-content hidden>
+              <sui-icon name="pencil alternate" />
+          </sui-button-content>
+        </sui-button>
+        <div v-else-if="task_type === 'video'">
           <router-link v-if="is_instructor ||
           (!is_instructor && window_is_open)"
           :to="{name: 'watch_video',
@@ -67,11 +79,14 @@
       </div>
       <div v-else class="student-submission-status inline-block">
         <div v-if="student_submitted">
-          <div v-if="is_qr">
+          <div v-if="task_type === 'qr_scan'">
             Submission Recorded
             <sui-icon name="check" color="green" />
           </div>
-          <div v-else>
+          <div v-else-if="task_type === 'quiz'">
+            0%
+          </div>
+          <div v-else-if="task_type === 'video'">
             {{ percent_watched.toFixed(1) }}%
             watched<span v-if="task.quiz != null">, </span>
             <div v-if="task.quiz != null" class="quiz-percentage">
@@ -126,7 +141,6 @@ export default {
         course_subject_code: null,
         course_number: null,
         course_name: null,
-        is_qr: Boolean,
         card_title: "",
         first_button_text: "",
         student_submitted: false,
@@ -136,7 +150,6 @@ export default {
       }
   },
   created () {
-    this.is_qr = this.task_type === 'qr_scan'
     this.setLabelsBasedOnTaskType()
     if(!this.is_instructor) {
       const submission =
@@ -153,7 +166,7 @@ export default {
   },
   methods: {
     setLabelsBasedOnTaskType() {
-      if(this.is_qr) {
+      if(this.task_type === 'qr_scan') {
         this.card_title = `QR Scan ${this.index + 1}`
         this.first_button_text = "Show QR"
       } else {

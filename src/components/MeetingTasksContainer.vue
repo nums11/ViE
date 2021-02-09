@@ -1,9 +1,6 @@
 <template>
   <div class="meeting-tasks-container">
-    <div class="header">
-      {{ task_type === 'qr_scan' ? 'QR Scans' : 'Videos' }}
-       ({{ tasks.length }})
-    </div>
+    <div class="header">{{ container_header }}</div>
     <p v-if="show_cant_submit_yet_msg" id="cant-submit-yet-msg">
       You will be able to submit to these tasks once the
       portion window opens on {{ portion_start | moment("MMM Do") }}
@@ -49,16 +46,27 @@ export default {
   },
   data () {
     return {
+      container_header: "",
       show_cant_submit_yet_msg: false,
       portion_start: null
     }
   },
   async created () {
+    this.setContainerHeader()
     this.showCantSubmitYetMsg()
   },
   mounted () {
   },
   methods: {
+    setContainerHeader() {
+      const num_tasks = this.tasks.length
+      if(this.task_type === 'qr_scan')
+        this.container_header = `QR Scans (${num_tasks})`
+      else if(this.task_type === 'quiz')
+        this.container_header = `Quizzes (${num_tasks})`
+      else if(this.task_type === 'video')
+        this.container_header = `Videos (${num_tasks})`
+    },
     showCantSubmitYetMsg() {
       if(this.state_user.is_instructor ||
         this.tasks.length === 0)
