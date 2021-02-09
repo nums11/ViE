@@ -222,7 +222,7 @@ courseRoutes.post('/add_instructor/:course_id',
           reject(error)
         } else if(users.length === 0) {
           console.log(`<ERROR> (courses/add_instructor) instructor with`
-            + ` user_id ${user_id} is_rpi_member ${is_rpi_member}`
+            + ` user_id ${instructor_user_id} is_rpi_member ${is_rpi_member}`
             + ` not found`)
           reject(null)
         } else {
