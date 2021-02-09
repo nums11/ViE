@@ -56,11 +56,11 @@ export default {
   methods: {
     saveQuestion(question) {
       this.quiz.questions.push(question)
-      this.$emit('add-quiz-question')
+      this.$emit('update-quiz-questions', this.quiz.questions)
     },
     removeQuestion(index) {
       this.quiz.questions.splice(index, 1)
-      this.$emit('remove-quiz-question')
+      this.$emit('update-quiz-questions', this.quiz.questions)
     },
     clear() {
       this.quiz = {

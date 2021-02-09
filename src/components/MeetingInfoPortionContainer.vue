@@ -62,12 +62,9 @@
         </sui-button>
       </div>
       <div v-if="portion != null">
-        <AddTaskModal v-if="is_real_time"
-        ref="AddTaskModal" :is_real_time="true"
-        v-on:add-task="addTask('qr_scan', ...arguments)" />
-        <AddTaskModal v-else
-        ref="AddTaskModal" :is_real_time="false"
-        v-on:add-task="addTask('video', ...arguments)" />
+        <AddTaskModal ref="AddTaskModal"
+        :is_real_time="is_real_time"
+        v-on:add-task="addTask" />
       </div>
       <AddPortionModal v-if="portion == null"
       ref="AddPortionModal" :is_real_time="is_real_time"
@@ -133,6 +130,7 @@ export default {
     }
   },
   created () {
+    console.log("Portion", this.portion)
     this.setLabelsAndDates()
   },
   methods: {
@@ -178,38 +176,57 @@ export default {
     },
     async addTask(task_type, task) {
       if(task_type === 'qr_scan'){
-        this.adding_task = true
-        if(task.reminder_time === '')
-          task.reminder_time = null
-        try {
-          const response = await RealTimePortionAPI.addQRScan(
-            this.portion._id, task, this.meeting_id,
-            this.instructor_ids)
-          const new_qr_scan = response.data
-          this.portion.qr_scans.push(new_qr_scan)
-        } catch(error) {
-          console.log(error)
-          window.alert("Sorry, something went wrong")
-        }
-        this.adding_task = false
+        this.addQRScan(task)
+      } else if(task_type === 'quiz') {
+        this.addQuiz(task)
       } else {
-        console.log("Here... emitting")
-        this.$emit('show-lottie-player')
-        try {
-          let response =
-            await MeetingAPI.saveVideoToGCS(task.video_file)
-          const video_url = response.data
-          task.url = video_url
-          response = await AsyncPortionAPI.addVideo(
-            this.portion._id, task)
-          const new_video = response.data
-          this.portion.videos.push(new_video)
-          this.$emit('hide-lottie-player')
-        } catch(error) {
-          console.log(error)
-          window.alert("Sorry, something went wrong")
-          this.$emit('hide-lottie-player')
-        }
+        this.addVideo(task)
+      }
+    },
+    async addQRScan(task) {
+      this.adding_task = true
+      if(task.reminder_time === '')
+        task.reminder_time = null
+      try {
+        const response = await RealTimePortionAPI.addQRScan(
+          this.portion._id, task, this.meeting_id,
+          this.instructor_ids)
+        const new_qr_scan = response.data
+        this.portion.qr_scans.push(new_qr_scan)
+      } catch(error) {
+        console.log(error)
+        window.alert("Sorry, something went wrong")
+      }
+      this.adding_task = false
+    },
+    async addQuiz(task) {
+      try {
+        const response = await RealTimePortionAPI.addQuiz(
+          this.portion._id, task)
+        const new_quiz = response.data
+        this.portion.quizzes.push(new_quiz)
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
+    },
+    async addVideo(task) {
+      console.log("Here... emitting")
+      this.$emit('show-lottie-player')
+      try {
+        let response =
+          await MeetingAPI.saveVideoToGCS(task.video_file)
+        const video_url = response.data
+        task.url = video_url
+        response = await AsyncPortionAPI.addVideo(
+          this.portion._id, task)
+        const new_video = response.data
+        this.portion.videos.push(new_video)
+        this.$emit('hide-lottie-player')
+      } catch(error) {
+        console.log(error)
+        window.alert("Sorry, something went wrong")
+        this.$emit('hide-lottie-player')
       }
     },
     showAddPortionModal() {

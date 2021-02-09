@@ -3,6 +3,8 @@ const globalCommandRoutes = express.Router();
 const Course = require('./Course/Course.model');
 const NotificationJob =
 require('./Notification/NotificationJob.model');
+const RealTimePortion =
+require('./RealTimePortion/RealTimePortion.model');
 
 globalCommandRoutes.post('/change_course_instructor_to_array',
   function(req, res, next) {
@@ -96,6 +98,26 @@ globalCommandRoutes.post('/change_notification_job_instructor_to_array',
       }
     }
   })
+  }
+)
+
+globalCommandRoutes.post('/add_quizzes_to_real_time_portions',
+  function(req, res, next) {
+  RealTimePortion.updateMany({},
+    {quizzes: []},
+    {new: true},
+    (error, updated_real_time_portions) => {
+      if(error) {
+        console.log("<ERROR> (global_commands/"
+          + "add_quizzes_to_real_time_portions) updating real_time_portions")
+        next(error)
+      } else {
+        console.log("<SUCCESS> (global_commands/"
+          + "add_quizzes_to_real_time_portions) updating real_time_portions")
+        res.json(updated_real_time_portions)
+      }
+    }
+  )
   }
 )
 

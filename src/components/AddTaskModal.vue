@@ -56,8 +56,7 @@
             </sui-form-field>
           </div>
           <AddQuizForm ref="AddQuizForm" v-else
-          v-on:add-quiz-question="addQuizQuestion"
-          v-on:remove-quiz-question="removeQuizQuestion"
+          v-on:update-quiz-questions="updateQuizQuestions"
           v-on:update-quiz-name="updateQuizName" />
         </div>
         <div class="form-field" v-else>
@@ -208,7 +207,7 @@ export default {
       radio_label_two: "",
       show_default_notification_message: false,
       show_denied_notification_message: false,
-      num_quiz_questions: 0,
+      quiz_questions: [],
       quiz_name: ""
     }
   },
@@ -221,7 +220,7 @@ export default {
         if(this.value === 1)
           return true
         else {
-          return this.num_quiz_questions > 0
+          return this.quiz_questions.length > 0
             && this.quiz_name.length > 0
         }
       } else {
@@ -286,7 +285,23 @@ export default {
       this.value = value
     },
     addTask(){
-      this.$emit('add-task', this.task)
+      let task = null, task_type = ""
+      if(this.is_real_time) {
+        if(this.value === 1) {
+          task = this.task
+          task_type = "qr_scan"
+        } else {
+          task = {
+            name: "quiz_name",
+            questions: this.quiz_questions
+          }
+          task_type = "quiz"
+        }
+      } else {
+        task = this.task
+        task_type = "video"
+      }
+      this.$emit('add-task', task_type, task)
       this.hideModal()
     },
     showModal() {
@@ -303,6 +318,8 @@ export default {
       }
       if(this.is_real_time){
         this.reminder_picker.clear()
+        if(this.value === 2)
+          this.$refs.AddQuizForm.clear()
       } else {
         let file_input = document.getElementById('file-input')
         file_input.value = ''
@@ -363,11 +380,8 @@ export default {
       this.$refs.AddVideoQuizModal.showModal(this.task.video_file,
         this.task.quiz.questions)
     },
-    addQuizQuestion() {
-      this.num_quiz_questions++
-    },
-    removeQuizQuestion() {
-      this.num_quiz_questions--
+    updateQuizQuestions(quiz_questions) {
+      this.quiz_questions = quiz_questions
     },
     updateQuizName(name) {
       this.quiz_name = name

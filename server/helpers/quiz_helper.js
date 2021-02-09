@@ -9,6 +9,7 @@ async function createQuiz(quiz) {
     if(saved_questions == null)
       throw "<ERROR> createQuiz saving questions"
     const new_quiz = new Quiz({
+      name: quiz.name,
       questions: saved_questions
     })
     const saved_quiz = await new_quiz.save()

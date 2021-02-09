@@ -70,7 +70,13 @@ meetingRoutes.route('/get/:id').get(function (req, res, next) {
         }
       }
     }, {
-      path: 'live_polls'
+      path: 'quizzes',
+      populate: {
+        path: 'submissions',
+        populate: {
+          path: 'submitter'
+        }
+      }
     }]
   }).
   populate({

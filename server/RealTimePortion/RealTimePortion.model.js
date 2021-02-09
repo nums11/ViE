@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-
-let QRScan = require('../QRScan/QRScan.model');
-// let Poll = require('../Poll/Poll.model');
+const QRScan = require('../QRScan/QRScan.model');
+const Quiz = require('../Quiz/Quiz.model');
 
 //Define collection and schema for User
 let RealTimePortion = new Schema({
@@ -18,10 +17,10 @@ let RealTimePortion = new Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: 'QRScan'
 	}],
-  // live_polls: [{
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   ref: 'Poll'
-  // }]
+	quizzes: [{
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Quiz'
+	}]
 });
 
 module.exports = mongoose.model('RealTimePortion', RealTimePortion);

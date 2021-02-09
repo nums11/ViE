@@ -3,6 +3,7 @@ const realTimePortionRoutes = express.Router();
 const RealTimePortion = require('../RealTimePortion/RealTimePortion.model');
 const QRScan = require('../QRScan/QRScan.model');
 const QRScanHelper = require('../helpers/qr_scan_helper')
+const QuizHelper = require('../helpers/quiz_helper')
 const RealTimePortionHelper = require('../helpers/real_time_portion_helper')
 const NotificationHelper = require('../helpers/notification_helper')
 
@@ -47,6 +48,43 @@ realTimePortionRoutes.post('/add_qr_scan/:real_time_portion_id',
     console.log(`<ERROR> (real_time_portions/add_qr_scan)`
       + ` real_time_portion_id: ${real_time_portion_id}`
       + ` qr_scan`, qr_scan)
+    next(error)
+  }
+})
+
+realTimePortionRoutes.post('/add_quiz/:real_time_portion_id',
+  async function(req, res, next) {
+  const real_time_portion_id = req.params.real_time_portion_id
+  const quiz = req.body.quiz
+
+  try {
+    const saved_quiz = await QuizHelper.createQuiz(quiz)
+    if(saved_quiz == null)
+      throw "<ERROR> saving quiz"
+
+    RealTimePortion.findByIdAndUpdate(real_time_portion_id,
+      {$push: {quizzes: saved_quiz._id}},
+      {new: true},
+      (error, updated_real_time_portion) => {
+        if(error) {
+          console.log(`<ERROR> (real_time_portions/add_quiz)`,
+            ` updating real_time_portion with id ${real_time_portion_id}`,
+            ` with quiz`, saved_quiz)
+          next(error)
+        } else if(updated_real_time_portion == null) {
+          console.log(`<ERROR> (real_time_portions/add_quiz) could not`,
+            + ` find real_time_portion with id ${real_time_portion_id}`)
+          res.status(404).json("real_time_portion not found")
+        } else {
+          console.log("<SUCCESS> (real_time_portions/add_quiz)")
+          res.json(saved_quiz)
+        }
+      }
+    )
+  } catch(error) {
+    console.log(`<ERROR> (real_time_portions/add_quiz)`
+      + ` real_time_portion_id: ${real_time_portion_id}`
+      + ` quiz`, quiz)
     next(error)
   }
 })

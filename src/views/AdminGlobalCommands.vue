@@ -12,11 +12,14 @@
     <button @click="scheduleJobsForAllUpcomingMeetings" disabled>
       Schedule jobs for all upcoming meetings
     </button>
-    <button @click="changeCourseInstructorToArray">
+    <button @click="changeCourseInstructorToArray" disabled>
       Convert course instructor into an array
     </button>
-    <button @click="changeNotificationJobInstructorToArray">
+    <button @click="changeNotificationJobInstructorToArray" disabled>
       Convert notification job instructor into an array
+    </button>
+    <button @click="addQuizzesToRealTimePortions">
+      Add quizzes to real time portions
     </button>
   </div>
 </template>
@@ -90,6 +93,17 @@ export default {
       try {
         const response = 
           await GlobalCommandAPI.changeNotificationJobInstructorToArray()
+        alert("Global command completed")
+        console.log(response.data)
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
+    },
+    async addQuizzesToRealTimePortions() {
+      try {
+        const response = 
+          await GlobalCommandAPI.addQuizzesToRealTimePortions()
         alert("Global command completed")
         console.log(response.data)
       } catch(error) {

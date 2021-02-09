@@ -10,6 +10,12 @@ export default {
         instructor_ids: instructor_ids
     	})
   },
+  addQuiz(real_time_portion_id, quiz) {
+    return API().post(
+      `real_time_portions/add_quiz/${real_time_portion_id}`, {
+        quiz: quiz
+      })
+  },
   deleteRealTimePortion(real_time_portion_id, meeting_id,
   	qr_scans) {
   	return API().delete(
