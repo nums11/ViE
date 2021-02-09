@@ -187,7 +187,7 @@ export default {
     showAddTaskModal() {
       this.$refs.AddTaskModal.showModal()
     },
-    async addTask(task_type, task) {
+    addTask(task_type, task) {
       if(task_type === 'qr_scan'){
         this.addQRScan(task)
       } else if(task_type === 'quiz') {
@@ -213,6 +213,7 @@ export default {
       this.adding_task = false
     },
     async addQuiz(task) {
+      this.adding_task = true
       try {
         const response = await RealTimePortionAPI.addQuiz(
           this.portion._id, task)
@@ -222,6 +223,7 @@ export default {
         console.log(error)
         alert("Sorry, something went wrong")
       }
+      this.adding_task = false
     },
     async addVideo(task) {
       console.log("Here... emitting")
