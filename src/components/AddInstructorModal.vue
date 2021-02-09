@@ -114,6 +114,9 @@ export default {
         window.alert("Sorry, something went wrong")
       }
     },
+    removeInstructor(index) {
+      this.course_instructor_user_ids.splice(index,1)
+    },
     showModal() {
       this.show_modal = true
     },

@@ -312,6 +312,7 @@ export default {
         const response = await CourseAPI.removeInstructor(this.course._id,
           instructor._id, meeting_ids)
         this.course.instructors.splice(index,1)
+        this.$refs.AddInstructorModal.removeInstructor(index)
       } catch(error) {
         console.log(error)
         alert("Sorry, something went wrong")
