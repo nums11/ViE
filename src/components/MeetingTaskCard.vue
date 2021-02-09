@@ -34,17 +34,24 @@
               <sui-icon name="qrcode" />
           </sui-button-content>
         </sui-button>
-        <sui-button v-else-if="task_type === 'quiz'"
-        @click="$emit('show-quiz')"
-        animated size="mini"
-        style="background-color:#00B3FF; color:white;">
-          <sui-button-content visible>
-            {{ first_button_text }}
-          </sui-button-content>
-          <sui-button-content hidden>
-              <sui-icon name="pencil alternate" />
-          </sui-button-content>
-        </sui-button>
+        <div v-else-if="task_type === 'quiz'">
+          <router-link v-if="is_instructor ||
+          (!is_instructor && window_is_open)"
+          :to="{name: 'view_quiz',
+          params: {meeting_id: meeting_id, 
+            quiz_id: task._id}}">
+            <sui-button
+            animated size="mini"
+            style="background-color:#00B3FF; color:white;">
+              <sui-button-content visible>
+                {{ first_button_text }}
+              </sui-button-content>
+              <sui-button-content hidden>
+                  <sui-icon name="pencil alternate" />
+              </sui-button-content>
+            </sui-button>
+          </router-link>
+        </div>
         <div v-else-if="task_type === 'video'">
           <router-link v-if="is_instructor ||
           (!is_instructor && window_is_open)"

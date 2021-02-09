@@ -1,6 +1,32 @@
 const express = require('express');
 const quizRoutes = express.Router();
+const Quiz = require('../Quiz/Quiz.model');
 const QuizQuestion = require('../QuizQuestion/QuizQuestion.model');
+
+// GET ---------------------
+
+quizRoutes.get('/get/:quiz_id', function (req, res, next) {
+  const quiz_id = req.params.quiz_id
+  const quiz = req.body.quiz
+  Quiz.findById(quiz_id,
+    (error, quiz) => {
+      if(error) {
+        console.log(`<ERROR> (quizzes/get) getting quiz by`
+          + ` id ${quiz_id}`, error)
+        next(error)
+      } else if(quiz == null) {
+        console.log(`<ERROR> (quizzes/get) quiz with id ${quiz_id}`
+          + ` not found`)
+        res.status(404).json("Quiz not found")
+      } else {
+        console.log("<SUCCESS> (quizzes/get)")
+        res.json(quiz)
+      }
+    }
+  )
+});
+
+// POST ---------------------
 
 quizRoutes.post('/update/:quiz_id',
   async function (req, res, next) {

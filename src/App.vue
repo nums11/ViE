@@ -262,6 +262,10 @@ html, body {
   margin-top: 3rem;
 }
 
+.mt-4 {
+  margin-top: 4rem;
+}
+
 .ml-1 {
   margin-left: 1rem;
 }

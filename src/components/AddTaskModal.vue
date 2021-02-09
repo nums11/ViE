@@ -292,7 +292,7 @@ export default {
           task_type = "qr_scan"
         } else {
           task = {
-            name: "quiz_name",
+            name: this.quiz_name,
             questions: this.quiz_questions
           }
           task_type = "quiz"

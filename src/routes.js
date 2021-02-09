@@ -40,6 +40,7 @@ import RegisterJoinCourse from './views/RegisterJoinCourse.vue'
 import InviteStudentRedirect from './views/InviteStudentRedirect.vue'
 import SuccessfulInviteRedirect from './views/SuccessfulInviteRedirect.vue'
 import DevLogin from './views/DevLogin.vue'
+import ViewQuiz from './views/ViewQuiz.vue'
 
 Vue.use(VueRouter);
 
@@ -412,6 +413,15 @@ const router = new VueRouter({
         title: 'ViE - Reset Password',
         requiresAuth: false,
         requiresNoLogin: true
+      }
+    },
+    {
+      name: 'view_quiz',
+      path: '/view_quiz/:meeting_id/:quiz_id',
+      component: ViewQuiz,
+      meta: {
+        title: 'ViE - View Quiz',
+        requiresAuth: true
       }
     }
   ]
