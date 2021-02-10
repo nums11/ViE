@@ -87,8 +87,9 @@ export default {
         scales: {
           yAxes: [{
             ticks: {
-              beginAtZero: true
-              // max: 70
+              beginAtZero: true,
+              stepSize: 1
+              // max: 4
             },
           }],
           xAxes: [{
@@ -116,10 +117,10 @@ export default {
       }
     }
   },
-  created() {
+  async created() {
     this.meeting_id = this.$route.params.meeting_id
     this.quiz_id = this.$route.params.quiz_id
-    this.getMeeting()
+    await this.getMeeting()
     this.getQuiz()
   },
   methods: {
@@ -128,7 +129,8 @@ export default {
         const response = await MeetingAPI.getMeeting(this.meeting_id)
         this.meeting = response.data
         this.meeting_students = this.getMeetingStudents(this.meeting)
-        console.log("meeting students", this.meeting_students)
+        this.chart_options.scales.yAxes[0].ticks.max 
+          = this.meeting_students.size +1
       } catch(error) {
         console.log(error)
         alert("Sorry, something went wrong")
