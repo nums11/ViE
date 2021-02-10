@@ -41,6 +41,7 @@ import InviteStudentRedirect from './views/InviteStudentRedirect.vue'
 import SuccessfulInviteRedirect from './views/SuccessfulInviteRedirect.vue'
 import DevLogin from './views/DevLogin.vue'
 import ViewQuiz from './views/ViewQuiz.vue'
+import RealTimeQuiz from './views/RealTimeQuiz.vue'
 
 Vue.use(VueRouter);
 
@@ -421,6 +422,15 @@ const router = new VueRouter({
       component: ViewQuiz,
       meta: {
         title: 'ViE - View Quiz',
+        requiresAuth: true
+      }
+    },
+    {
+      name: 'real_time_quiz',
+      path: '/real_time_quiz/:quiz_id',
+      component: RealTimeQuiz,
+      meta: {
+        title: 'ViE - Real Time Quiz',
         requiresAuth: true
       }
     }

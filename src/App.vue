@@ -68,7 +68,8 @@ export default {
         'attend_checker',
         'course_new_meeting',
         'org_new_meeting',
-        'add_video'
+        'add_video',
+        'real_time_quiz'
       ],
       navbar_user: null,
       navbar_user_courses: null,

@@ -12,7 +12,8 @@
       </p>
       <div class="mt-3">
         <Button text="Start Quiz" size="large" color="blue"
-        wide />
+        route_name="real_time_quiz"
+        :route_params="{quiz_id: quiz_id}" wide />
       </div>
     </div>
   </div>
@@ -30,6 +31,7 @@ export default {
   data(){
     return {
       meeting_id: "",
+      quiz: "",
       quiz: null,
       quiz_has_loaded: false
     }
