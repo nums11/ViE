@@ -53,6 +53,7 @@ import BarChart from '@/components/BarChart'
 import Button from '@/components/Button'
 import 'chartjs-plugin-datalabels'
 import helpers from '@/helpers.js'
+import io from 'socket.io-client';
 
 export default {
   name: 'RealTimeQuiz',
@@ -118,10 +119,16 @@ export default {
     }
   },
   async created() {
-    this.meeting_id = this.$route.params.meeting_id
-    this.quiz_id = this.$route.params.quiz_id
-    await this.getMeeting()
-    this.getQuiz()
+    try {
+      this.meeting_id = this.$route.params.meeting_id
+      this.quiz_id = this.$route.params.quiz_id
+      await this.getMeeting()
+      await this.getQuiz()
+      this.startRealTimeQuiz()
+    } catch(error) {
+      console.log(error)
+      alert("Sorry, something went wrong")
+    }
   },
   methods: {
     async getMeeting() {
@@ -162,6 +169,12 @@ export default {
         this.current_question_index--
       this.showQuestion()
       this.$refs.BarChart.$data._chart.update()
+    },
+    startRealTimeQuiz() {
+      const url = this.getBaseURL()
+      this.client_io = io (url, {forceNew: true})
+      this.client_io.emit('startRealTimeQuiz', this.quiz_id)
+
     }
   }
 }
