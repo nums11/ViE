@@ -28,6 +28,7 @@
     "bootstrap": "^4.5.0",
     "buefy": "^0.8.20",
     "chart.js": "^2.9.3",
+    "chartjs-plugin-datalabels": "^0.7.0",
     "connect-history-api-fallback": "^1.6.0",
     "cookie-parser": "^1.4.5",
     "core-js": "^2.6.11",

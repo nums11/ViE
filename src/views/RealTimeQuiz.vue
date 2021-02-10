@@ -21,7 +21,7 @@
       reason?
     </div>
     <div class="center-text wrap-text" id="submissions">
-      Submissions
+      Submissions Received
       <p id="num-submissions">10/20 (50%)</p>
     </div>
     <BarChart :chart_data="chart_data"
@@ -37,6 +37,7 @@
 <script>
 import BarChart from '@/components/BarChart'
 import Button from '@/components/Button'
+import 'chartjs-plugin-datalabels'
 
 export default {
   name: 'RealTimeQuiz',
@@ -52,8 +53,6 @@ export default {
         labels: ['Option 1', 'Option 2', 'Option 3',
           'Option 4', 'Option 5', 'Option 6'],
         datasets: [{
-          // backgroundColor: ['#e83e8c', '#00B3FF', '#00b80c',
-          //   '#ffac26', '#8000ff', '#00ffe1'],
           backgroundColor: ['rgba(232, 62, 140, 0.65)',
           'rgba(0, 179, 255, 0.65)', 'rgba(0, 184, 12, 0.65)',
             'rgba(255, 172, 38, 0.65)', 'rgba(128, 0, 255, 0.65)',
@@ -64,18 +63,30 @@ export default {
       },
       chart_options: {
         legend: {display: false},
+        responsive: true,
         maintainAspectRatio: false,
         scales: {
           yAxes: [{
             ticks: {
-              beginAtZero: true
-            }
+              beginAtZero: true,
+              max: 70
+            },
           }],
           xAxes: [{
             gridLines: {
               display: false
             }
           }]
+        },
+        plugins: {
+          datalabels: {
+            anchor: 'end',
+            align: 'top',
+            formatter: Math.round,
+            font: {
+              weight: 'bold'
+            }
+          }
         }
       },
       chart_styles: {
