@@ -13,7 +13,8 @@
       <div class="mt-3">
         <Button text="Start Quiz" size="large" color="blue"
         route_name="real_time_quiz"
-        :route_params="{quiz_id: quiz_id}" wide />
+        :route_params="{meeting_id: meeting_id, quiz_id: quiz_id}"
+        wide />
       </div>
     </div>
   </div>

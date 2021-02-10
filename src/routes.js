@@ -427,7 +427,7 @@ const router = new VueRouter({
     },
     {
       name: 'real_time_quiz',
-      path: '/real_time_quiz/:quiz_id',
+      path: '/real_time_quiz/:meeting_id/:quiz_id',
       component: RealTimeQuiz,
       meta: {
         title: 'ViE - Real Time Quiz',

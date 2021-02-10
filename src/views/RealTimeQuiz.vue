@@ -28,7 +28,11 @@
       </div>
       <div class="center-text wrap-text" id="submissions">
         Submissions Received
-        <p id="num-submissions">10/20 (50%)</p>
+        <p id="num-submissions">
+          {{ quiz.submissions.length }}/{{ meeting_students.size }}
+          ({{ (quiz.submissions.length /
+            meeting_students.size).toFixed(0) }} %)
+        </p>
       </div>
       <BarChart ref="BarChart"
       :chart_data="chart_data"
@@ -43,20 +47,24 @@
 </template>
 
 <script>
+import MeetingAPI from '@/services/MeetingAPI'
 import QuizAPI from '@/services/QuizAPI'
 import BarChart from '@/components/BarChart'
 import Button from '@/components/Button'
 import 'chartjs-plugin-datalabels'
+import helpers from '@/helpers.js'
 
 export default {
   name: 'RealTimeQuiz',
+  mixins: [helpers],
   components: {
     BarChart,
     Button
   },
   data(){
     return {
-      quiz_id: "",
+      meeting: null,
+      meeting_students: [],
       quiz: null,
       quiz_has_loaded: false,
       current_question: null,
@@ -69,7 +77,7 @@ export default {
             'rgba(255, 172, 38, 0.65)', 'rgba(128, 0, 255, 0.65)',
             'rgba(0, 255, 225, 0.65)'],
           borderWidth: 3,
-          data: [10, 20, 30, 40, 50, 60],
+          data: [],
         }]
       },
       chart_options: {
@@ -79,8 +87,8 @@ export default {
         scales: {
           yAxes: [{
             ticks: {
-              beginAtZero: true,
-              max: 70
+              beginAtZero: true
+              // max: 70
             },
           }],
           xAxes: [{
@@ -109,10 +117,23 @@ export default {
     }
   },
   created() {
+    this.meeting_id = this.$route.params.meeting_id
     this.quiz_id = this.$route.params.quiz_id
+    this.getMeeting()
     this.getQuiz()
   },
   methods: {
+    async getMeeting() {
+      try {
+        const response = await MeetingAPI.getMeeting(this.meeting_id)
+        this.meeting = response.data
+        this.meeting_students = this.getMeetingStudents(this.meeting)
+        console.log("meeting students", this.meeting_students)
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
+    },
     async getQuiz() {
       try {
         const response = await QuizAPI.getQuiz(this.quiz_id)
