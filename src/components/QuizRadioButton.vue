@@ -1,0 +1,93 @@
+<template>
+  <div @click="selectButton"
+  class="quiz-radio-button light-border-shadow"
+  :id="`quiz-radio-button-${index}`">
+    <div class="circle inline-block"></div>
+    <div class="answer inline-block">
+      {{ answer }}
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'QuizRadioButton',
+  props: {
+    answer: {
+      type: String,
+      required: true
+    },
+    index: {
+      type: Number,
+      required: true
+    }
+  },
+  components: {
+  },
+  data(){
+    return {
+
+    }
+  },
+  created() {
+  },
+  methods: {
+    selectButton() {
+      this.$emit('select-answer-choice', this.index)
+      document.querySelectorAll('.quiz-radio-button').forEach(
+        el => {
+          el.classList.remove('selected-button')
+          el.firstElementChild.classList.remove('selected-button')
+      })
+      const selected_button = document.getElementById(
+        `quiz-radio-button-${this.index}`)
+      selected_button.classList.add('selected-button')
+      selected_button.firstElementChild.classList.add('selected-button')
+    }
+  }
+}
+</script>
+
+<style scoped>
+.quiz-radio-button {
+  width: 35rem;
+  min-height: 4rem;
+  max-height: 8rem;
+  margin: auto;
+  margin-top: 2rem;
+  border-radius: 3px;
+  padding-top: 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  cursor: pointer;
+  -webkit-transition: border-color 0.15s, color 0.15s linear;
+  -ms-transition: border-color 0.15s, color 0.15s linear;
+  transition: border-color 0.15s, color 0.15s linear;
+}
+
+.quiz-radio-button:hover {
+  border-color: #00B3FF;
+  color: #00B3FF;
+}
+
+.circle {
+  border: #c7c7c7 solid thin;
+  height: 2rem;
+  width: 2rem;
+  border-radius: 100%;
+}
+
+.answer {
+  /*border: red solid;*/
+  font-size: 1.2rem;
+  margin-left: 1.5rem;
+  vertical-align: center;
+  margin-top: 0.25rem;
+}
+
+.selected-button {
+  border: #00B3FF solid;
+  color: #00B3FF;
+  font-weight: bold;
+}
+</style>

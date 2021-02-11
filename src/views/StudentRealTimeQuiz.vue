@@ -1,6 +1,22 @@
 <template>
   <div id="student-real-time-quiz">
-    <h1>Student quiz</h1>
+    <div id="logo-container">
+      <img src="@/assets/logo.svg" id="logo" />
+    </div>
+    <div v-if="quiz_has_loaded">
+      <div class="center-text" id="question">
+        {{ current_question.question }}
+      </div>
+      <QuizRadioButton
+      v-for="(answer, index) in
+      current_question.answer_choices"
+      :answer="answer" :index="index"
+      v-on:select-answer-choice="selectAnswerChoice" />
+    </div>
+    <div id="btn-container">
+      <Button text="Submit" color="blue" size="large"
+      invert_colors :disabled="!choiceSelected" />
+    </div>
   </div>
 </template>
 
@@ -9,17 +25,28 @@ import MeetingAPI from '@/services/MeetingAPI'
 import QuizAPI from '@/services/QuizAPI'
 import helpers from '@/helpers.js'
 import io from 'socket.io-client';
+import QuizRadioButton from '@/components/QuizRadioButton'
+import Button from '@/components/Button'
 
 export default {
   name: 'StudentRealTimeQuiz',
   mixins: [helpers],
   components: {
+    QuizRadioButton,
+    Button
   },
   data(){
     return {
       meeting: null,
       quiz: null,
-      current_question: null
+      quiz_has_loaded: false,
+      current_question: null,
+      selected_choice_index: null
+    }
+  },
+  computed: {
+    choiceSelected() {
+      return this.selected_choice_index != null
     }
   },
   async created() {
@@ -28,7 +55,10 @@ export default {
       this.quiz_id = this.$route.params.quiz_id
       await this.getMeeting()
       await this.getQuiz()
-      this.joinRealTimeQuiz()
+      this.current_question = this.quiz.questions[0]
+        this.quiz_has_loaded = true
+
+      // this.joinRealTimeQuiz()
     } catch(error) {
       console.log(error)
       alert("Sorry, something went wrong")
@@ -76,11 +106,43 @@ export default {
         }
       }
       console.log("current_question", this.current_question)
+    },
+    selectAnswerChoice(index) {
+      this.selected_choice_index = index 
     }
   }
 }
 </script>
 
 <style scoped>
+#logo-container {
+  width: 8rem;
+  margin: auto;
+  margin-top: 2rem;
+}
 
+#logo {
+  height: 8rem;
+  display: inline-block;
+  /*border: blue solid;*/
+  margin: auto;
+}
+
+#question {
+  min-height: 4rem;
+  max-height: 12rem;
+  line-height: 4rem;
+  width: 60%;
+  margin: auto;
+  margin-top: 1rem;
+  font-weight: bold;
+  font-size: 2rem;
+  color: #2c3e50;
+}
+
+#btn-container {
+  width: 9rem;
+  margin: auto;
+  margin-top: 3rem;
+}
 </style>

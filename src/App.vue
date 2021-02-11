@@ -69,7 +69,8 @@ export default {
         'course_new_meeting',
         'org_new_meeting',
         'add_video',
-        'real_time_quiz'
+        'instructor_real_time_quiz',
+        'student_real_time_quiz'
       ],
       navbar_user: null,
       navbar_user_courses: null,
