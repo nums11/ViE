@@ -173,8 +173,8 @@ export default {
     startRealTimeQuiz() {
       const url = this.getBaseURL()
       this.client_io = io (url, {forceNew: true})
-      this.client_io.emit('startRealTimeQuiz', this.quiz_id)
-
+      this.client_io.emit('startRealTimeQuiz', this.quiz_id,
+        this.quiz.questions[0]._id)
     }
   }
 }

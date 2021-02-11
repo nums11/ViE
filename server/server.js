@@ -83,7 +83,6 @@ function start() {
       process.exit(1);
     }
     console.log("Database connection ready");
-    // Initialize the app.
     var server = app.listen(process.env.PORT || LOCAL_PORT, function () {
       server.headersTimeout = 0;
       var port = server.address().port;
@@ -91,7 +90,7 @@ function start() {
       // Map between qr_scan ids and the instructor socket ids
       const real_time_qr_scan_ids = new Map()
       // Map between quiz ids and an object containg the instructor
-      // socket id, current question id, and an array of student ids
+      // socket id, current question id, and an array of student socket ids
       const real_time_quiz_ids = new Map()
       io = require('socket.io')(server);
       io.on('connection', (socket) => {
