@@ -155,11 +155,14 @@ export default {
       }
     },
     showQuestion() {
+      console.log("chart_data", this.chart_data)
       this.current_question = this.quiz.questions[
         this.current_question_index]
       this.chart_data.labels = []
+      this.chart_data.datasets[0].data = []
       this.current_question.answer_choices.forEach(choice => {
         this.chart_data.labels.push(choice)
+        this.chart_data.datasets[0].data.push(0)
       })
     },
     changeQuestion(is_next) {
@@ -168,6 +171,9 @@ export default {
       else
         this.current_question_index--
       this.showQuestion()
+      this.updateChart()
+    },
+    updateChart() {
       this.$refs.BarChart.$data._chart.update()
     },
     startRealTimeQuiz() {
@@ -175,6 +181,12 @@ export default {
       this.client_io = io (url, {forceNew: true})
       this.client_io.emit('startRealTimeQuiz', this.quiz_id,
         this.quiz.questions[0]._id)
+      this.client_io.on('addStudentSubmission',
+        (selected_answer_index) => {
+        console.log("Adding student submission", selected_answer_index)
+        this.chart_data.datasets[0].data[selected_answer_index]++
+        this.updateChart()
+      })
     }
   }
 }

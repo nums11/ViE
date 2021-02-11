@@ -10,19 +10,17 @@ const serveStatic = require('serve-static');
 const LOCAL_PORT = 4000;
 const passport = require('passport')
 const session = require('express-session')
-var cookieParser = require('cookie-parser');
-const Submission = require('./Submission/Submission.model');
+const cookieParser = require('cookie-parser');
 const SubmissionHelper = require('./helpers/submission_helper');
 const NotificationHelper = require('./helpers/notification_helper');
 const QRSocketHelper = require('./helpers/qr_socket_helper');
 const RealTimeQuizSocketHelper
   = require('./helpers/real_time_quiz_socket_helper');
-const QRScan = require('./QRScan/QRScan.model');
 const nodemailer = require("nodemailer");
 
 // For Concurrency
 const throng = require('throng')
-var WORKERS = process.env.WEB_CONCURRENCY || 1;
+const WORKERS = process.env.WEB_CONCURRENCY || 1;
 
 throng({
   workers: WORKERS,
@@ -95,7 +93,6 @@ function start() {
       io = require('socket.io')(server);
       io.on('connection', (socket) => {
         QRSocketHelper.handleQRSocketEvents(io, socket, real_time_qr_scan_ids)
-        console.log("Handling")
         RealTimeQuizSocketHelper.handleRealTimeQuizSocketEvents(io, socket,
           real_time_quiz_ids)
       })
@@ -139,7 +136,7 @@ function start() {
   app.use(bodyParser.json());
 
   // Serve front end build on static server
-  var distDir = __dirname + "/../dist/";
+  const distDir = __dirname + "/../dist/";
   app.use(express.static(distDir));
 
   app.use(cookieParser());

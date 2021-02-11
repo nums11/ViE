@@ -10,6 +10,12 @@ quizRoutes.get('/get/:quiz_id', function (req, res, next) {
   const quiz = req.body.quiz
   Quiz.findById(quiz_id).
   populate('questions').
+  populate({
+    path: 'submissions',
+    populate: {
+      path: 'submitter'
+    }
+  }).
   exec((error, quiz) => {
     if(error) {
       console.log(`<ERROR> (quizzes/get) getting quiz by`

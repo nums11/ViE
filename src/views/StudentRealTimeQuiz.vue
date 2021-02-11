@@ -7,15 +7,21 @@
       <div class="center-text" id="question">
         {{ current_question.question }}
       </div>
-      <QuizRadioButton
-      v-for="(answer, index) in
-      current_question.answer_choices"
-      :answer="answer" :index="index"
-      v-on:select-answer-choice="selectAnswerChoice" />
-    </div>
-    <div id="btn-container">
-      <Button text="Submit" color="blue" size="large"
-      invert_colors :disabled="!choiceSelected" />
+      <div v-if="!user_has_answered">
+        <QuizRadioButton
+        v-for="(answer, index) in
+        current_question.answer_choices"
+        :answer="answer" :index="index"
+        v-on:select-answer-choice="selectAnswerChoice" />
+        <div @click="submit" id="btn-container">
+          <Button text="Submit" color="blue" size="large"
+          invert_colors :disabled="!choiceSelected" />
+        </div>
+      </div>
+      <p v-else>
+        Please wait for your instructor to show
+        the next question
+      </p>
     </div>
   </div>
 </template>
@@ -39,9 +45,13 @@ export default {
     return {
       meeting: null,
       quiz: null,
+      submission: null,
       quiz_has_loaded: false,
       current_question: null,
-      selected_choice_index: null
+      current_question_index: null,
+      selected_choice_index: null,
+      is_correct: null,
+      user_has_answered: false
     }
   },
   computed: {
@@ -55,10 +65,10 @@ export default {
       this.quiz_id = this.$route.params.quiz_id
       await this.getMeeting()
       await this.getQuiz()
-      this.current_question = this.quiz.questions[0]
-        this.quiz_has_loaded = true
-
-      // this.joinRealTimeQuiz()
+      this.submission = 
+        this.checkIfStudentSubmittedToTask(this.quiz)
+      this.joinRealTimeQuiz()
+      this.quiz_has_loaded = true
     } catch(error) {
       console.log(error)
       alert("Sorry, something went wrong")
@@ -90,8 +100,8 @@ export default {
       this.client_io.emit('joinRealTimeQuiz', this.quiz_id,
         (quiz_exists, current_question_id) => {
           if(quiz_exists) {
-            alert(`Quiz exists question_id ${current_question_id}`)
             this.getQuestion(current_question_id)
+            this.checkIfUserAnsweredCurrentQuestion()
           }
           else
             alert("No real time quiz found")
@@ -103,12 +113,42 @@ export default {
       for(let i = 0; i < questions.length; i++) {
         if(questions[i]._id === question_id) {
           this.current_question = questions[i]
+          this.current_question_index = i
         }
       }
       console.log("current_question", this.current_question)
     },
+    checkIfUserAnsweredCurrentQuestion() {
+      if(this.submission == null)
+        return
+      if(this.submission.quiz_answer_indices.length >
+        this.current_question_index)
+        this.user_has_answered = true
+    },
     selectAnswerChoice(index) {
       this.selected_choice_index = index 
+    },
+    submit() {
+      if(this.choiceSelected) {
+        this.is_correct =
+          this.selected_choice_index ===
+            this.current_question.correct_answer_index
+        if(this.is_correct)
+          alert("Correct!")
+        else
+          alert("Incorrect!")
+        this.client_io.emit('addStudentQuizSubmission',
+          this.state_user._id, this.quiz_id,
+          this.selected_choice_index, this.is_correct,
+          this.submission, (submission_succesful) => {
+            if(submission_succesful) {
+              alert("Submission successful")
+              this.user_has_answered = true
+            } else
+              alert("Sorry, something went wrong")
+          }
+        )
+      }
     }
   }
 }
