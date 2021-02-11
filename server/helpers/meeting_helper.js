@@ -32,10 +32,15 @@ async function addMeeting(meeting, real_time_portion, async_portion,
         throw "<ERROR> addMeeting saving qr scans and "
           + "scheduling notifications"
       }
+      const saved_quizzes = await createQuizzes(
+        real_time_portion.quizzes)
+      if(saved_quizzes == null)
+        throw "<ERROR> addMeeting saving quizzes"
       new_real_time_portion = new RealTimePortion({
         real_time_start: real_time_portion.real_time_start,
         real_time_end: real_time_portion.real_time_end,
-        qr_scans: saved_qr_scans
+        qr_scans: saved_qr_scans,
+        quizzes: saved_quizzes
       })
       saved_real_time_portion = await new_real_time_portion.save()
     }
@@ -565,6 +570,37 @@ async function createVideos(videos) {
     return saved_videos
   } catch(error) {
     console.log(`<ERROR> createVideos videos:`,videos, error)
+    return null
+  }
+}
+
+async function createQuizzes(quizzes) {
+  try {
+    const quiz_creation_promises = []
+    quizzes.forEach(quiz => {
+      quiz_creation_promises.push(new Promise(
+        async (resolve,reject) => {
+        try {
+          const saved_quiz = await QuizHelper.createQuiz(quiz)
+          if(saved_quiz == null) {
+            console.log("<ERROR> createQuizzes saving quiz", quiz,
+              error)
+            reject(null)
+          }
+          resolve(saved_quiz)
+        } catch(error) {
+          console.log("<ERROR> createQuizzes saving quiz", quiz,
+            error)
+          reject(null)
+        }
+        })
+      )
+    })
+    const saved_quizzes = await Promise.all(
+      quiz_creation_promises)
+    return saved_quizzes
+  } catch(error) {
+    console.log("<ERROR> createQuizzes", quizzes, error)
     return null
   }
 }

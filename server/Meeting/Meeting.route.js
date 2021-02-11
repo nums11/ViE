@@ -123,7 +123,7 @@ meetingRoutes.post('/add', async (req, res, next) => {
   try {
     let meeting_creation_promises = []
     meeting_creation_promises.push(MeetingHelper.addMeeting(
-      meeting, real_time_portion,async_portion, instructor_ids))
+      meeting, real_time_portion, async_portion, instructor_ids))
 
     // Make the meeting recurring
     if(repeat_end_date != null) {
