@@ -50,7 +50,7 @@ export default {
       current_question: null,
       current_question_index: null,
       selected_choice_index: null,
-      is_correct: null,
+      is_correct: false,
       user_has_answered: false
     }
   },
@@ -68,7 +68,6 @@ export default {
       this.submission = 
         this.checkIfStudentSubmittedToTask(this.quiz)
       this.joinRealTimeQuiz()
-      this.quiz_has_loaded = true
     } catch(error) {
       console.log(error)
       alert("Sorry, something went wrong")
@@ -101,7 +100,7 @@ export default {
         (quiz_exists, current_question_id) => {
           if(quiz_exists) {
             this.getQuestion(current_question_id)
-            this.checkIfUserAnsweredCurrentQuestion()
+            // this.checkIfUserAnsweredCurrentQuestion()
           }
           else
             alert("No real time quiz found")
@@ -116,14 +115,19 @@ export default {
           this.current_question_index = i
         }
       }
+      this.quiz_has_loaded = true
       console.log("current_question", this.current_question)
     },
     checkIfUserAnsweredCurrentQuestion() {
       if(this.submission == null)
         return
       if(this.submission.quiz_answer_indices.length >
-        this.current_question_index)
+        this.current_question_index) {
         this.user_has_answered = true
+        this.is_correct =
+          this.submission.quiz_answer_indices[this.current_question_index]
+            === this.current_question.correct_answer_index
+      }
     },
     selectAnswerChoice(index) {
       this.selected_choice_index = index 
@@ -133,10 +137,6 @@ export default {
         this.is_correct =
           this.selected_choice_index ===
             this.current_question.correct_answer_index
-        if(this.is_correct)
-          alert("Correct!")
-        else
-          alert("Incorrect!")
         this.client_io.emit('addStudentQuizSubmission',
           this.state_user._id, this.quiz_id,
           this.selected_choice_index, this.is_correct,
@@ -158,7 +158,8 @@ export default {
 #logo-container {
   width: 8rem;
   margin: auto;
-  margin-top: 2rem;
+  margin-top: 1rem;
+  /*border: red solid;*/
 }
 
 #logo {
@@ -184,5 +185,15 @@ export default {
   width: 9rem;
   margin: auto;
   margin-top: 3rem;
+}
+
+/* Phones */
+@media (max-width: 744px) {
+  #logo-container {
+    margin-top: 0;
+  }
+  #question {
+    width: 90%;
+  }
 }
 </style>

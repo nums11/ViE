@@ -352,7 +352,6 @@ export default {
       this.task.reminder_time = null
       this.task.video_file = null
       if(this.is_real_time){
-        console.log("Value", this.value)
         if(this.value === 1)
           this.reminder_picker.clear()
         else

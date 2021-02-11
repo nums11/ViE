@@ -90,4 +90,11 @@ export default {
   color: #00B3FF;
   font-weight: bold;
 }
+
+/* Phones */
+@media (max-width: 744px) {
+  .quiz-radio-button {
+    width: 90%;
+  }
+}
 </style>
