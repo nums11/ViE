@@ -1,18 +1,22 @@
 <template>
   <div id="view-quiz">
-    <router-link
-    :to="{name: 'meeting_info', params: {meeting_id: meeting_id}}">
-      <sui-button content="Back to Meeting" icon="arrow left"
-      label-position="left" style="margin:auto;" />
-    </router-link>
+    <div id="back-to-meeting-btn">
+      <router-link
+      :to="{name: 'meeting_info', params: {meeting_id: meeting_id}}">
+        <sui-button content="Back to Meeting" icon="arrow left"
+        label-position="left" />
+      </router-link>
+    </div>
     <div v-if="quiz_has_loaded" class="mt-4 center-text">
       <h1>{{ quiz.name }}</h1>
       <p class="mt-2" id="num-questions">
         {{ quiz.questions.length }} questions
       </p>
       <div class="mt-3">
-        <Button text="Start Quiz" size="large" color="blue"
-        route_name="real_time_quiz"
+        <Button :text="is_instructor ? 'Start Quiz' : 'Join Quiz'"
+        size="large" color="blue"
+        :route_name="is_instructor ? 'instructor_real_time_quiz' :
+        'student_real_time_quiz'"
         :route_params="{meeting_id: meeting_id, quiz_id: quiz_id}"
         wide />
       </div>
@@ -66,5 +70,13 @@ export default {
 
 #num-questions {
   font-size: 1.5rem;
+}
+
+/* Tablets */
+@media (max-width: 1128px) {
+  #back-to-meeting-btn {
+    width: 14rem;
+    margin: auto;
+  }
 }
 </style>

@@ -95,6 +95,7 @@ function start() {
       io = require('socket.io')(server);
       io.on('connection', (socket) => {
         QRSocketHelper.handleQRSocketEvents(io, socket, real_time_qr_scan_ids)
+        console.log("Handling")
         RealTimeQuizSocketHelper.handleRealTimeQuizSocketEvents(io, socket,
           real_time_quiz_ids)
       })

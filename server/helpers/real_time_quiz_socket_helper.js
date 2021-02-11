@@ -14,4 +14,16 @@ function handleRealTimeQuizSocketEvents(io, socket,
 	  })
 	})
 
+	socket.on('joinRealTimeQuiz', (quiz_id, cb) => {
+	  console.log(`received joinRealTimeQuiz event for `
+	  + `quiz_id ${quiz_id}`)
+	  const quiz = real_time_quiz_ids.get(quiz_id)
+	  if(quiz == null)
+	  	cb(false, null)
+	  else {
+	  	quiz.student_socket_ids.push(socket.id)
+	  	cb(true, quiz.current_question_id)
+	  }
+	})
+
 }

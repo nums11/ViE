@@ -56,7 +56,7 @@ import helpers from '@/helpers.js'
 import io from 'socket.io-client';
 
 export default {
-  name: 'RealTimeQuiz',
+  name: 'InstructorRealTimeQuiz',
   mixins: [helpers],
   components: {
     BarChart,
