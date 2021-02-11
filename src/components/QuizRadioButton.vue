@@ -95,6 +95,17 @@ export default {
 @media (max-width: 744px) {
   .quiz-radio-button {
     width: 90%;
+    min-height: 3.5rem;
+    padding-top: 0.8rem;
   }
+  .circle {
+    height: 1.5rem;
+    width: 1.5rem;
+  }
+  .answer {
+    font-size: 1rem;
+    margin-top: 0.1rem;
+  }
+
 }
 </style>

@@ -194,6 +194,8 @@ export default {
   }
   #question {
     width: 90%;
+    font-size: 1.5rem;
+    line-height: 2.5rem;
   }
 }
 </style>
