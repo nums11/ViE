@@ -15,6 +15,8 @@ const Submission = require('./Submission/Submission.model');
 const SubmissionHelper = require('./helpers/submission_helper');
 const NotificationHelper = require('./helpers/notification_helper');
 const QRSocketHelper = require('./helpers/qr_socket_helper');
+const RealTimeQuizSocketHelper
+  = require('./helpers/real_time_quiz_socket_helper');
 const QRScan = require('./QRScan/QRScan.model');
 const nodemailer = require("nodemailer");
 
@@ -88,9 +90,14 @@ function start() {
       console.log("App is now running on port", port);
       // Map between qr_scan ids and the instructor socket ids
       const real_time_qr_scan_ids = new Map()
+      // Map between quiz ids and an object containg the instructor
+      // socket id, current question id, and an array of student ids
+      const real_time_quiz_ids = new Map()
       io = require('socket.io')(server);
       io.on('connection', (socket) => {
-        QRSocketHelper.handleQRSocketEvents(socket, real_time_qr_scan_ids)
+        QRSocketHelper.handleQRSocketEvents(io, socket, real_time_qr_scan_ids)
+        RealTimeQuizSocketHelper.handleRealTimeQuizSocketEvents(io, socket,
+          real_time_quiz_ids)
       })
       // Forces a page refresh for all users so they can
       // be on the updated version of the app
