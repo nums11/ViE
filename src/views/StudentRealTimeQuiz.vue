@@ -7,21 +7,32 @@
       <div class="center-text" id="question">
         {{ current_question.question }}
       </div>
-      <div v-if="!user_has_answered">
+      <p v-if="user_has_answered"
+      class="mt-1 center-text bold">
+        <span v-if="is_correct" class="green">
+          <sui-icon name="check" /> Correct
+        </span>
+        <span v-else class="red">
+          <sui-icon name="x" /> Incorrect
+        </span>
+        <div class="mt-1 center-text bold" id="wait-msg">
+          Please wait for the instructor to show the
+          next question
+        </div>
+      </p>
+      <div>
         <QuizRadioButton
         v-for="(answer, index) in
         current_question.answer_choices"
+        :ref="`QuizRadioButton${index}`"
         :answer="answer" :index="index"
         v-on:select-answer-choice="selectAnswerChoice" />
         <div @click="submit" id="btn-container">
           <Button text="Submit" color="blue" size="large"
-          invert_colors :disabled="!choiceSelected" />
+          :disabled="!choiceSelected || user_has_answered"
+          invert_colors />
         </div>
       </div>
-      <p v-else>
-        Please wait for your instructor to show
-        the next question
-      </p>
     </div>
   </div>
 </template>
@@ -100,7 +111,7 @@ export default {
         (quiz_exists, current_question_id) => {
           if(quiz_exists) {
             this.getQuestion(current_question_id)
-            // this.checkIfUserAnsweredCurrentQuestion()
+            this.checkIfUserAnsweredCurrentQuestion()
           }
           else
             alert("No real time quiz found")
@@ -127,6 +138,7 @@ export default {
         this.is_correct =
           this.submission.quiz_answer_indices[this.current_question_index]
             === this.current_question.correct_answer_index
+        this.highlightButtons()
       }
     },
     selectAnswerChoice(index) {
@@ -144,10 +156,22 @@ export default {
             if(submission_succesful) {
               alert("Submission successful")
               this.user_has_answered = true
+              this.highlightButtons()
             } else
               alert("Sorry, something went wrong")
           }
         )
+      }
+    },
+    highlightButtons() {
+      for(let i = 0; i < this.current_question.answer_choices.length;
+        i++) {
+        console.log("Refs", this.$refs[`QuizRadioButton${i}`])
+        const btn = this.$refs[`QuizRadioButton${i}`][0]
+        if(i === this.current_question.correct_answer_index)
+          btn.highlightButton(true)
+        else
+          btn.highlightButton(false)
       }
     }
   }
@@ -181,10 +205,22 @@ export default {
   color: #2c3e50;
 }
 
+.green {
+  color: #00b80c;
+}
+
+.red {
+  color: #FF0000;
+}
+
 #btn-container {
   width: 9rem;
   margin: auto;
   margin-top: 3rem;
+}
+
+#wait-msg {
+  color: #e83e8c;
 }
 
 /* Phones */
@@ -196,6 +232,11 @@ export default {
     width: 90%;
     font-size: 1.5rem;
     line-height: 2.5rem;
+  }
+  #wait-msg {
+    width: 80%;
+    margin: auto;
+    margin-top: 2rem;
   }
 }
 </style>

@@ -39,10 +39,25 @@ export default {
           el.classList.remove('selected-button')
           el.firstElementChild.classList.remove('selected-button')
       })
-      const selected_button = document.getElementById(
+      this.addClass('selected-button')
+    },
+    highlightButton(is_green) {
+      const class_name = is_green ?
+      'green-button' : 'red-button'
+      this.removeClass('selected-button')
+      this.addClass(class_name)
+    },
+    addClass(class_name) {
+      const button = document.getElementById(
         `quiz-radio-button-${this.index}`)
-      selected_button.classList.add('selected-button')
-      selected_button.firstElementChild.classList.add('selected-button')
+      button.classList.add(class_name)
+      button.firstElementChild.classList.add(class_name)
+    },
+    removeClass(class_name) {
+      const button = document.getElementById(
+        `quiz-radio-button-${this.index}`)
+      button.classList.remove(class_name)
+      button.firstElementChild.classList.remove(class_name)
     }
   }
 }
@@ -89,6 +104,16 @@ export default {
   border: #00B3FF solid;
   color: #00B3FF;
   font-weight: bold;
+}
+
+.green-button {
+  color: #00b80c;
+  border-color: #00b80c;
+}
+
+.red-button {
+  color: #FF0000;
+  border-color: #FF0000;
 }
 
 /* Phones */
