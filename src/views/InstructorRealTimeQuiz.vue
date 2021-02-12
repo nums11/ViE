@@ -29,9 +29,9 @@
       <div class="center-text wrap-text" id="submissions">
         Submissions Received
         <p id="num-submissions">
-          {{ quiz.submissions.length }}/{{ meeting_students.size }}
-          ({{ (quiz.submissions.length /
-            meeting_students.size).toFixed(0) }} %)
+          {{ num_answers_for_current_question }}/{{ meeting_students.size }}
+          ({{ ((num_answers_for_current_question /
+            meeting_students.size)*100).toFixed(0) }} %)
         </p>
       </div>
       <BarChart ref="BarChart"
@@ -70,6 +70,7 @@ export default {
       quiz_has_loaded: false,
       current_question: null,
       current_question_index: 0,
+      num_answers_for_current_question: 0,
       chart_data: {
         labels: [],
         datasets: [{
@@ -155,15 +156,33 @@ export default {
       }
     },
     showQuestion() {
-      console.log("chart_data", this.chart_data)
       this.current_question = this.quiz.questions[
         this.current_question_index]
+      this.num_answers_for_current_question = 0
       this.chart_data.labels = []
       this.chart_data.datasets[0].data = []
-      this.current_question.answer_choices.forEach(choice => {
-        this.chart_data.labels.push(choice)
-        this.chart_data.datasets[0].data.push(0)
+      const num_submissions_for_each_answer
+        = this.getAnswersToCurrentQuestion()
+      const choices = this.current_question.answer_choices
+      for(let i = 0; i < choices.length; i++) {
+        this.chart_data.labels.push(choices[i])
+        this.chart_data.datasets[0].data.push(
+          num_submissions_for_each_answer[i])
+      }
+    },
+    getAnswersToCurrentQuestion() {
+      const num_submissions_for_each_answer = new Array(
+        this.current_question.answer_choices.length).fill(0)
+      this.quiz.submissions.forEach(submission => {
+        if(this.userAnsweredQuestion(submission,
+          this.current_question_index)) {
+          this.num_answers_for_current_question++
+          const user_choice_index = submission.quiz_answer_indices[
+            this.current_question_index]
+          num_submissions_for_each_answer[user_choice_index]++
+        }
       })
+      return num_submissions_for_each_answer
     },
     changeQuestion(is_next) {
       if(is_next)
@@ -171,6 +190,7 @@ export default {
       else
         this.current_question_index--
       this.showQuestion()
+      this.emitChangeQuestionEvent()
       this.updateChart()
     },
     updateChart() {
@@ -187,6 +207,15 @@ export default {
         this.chart_data.datasets[0].data[selected_answer_index]++
         this.updateChart()
       })
+    },
+    emitChangeQuestionEvent() {
+      this.client_io.emit('changeQuestion', this.quiz._id,
+        this.quiz.questions[this.current_question_index]._id,
+        (event_successful) => {
+          if(!event_successful)
+            alert("Sorry, something went wrong")
+        }
+      )
     }
   }
 }

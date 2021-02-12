@@ -66,4 +66,18 @@ function handleRealTimeQuizSocketEvents(io, socket,
 	  cb(true)
 	})
 
+	socket.on('changeQuestion', (quiz_id, question_id, cb) => {
+		const quiz = real_time_quiz_ids.get(quiz_id)
+		if(quiz == null) {
+			cb(false)
+			return
+		}
+		quiz.current_question_id = question_id
+		real_time_quiz_ids.set(quiz_id, quiz)
+		quiz.student_socket_ids.forEach(socket_id => {
+			io.to(socket_id).emit('changeQuestion', question_id)
+		})
+		cb(true)
+	})
+
 }

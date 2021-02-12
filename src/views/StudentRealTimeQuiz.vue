@@ -110,15 +110,19 @@ export default {
       this.client_io.emit('joinRealTimeQuiz', this.quiz_id,
         (quiz_exists, current_question_id) => {
           if(quiz_exists) {
-            this.getQuestion(current_question_id)
-            this.checkIfUserAnsweredCurrentQuestion()
+            this.showQuestion(current_question_id)
+            this.quiz_has_loaded = true
+            this.$nextTick(function() {
+              this.checkIfUserAnsweredCurrentQuestion()
+            })
           }
           else
             alert("No real time quiz found")
         }
       )
+      this.handleEmissions()
     },
-    getQuestion(question_id) {
+    showQuestion(question_id) {
       const questions = this.quiz.questions
       for(let i = 0; i < questions.length; i++) {
         if(questions[i]._id === question_id) {
@@ -126,14 +130,17 @@ export default {
           this.current_question_index = i
         }
       }
-      this.quiz_has_loaded = true
-      console.log("current_question", this.current_question)
+    },
+    handleEmissions() {
+      this.client_io.on('changeQuestion', (question_id) => {
+        this.showQuestion(question_id)
+      })
     },
     checkIfUserAnsweredCurrentQuestion() {
       if(this.submission == null)
         return
-      if(this.submission.quiz_answer_indices.length >
-        this.current_question_index) {
+      if(this.userAnsweredQuestion(submission,
+        this.current_question_index)) {
         this.user_has_answered = true
         this.is_correct =
           this.submission.quiz_answer_indices[this.current_question_index]
@@ -166,7 +173,6 @@ export default {
     highlightButtons() {
       for(let i = 0; i < this.current_question.answer_choices.length;
         i++) {
-        console.log("Refs", this.$refs[`QuizRadioButton${i}`])
         const btn = this.$refs[`QuizRadioButton${i}`][0]
         if(i === this.current_question.correct_answer_index)
           btn.highlightButton(true)

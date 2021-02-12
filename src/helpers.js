@@ -244,6 +244,10 @@ export default {
 		  })
 		  const unique_meeting_ids = [...new Set(course_meeting_ids)]
 		  return [sections, unique_meeting_ids]
+		},
+		userAnsweredQuestion(submission, current_question_index) {
+			return submission.quiz_answer_indices.length >
+          		current_question_index
 		}
 	}
 }
