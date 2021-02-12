@@ -67,6 +67,8 @@ function handleRealTimeQuizSocketEvents(io, socket,
 	})
 
 	socket.on('changeQuestion', (quiz_id, question_id, cb) => {
+		console.log(`received changeQuestion event for `
+		+ `quiz_id ${quiz_id}`)
 		const quiz = real_time_quiz_ids.get(quiz_id)
 		if(quiz == null) {
 			cb(false)

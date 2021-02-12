@@ -58,6 +58,10 @@ export default {
         `quiz-radio-button-${this.index}`)
       button.classList.remove(class_name)
       button.firstElementChild.classList.remove(class_name)
+    },
+    removeHighlight() {
+      this.removeClass('green-button')
+      this.removeClass('red-button')
     }
   }
 }

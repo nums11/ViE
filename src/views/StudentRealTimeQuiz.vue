@@ -7,7 +7,7 @@
       <div class="center-text" id="question">
         {{ current_question.question }}
       </div>
-      <p v-if="user_has_answered"
+      <div v-if="user_has_answered"
       class="mt-1 center-text bold">
         <span v-if="is_correct" class="green">
           <sui-icon name="check" /> Correct
@@ -15,11 +15,11 @@
         <span v-else class="red">
           <sui-icon name="x" /> Incorrect
         </span>
-        <div class="mt-1 center-text bold" id="wait-msg">
+        <div class="center-text bold" id="wait-msg">
           Please wait for the instructor to show the
           next question
         </div>
-      </p>
+      </div>
       <div>
         <QuizRadioButton
         v-for="(answer, index) in
@@ -134,18 +134,26 @@ export default {
     handleEmissions() {
       this.client_io.on('changeQuestion', (question_id) => {
         this.showQuestion(question_id)
+        this.checkIfUserAnsweredCurrentQuestion()
       })
     },
     checkIfUserAnsweredCurrentQuestion() {
-      if(this.submission == null)
+      if(this.submission == null) {
+        this.user_has_answered = false
+        this.removeButtonHiglights()
         return
-      if(this.userAnsweredQuestion(submission,
+      }
+
+      if(this.userAnsweredQuestion(this.submission,
         this.current_question_index)) {
         this.user_has_answered = true
         this.is_correct =
           this.submission.quiz_answer_indices[this.current_question_index]
             === this.current_question.correct_answer_index
         this.highlightButtons()
+      } else {
+        this.user_has_answered = false
+        this.removeButtonHiglights()
       }
     },
     selectAnswerChoice(index) {
@@ -161,7 +169,6 @@ export default {
           this.selected_choice_index, this.is_correct,
           this.submission, (submission_succesful) => {
             if(submission_succesful) {
-              alert("Submission successful")
               this.user_has_answered = true
               this.highlightButtons()
             } else
@@ -178,6 +185,13 @@ export default {
           btn.highlightButton(true)
         else
           btn.highlightButton(false)
+      }
+    },
+    removeButtonHiglights() {
+      for(let i = 0; i < this.current_question.answer_choices.length;
+        i++) {
+        const btn = this.$refs[`QuizRadioButton${i}`][0]
+        btn.removeHighlight()
       }
     }
   }
@@ -200,7 +214,7 @@ export default {
 }
 
 #question {
-  min-height: 4rem;
+  min-height: 3rem;
   max-height: 12rem;
   line-height: 4rem;
   width: 60%;
@@ -242,7 +256,7 @@ export default {
   #wait-msg {
     width: 80%;
     margin: auto;
-    margin-top: 2rem;
+    margin-top: 1rem;
   }
 }
 </style>
