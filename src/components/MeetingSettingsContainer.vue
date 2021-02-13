@@ -22,6 +22,10 @@
           <label>Real-Time End</label>
           <input type="datetime-local" id="real-time-end" />
         </sui-form-field>
+        <h5>
+          QR Scans
+          ({{ meeting_copy.real_time_portion.qr_scans.length }})
+        </h5>
         <div v-for="(qr_scan, index) in
         meeting_copy.real_time_portion.qr_scans"
         class="mt-2">
@@ -50,6 +54,43 @@
             </sui-form-field>
           </div>
         </div>
+        <h5>
+          Quizzes
+          ({{ meeting_copy.real_time_portion.quizzes.length }})
+        </h5>
+        <div v-for="quiz in meeting_copy.real_time_portion.quizzes"
+        class="mt-2">
+          <sui-form-field>
+            <label>Quiz Name</label>
+            <input type="text"
+            v-model="quiz.name" style="width:50%;" />
+            <sui-button
+              @click.prevent="showEditQuizModal(quiz)"
+              animated size="small"
+              style="background-color:#00B3FF; color:white;
+              margin-left:2rem;">
+              <sui-button-content visible>
+                Edit Quiz
+              </sui-button-content>
+              <sui-button-content hidden>
+                <sui-icon name="edit" />
+              </sui-button-content>
+            </sui-button>
+            <sui-button @click.prevent="deleteQRScanOrVideo(
+              index,quiz._id,false, quiz)"
+            size="tiny" animated
+            style="background-color:#FF0000; 
+            color:white;">
+              <sui-button-content visible>
+                Delete Quiz
+              </sui-button-content>
+              <sui-button-content hidden>
+                  <sui-icon name="trash" />
+              </sui-button-content>
+            </sui-button>
+          </sui-form-field>
+        </div>
+          
         <div class="inline-block mt-2 ">
           <sui-button @click.prevent="deletePortion(true)"
           size="tiny" animated
@@ -81,6 +122,10 @@
           <label>Async End</label>
           <input type="datetime-local" id="async-end" />
         </sui-form-field>
+        <h5>
+          Videos
+          ({{ meeting_copy.async_portion.videos.length }})
+        </h5>
         <div v-for="(video, index) in
         meeting_copy.async_portion.videos"
         class="mt-2">
@@ -226,6 +271,11 @@ export default {
         this.meeting_copy.real_time_portion.qr_scans.forEach(
           qr_scan => {
             qr_scan.submissions = []
+          }
+        )
+        this.meeting_copy.real_time_portion.quizzes.forEach(
+          quiz => {
+            quiz.submissions = []
           }
         )
       }
