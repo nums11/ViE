@@ -174,6 +174,7 @@ export default {
       const num_submissions_for_each_answer = new Array(
         this.current_question.answer_choices.length).fill(0)
       this.quiz.submissions.forEach(submission => {
+        console.log("checking submission")
         if(this.userAnsweredQuestion(submission,
           this.current_question_index)) {
           this.num_answers_for_current_question++
@@ -201,12 +202,31 @@ export default {
       this.client_io = io (url, {forceNew: true})
       this.client_io.emit('startRealTimeQuiz', this.quiz_id,
         this.quiz.questions[0]._id)
+      this.handleEmissions()
+    },
+    handleEmissions() {
       this.client_io.on('addStudentSubmission',
-        (selected_answer_index) => {
-        console.log("Adding student submission", selected_answer_index)
+        (selected_answer_index, submission) => {
+        this.addOrUpdateSubmission(submission)
         this.chart_data.datasets[0].data[selected_answer_index]++
         this.updateChart()
       })
+    },
+    addOrUpdateSubmission(submission) {
+      let existing_submission_index = -1
+      const submissions = this.quiz.submissions
+      for(let i = 0; i < submissions.length; i++) {
+        if(submissions[i]._id === submission._id) {
+          existing_submission_index = i
+          break
+        }
+      }
+
+      if(existing_submission_index === -1)
+        this.quiz.submissions.push(submission)
+      else
+        this.quiz.submissions[existing_submission_index]
+          = submission
     },
     emitChangeQuestionEvent() {
       this.client_io.emit('changeQuestion', this.quiz._id,

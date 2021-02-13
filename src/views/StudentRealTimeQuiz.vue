@@ -104,7 +104,6 @@ export default {
       }
     },
     joinRealTimeQuiz() {
-      console.log("Here")
       const url = this.getBaseURL()
       this.client_io = io (url, {forceNew: true})
       this.client_io.emit('joinRealTimeQuiz', this.quiz_id,
@@ -134,7 +133,9 @@ export default {
     handleEmissions() {
       this.client_io.on('changeQuestion', (question_id) => {
         this.showQuestion(question_id)
-        this.checkIfUserAnsweredCurrentQuestion()
+        this.$nextTick(function() {
+          this.checkIfUserAnsweredCurrentQuestion()
+        })
       })
     },
     checkIfUserAnsweredCurrentQuestion() {
@@ -164,6 +165,8 @@ export default {
         this.is_correct =
           this.selected_choice_index ===
             this.current_question.correct_answer_index
+        if(this.submission != null)
+          this.submission.quiz_answer_indices.push(this.selected_choice_index)
         this.client_io.emit('addStudentQuizSubmission',
           this.state_user._id, this.quiz_id,
           this.selected_choice_index, this.is_correct,

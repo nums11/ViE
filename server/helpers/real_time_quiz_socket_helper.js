@@ -40,10 +40,10 @@ function handleRealTimeQuizSocketEvents(io, socket,
 	  }
 
 	  let submission;
-	  let updated_quiz = null
+	  let updated_submission;
 	  if(existing_submission != null) {
 	  	submission = existing_submission
-	  	updated_quiz = await SubmissionHelper.updateSubmission(
+	  	updated_submission = await SubmissionHelper.updateSubmission(
 	  	  submission._id, submission)
 	  } else {
 	  	const num_correct_answers = is_correct ? 1 : 0
@@ -53,16 +53,16 @@ function handleRealTimeQuizSocketEvents(io, socket,
 	  	  quiz_answer_indices: [selected_choice_index],
 	  	  num_correct_answers: num_correct_answers 
 	  	}
-	  	updated_quiz = await SubmissionHelper.addQuizSubmission(
+	  	updated_submission = await SubmissionHelper.addQuizSubmission(
 	  	  quiz_id, submission)
 	  }
-  	if(updated_quiz == null) {
+  	if(updated_submission == null) {
   		cb(false)
   		return
   	}
 
 	  io.to(quiz.instructor_socket_id).emit(
-	  	'addStudentSubmission',selected_choice_index)
+	  	'addStudentSubmission',selected_choice_index,updated_submission)
 	  cb(true)
 	})
 

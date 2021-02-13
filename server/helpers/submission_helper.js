@@ -73,7 +73,7 @@ async function addQuizSubmission(quiz_id, submission) {
       )
     })
     const updated_quiz = await Promise.resolve(update_promise)
-    return updated_quiz
+    return saved_submission
   } catch(error) {
     console.log(`<ERROR> addQuizSubmission quiz_id: ${quiz_id}`
       + ` submission`, submission, error)
