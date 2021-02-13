@@ -65,7 +65,7 @@
             <input type="text"
             v-model="quiz.name" style="width:50%;" />
             <sui-button
-              @click.prevent="showEditQuizModal(quiz)"
+              @click.prevent="showEditQuizModal(quiz, false)"
               animated size="small"
               style="background-color:#00B3FF; color:white;
               margin-left:2rem;">
@@ -160,7 +160,7 @@
             </sui-form-field>
             <p v-if="video.quiz == null">No Quiz</p>
             <sui-button v-else
-              @click.prevent="showEditQuizModal(video.quiz)"
+              @click.prevent="showEditQuizModal(video.quiz, true)"
               animated size="small"
               style="background-color:#00B3FF; color:white;">
               <sui-button-content visible>
@@ -649,8 +649,8 @@ export default {
       }
       this.$emit('hide-deleting-meeting-loader')
     },
-    showEditQuizModal(quiz) {
-      this.$refs.EditQuizModal.showModal(quiz)
+    showEditQuizModal(quiz, is_video_quiz) {
+      this.$refs.EditQuizModal.showModal(quiz, is_video_quiz)
     }
   }
 }

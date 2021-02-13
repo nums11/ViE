@@ -71,12 +71,14 @@ meetingRoutes.route('/get/:id').get(function (req, res, next) {
       }
     }, {
       path: 'quizzes',
-      populate: {
+      populate: [{
         path: 'submissions',
         populate: {
           path: 'submitter'
         }
-      }
+      }, {
+        path: 'questions'
+      }]
     }]
   }).
   populate({

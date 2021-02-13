@@ -9,7 +9,7 @@
         <div v-for="(question,index) in quiz.questions"
         :class="index != 0 ? 'mt-2' : ''">
           <sui-form-field>
-            <label class="form-label">
+            <label v-if="is_video_quiz" class="form-label">
               {{ getFormattedVideoTimestamp(
                 question.video_timestamp) }}
             </label>
@@ -57,7 +57,8 @@ export default {
   data () {
     return {
       show_modal: false,
-      quiz: null
+      quiz: null,
+      is_video_quiz: false
     }
   },
   computed: {
@@ -83,9 +84,10 @@ export default {
   mounted () {
   },
   methods: {
-    showModal(quiz) {
+    showModal(quiz, is_video_quiz) {
       this.quiz = quiz
       this.show_modal = true
+      this.is_video_quiz = is_video_quiz
     },
     cancel() {
       this.show_modal = false
