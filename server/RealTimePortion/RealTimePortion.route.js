@@ -96,10 +96,11 @@ realTimePortionRoutes.delete('/delete/:real_time_portion_id',
   const real_time_portion_id = req.params.real_time_portion_id
   const meeting_id = req.body.meeting_id
   const qr_scans = req.body.qr_scans
+  const quizzes = req.body.quizzes
 
   try {
     const deletion_status = await RealTimePortionHelper.deleteRealTimePortion(
-      real_time_portion_id, meeting_id, qr_scans)
+      real_time_portion_id, meeting_id, qr_scans, quizzes)
     if(!deletion_status)
       throw "<ERROR> (real_time_portions/delete) deleting real_time_portion"
     console.log("<SUCCESS> (real_time_portions/delete)")

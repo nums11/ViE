@@ -17,12 +17,13 @@ export default {
       })
   },
   deleteRealTimePortion(real_time_portion_id, meeting_id,
-  	qr_scans) {
+  	qr_scans, quizzes) {
   	return API().delete(
   		`real_time_portions/delete/${real_time_portion_id}`, {
   			data: {
   				meeting_id: meeting_id,
-  				qr_scans: qr_scans
+  				qr_scans: qr_scans,
+          quizzes: quizzes
   			}
   		})
   }

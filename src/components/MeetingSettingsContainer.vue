@@ -556,17 +556,17 @@ export default {
         return
 
       try {
-        let tasks;
         if(is_real_time) {
-          tasks = this.getTasksWithSubmissionIds('qr_scan')
+          const qr_scans = this.getTasksWithSubmissionIds('qr_scan')
+          const quizzes = this.getTasksWithSubmissionIds('quiz')
           await RealTimePortionAPI.deleteRealTimePortion(
             this.meeting.real_time_portion._id, this.meeting._id,
-            tasks)
+            qr_scans, quizzes)
         } else {
-          tasks = this.getTasksWithSubmissionIds('video')
+          const videos = this.getTasksWithSubmissionIds('video')
           await AsyncPortionAPI.deleteAsyncPortion(
             this.meeting.async_portion._id, this.meeting._id,
-            tasks)
+            videos)
         }
         this.removePortionFromCourse(is_real_time)
       } catch(error) {
@@ -591,21 +591,20 @@ export default {
         const submission_ids = this.getSubmissionIds(i,
           task_type)
         const task = meeting_tasks[i]
-        // For getting the question ids for video quizzes
-        const quiz = task.quiz
-        const quiz_question_ids = []
-        let quiz_id = null
-        if(quiz != null) {
-          quiz_id = quiz._id
-          quiz_question_ids = this.getQuizQuestionIds(
-            task.quiz)
-        }
-        tasks_with_submission_ids.push({
+        const task_with_submission_ids = {
           _id: task._id,
-          submission_ids: submission_ids,
-          quiz_id: quiz_id,
-          quiz_question_ids: quiz_question_ids
-        })
+          submission_ids: submission_ids
+        }
+        if(task_type === 'video' && task.quiz != null) {
+          task_with_submission_ids.quiz_id = task.quiz._id
+          task_with_submission_ids.quiz_question_ids =
+            this.getQuizQuestionIds(task.quiz)
+        } else if(task_type === 'quiz') {
+          task_with_submission_ids.quiz_question_ids =
+            this.getQuizQuestionIds(task)
+        }
+        tasks_with_submission_ids.push(
+          task_with_submission_ids)
       }
       return tasks_with_submission_ids
     },
