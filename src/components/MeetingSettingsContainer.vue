@@ -39,8 +39,8 @@
                 :placeholder="qr_scan.reminder_time == null ?
                 'No reminder' : ''" />
               </div>
-              <sui-button @click.prevent="deleteQRScanOrVideo(
-                index,qr_scan._id,true)"
+              <sui-button @click.prevent="deleteTask(
+                index, qr_scan._id, 'qr_scan', null)"
               size="tiny" animated
               style="background-color:#FF0000; 
               color:white;margin-left:2rem;">
@@ -58,7 +58,8 @@
           Quizzes
           ({{ meeting_copy.real_time_portion.quizzes.length }})
         </h5>
-        <div v-for="quiz in meeting_copy.real_time_portion.quizzes"
+        <div v-for="(quiz, index) in
+        meeting_copy.real_time_portion.quizzes"
         class="mt-2">
           <sui-form-field>
             <label>Quiz Name</label>
@@ -76,8 +77,8 @@
                 <sui-icon name="edit" />
               </sui-button-content>
             </sui-button>
-            <sui-button @click.prevent="deleteQRScanOrVideo(
-              index,quiz._id,false, quiz)"
+            <sui-button @click.prevent="deleteTask(
+              index, quiz._id, 'quiz', quiz)"
             size="tiny" animated
             style="background-color:#FF0000; 
             color:white;">
@@ -134,8 +135,8 @@
               <label>Video Name</label>
               <input type="text"
               v-model="video.name" style="width: 50%;" />
-              <sui-button @click.prevent="deleteQRScanOrVideo(
-                index,video._id,false, video.quiz)"
+              <sui-button @click.prevent="deleteTask(
+                index, video._id, 'video', video.quiz)"
               size="tiny" animated
               style="background-color:#FF0000; 
               color:white;margin-left:2rem;">
@@ -223,6 +224,7 @@ import 'flatpickr/dist/themes/material_blue.css';
 import moment from 'moment'
 import MeetingAPI from '@/services/MeetingAPI'
 import QRScanAPI from '@/services/QRScanAPI'
+import QuizAPI from '@/services/QuizAPI'
 import VideoAPI from '@/services/VideoAPI'
 import RealTimePortionAPI from
 '@/services/RealTimePortionAPI'
@@ -474,41 +476,48 @@ export default {
         }
       }
     },
-    async deleteQRScanOrVideo(index, id, is_qr_scan,
+    async deleteTask(index, task_id, task_type,
       quiz = null) {
-      const type = is_qr_scan ? 'QR Scan' : 'Video'
       const confirmation = confirm(`Are you sure you want to`
-        + ` permanently delete this ${type}? This will delete all`
+        + ` permanently delete this task? This will delete all`
         + " student submissions.")
       if(!confirmation)
         return
 
       try {
-        const submission_ids = this.getSubmissionIds(index, is_qr_scan)
-        if(is_qr_scan) {
-          await QRScanAPI.deleteQRScan(id,
+        const submission_ids = this.getSubmissionIds(index,
+          task_type)
+        if(task_type === 'qr_scan') {
+          await QRScanAPI.deleteQRScan(task_id,
             this.meeting.real_time_portion._id, submission_ids)
-        } else {
+        } else if(task_type === 'quiz') {
+          const quiz_question_ids = this.getQuizQuestionIds(quiz)
+          await QuizAPI.deleteQuiz(task_id, quiz_question_ids,
+            this.meeting.real_time_portion._id, submission_ids)
+        } else if(task_type === 'video') {
           let quiz_id = null, quiz_question_ids = []
           if(quiz != null) {
             quiz_id = quiz._id
             quiz_question_ids = this.getQuizQuestionIds(quiz)
           }
-          await VideoAPI.deleteVideo(id,
+          await VideoAPI.deleteVideo(task_id,
             this.meeting.async_portion._id, submission_ids, quiz_id,
             quiz_question_ids)
         }
-        this.removeQRScanOrVideoFromCourse(index, is_qr_scan)
+        this.removeTaskFromMeeting(index, task_type)
       } catch(error) {
         console.log(error)
         window.alert("Sorry, something went wrong")
       }
     },
-    getSubmissionIds(index, is_qr_scan) {
+    getSubmissionIds(index, task_type) {
       let submissions;
-      if(is_qr_scan) {
+      if(task_type === 'qr_scan') {
         submissions =
           this.meeting.real_time_portion.qr_scans[index].submissions
+      } else if(task_type === 'quiz') {
+        submissions =
+          this.meeting.real_time_portion.quizzes[index].submissions
       } else {
         submissions =
           this.meeting.async_portion.videos[index].submissions
@@ -526,11 +535,14 @@ export default {
       })
       return quiz_question_ids
     },
-    removeQRScanOrVideoFromCourse(index, is_qr_scan) {
-      if(is_qr_scan) {
+    removeTaskFromMeeting(index, task_type) {
+      if(task_type === 'qr_scan') {
         this.meeting.real_time_portion.qr_scans.splice(index,1)
         this.meeting_copy.real_time_portion.qr_scans.splice(index,1)
-      } else {
+      } else if(task_type === 'quiz') {
+        this.meeting.real_time_portion.quizzes.splice(index,1)
+        this.meeting_copy.real_time_portion.quizzes.splice(index,1)
+      } else if(task_type === 'video') {
         this.meeting.async_portion.videos.splice(index, 1)
         this.meeting_copy.async_portion.videos.splice(index, 1)
       }
@@ -544,12 +556,14 @@ export default {
         return
 
       try {
-        const tasks = this.getTasksWithSubmissionIds(is_real_time)
+        let tasks;
         if(is_real_time) {
+          tasks = this.getTasksWithSubmissionIds('qr_scan')
           await RealTimePortionAPI.deleteRealTimePortion(
             this.meeting.real_time_portion._id, this.meeting._id,
             tasks)
         } else {
+          tasks = this.getTasksWithSubmissionIds('video')
           await AsyncPortionAPI.deleteAsyncPortion(
             this.meeting.async_portion._id, this.meeting._id,
             tasks)
@@ -560,20 +574,24 @@ export default {
         window.alert("Sorry, something went wrong")
       }
     },
-    getTasksWithSubmissionIds(is_real_time) {
+    getTasksWithSubmissionIds(task_type) {
       let tasks_with_submission_ids = []
       let meeting_tasks;
-      if(is_real_time) {
+      if(task_type === 'qr_scan') {
         meeting_tasks =
           this.meeting.real_time_portion.qr_scans
-      } else {
+      } else if(task_type === 'quiz') {
+        meeting_tasks =
+          this.meeting.real_time_portion.quizzes
+      } else if(task_type === 'video') {
         meeting_tasks =
           this.meeting.async_portion.videos
       }
       for(let i = 0; i < meeting_tasks.length; i++) {
         const submission_ids = this.getSubmissionIds(i,
-          is_real_time)
+          task_type)
         const task = meeting_tasks[i]
+        // For getting the question ids for video quizzes
         const quiz = task.quiz
         const quiz_question_ids = []
         let quiz_id = null
@@ -626,7 +644,7 @@ export default {
             real_time_portion_id =
               this.meeting.real_time_portion._id
             qr_scans = this.getTasksWithSubmissionIds(
-              true)
+              'qr_scan')
           }
           let async_portion_id = null
           let videos = []
@@ -634,7 +652,7 @@ export default {
             async_portion_id =
               this.meeting.async_portion._id
             videos = this.getTasksWithSubmissionIds(
-              false)
+              'video')
           }
           console.log("About to delete with videos", videos)
           await MeetingAPI.deleteMeeting(this.meeting._id,

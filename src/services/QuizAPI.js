@@ -11,4 +11,15 @@ export default {
       quiz: quiz
     })
   },
+  // DELETE -------------
+  deleteQuiz(quiz_id, quiz_question_ids,
+    real_time_portion_id, submission_ids) {
+    return API().delete(`quizzes/delete/${quiz_id}`, {
+      data: {
+        quiz_question_ids: quiz_question_ids,
+        real_time_portion_id: real_time_portion_id,
+        submission_ids: submission_ids
+      }
+    })
+  }
 }

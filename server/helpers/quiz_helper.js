@@ -1,5 +1,6 @@
 const Quiz = require('../Quiz/Quiz.model');
 const QuizQuestion = require('../QuizQuestion/QuizQuestion.model');
+const RealTimePortion = require('../RealTimePortion/RealTimePortion.model');
 
 module.exports = {createQuiz, deleteQuiz, getQuizQuestionIds}
 
@@ -54,7 +55,8 @@ async function createQuizQuestions(questions) {
   }
 }
 
-async function deleteQuiz(quiz_id, quiz_question_ids) {
+async function deleteQuiz(quiz_id, quiz_question_ids,
+  real_time_portion_id = null) {
   try {
     const deletion_status = await deleteQuizQuestions(
       quiz_question_ids)
@@ -75,8 +77,14 @@ async function deleteQuiz(quiz_id, quiz_question_ids) {
         )  
       })
     await Promise.resolve(quiz_deletion_promise)
+    if(real_time_portion_id != null) {
+      const updated_real_time_portion = await
+        removeQuizFromRealTimePortion(quiz_id, real_time_portion_id)
+      if(updated_real_time_portion == null)
+        throw "<ERROR> deleteQuiz removing quiz from real time portion"
+    }
     return true
-  } catch(error) {
+  } catch(error) {real_time_portion_id
     console.log(`<ERROR> deleteQuiz quiz_id quiz_id ${quiz_id}`
       + ` quiz_question_ids`, quiz_question_ids, error)
     return false
@@ -119,4 +127,37 @@ function getQuizQuestionIds(quiz) {
     ids.push(question)
   })
   return ids
+}
+
+async function removeQuizFromRealTimePortion(quiz_id,
+  real_time_portion_id) {
+  try {
+    const real_time_portion_promise = new Promise((resolve, reject) => {
+      RealTimePortion.findByIdAndUpdate(real_time_portion_id,
+        {$pull: {quizzes: quiz_id}},
+        (error, real_time_portion) => {
+          if(error) {
+            console.log(`<ERROR> removeQuizFromRealTimePortion updating`
+              + ` real_time_portion with id ${real_time_portion_id} and`
+              + ` quiz_id ${quiz_id}`, error)
+            reject(error)
+          } else if(real_time_portion == null) {
+            console.log(`<ERROR> removeQuizFromRealTimePortion`
+              + ` real_time_portion with id ${real_time_portion_id} not found`)
+            reject(null)
+          } else {
+            resolve(real_time_portion)
+          }
+        }
+      )
+    })
+    const updated_real_time_portion = 
+      await Promise.resolve(real_time_portion_promise)
+    return updated_real_time_portion
+  } catch(error) {
+    console.log(`<ERROR> removeQuizFromRealTimePortion`
+      + ` quiz_id ${quiz_id} real_time_portion_id `
+      + `${real_time_portion_id}`, error)
+    return null
+  }
 }
