@@ -329,14 +329,24 @@ meetingRoutes.delete('/delete_all_recurring/:recurring_id',
       meeting_promises.push(new Promise(
         async (resolve, reject) => {
         let real_time_portion_id = null
-        let qr_scans = []
+        let qr_scans = [], quizzes = []
         if(meeting.real_time_portion != null) {
           real_time_portion_id = meeting.real_time_portion._id
           let meeting_qr_scans = meeting.real_time_portion.qr_scans
+          let meeting_quizzes = meeting.real_time_portion.quizzes
           meeting_qr_scans.forEach(qr_scan => {
             qr_scans.push({
               _id: qr_scan._id,
               submission_ids: qr_scan.submissions
+            })
+          })
+          meeting_quizzes.forEach(quiz => {
+            let quiz_question_ids = QuizHelper.getQuizQuestionIds(
+              quiz)
+            quizzes.push({
+              _id: quiz._id,
+              quiz_question_ids: quiz_question_ids,
+              submission_ids: quiz.submissions
             })
           })
         }
@@ -363,7 +373,7 @@ meetingRoutes.delete('/delete_all_recurring/:recurring_id',
         try {
           const deletion_status = await MeetingHelper.deleteMeeting(
             meeting._id, real_time_portion_id, async_portion_id,
-            qr_scans, videos)
+            qr_scans, quizzes, videos)
           if(deletion_status)
             resolve(true)
           else {

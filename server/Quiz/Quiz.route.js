@@ -3,7 +3,6 @@ const quizRoutes = express.Router();
 const Quiz = require('../Quiz/Quiz.model');
 const QuizQuestion = require('../QuizQuestion/QuizQuestion.model');
 const QuizHelper = require('../helpers/quiz_helper.js');
-const SubmissionHelper = require('../helpers/submission_helper.js');
 
 // GET ---------------------
 
@@ -92,17 +91,10 @@ quizRoutes.delete('/delete/:quiz_id',
   const submission_ids = req.body.submission_ids
 
   try {
-    const quiz_promise = QuizHelper.deleteQuiz(
-      quiz_id, quiz_question_ids, real_time_portion_id)
-    const submission_promise = SubmissionHelper.deleteSubmissions(
-      submission_ids)
-    const deletion_statuses = await Promise.all([quiz_promise,
-      submission_promise])
-    if(!deletion_statuses[0])
+    const deletion_status = await QuizHelper.deleteQuiz(
+      quiz_id, quiz_question_ids, submission_ids, real_time_portion_id)
+    if(!deletion_status)
       throw "<ERROR> (quizzes/delete) deleting quiz"
-    if(!deletion_statuses[1])
-      throw "<ERROR> (quizzes/delete) deleting submissions"
-    console.log("<SUCCESS> (quizzes/delete)")
     res.json(true)
   } catch(error) {
     console.log(`<ERROR> (quizzes/delete) quiz_id ${quiz_id}`

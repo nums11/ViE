@@ -184,9 +184,11 @@ async function getRecurringMeetings(recurring_id) {
       Meeting.find({recurring_id: recurring_id})
       .populate({
         path: 'real_time_portion',
-        populate: {
+        populate: [{
           path: 'qr_scans'
-        }
+        }, {
+          path: 'quizzes'
+        }]
       })
       .populate({
         path: 'async_portion',

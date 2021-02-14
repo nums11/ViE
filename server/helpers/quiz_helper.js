@@ -1,6 +1,7 @@
 const Quiz = require('../Quiz/Quiz.model');
 const QuizQuestion = require('../QuizQuestion/QuizQuestion.model');
 const RealTimePortion = require('../RealTimePortion/RealTimePortion.model');
+const SubmissionHelper = require('../helpers/submission_helper.js');
 
 module.exports = {createQuiz, deleteQuiz, getQuizQuestionIds}
 
@@ -56,7 +57,7 @@ async function createQuizQuestions(questions) {
 }
 
 async function deleteQuiz(quiz_id, quiz_question_ids,
-  real_time_portion_id = null) {
+  submission_ids = null, real_time_portion_id = null) {
   try {
     const deletion_status = await deleteQuizQuestions(
       quiz_question_ids)
@@ -77,6 +78,12 @@ async function deleteQuiz(quiz_id, quiz_question_ids,
         )  
       })
     await Promise.resolve(quiz_deletion_promise)
+    if(submission_ids != null) {
+      const submissions_deletion_status =
+        await SubmissionHelper.deleteSubmissions(submission_ids)
+      if(!submissions_deletion_status)
+        throw "<ERROR> deleteQuiz deleting submissions"
+    }
     if(real_time_portion_id != null) {
       const updated_real_time_portion = await
         removeQuizFromRealTimePortion(quiz_id, real_time_portion_id)
