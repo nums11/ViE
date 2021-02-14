@@ -638,12 +638,14 @@ export default {
             this.meeting.recurring_id)
         } else {
           let real_time_portion_id = null
-          let qr_scans = []
+          let qr_scans = [], quizzes = []
           if(this.meeting.real_time_portion != null){
             real_time_portion_id =
               this.meeting.real_time_portion._id
             qr_scans = this.getTasksWithSubmissionIds(
               'qr_scan')
+            quizzes = this.getTasksWithSubmissionIds(
+              'quiz')
           }
           let async_portion_id = null
           let videos = []
@@ -656,7 +658,7 @@ export default {
           console.log("About to delete with videos", videos)
           await MeetingAPI.deleteMeeting(this.meeting._id,
             real_time_portion_id, async_portion_id, qr_scans,
-            videos)
+            quizzes, videos)
         }
         this.$router.push({name: 'course_info',
           params: {id: this.meeting.sections[0].course._id}})

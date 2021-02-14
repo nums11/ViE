@@ -127,13 +127,13 @@ async function updateMeeting(meeting_id, meeting) {
 }
 
 async function deleteMeeting(meeting_id, real_time_portion_id,
-  async_portion_id, qr_scans, videos) {
+  async_portion_id, qr_scans, quizzes, videos) {
   try {
     let real_time_portion_promise = null;
     if(real_time_portion_id != null) {
       real_time_portion_promise = 
         RealTimePortionHelper.deleteRealTimePortion(
-          real_time_portion_id, meeting_id, qr_scans)
+          real_time_portion_id, meeting_id, qr_scans, quizzes)
     }
     let async_portion_promise = null
     if(async_portion_id != null) {

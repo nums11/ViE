@@ -297,12 +297,13 @@ meetingRoutes.delete('/delete/:meeting_id',
   const real_time_portion_id = req.body.real_time_portion_id
   const async_portion_id = req.body.async_portion_id
   const qr_scans = req.body.qr_scans
+  const quizzes = req.body.quizzes
   const videos = req.body.videos
 
   try {
     const deletion_status = await MeetingHelper.deleteMeeting(
       meeting_id, real_time_portion_id, async_portion_id,
-      qr_scans, videos)
+      qr_scans, quizzes, videos)
     if(!deletion_status)
       throw "<ERROR> (meetings/delete) deleting meeting"
     console.log("<SUCCESS> (meetings/delete)")
