@@ -11,7 +11,7 @@
       :meeting_id="meeting_id"
       :key="index" :task="task" :index="index" :portion="portion"
       :task_type="task_type" v-on:show-qr="$emit('show-qr',task)"
-      v-on:view-submissions="$emit('view-submissions',task)"
+      v-on:view-submissions="$emit('view-submissions',task,task_type)"
       :window_is_open="!show_cant_submit_yet_msg" />
     </div>
   </div>

@@ -31,11 +31,14 @@
       <div v-if="portion != null">
         <div v-if="portion_times_and_tasks_set">
           <div v-if="show_submission_table">
-            <QRSubmissionTable v-if="is_real_time"
+            <QRSubmissionTable v-if="table_task_type === 'qr_scan'"
             :task="table_task"
             :meeting_students="meeting_students"
             v-on:hide-submission-table="hideSubmissionTable" />
-            <VideoSubmissionTable v-else
+            <VideoQuizSubmissionTable
+            v-else-if="table_task_type === 'video' ||
+            table_task_type === 'quiz'"
+            :is_video="table_task_type === 'video'"
             :task="table_task"
             :meeting_students="meeting_students"
             v-on:hide-submission-table="hideSubmissionTable" />
@@ -97,8 +100,8 @@ import AddPortionModal from
 import MeetingAPI from '@/services/MeetingAPI'
 import QRSubmissionTable from
 '@/components/QRSubmissionTable'
-import VideoSubmissionTable from
-'@/components/VideoSubmissionTable'
+import VideoQuizSubmissionTable from
+'@/components/VideoQuizSubmissionTable'
 
 export default {
   name: 'DesktopMeetingInfoPortionContainer',
@@ -121,14 +124,15 @@ export default {
   components: {
     MeetingTasksContainer,
     QRSubmissionTable,
-    VideoSubmissionTable,
+    VideoQuizSubmissionTable,
     AddTaskModal,
-    AddPortionModal
+    AddPortionModal,
   },
   data () {
     return {
       show_submission_table: false,
       table_task: null,
+      table_task_type: null,
       portion_label: "",
       portion_type: "",
       btn_icon_name: "",
@@ -173,13 +177,15 @@ export default {
         this.portion_times_and_tasks_set = true
       })
     },
-    viewSubmissions(task) {
-      this.show_submission_table = true
+    viewSubmissions(task, task_type) {
       this.table_task = task
+      this.table_task_type = task_type
+      this.show_submission_table = true
     },
     hideSubmissionTable() {
       this.show_submission_table = false
       this.table_task = null
+      this.table_task_type = null
     },
     showQR(qr_scan) {
       this.$emit("show-qr", qr_scan)
