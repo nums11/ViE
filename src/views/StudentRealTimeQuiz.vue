@@ -193,6 +193,8 @@ export default {
         if(this.submission != null) {
           this.submission.quiz_answer_indices[this.current_question_index]
             = this.selected_choice_index
+          if(this.is_correct)
+            this.submission.num_correct_answers++
         }
         this.client_io.emit('addStudentQuizSubmission',
           this.state_user._id, this.quiz_id,
