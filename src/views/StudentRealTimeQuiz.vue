@@ -3,6 +3,26 @@
     <div id="logo-container">
       <img src="@/assets/logo.svg" id="logo" />
     </div>
+    <div v-if="no_quiz_found" class="mt-2 center-text">
+      No Real-Time Quiz found. Please make sure your instructor
+      has started the quiz.
+      <div class="mt-2">
+        <sui-button animated size="tiny" @click="joinRealTimeQuiz"
+        style="background-color:#00B3FF; color:white;">
+          <sui-button-content visible>Refresh</sui-button-content>
+          <sui-button-content hidden>
+            <sui-icon name="redo" />
+          </sui-button-content>
+        </sui-button>
+      </div>
+      <div class="mt-2">
+        <router-link
+        :to="{name: 'meeting_info', params: {meeting_id: meeting_id}}">
+          <sui-button content="Back to Meeting" icon="arrow left"
+          label-position="left" />
+        </router-link>
+      </div>
+    </div>
     <div v-if="quiz_has_loaded">
       <div class="center-text" id="question">
         {{ current_question.question }}
@@ -62,7 +82,8 @@ export default {
       current_question_index: null,
       selected_choice_index: null,
       is_correct: false,
-      user_has_answered: false
+      user_has_answered: false,
+      no_quiz_found: false
     }
   },
   computed: {
@@ -112,6 +133,7 @@ export default {
       this.client_io.emit('joinRealTimeQuiz', this.quiz_id,
         (quiz_exists, current_question_id) => {
           if(quiz_exists) {
+            this.no_quiz_found = false
             this.showQuestion(current_question_id)
             this.quiz_has_loaded = true
             this.$nextTick(function() {
@@ -119,7 +141,7 @@ export default {
             })
           }
           else
-            alert("No real time quiz found")
+            this.no_quiz_found = true
         }
       )
       this.handleEmissions()
