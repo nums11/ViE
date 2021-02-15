@@ -98,6 +98,15 @@ export default {
           xAxes: [{
             gridLines: {
               display: false
+            },
+            ticks: {
+              callback: function(label) {
+                if (/\s/.test(label)) {
+                  return label.split(" ");
+                }else{
+                  return label;
+                } 
+              }
             }
           }]
         },
@@ -179,7 +188,6 @@ export default {
       const num_submissions_for_each_answer = new Array(
         this.current_question.answer_choices.length).fill(0)
       this.quiz.submissions.forEach(submission => {
-        console.log("checking submission")
         if(this.userAnsweredQuestion(submission,
           this.current_question_index)) {
           this.num_answers_for_current_question++
@@ -280,7 +288,7 @@ export default {
 
 #question {
   /*border: blue solid;*/
-  height: 8rem;
+  min-height: 8rem;
   line-height: 4rem;
   width: 90%;
   margin: auto;

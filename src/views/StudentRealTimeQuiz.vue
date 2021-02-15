@@ -258,6 +258,7 @@ export default {
   font-weight: bold;
   font-size: 2rem;
   color: #2c3e50;
+  overflow-y: auto;
 }
 
 .green {

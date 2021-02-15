@@ -79,7 +79,6 @@ export default {
         this.meeting = response.data
         this.meeting_is_real_time = this.meetingIsRealTime(
           this.meeting, Date.now())
-        console.log("meeting_is_real_time", this.meeting_is_real_time)
       } catch(error) {
         console.log(error)
         alert("Sorry, something went wrong")

@@ -90,6 +90,7 @@ export default {
   -webkit-transition: border-color 0.15s, color 0.15s linear;
   -ms-transition: border-color 0.15s, color 0.15s linear;
   transition: border-color 0.15s, color 0.15s linear;
+  overflow-y: auto;
 }
 
 .quiz-radio-button:hover {
