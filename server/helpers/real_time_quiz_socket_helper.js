@@ -85,4 +85,18 @@ function handleRealTimeQuizSocketEvents(io, socket,
 		cb(true)
 	})
 
+	socket.on('stopQuiz', (quiz_id, cb) => {
+		const quiz = real_time_quiz_ids.get(quiz_id)
+		if(quiz == null) {
+			cb(false)
+			return
+		}
+
+		quiz.student_socket_ids.forEach(socket_id => {
+			io.to(socket_id).emit('stopQuiz')
+		})
+		real_time_quiz_ids.delete(quiz_id)
+		cb(true)
+	})
+
 }

@@ -38,7 +38,8 @@
       :chart_data="chart_data"
       :chart_options="chart_options"
       :style="chart_styles" />
-      <div class="mt-1 float-right" id="stop-quiz-btn">
+      <div @click="stopQuiz"class="mt-1 float-right"
+      id="stop-quiz-btn">
         <Button text="Stop Quiz" color="pink" size="small"
         wide />
       </div>
@@ -234,6 +235,17 @@ export default {
         (event_successful) => {
           if(!event_successful)
             alert("Sorry, something went wrong")
+        }
+      )
+    },
+    stopQuiz() {
+      this.client_io.emit('stopQuiz', this.quiz._id,
+        (event_successful) => {
+          if(!event_successful)
+            alert("Sorry, something went wrong")
+          this.$router.push({name: 'meeting_info', params: {
+            meeting_id: this.meeting_id
+          }})
         }
       )
     }
