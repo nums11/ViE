@@ -1,6 +1,7 @@
 <template>
   <div class="signup-button">
-    <router-link :to="{name: route_name}"
+    <router-link :to="{name: route_name,
+      params: route_params}"
     :style="disabled ? 'cursor:auto' : ''">
       <div :class="'signup-button-container ' +
       `${size} ` +
@@ -22,6 +23,10 @@ export default {
     route_name:{
      type: String,
      default: ''
+    },
+    route_params: {
+      type: Object,
+      default: null
     },
     text: {
       type: String,

@@ -5,11 +5,10 @@
     </sui-modal-header>
     <sui-modal-content scrolling class="center-text"
     style="padding-top: 0;">
-      <sui-form class="form">
+      <sui-form class="add-task-form">
         <div id="radio-container">
           <p class="mb-2 mr-1">
-            Choose the task type ({{ coming_soon_task}}
-            coming soon).
+            Choose the task type
           </p>
           <sui-form-fields inline>
             <sui-form-field>
@@ -22,46 +21,51 @@
             <sui-form-field>
               <div class="ui radio checkbox">
                 <input type="radio" name="checked_value"
-                class="cb-two" @click="selectValue(2)" disabled>
+                class="cb-two" @click="selectValue(2)" :disabled="!is_real_time">
                 <label for="cb-two">{{ radio_label_two }}</label>
               </div>
             </sui-form-field>
           </sui-form-fields>
         </div>
         <div class="form-field" v-if='is_real_time'>
-          <p class="mb-2">
-            Schedule a reminder to receive a notification
-            for this task (recommended)
-          </p>
-          <p v-if="show_default_notification_message">
-            You currently do not have notifications enabled
-            so you will not be able to receive a reminder.
-            Click
-            <span style="cursor:pointer" @click="requestNotificationPermission">
-              <strong>here</strong>
-            </span>
-            to enable notifications.
-          </p>
-          <p v-if="show_denied_notification_message">
-            You have denied notifications. In order to receive a reminder
-            you must manually reenable notifications by clicking on
-            the lock icon on the left side of your search bar and 
-            setting notifications to 'Allow' or
-            going into the site settings.
-          </p>
-          <sui-form-field>
-            <label class="form-label">Schedule Reminder</label>
-            <input type="datetime-local"
-            id="reminder-input">
-          </sui-form-field>
+          <div v-if="value === 1">
+            <p class="mb-2">
+              Schedule a reminder to receive a notification
+              for this task (recommended)
+            </p>
+            <p v-if="show_default_notification_message">
+              You currently do not have notifications enabled
+              so you will not be able to receive a reminder.
+              Click
+              <span style="cursor:pointer" @click="requestNotificationPermission">
+                <strong>here</strong>
+              </span>
+              to enable notifications.
+            </p>
+            <p v-if="show_denied_notification_message">
+              You have denied notifications. In order to receive a reminder
+              you must manually reenable notifications by clicking on
+              the lock icon on the left side of your search bar and 
+              setting notifications to 'Allow' or
+              going into the site settings.
+            </p>
+            <sui-form-field class="add-task-form-field">
+              <label class="form-label">Schedule Reminder</label>
+              <input type="datetime-local"
+              id="reminder-input">
+            </sui-form-field>
+          </div>
+          <AddQuizForm ref="AddQuizForm" v-else
+          v-on:update-quiz-questions="updateQuizQuestions"
+          v-on:update-quiz-name="updateQuizName" />
         </div>
         <div class="form-field" v-else>
-          <sui-form-field required>
+          <sui-form-field class="add-task-form-field" required>
             <label class="form-label">Video Name</label>
             <input v-model="task.name" placeholder="Class Video">
           </sui-form-field>
           <div class="mt-2">
-            <sui-form-field required>
+            <sui-form-field class="add-task-form-field" required>
               <label class="form-label">Video File (.mp4)</label>
               <input @change="setVideoFile" type="file" id="file-input"
               accept=".mp4">
@@ -91,7 +95,7 @@
           </div>
           <div v-if="!is_real_time" class="mt-2">
             <sui-form-field v-if="task.quiz == null">
-              <sui-button @click.prevent="showAddQuizModal"
+              <sui-button @click.prevent="showAddVideoQuizModal"
               :disabled="disableAddQuizBtn"
               size="small" animated
               style="background-color:#00B3FF; color:white;">
@@ -136,26 +140,28 @@
             </div>
           </div>
         </div>
-        <div class="form-field">
-          <sui-button @click.prevent="clearInputs"
-          style="margin-right:5rem;">
-              Clear
-          </sui-button>
-          <sui-button @click.prevent="addTask"
-          animated :disabled="!formComplete"
-          style="background-color:#00b80c; color:white;">
-            <sui-button-content visible>
-              Add Task
-            </sui-button-content>
-            <sui-button-content hidden>
-              <sui-icon name="podcast" />
-            </sui-button-content>
-          </sui-button>
-        </div>
       </sui-form>
-      <AddQuizModal v-if="!is_real_time"
-      ref="AddQuizModal" v-on:save-quiz="saveQuiz" />
+      <AddVideoQuizModal v-if="!is_real_time"
+      ref="AddVideoQuizModal" v-on:save-quiz="saveQuiz" />
     </sui-modal-content>
+    <sui-modal-actions>
+      <div id="action-btns">
+        <sui-button @click.prevent="clearInputs"
+        style="margin-right:5rem;">
+            Clear
+        </sui-button>
+        <sui-button @click.prevent="addTask"
+        animated :disabled="!formComplete"
+        style="background-color:#00b80c; color:white;">
+          <sui-button-content visible>
+            Add Task
+          </sui-button-content>
+          <sui-button-content hidden>
+            <sui-icon name="podcast" />
+          </sui-button-content>
+        </sui-button>
+      </div>
+    </sui-modal-actions>
   </sui-modal>
 </template>
 
@@ -164,7 +170,8 @@ import flatpickr from "flatpickr";
 import 'flatpickr/dist/themes/material_blue.css';
 import moment from 'moment'
 import helpers from '@/helpers.js'
-import AddQuizModal from '@/components/AddQuizModal'
+import AddVideoQuizModal from '@/components/AddVideoQuizModal'
+import AddQuizForm from '@/components/AddQuizForm'
 
 export default {
   name: 'AddTaskModal',
@@ -176,7 +183,8 @@ export default {
     }
   },
   components: {
-    AddQuizModal
+    AddVideoQuizModal,
+    AddQuizForm
   },
   data () {
     return {
@@ -190,7 +198,6 @@ export default {
       },
       value: 1,
       header: "",
-      coming_soon_task: "",
       window_label: "",
       start_popup_text: "",
       end_popup_text: "",
@@ -199,7 +206,9 @@ export default {
       radio_label_one: "",
       radio_label_two: "",
       show_default_notification_message: false,
-      show_denied_notification_message: false
+      show_denied_notification_message: false,
+      quiz_questions: [],
+      quiz_name: ""
     }
   },
   computed: {
@@ -208,7 +217,12 @@ export default {
     },
     formComplete() {
       if(this.is_real_time) {
-        return true
+        if(this.value === 1)
+          return true
+        else {
+          return this.quiz_questions.length > 0
+            && this.quiz_name.length > 0
+        }
       } else {
         return this.task.name != null && 
         this.task.name !== '' &&
@@ -230,12 +244,10 @@ export default {
       let label_prefix = ""
       if(this.is_real_time) {
         label_prefix = "Real-Time"
-        this.coming_soon_task = "quizzes"
         this.radio_label_one = "QR Scan"
         this.radio_label_two = "Quiz"
       } else {
         label_prefix = "Async"
-        this.coming_soon_task = "links"
         this.radio_label_one = "Video"
         this.radio_label_two = "Link"
       }
@@ -273,7 +285,23 @@ export default {
       this.value = value
     },
     addTask(){
-      this.$emit('add-task', this.task)
+      let task = null, task_type = ""
+      if(this.is_real_time) {
+        if(this.value === 1) {
+          task = this.task
+          task_type = "qr_scan"
+        } else {
+          task = {
+            name: this.quiz_name,
+            questions: this.quiz_questions
+          }
+          task_type = "quiz"
+        }
+      } else {
+        task = this.task
+        task_type = "video"
+      }
+      this.$emit('add-task', task_type, task)
       this.hideModal()
     },
     showModal() {
@@ -290,6 +318,8 @@ export default {
       }
       if(this.is_real_time){
         this.reminder_picker.clear()
+        if(this.value === 2)
+          this.$refs.AddQuizForm.clear()
       } else {
         let file_input = document.getElementById('file-input')
         file_input.value = ''
@@ -322,7 +352,10 @@ export default {
       this.task.reminder_time = null
       this.task.video_file = null
       if(this.is_real_time){
-        this.reminder_picker.clear()
+        if(this.value === 1)
+          this.reminder_picker.clear()
+        else
+          this.$refs.AddQuizForm.clear()
       } else {
         let file_input = document.getElementById('file-input')
         file_input.value = ''
@@ -331,8 +364,8 @@ export default {
         this.task.allow_faster_viewing = false
       }
     },
-    showAddQuizModal() {
-      this.$refs.AddQuizModal.showModal(this.task.video_file)
+    showAddVideoQuizModal() {
+      this.$refs.AddVideoQuizModal.showModal(this.task.video_file)
     },
     saveQuiz(questions) {
       this.task.quiz = {
@@ -343,8 +376,14 @@ export default {
       this.task.quiz = null
     },
     editQuiz() {
-      this.$refs.AddQuizModal.showModal(this.task.video_file,
+      this.$refs.AddVideoQuizModal.showModal(this.task.video_file,
         this.task.quiz.questions)
+    },
+    updateQuizQuestions(quiz_questions) {
+      this.quiz_questions = quiz_questions
+    },
+    updateQuizName(name) {
+      this.quiz_name = name
     }
   }
 }
@@ -353,6 +392,18 @@ export default {
 <style scoped>
 #add-task-modal {
   margin-top: 2rem;
+}
+
+.add-task-form {
+  /*border: black solid;*/
+  margin-top:0;
+  width: 100%;
+}
+
+/deep/ .add-task-form-field {
+  width:70%;
+  margin: auto;
+  display: inline-block;
 }
 
 .date-input {
@@ -399,5 +450,10 @@ export default {
   vertical-align: top;
   margin-left: 0.5rem;
   margin-top: 0.15rem;
+}
+
+#action-btns {
+  margin: auto;
+  width: 19rem;
 }
 </style>

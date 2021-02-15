@@ -22,6 +22,10 @@
           <label>Real-Time End</label>
           <input type="datetime-local" id="real-time-end" />
         </sui-form-field>
+        <h5>
+          QR Scans
+          ({{ meeting_copy.real_time_portion.qr_scans.length }})
+        </h5>
         <div v-for="(qr_scan, index) in
         meeting_copy.real_time_portion.qr_scans"
         class="mt-2">
@@ -35,8 +39,8 @@
                 :placeholder="qr_scan.reminder_time == null ?
                 'No reminder' : ''" />
               </div>
-              <sui-button @click.prevent="deleteQRScanOrVideo(
-                index,qr_scan._id,true)"
+              <sui-button @click.prevent="deleteTask(
+                index, qr_scan._id, 'qr_scan', null)"
               size="tiny" animated
               style="background-color:#FF0000; 
               color:white;margin-left:2rem;">
@@ -50,6 +54,44 @@
             </sui-form-field>
           </div>
         </div>
+        <h5>
+          Quizzes
+          ({{ meeting_copy.real_time_portion.quizzes.length }})
+        </h5>
+        <div v-for="(quiz, index) in
+        meeting_copy.real_time_portion.quizzes"
+        class="mt-2">
+          <sui-form-field>
+            <label>Quiz Name</label>
+            <input type="text"
+            v-model="quiz.name" style="width:50%;" />
+            <sui-button
+              @click.prevent="showEditQuizModal(quiz, false)"
+              animated size="small"
+              style="background-color:#00B3FF; color:white;
+              margin-left:2rem;">
+              <sui-button-content visible>
+                Edit Quiz
+              </sui-button-content>
+              <sui-button-content hidden>
+                <sui-icon name="edit" />
+              </sui-button-content>
+            </sui-button>
+            <sui-button @click.prevent="deleteTask(
+              index, quiz._id, 'quiz', quiz)"
+            size="tiny" animated
+            style="background-color:#FF0000; 
+            color:white;">
+              <sui-button-content visible>
+                Delete Quiz
+              </sui-button-content>
+              <sui-button-content hidden>
+                  <sui-icon name="trash" />
+              </sui-button-content>
+            </sui-button>
+          </sui-form-field>
+        </div>
+          
         <div class="inline-block mt-2 ">
           <sui-button @click.prevent="deletePortion(true)"
           size="tiny" animated
@@ -81,6 +123,10 @@
           <label>Async End</label>
           <input type="datetime-local" id="async-end" />
         </sui-form-field>
+        <h5>
+          Videos
+          ({{ meeting_copy.async_portion.videos.length }})
+        </h5>
         <div v-for="(video, index) in
         meeting_copy.async_portion.videos"
         class="mt-2">
@@ -89,8 +135,8 @@
               <label>Video Name</label>
               <input type="text"
               v-model="video.name" style="width: 50%;" />
-              <sui-button @click.prevent="deleteQRScanOrVideo(
-                index,video._id,false, video.quiz)"
+              <sui-button @click.prevent="deleteTask(
+                index, video._id, 'video', video.quiz)"
               size="tiny" animated
               style="background-color:#FF0000; 
               color:white;margin-left:2rem;">
@@ -115,7 +161,7 @@
             </sui-form-field>
             <p v-if="video.quiz == null">No Quiz</p>
             <sui-button v-else
-              @click.prevent="showEditQuizModal(video.quiz)"
+              @click.prevent="showEditQuizModal(video.quiz, true)"
               animated size="small"
               style="background-color:#00B3FF; color:white;">
               <sui-button-content visible>
@@ -178,6 +224,7 @@ import 'flatpickr/dist/themes/material_blue.css';
 import moment from 'moment'
 import MeetingAPI from '@/services/MeetingAPI'
 import QRScanAPI from '@/services/QRScanAPI'
+import QuizAPI from '@/services/QuizAPI'
 import VideoAPI from '@/services/VideoAPI'
 import RealTimePortionAPI from
 '@/services/RealTimePortionAPI'
@@ -219,13 +266,17 @@ export default {
   },
   methods: {
     setCopyVariables() {
-      // Deep Copy
-      this.meeting_copy = JSON.parse(JSON.stringify(this.meeting))
+      this.meeting_copy = this.getDeepCopy(this.meeting)
       // Remove submissions to reduce request payload size
       if(this.meeting_copy.real_time_portion != null) {
         this.meeting_copy.real_time_portion.qr_scans.forEach(
           qr_scan => {
             qr_scan.submissions = []
+          }
+        )
+        this.meeting_copy.real_time_portion.quizzes.forEach(
+          quiz => {
+            quiz.submissions = []
           }
         )
       }
@@ -403,6 +454,11 @@ export default {
           this.meeting.real_time_portion.qr_scans[i].reminder_time
             = this.meeting_copy.real_time_portion.qr_scans[i].reminder_time
         }
+        for(let i = 0; i < this.meeting.real_time_portion.quizzes.length;
+          i++) {
+          this.meeting.real_time_portion.quizzes[i].name
+            = this.meeting_copy.real_time_portion.quizzes[i].name
+        }
       }
       if(this.meeting.async_portion != null) {
         this.meeting.async_portion.async_start
@@ -424,41 +480,48 @@ export default {
         }
       }
     },
-    async deleteQRScanOrVideo(index, id, is_qr_scan,
+    async deleteTask(index, task_id, task_type,
       quiz = null) {
-      const type = is_qr_scan ? 'QR Scan' : 'Video'
       const confirmation = confirm(`Are you sure you want to`
-        + ` permanently delete this ${type}? This will delete all`
+        + ` permanently delete this task? This will delete all`
         + " student submissions.")
       if(!confirmation)
         return
 
       try {
-        const submission_ids = this.getSubmissionIds(index, is_qr_scan)
-        if(is_qr_scan) {
-          await QRScanAPI.deleteQRScan(id,
+        const submission_ids = this.getSubmissionIds(index,
+          task_type)
+        if(task_type === 'qr_scan') {
+          await QRScanAPI.deleteQRScan(task_id,
             this.meeting.real_time_portion._id, submission_ids)
-        } else {
+        } else if(task_type === 'quiz') {
+          const quiz_question_ids = this.getQuizQuestionIds(quiz)
+          await QuizAPI.deleteQuiz(task_id, quiz_question_ids,
+            this.meeting.real_time_portion._id, submission_ids)
+        } else if(task_type === 'video') {
           let quiz_id = null, quiz_question_ids = []
           if(quiz != null) {
             quiz_id = quiz._id
             quiz_question_ids = this.getQuizQuestionIds(quiz)
           }
-          await VideoAPI.deleteVideo(id,
+          await VideoAPI.deleteVideo(task_id,
             this.meeting.async_portion._id, submission_ids, quiz_id,
             quiz_question_ids)
         }
-        this.removeQRScanOrVideoFromCourse(index, is_qr_scan)
+        this.removeTaskFromMeeting(index, task_type)
       } catch(error) {
         console.log(error)
         window.alert("Sorry, something went wrong")
       }
     },
-    getSubmissionIds(index, is_qr_scan) {
+    getSubmissionIds(index, task_type) {
       let submissions;
-      if(is_qr_scan) {
+      if(task_type === 'qr_scan') {
         submissions =
           this.meeting.real_time_portion.qr_scans[index].submissions
+      } else if(task_type === 'quiz') {
+        submissions =
+          this.meeting.real_time_portion.quizzes[index].submissions
       } else {
         submissions =
           this.meeting.async_portion.videos[index].submissions
@@ -476,11 +539,14 @@ export default {
       })
       return quiz_question_ids
     },
-    removeQRScanOrVideoFromCourse(index, is_qr_scan) {
-      if(is_qr_scan) {
+    removeTaskFromMeeting(index, task_type) {
+      if(task_type === 'qr_scan') {
         this.meeting.real_time_portion.qr_scans.splice(index,1)
         this.meeting_copy.real_time_portion.qr_scans.splice(index,1)
-      } else {
+      } else if(task_type === 'quiz') {
+        this.meeting.real_time_portion.quizzes.splice(index,1)
+        this.meeting_copy.real_time_portion.quizzes.splice(index,1)
+      } else if(task_type === 'video') {
         this.meeting.async_portion.videos.splice(index, 1)
         this.meeting_copy.async_portion.videos.splice(index, 1)
       }
@@ -494,15 +560,17 @@ export default {
         return
 
       try {
-        const tasks = this.getTasksWithSubmissionIds(is_real_time)
         if(is_real_time) {
+          const qr_scans = this.getTasksWithSubmissionIds('qr_scan')
+          const quizzes = this.getTasksWithSubmissionIds('quiz')
           await RealTimePortionAPI.deleteRealTimePortion(
             this.meeting.real_time_portion._id, this.meeting._id,
-            tasks)
+            qr_scans, quizzes)
         } else {
+          const videos = this.getTasksWithSubmissionIds('video')
           await AsyncPortionAPI.deleteAsyncPortion(
             this.meeting.async_portion._id, this.meeting._id,
-            tasks)
+            videos)
         }
         this.removePortionFromCourse(is_real_time)
       } catch(error) {
@@ -510,34 +578,37 @@ export default {
         window.alert("Sorry, something went wrong")
       }
     },
-    getTasksWithSubmissionIds(is_real_time) {
+    getTasksWithSubmissionIds(task_type) {
       let tasks_with_submission_ids = []
       let meeting_tasks;
-      if(is_real_time) {
+      if(task_type === 'qr_scan') {
         meeting_tasks =
           this.meeting.real_time_portion.qr_scans
-      } else {
+      } else if(task_type === 'quiz') {
+        meeting_tasks =
+          this.meeting.real_time_portion.quizzes
+      } else if(task_type === 'video') {
         meeting_tasks =
           this.meeting.async_portion.videos
       }
       for(let i = 0; i < meeting_tasks.length; i++) {
         const submission_ids = this.getSubmissionIds(i,
-          is_real_time)
+          task_type)
         const task = meeting_tasks[i]
-        const quiz = task.quiz
-        const quiz_question_ids = []
-        let quiz_id = null
-        if(quiz != null) {
-          quiz_id = quiz._id
-          quiz_question_ids = this.getQuizQuestionIds(
-            task.quiz)
-        }
-        tasks_with_submission_ids.push({
+        const task_with_submission_ids = {
           _id: task._id,
-          submission_ids: submission_ids,
-          quiz_id: quiz_id,
-          quiz_question_ids: quiz_question_ids
-        })
+          submission_ids: submission_ids
+        }
+        if(task_type === 'video' && task.quiz != null) {
+          task_with_submission_ids.quiz_id = task.quiz._id
+          task_with_submission_ids.quiz_question_ids =
+            this.getQuizQuestionIds(task.quiz)
+        } else if(task_type === 'quiz') {
+          task_with_submission_ids.quiz_question_ids =
+            this.getQuizQuestionIds(task)
+        }
+        tasks_with_submission_ids.push(
+          task_with_submission_ids)
       }
       return tasks_with_submission_ids
     },
@@ -571,12 +642,14 @@ export default {
             this.meeting.recurring_id)
         } else {
           let real_time_portion_id = null
-          let qr_scans = []
+          let qr_scans = [], quizzes = []
           if(this.meeting.real_time_portion != null){
             real_time_portion_id =
               this.meeting.real_time_portion._id
             qr_scans = this.getTasksWithSubmissionIds(
-              true)
+              'qr_scan')
+            quizzes = this.getTasksWithSubmissionIds(
+              'quiz')
           }
           let async_portion_id = null
           let videos = []
@@ -584,12 +657,12 @@ export default {
             async_portion_id =
               this.meeting.async_portion._id
             videos = this.getTasksWithSubmissionIds(
-              false)
+              'video')
           }
           console.log("About to delete with videos", videos)
           await MeetingAPI.deleteMeeting(this.meeting._id,
             real_time_portion_id, async_portion_id, qr_scans,
-            videos)
+            quizzes, videos)
         }
         this.$router.push({name: 'course_info',
           params: {id: this.meeting.sections[0].course._id}})
@@ -599,8 +672,8 @@ export default {
       }
       this.$emit('hide-deleting-meeting-loader')
     },
-    showEditQuizModal(quiz) {
-      this.$refs.EditQuizModal.showModal(quiz)
+    showEditQuizModal(quiz, is_video_quiz) {
+      this.$refs.EditQuizModal.showModal(quiz, is_video_quiz)
     }
   }
 }

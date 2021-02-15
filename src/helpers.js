@@ -244,6 +244,20 @@ export default {
 		  })
 		  const unique_meeting_ids = [...new Set(course_meeting_ids)]
 		  return [sections, unique_meeting_ids]
-		}
+		},
+		userAnsweredQuestion(submission, current_question_index) {
+			return submission.quiz_answer_indices.length >
+          		current_question_index
+		},
+		meetingIsRealTime(meeting, now) {
+		  if(meeting.real_time_portion == null)
+		    return false
+		  return moment(now).isBetween(meeting.real_time_portion.real_time_start,
+		    meeting.real_time_portion.real_time_end)
+		},
+		userAnsweredRealTimeQuestion(submission, current_question_index) {
+		  return submission.quiz_answer_indices[
+		    current_question_index] !== -1
+		},
 	}
 }

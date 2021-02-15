@@ -40,6 +40,9 @@ import RegisterJoinCourse from './views/RegisterJoinCourse.vue'
 import InviteStudentRedirect from './views/InviteStudentRedirect.vue'
 import SuccessfulInviteRedirect from './views/SuccessfulInviteRedirect.vue'
 import DevLogin from './views/DevLogin.vue'
+import ViewQuiz from './views/ViewQuiz.vue'
+import InstructorRealTimeQuiz from './views/InstructorRealTimeQuiz.vue'
+import StudentRealTimeQuiz from './views/StudentRealTimeQuiz.vue'
 
 Vue.use(VueRouter);
 
@@ -412,6 +415,33 @@ const router = new VueRouter({
         title: 'ViE - Reset Password',
         requiresAuth: false,
         requiresNoLogin: true
+      }
+    },
+    {
+      name: 'view_quiz',
+      path: '/view_quiz/:meeting_id/:quiz_id',
+      component: ViewQuiz,
+      meta: {
+        title: 'ViE - View Quiz',
+        requiresAuth: true
+      }
+    },
+    {
+      name: 'instructor_real_time_quiz',
+      path: '/instructor_real_time_quiz/:meeting_id/:quiz_id',
+      component: InstructorRealTimeQuiz,
+      meta: {
+        title: 'ViE - Real Time Quiz',
+        requiresAuth: true
+      }
+    },
+    {
+      name: 'student_real_time_quiz',
+      path: '/student_real_time_quiz/:meeting_id/:quiz_id',
+      component: StudentRealTimeQuiz,
+      meta: {
+        title: 'ViE - Real Time Quiz',
+        requiresAuth: true
       }
     }
   ]

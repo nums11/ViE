@@ -8,5 +8,9 @@ export default {
   changeNotificationJobInstructorToArray() {
     return API().post('global_commands/'
       + 'change_notification_job_instructor_to_array', {})
+  },
+  addQuizzesToRealTimePortions() {
+    return API().post('global_commands/'
+      + 'add_quizzes_to_real_time_portions', {})
   }
 }

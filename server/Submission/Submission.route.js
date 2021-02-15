@@ -32,32 +32,20 @@ submissionRoutes.route('/add/:qr_scan_id').post(
 });
 
 submissionRoutes.post('/update/:submission_id',
-  function (req, res, next) {
+  async function (req, res, next) {
   const submission_id = req.params.submission_id
   const submission = req.body.submission
-  Submission.findByIdAndUpdate(submission_id,
-    {
-      quiz_answer_indices: submission.quiz_answer_indices,
-      num_correct_answers: submission.num_correct_answers,
-      furthest_video_time: submission.furthest_video_time,
-      video_percent_watched: submission.video_percent_watched
-    },
-    {new: true},
-    (error, updated_submission) => {
-      if(error) {
-        console.log(`<ERROR> (submissions/update) updating submission`
-          + ` with id ${submission_id} and submission`, submission)
-        next(error)
-      } else if(updated_submission == null) {
-        console.log(`<ERROR> (submissions/update) submission with id`
-          + ` ${submission_id} not found`)
-        res.status(404).json("Submission not found")
-      } else {
-        console.log("<SUCCESS> (submissions/update)")
-        res.json(updated_submission)
-      }
-    }
-  )
+  try {
+    const updated_submission =
+      await SubmissionHelper.updateSubmission(submission_id, submission)
+    if(updated_submission == null)
+      throw "<ERROR> updating submission"
+    res.json(updated_submission)
+  } catch(error) {
+    console.log(`<ERROR> (submissions/update) submission_id`
+      + ` submission_id submission`, submission, error)
+    next(error)
+  }
 });
 
 module.exports = submissionRoutes;

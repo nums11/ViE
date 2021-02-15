@@ -46,12 +46,13 @@ export default {
   },
   // DELETE -------------------
   deleteMeeting (meeting_id, real_time_portion_id, async_portion_id,
-    qr_scans, videos) {
+    qr_scans, quizzes, videos) {
     return API().delete(`meetings/delete/${meeting_id}`, {
       data: {
         real_time_portion_id: real_time_portion_id,
         async_portion_id: async_portion_id,
         qr_scans: qr_scans,
+        quizzes: quizzes,
         videos: videos
       }
     })

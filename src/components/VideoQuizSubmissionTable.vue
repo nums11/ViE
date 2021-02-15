@@ -4,7 +4,7 @@
       <sui-table-header>
         <sui-table-row>
           <sui-table-header-cell colspan="5">
-            Video Submissions
+            {{ table_header }}
             <sui-button @click="$emit('hide-submission-table')"
             content="Back" icon="arrow left"
             label-position="left" size="small"
@@ -12,7 +12,8 @@
           </sui-table-header-cell>
         </sui-table-row>
         <sui-table-row>
-          <sui-table-header-cell colspan="3" style="vertical-align:top;">
+          <sui-table-header-cell :colspan="present_colspan"
+          style="vertical-align:top;">
             Present ({{ present_students.length }}/{{ meeting_students.size }})
           </sui-table-header-cell>
           <sui-table-header-cell colspan="2">
@@ -22,7 +23,9 @@
         </sui-table-row>
         <sui-table-row>
           <sui-table-header-cell colspan="1">Name</sui-table-header-cell>
-          <sui-table-header-cell colspan="1">Video % Watched</sui-table-header-cell>
+          <sui-table-header-cell v-if="is_video" colspan="1">
+            Video % Watched
+          </sui-table-header-cell>
           <sui-table-header-cell colspan="1">Quiz %</sui-table-header-cell>
           <sui-table-header-cell colspan="2">Name</sui-table-header-cell>
         </sui-table-row>
@@ -36,20 +39,20 @@
               ({{ present_students[i-1].user_id }})
             </span>
           </sui-table-cell>
-          <sui-table-cell >
+          <sui-table-cell v-if="is_video">
             <span v-if="i-1 < present_students.length" class="bold">
               {{ (present_students[i-1].video_percent_watched).toFixed(1) }}
             </span>
           </sui-table-cell>
           <sui-table-cell >
             <span v-if="i-1 < present_students.length" class="bold">
-              <span v-if="task.quiz == null">N/A</span>
+              <span v-if="quiz == null">N/A</span>
               <span v-else>
                 {{((present_students[i-1].num_correct_answers/
-                  task.quiz.questions.length) * 100).toFixed(1) }}
+                  quiz.questions.length) * 100).toFixed(1) }}
                 ({{ 
                   present_students[i-1].num_correct_answers }}/{{
-                    task.quiz.questions.length }})
+                    quiz.questions.length }})
               </span>
             </span>
           </sui-table-cell>
@@ -82,7 +85,7 @@ import SubmissionAPI from '@/services/SubmissionAPI'
 import helpers from '@/helpers.js'
 
 export default {
-  name: 'VideoSubmissionTable',
+  name: 'VideoQuizSubmissionTable',
   mixins: [helpers],
   props:{
     task: {
@@ -93,16 +96,23 @@ export default {
       type: Set,
       required: true
     },
+    is_video: {
+      type: Boolean,
+      required: true
+    }
   },
   data: function () {
     return {
       present_students: [],
       absent_students: [],
       num_table_rows: 0,
+      table_header: "",
+      present_colspan: 0,
+      quiz: null
     }
   },
   created () {
-    console.log("Task", this.task)
+    this.setVariables()
     const students = this.getPresentAndAbsentStudents(
       this.meeting_students)
     this.present_students = students.present_students
@@ -110,6 +120,19 @@ export default {
     this.num_table_rows = students.num_table_rows
   },
   methods: {
+    setVariables() {
+      let task_type;
+      if(this.is_video) {
+        task_type = 'Video'
+        this.present_colspan = 3
+        this.quiz = this.task.quiz
+      } else {
+        task_type = 'Quiz'
+        this.present_colspan = 2
+        this.quiz = this.task
+      }
+      this.table_header = `${task_type} Submissions`
+    }
   }
 }
 </script>

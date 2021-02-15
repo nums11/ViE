@@ -23,7 +23,7 @@
       v-on:show-section="showSection" />
       <div class="inline-block" id="main">
         <transition name="fade" mode="out-in">
-          <MeetingInfoPortionContainer
+          <DesktopMeetingInfoPortionContainer
           v-if="active_section === 'Real-Time Portion'"
           key="real-time portion"
           ref="RealTimePortionContainer"
@@ -37,7 +37,7 @@
           v-on:show-qr="showQRScanningWindow"
           v-on:set-new-portion="setNewPortion(true, ...arguments)"
           is_real_time />
-          <MeetingInfoPortionContainer
+          <DesktopMeetingInfoPortionContainer
           v-else-if="active_section === 'Async Portion'"
           key="async portion"
           ref="AsyncPortionContainer"
@@ -51,14 +51,13 @@
           key="statistics">
             <h1>Coming Soon</h1>
           </div>
-          <div v-else-if="active_section === 'Settings'"
-          key="settings">
-            <MeetingSettingsContainer :meeting="meeting"
-            v-on:show-deleting-meeting-loader="
-            toggleDeletingMeetingLoader(true)"
-            v-on:hide-deleting-meeting-loader="
-            toggleDeletingMeetingLoader(false)"/>
-          </div>
+          <MeetingSettingsContainer
+          v-else-if="active_section === 'Settings'"
+          :meeting="meeting"
+          v-on:show-deleting-meeting-loader="
+          toggleDeletingMeetingLoader(true)"
+          v-on:hide-deleting-meeting-loader="
+          toggleDeletingMeetingLoader(false)"/>
         </transition>
       </div>
     </div>
@@ -70,8 +69,8 @@ import SideBar from '@/components/SideBar'
 import MeetingAPI from '@/services/MeetingAPI'
 import FullScreenQRCodeModal from
 '@/components/FullScreenQRCodeModal.vue';
-import MeetingInfoPortionContainer from
-'@/components/MeetingInfoPortionContainer.vue';
+import DesktopMeetingInfoPortionContainer from
+'@/components/DesktopMeetingInfoPortionContainer.vue';
 import MeetingSettingsContainer from
 '@/components/MeetingSettingsContainer'
 import helpers from '@/helpers.js'
@@ -83,7 +82,7 @@ export default {
   components: {
     SideBar,
     FullScreenQRCodeModal,
-    MeetingInfoPortionContainer,
+    DesktopMeetingInfoPortionContainer,
     MeetingSettingsContainer,
     VueLottiePlayer
   },
@@ -204,11 +203,9 @@ export default {
       this.deleting_meeting = value
     },
     showLottiePlayer() {
-      console.log("showing player")
       this.show_lottie_player = true
     },
     hideLottiePlayer() {
-      console.log("hiding player")
       this.show_lottie_player = false
     }
   }

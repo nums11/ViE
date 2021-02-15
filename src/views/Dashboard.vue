@@ -86,12 +86,6 @@ export default {
           this.async_meetings.push(meeting)
       })
     },
-    meetingIsRealTime(meeting, now) {
-      if(meeting.real_time_portion == null)
-        return false
-      return moment(now).isBetween(meeting.real_time_portion.real_time_start,
-        meeting.real_time_portion.real_time_end)
-    },
     meetingWasRecentlyRealTime(meeting, now) {
       if(meeting.real_time_portion == null)
         return false

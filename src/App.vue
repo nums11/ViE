@@ -68,7 +68,9 @@ export default {
         'attend_checker',
         'course_new_meeting',
         'org_new_meeting',
-        'add_video'
+        'add_video',
+        'instructor_real_time_quiz',
+        'student_real_time_quiz'
       ],
       navbar_user: null,
       navbar_user_courses: null,
@@ -262,6 +264,10 @@ html, body {
   margin-top: 3rem;
 }
 
+.mt-4 {
+  margin-top: 4rem;
+}
+
 .ml-1 {
   margin-left: 1rem;
 }
@@ -304,6 +310,12 @@ html, body {
 
 .error {
   color: #FF0000;
+}
+
+.warning-msg {
+  background-color: #fff4d3;
+  border-radius: 2px;
+  padding: 0;
 }
 
 .green-marker {

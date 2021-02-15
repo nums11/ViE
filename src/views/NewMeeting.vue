@@ -14,12 +14,14 @@
         </router-link>
         <img src="@/assets/logo.svg" id="logo" />
       </div>
-      <NewMeetingPortionContainer :real_time_portion="real_time_portion"
+      <NewMeetingPortionContainer
+      :portion="real_time_portion" :is_real_time="true"
       v-on:clear-portion="clearPortion"
-      v-on:remove-task="removeTask('qr_scan', ...arguments)" />
-      <NewMeetingPortionContainer :async_portion="async_portion"
+      v-on:remove-task="removeTask" />
+      <NewMeetingPortionContainer
+      :portion="async_portion" :is_real_time="false"
       v-on:clear-portion="clearPortion"
-      v-on:remove-task="removeTask('video', ...arguments)" />
+      v-on:remove-task="removeTask" />
     </div>
 
     <div v-if="!course_has_loaded">
@@ -137,9 +139,9 @@
       ref="AsyncPortionModal" :is_real_time="false"
       v-on:add-portion="addPortion(false, ...arguments)" />
       <AddTaskModal ref="RealTimeModal" :is_real_time="true"
-      v-on:add-task="addTask('qr_scan', ...arguments)" />
+      v-on:add-task="addTask" />
       <AddTaskModal ref="AsyncModal" :is_real_time="false"
-      v-on:add-task="addTask('video', ...arguments)" />
+      v-on:add-task="addTask" />
     </div>
   </div>
 </template>
@@ -180,7 +182,8 @@ export default {
       real_time_portion: {
         real_time_start: null,
         real_time_end: null,
-        qr_scans: []
+        qr_scans: [],
+        quizzes: []
       },
       async_portion: {
         async_start: null,
@@ -278,6 +281,7 @@ export default {
         this.real_time_portion.real_time_start = null
         this.real_time_portion.real_time_end = null
         this.real_time_portion.qr_scans = []
+        this.real_time_portion.quizzes = []
       } else {
         this.async_portion.async_start = null
         this.async_portion.async_end = null
@@ -289,7 +293,8 @@ export default {
         if(task.reminder_time === '')
           task.reminder_time = null
         this.real_time_portion.qr_scans.push(task)
-      }
+      } else if(task_type === 'quiz')
+        this.real_time_portion.quizzes.push(task)
       else
         this.async_portion.videos.push(task)
     },
@@ -333,7 +338,9 @@ export default {
     removeTask(task_type, index) {
       if(task_type === 'qr_scan')
         this.real_time_portion.qr_scans.splice(index,1)
-      else
+      else if(task_type === 'quiz')
+        this.real_time_portion.quizzes.splice(index,1)
+      else if(task_type === 'video')
         this.async_portion.videos.splice(index,1)
     },
     async createMeeting() {

@@ -28,26 +28,45 @@
           </sui-button-content>
         </sui-button>
       </div>
-      <div v-if="(is_real_time && portion != null)
-        || (!is_real_time && portion != null)">
+      <div v-if="portion != null">
         <div v-if="portion_times_and_tasks_set">
           <div v-if="show_submission_table">
-            <QRSubmissionTable v-if="is_real_time"
+            <QRSubmissionTable v-if="table_task_type === 'qr_scan'"
             :task="table_task"
             :meeting_students="meeting_students"
             v-on:hide-submission-table="hideSubmissionTable" />
-            <VideoSubmissionTable v-else
+            <VideoQuizSubmissionTable
+            v-else-if="table_task_type === 'video' ||
+            table_task_type === 'quiz'"
+            :is_video="table_task_type === 'video'"
             :task="table_task"
             :meeting_students="meeting_students"
             v-on:hide-submission-table="hideSubmissionTable" />
           </div>
-          <MeetingTasksContainer v-else
-          :meeting_id="meeting_id"
-          :task_type="is_real_time ? 'qr_scan' : 'video'"
-          :tasks="portion_tasks" :portion="portion"
-          v-on:show-qr="showQR"
-          v-on:view-submissions="viewSubmissions" />
+          <div v-else>
+            <div v-if="is_real_time">
+              <MeetingTasksContainer 
+              :meeting_id="meeting_id"
+              task_type="qr_scan"
+              :tasks="qr_scans" :portion="portion"
+              v-on:show-qr="showQR"
+              v-on:view-submissions="viewSubmissions" />
+              <MeetingTasksContainer 
+              :meeting_id="meeting_id"
+              task_type="quiz"
+              :tasks="quizzes" :portion="portion"
+              v-on:view-submissions="viewSubmissions" />
+            </div>
+            <MeetingTasksContainer v-else
+            :meeting_id="meeting_id"
+            task_type="video"
+            :tasks="videos" :portion="portion"
+            v-on:view-submissions="viewSubmissions" />
+          </div>
         </div>
+        <AddTaskModal ref="AddTaskModal"
+        :is_real_time="is_real_time"
+        v-on:add-task="addTask" />
       </div>
       <div class="add-portion-btn-container" v-else>
         <sui-button v-if="is_instructor" @click="showAddPortionModal"
@@ -60,18 +79,10 @@
                 <sui-icon :name="btn_icon_name" />
             </sui-button-content>
         </sui-button>
+        <AddPortionModal ref="AddPortionModal"
+        :is_real_time="is_real_time"
+        v-on:add-portion="addPortion" />
       </div>
-      <div v-if="portion != null">
-        <AddTaskModal v-if="is_real_time"
-        ref="AddTaskModal" :is_real_time="true"
-        v-on:add-task="addTask('qr_scan', ...arguments)" />
-        <AddTaskModal v-else
-        ref="AddTaskModal" :is_real_time="false"
-        v-on:add-task="addTask('video', ...arguments)" />
-      </div>
-      <AddPortionModal v-if="portion == null"
-      ref="AddPortionModal" :is_real_time="is_real_time"
-      v-on:add-portion="addPortion" />
     </div>
   </div>
 </template>
@@ -89,11 +100,11 @@ import AddPortionModal from
 import MeetingAPI from '@/services/MeetingAPI'
 import QRSubmissionTable from
 '@/components/QRSubmissionTable'
-import VideoSubmissionTable from
-'@/components/VideoSubmissionTable'
+import VideoQuizSubmissionTable from
+'@/components/VideoQuizSubmissionTable'
 
 export default {
-  name: 'MeetingInfoPortionContainer',
+  name: 'DesktopMeetingInfoPortionContainer',
   props: {
     portion: Object,
     meeting_id: {
@@ -113,18 +124,21 @@ export default {
   components: {
     MeetingTasksContainer,
     QRSubmissionTable,
-    VideoSubmissionTable,
+    VideoQuizSubmissionTable,
     AddTaskModal,
-    AddPortionModal
+    AddPortionModal,
   },
   data () {
     return {
       show_submission_table: false,
       table_task: null,
+      table_task_type: null,
       portion_label: "",
       portion_type: "",
       btn_icon_name: "",
-      portion_tasks: [],
+      qr_scans: [],
+      quizzes: [],
+      videos: [],
       start: null,
       end: null,
       adding_task: false,
@@ -153,22 +167,25 @@ export default {
         if(this.is_real_time) {
           this.start = this.portion.real_time_start
           this.end = this.portion.real_time_end
-          this.portion_tasks = this.portion.qr_scans
+          this.qr_scans = this.portion.qr_scans
+          this.quizzes = this.portion.quizzes
         } else {
           this.start = this.portion.async_start
           this.end = this.portion.async_end
-          this.portion_tasks = this.portion.videos
+          this.videos = this.portion.videos
         }
         this.portion_times_and_tasks_set = true
       })
     },
-    viewSubmissions(task) {
-      this.show_submission_table = true
+    viewSubmissions(task, task_type) {
       this.table_task = task
+      this.table_task_type = task_type
+      this.show_submission_table = true
     },
     hideSubmissionTable() {
       this.show_submission_table = false
       this.table_task = null
+      this.table_task_type = null
     },
     showQR(qr_scan) {
       this.$emit("show-qr", qr_scan)
@@ -176,40 +193,61 @@ export default {
     showAddTaskModal() {
       this.$refs.AddTaskModal.showModal()
     },
-    async addTask(task_type, task) {
+    addTask(task_type, task) {
       if(task_type === 'qr_scan'){
-        this.adding_task = true
-        if(task.reminder_time === '')
-          task.reminder_time = null
-        try {
-          const response = await RealTimePortionAPI.addQRScan(
-            this.portion._id, task, this.meeting_id,
-            this.instructor_ids)
-          const new_qr_scan = response.data
-          this.portion.qr_scans.push(new_qr_scan)
-        } catch(error) {
-          console.log(error)
-          window.alert("Sorry, something went wrong")
-        }
-        this.adding_task = false
+        this.addQRScan(task)
+      } else if(task_type === 'quiz') {
+        this.addQuiz(task)
       } else {
-        console.log("Here... emitting")
-        this.$emit('show-lottie-player')
-        try {
-          let response =
-            await MeetingAPI.saveVideoToGCS(task.video_file)
-          const video_url = response.data
-          task.url = video_url
-          response = await AsyncPortionAPI.addVideo(
-            this.portion._id, task)
-          const new_video = response.data
-          this.portion.videos.push(new_video)
-          this.$emit('hide-lottie-player')
-        } catch(error) {
-          console.log(error)
-          window.alert("Sorry, something went wrong")
-          this.$emit('hide-lottie-player')
-        }
+        this.addVideo(task)
+      }
+    },
+    async addQRScan(task) {
+      this.adding_task = true
+      if(task.reminder_time === '')
+        task.reminder_time = null
+      try {
+        const response = await RealTimePortionAPI.addQRScan(
+          this.portion._id, task, this.meeting_id,
+          this.instructor_ids)
+        const new_qr_scan = response.data
+        this.portion.qr_scans.push(new_qr_scan)
+      } catch(error) {
+        console.log(error)
+        window.alert("Sorry, something went wrong")
+      }
+      this.adding_task = false
+    },
+    async addQuiz(task) {
+      this.adding_task = true
+      try {
+        const response = await RealTimePortionAPI.addQuiz(
+          this.portion._id, task)
+        const new_quiz = response.data
+        this.portion.quizzes.push(new_quiz)
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
+      this.adding_task = false
+    },
+    async addVideo(task) {
+      console.log("Here... emitting")
+      this.$emit('show-lottie-player')
+      try {
+        let response =
+          await MeetingAPI.saveVideoToGCS(task.video_file)
+        const video_url = response.data
+        task.url = video_url
+        response = await AsyncPortionAPI.addVideo(
+          this.portion._id, task)
+        const new_video = response.data
+        this.portion.videos.push(new_video)
+        this.$emit('hide-lottie-player')
+      } catch(error) {
+        console.log(error)
+        window.alert("Sorry, something went wrong")
+        this.$emit('hide-lottie-player')
       }
     },
     showAddPortionModal() {

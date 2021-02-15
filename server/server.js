@@ -10,16 +10,17 @@ const serveStatic = require('serve-static');
 const LOCAL_PORT = 4000;
 const passport = require('passport')
 const session = require('express-session')
-var cookieParser = require('cookie-parser');
-const Submission = require('./Submission/Submission.model');
+const cookieParser = require('cookie-parser');
 const SubmissionHelper = require('./helpers/submission_helper');
 const NotificationHelper = require('./helpers/notification_helper');
-const QRScan = require('./QRScan/QRScan.model');
+const QRSocketHelper = require('./helpers/qr_socket_helper');
+const RealTimeQuizSocketHelper
+  = require('./helpers/real_time_quiz_socket_helper');
 const nodemailer = require("nodemailer");
 
 // For Concurrency
 const throng = require('throng')
-var WORKERS = process.env.WEB_CONCURRENCY || 1;
+const WORKERS = process.env.WEB_CONCURRENCY || 1;
 
 throng({
   workers: WORKERS,
@@ -80,75 +81,20 @@ function start() {
       process.exit(1);
     }
     console.log("Database connection ready");
-    // Initialize the app.
     var server = app.listen(process.env.PORT || LOCAL_PORT, function () {
       server.headersTimeout = 0;
       var port = server.address().port;
       console.log("App is now running on port", port);
       // Map between qr_scan ids and the instructor socket ids
-      let real_time_qr_scan_ids = new Map()
+      const real_time_qr_scan_ids = new Map()
+      // Map between quiz ids and an object containg the instructor
+      // socket id, current question id, and an array of student socket ids
+      const real_time_quiz_ids = new Map()
       io = require('socket.io')(server);
       io.on('connection', (socket) => {
-        socket.on('startRealTimeQRScan', (qr_scan_id) => {
-          console.log(`Starting real-time qr scan for id ${qr_scan_id}`)
-          real_time_qr_scan_ids.set(qr_scan_id, socket.id)
-        })
-
-        socket.on('endRealTimeQRScan', (qr_scan_id) => {
-          console.log(`Ending real-time qr scan for id ${qr_scan_id}`)
-          real_time_qr_scan_ids.delete(qr_scan_id)
-        })
-
-        // Remove the qr_scan id if the instructor closes out of Vie
-        // before closing the qr scanning window
-        socket.on('disconnect', () => {
-          const iter = real_time_qr_scan_ids.entries()
-          let value_exists = true
-          let entry;
-          while(value_exists) {
-            entry = iter.next().value
-            if(entry == null){
-              value_exists = false
-            } else {
-              const qr_scan_id = entry[0]
-              const instructor_socket_id = entry[1]
-              if(instructor_socket_id === socket.id){
-                console.log("Removing socket from real_time_qr_scan_ids")
-                real_time_qr_scan_ids.delete(qr_scan_id)
-                value_exists = false
-              }
-            }
-          }
-        });
-
-        socket.on('attemptQRScanSubmission', async (qr_scan_id, first_name,
-          last_name, user_id, user_object_id, cb) => {
-          console.log(`received submitToQRScan event for qr_scan_id ${qr_scan_id}`
-            + ` user_id ${user_id}`)
-          const instructor_socket_id = real_time_qr_scan_ids.get(qr_scan_id)
-          if(instructor_socket_id == null)
-            cb(false, null)
-          else {
-            const submission = {
-              submitter: user_object_id,
-              task_type:"QRScan"
-            }
-            const updated_qr_scan = await SubmissionHelper.addQRSubmission(
-              qr_scan_id, submission)
-            if(updated_qr_scan == null) {
-              cb(true, false)
-            } else {
-              cb(true, true)
-              io.to(instructor_socket_id).emit('addStudentSubmission',
-                {
-                  first_name: first_name,
-                  last_name: last_name,
-                  user_id: user_id
-                }
-              )
-            }
-          }
-        })
+        QRSocketHelper.handleQRSocketEvents(io, socket, real_time_qr_scan_ids)
+        RealTimeQuizSocketHelper.handleRealTimeQuizSocketEvents(io, socket,
+          real_time_quiz_ids)
       })
       // Forces a page refresh for all users so they can
       // be on the updated version of the app
@@ -190,7 +136,7 @@ function start() {
   app.use(bodyParser.json());
 
   // Serve front end build on static server
-  var distDir = __dirname + "/../dist/";
+  const distDir = __dirname + "/../dist/";
   app.use(express.static(distDir));
 
   app.use(cookieParser());

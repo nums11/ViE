@@ -32,10 +32,15 @@ async function addMeeting(meeting, real_time_portion, async_portion,
         throw "<ERROR> addMeeting saving qr scans and "
           + "scheduling notifications"
       }
+      const saved_quizzes = await createQuizzes(
+        real_time_portion.quizzes)
+      if(saved_quizzes == null)
+        throw "<ERROR> addMeeting saving quizzes"
       new_real_time_portion = new RealTimePortion({
         real_time_start: real_time_portion.real_time_start,
         real_time_end: real_time_portion.real_time_end,
-        qr_scans: saved_qr_scans
+        qr_scans: saved_qr_scans,
+        quizzes: saved_quizzes
       })
       saved_real_time_portion = await new_real_time_portion.save()
     }
@@ -84,10 +89,13 @@ async function addMeeting(meeting, real_time_portion, async_portion,
 async function updateMeeting(meeting_id, meeting) {
   try {
     let qr_scan_promise;
+    let quiz_promise;
     let real_time_portion_promise;
     if(meeting.real_time_portion != null){
       qr_scan_promise = updateQRScans(
         meeting.real_time_portion.qr_scans)
+      quiz_promise = updateQuizzes(
+        meeting.real_time_portion.quizzes)
       real_time_portion_promise = updateRealTimePortion(
         meeting.real_time_portion)
     }
@@ -101,6 +109,7 @@ async function updateMeeting(meeting_id, meeting) {
     let meeting_promise = updateMeetingTitle(meeting_id,
       meeting.title)
     const updated_qr_scans = await Promise.resolve(qr_scan_promise)
+    const updated_quizzes = await Promise.resolve(quiz_promise)
     const updated_videos = await Promise.resolve(video_promise)
     const updated_real_time_portion =
       await Promise.resolve(real_time_portion_promise)
@@ -109,6 +118,7 @@ async function updateMeeting(meeting_id, meeting) {
     const updated_meeting = await Promise.resolve(meeting_promise)
     return {
       updated_qr_scans: updated_qr_scans,
+      updated_quizzes: updated_quizzes,
       updated_videos: updated_videos,
       updated_real_time_portion: updated_real_time_portion,
       updated_async_portion: updated_async_portion,
@@ -122,13 +132,13 @@ async function updateMeeting(meeting_id, meeting) {
 }
 
 async function deleteMeeting(meeting_id, real_time_portion_id,
-  async_portion_id, qr_scans, videos) {
+  async_portion_id, qr_scans, quizzes, videos) {
   try {
     let real_time_portion_promise = null;
     if(real_time_portion_id != null) {
       real_time_portion_promise = 
         RealTimePortionHelper.deleteRealTimePortion(
-          real_time_portion_id, meeting_id, qr_scans)
+          real_time_portion_id, meeting_id, qr_scans, quizzes)
     }
     let async_portion_promise = null
     if(async_portion_id != null) {
@@ -179,9 +189,11 @@ async function getRecurringMeetings(recurring_id) {
       Meeting.find({recurring_id: recurring_id})
       .populate({
         path: 'real_time_portion',
-        populate: {
+        populate: [{
           path: 'qr_scans'
-        }
+        }, {
+          path: 'quizzes'
+        }]
       })
       .populate({
         path: 'async_portion',
@@ -245,6 +257,39 @@ async function updateQRScans(qr_scans) {
     return updated_qr_scans
   } catch(error) {
     console.log("<ERROR> updateQRScans qr_scans", qr_scans,
+      error)
+    return null
+  }
+}
+
+async function updateQuizzes(quizzes) {
+  try {
+    let quiz_promises = []
+    quizzes.forEach(quiz => {
+      quiz_promises.push(new Promise((resolve,reject) => {
+        Quiz.findByIdAndUpdate(quiz._id,
+          {name: quiz.name},
+          {new: true},
+          (error, updated_quiz) => {
+            if(error) {
+              console.log(`<ERROR> updateQuizzes updating quiz with`
+              + ` id ${quiz._id} with name ${quiz.name}`,error)
+              reject(error)
+            } else if(updated_quiz == null) {
+              console.log(`<ERROR> updateQuizzes could not find`
+                + ` quiz with id ${quiz._id} `)
+              reject(null)
+            } else {
+              resolve(updated_quiz)
+            }
+          }
+        )
+      }))
+    })
+    const updated_quizzes = await Promise.all(quiz_promises)
+    return updated_quizzes
+  } catch(error) {
+    console.log("<ERROR> updateQuizzes quizzes", quizzes,
       error)
     return null
   }
@@ -565,6 +610,37 @@ async function createVideos(videos) {
     return saved_videos
   } catch(error) {
     console.log(`<ERROR> createVideos videos:`,videos, error)
+    return null
+  }
+}
+
+async function createQuizzes(quizzes) {
+  try {
+    const quiz_creation_promises = []
+    quizzes.forEach(quiz => {
+      quiz_creation_promises.push(new Promise(
+        async (resolve,reject) => {
+        try {
+          const saved_quiz = await QuizHelper.createQuiz(quiz)
+          if(saved_quiz == null) {
+            console.log("<ERROR> createQuizzes saving quiz", quiz,
+              error)
+            reject(null)
+          }
+          resolve(saved_quiz)
+        } catch(error) {
+          console.log("<ERROR> createQuizzes saving quiz", quiz,
+            error)
+          reject(null)
+        }
+        })
+      )
+    })
+    const saved_quizzes = await Promise.all(
+      quiz_creation_promises)
+    return saved_quizzes
+  } catch(error) {
+    console.log("<ERROR> createQuizzes", quizzes, error)
     return null
   }
 }

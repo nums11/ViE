@@ -1,6 +1,39 @@
 const express = require('express');
 const quizRoutes = express.Router();
+const Quiz = require('../Quiz/Quiz.model');
 const QuizQuestion = require('../QuizQuestion/QuizQuestion.model');
+const QuizHelper = require('../helpers/quiz_helper.js');
+
+// GET ---------------------
+
+quizRoutes.get('/get/:quiz_id', function (req, res, next) {
+  const quiz_id = req.params.quiz_id
+  const quiz = req.body.quiz
+  Quiz.findById(quiz_id).
+  populate('questions').
+  populate({
+    path: 'submissions',
+    populate: {
+      path: 'submitter'
+    }
+  }).
+  exec((error, quiz) => {
+    if(error) {
+      console.log(`<ERROR> (quizzes/get) getting quiz by`
+        + ` id ${quiz_id}`, error)
+      next(error)
+    } else if(quiz == null) {
+      console.log(`<ERROR> (quizzes/get) quiz with id ${quiz_id}`
+        + ` not found`)
+      res.status(404).json("Quiz not found")
+    } else {
+      console.log("<SUCCESS> (quizzes/get)")
+      res.json(quiz)
+    }
+  })
+});
+
+// POST ---------------------
 
 quizRoutes.post('/update/:quiz_id',
   async function (req, res, next) {
@@ -44,6 +77,29 @@ quizRoutes.post('/update/:quiz_id',
   } catch(error) {
     console.log(`<ERROR> (quizzes/update) quiz_id ${quiz_id}`
       + ` quiz`, quiz, error)
+    next(error)
+  }
+});
+
+// DELETE -------------------
+
+quizRoutes.delete('/delete/:quiz_id',
+  async function (req, res, next) {
+  const quiz_id = req.params.quiz_id
+  const quiz_question_ids = req.body.quiz_question_ids
+  const real_time_portion_id = req.body.real_time_portion_id
+  const submission_ids = req.body.submission_ids
+
+  try {
+    const deletion_status = await QuizHelper.deleteQuiz(
+      quiz_id, quiz_question_ids, submission_ids, real_time_portion_id)
+    if(!deletion_status)
+      throw "<ERROR> (quizzes/delete) deleting quiz"
+    res.json(true)
+  } catch(error) {
+    console.log(`<ERROR> (quizzes/delete) quiz_id ${quiz_id}`
+      + ` quiz_question_ids ${quiz_question_ids} real_time_portion_id`
+      + ` ${real_time_portion_id} submission_ids ${submission_ids}`)
     next(error)
   }
 });
