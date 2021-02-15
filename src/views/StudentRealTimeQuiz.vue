@@ -139,22 +139,16 @@ export default {
       })
     },
     checkIfUserAnsweredCurrentQuestion() {
-      if(this.submission == null) {
+      this.removeButtonHiglights()
+      if(this.submission == null || !this.userAnsweredQuestion(
+        this.submission, this.current_question_index)) {
         this.user_has_answered = false
-        this.removeButtonHiglights()
-        return
-      }
-
-      if(this.userAnsweredQuestion(this.submission,
-        this.current_question_index)) {
+      } else {
         this.user_has_answered = true
         this.is_correct =
           this.submission.quiz_answer_indices[this.current_question_index]
             === this.current_question.correct_answer_index
         this.highlightButtons()
-      } else {
-        this.user_has_answered = false
-        this.removeButtonHiglights()
       }
     },
     selectAnswerChoice(index) {
