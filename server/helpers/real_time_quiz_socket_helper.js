@@ -35,7 +35,7 @@ function handleRealTimeQuizSocketEvents(io, socket,
 	  + `quiz_id ${quiz_id}`)
 	  const quiz = real_time_quiz_ids.get(quiz_id)
 	  if(quiz == null) {
-	  	cb(false)
+	  	cb(null)
 	  	return
 	  }
 
@@ -57,13 +57,13 @@ function handleRealTimeQuizSocketEvents(io, socket,
 	  	  quiz_id, submission)
 	  }
   	if(updated_submission == null) {
-  		cb(false)
+  		cb(null)
   		return
   	}
 
 	  io.to(quiz.instructor_socket_id).emit(
 	  	'addStudentSubmission',selected_choice_index,updated_submission)
-	  cb(true)
+	  cb(updated_submission)
 	})
 
 	socket.on('changeQuestion', (quiz_id, question_id, cb) => {

@@ -170,9 +170,10 @@ export default {
         this.client_io.emit('addStudentQuizSubmission',
           this.state_user._id, this.quiz_id,
           this.selected_choice_index, this.is_correct,
-          this.submission, (submission_succesful) => {
-            if(submission_succesful) {
+          this.submission, (updated_submission) => {
+            if(updated_submission != null) {
               this.user_has_answered = true
+              this.submission = updated_submission
               this.highlightButtons()
             } else
               alert("Sorry, something went wrong")
