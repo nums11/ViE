@@ -91,7 +91,9 @@
             <sui-icon name="check" color="green" />
           </div>
           <div v-else-if="task_type === 'quiz'">
-            0%
+            {{ num_correct_answers }}/{{ num_quiz_questions }} correct
+            ({{ ((num_correct_answers/
+              num_quiz_questions) *100).toFixed(1) }}%)
           </div>
           <div v-else-if="task_type === 'video'">
             {{ percent_watched.toFixed(1) }}%
@@ -163,10 +165,15 @@ export default {
         this.checkIfStudentSubmittedToTask(this.task)
       this.student_submitted = submission != null
       if(this.student_submitted) {
-        this.percent_watched = submission.video_percent_watched
-        if(this.task.quiz != null) {
+        if(this.task_type === 'quiz') {
           this.num_correct_answers = submission.num_correct_answers
-          this.num_quiz_questions = this.task.quiz.questions.length
+          this.num_quiz_questions = this.task.questions.length
+        } else if(this.task_type === 'video') {
+          this.percent_watched = submission.video_percent_watched
+          if(this.task.quiz != null) {
+            this.num_correct_answers = submission.num_correct_answers
+            this.num_quiz_questions = this.task.quiz.questions.length
+          }
         }
       }
     }
