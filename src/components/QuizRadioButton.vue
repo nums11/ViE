@@ -33,6 +33,12 @@ export default {
   },
   methods: {
     selectButton() {
+      // Don't highlight the button if the user has already answered
+      const button = this.getButtonElement()
+      if(button.classList.contains('green-button') ||
+        button.classList.contains('red-button'))
+        return
+
       this.$emit('select-answer-choice', this.index)
       document.querySelectorAll('.quiz-radio-button').forEach(
         el => {
@@ -48,20 +54,22 @@ export default {
       this.addClass(class_name)
     },
     addClass(class_name) {
-      const button = document.getElementById(
-        `quiz-radio-button-${this.index}`)
+      const button = this.getButtonElement()
       button.classList.add(class_name)
       button.firstElementChild.classList.add(class_name)
     },
     removeClass(class_name) {
-      const button = document.getElementById(
-        `quiz-radio-button-${this.index}`)
+      const button = this.getButtonElement()
       button.classList.remove(class_name)
       button.firstElementChild.classList.remove(class_name)
     },
     removeHighlight() {
       this.removeClass('green-button')
       this.removeClass('red-button')
+    },
+    getButtonElement() {
+      return document.getElementById(
+        `quiz-radio-button-${this.index}`)
     }
   }
 }
