@@ -54,7 +54,7 @@ export default {
         this.icon_name = "qrcode"
         this.left_side_label = `QR Scan ${this.index + 1}`
         this.right_side_label =
-          this.task.reminder_time === null ?
+          this.task.reminder_time == null ?
             'No Reminder' :
             moment(this.task.reminder_time).format(
               "M/D h:mm a")
