@@ -255,5 +255,9 @@ export default {
 		  return moment(now).isBetween(meeting.real_time_portion.real_time_start,
 		    meeting.real_time_portion.real_time_end)
 		},
+		userAnsweredRealTimeQuestion(submission, current_question_index) {
+		  return submission.quiz_answer_indices[
+		    current_question_index] !== -1
+		},
 	}
 }

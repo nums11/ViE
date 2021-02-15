@@ -188,7 +188,7 @@ export default {
       const num_submissions_for_each_answer = new Array(
         this.current_question.answer_choices.length).fill(0)
       this.quiz.submissions.forEach(submission => {
-        if(this.userAnsweredQuestion(submission,
+        if(this.userAnsweredRealTimeQuestion(submission,
           this.current_question_index)) {
           this.num_answers_for_current_question++
           const user_choice_index = submission.quiz_answer_indices[
@@ -223,6 +223,7 @@ export default {
         this.addOrUpdateSubmission(submission)
         this.chart_data.datasets[0].data[selected_answer_index]++
         this.updateChart()
+        this.num_answers_for_current_question++
       })
     },
     addOrUpdateSubmission(submission) {

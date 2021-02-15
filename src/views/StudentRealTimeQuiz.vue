@@ -171,7 +171,8 @@ export default {
     },
     checkIfUserAnsweredCurrentQuestion() {
       this.removeButtonHiglights()
-      if(this.submission == null || !this.userHasAnsweredQuestion()) {
+      if(this.submission == null || !this.userAnsweredRealTimeQuestion(
+        this.submission, this.current_question_index)) {
         this.user_has_answered = false
       } else {
         this.user_has_answered = true
@@ -180,10 +181,6 @@ export default {
             === this.current_question.correct_answer_index
         this.highlightButtons()
       }
-    },
-    userHasAnsweredQuestion() {
-      return this.submission.quiz_answer_indices[
-        this.current_question_index] !== -1
     },
     selectAnswerChoice(index) {
       this.selected_choice_index = index 
