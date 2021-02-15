@@ -55,11 +55,9 @@ function handleRealTimeQuizSocketEvents(io, socket,
 	  	}
 	  	submission.quiz_answer_indices =
 	  		new Array(num_quiz_questions).fill(-1)
-	  	console.log("quiz_answer_indices before", submission.quiz_answer_indices)
 	  	submission.quiz_answer_indices[current_question_index] = selected_choice_index
 	  	updated_submission = await SubmissionHelper.addQuizSubmission(
 	  	  quiz_id, submission)
-	  	console.log("New submission", updated_submission)
 	  }
   	if(updated_submission == null) {
   		cb(null)
