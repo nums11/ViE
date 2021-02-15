@@ -137,7 +137,7 @@ export default {
           this.checkIfUserAnsweredCurrentQuestion()
         })
       })
-      this.client_io.on('stopQuiz', () => {
+      this.client_io.on('stopRealTimeQuiz', () => {
         alert("Quiz stopped by instructor")
         this.$router.push({name: 'meeting_info', params: {
           meeting_id: this.meeting_id

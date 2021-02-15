@@ -239,7 +239,7 @@ export default {
       )
     },
     stopQuiz() {
-      this.client_io.emit('stopQuiz', this.quiz._id,
+      this.client_io.emit('stopRealTimeQuiz', this.quiz._id,
         (event_successful) => {
           if(!event_successful)
             alert("Sorry, something went wrong")
