@@ -84,6 +84,9 @@ export default {
       alert("Sorry, something went wrong")
     }
   },
+  beforeDestroy() {
+    this.client_io.emit('leaveRealTimeQuiz', this.quiz_id)
+  },
   methods: {
     async getMeeting() {
       try {
@@ -137,7 +140,7 @@ export default {
           this.checkIfUserAnsweredCurrentQuestion()
         })
       })
-      this.client_io.on('stopRealTimeQuiz', () => {
+      this.client_io.on('endRealTimeQuiz', () => {
         alert("Quiz stopped by instructor")
         this.$router.push({name: 'meeting_info', params: {
           meeting_id: this.meeting_id

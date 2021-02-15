@@ -38,9 +38,9 @@
       :chart_data="chart_data"
       :chart_options="chart_options"
       :style="chart_styles" />
-      <div @click="stopQuiz"class="mt-1 float-right"
-      id="stop-quiz-btn">
-        <Button text="Stop Quiz" color="pink" size="small"
+      <div @click="endQuiz"class="mt-1 float-right"
+      id="end-quiz-btn">
+        <Button text="End Quiz" color="pink" size="small"
         wide />
       </div>
     </div>
@@ -238,8 +238,8 @@ export default {
         }
       )
     },
-    stopQuiz() {
-      this.client_io.emit('stopRealTimeQuiz', this.quiz._id,
+    endQuiz() {
+      this.client_io.emit('endRealTimeQuiz', this.quiz._id,
         (event_successful) => {
           if(!event_successful)
             alert("Sorry, something went wrong")
@@ -300,7 +300,7 @@ export default {
   color: #2c3e50;
 }
 
-#stop-quiz-btn {
+#end-quiz-btn {
   margin-right: 5rem;
 }
 </style>

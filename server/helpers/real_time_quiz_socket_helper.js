@@ -27,6 +27,18 @@ function handleRealTimeQuizSocketEvents(io, socket,
 	  }
 	})
 
+	socket.on('leaveRealTimeQuiz', (quiz_id) => {
+		console.log(`received leaveRealTimeQuiz event for `
+		+ `quiz_id ${quiz_id}`)
+		const quiz = real_time_quiz_ids.get(quiz_id)
+		if(quiz == null) {
+			return
+		}
+
+		const index = quiz.student_socket_ids.indexOf(socket.id)
+		quiz.student_socket_ids.splice(index,1)
+	})
+
 	socket.on('addStudentQuizSubmission',
 		async (student_object_id, quiz_id,
 			num_quiz_questions, current_question_index,
@@ -85,7 +97,9 @@ function handleRealTimeQuizSocketEvents(io, socket,
 		cb(true)
 	})
 
-	socket.on('stopRealTimeQuiz', (quiz_id, cb) => {
+	socket.on('endRealTimeQuiz', (quiz_id, cb) => {
+		console.log(`received endRealTimeQuiz event for `
+		+ `quiz_id ${quiz_id}`)
 		const quiz = real_time_quiz_ids.get(quiz_id)
 		if(quiz == null) {
 			cb(false)
@@ -93,7 +107,7 @@ function handleRealTimeQuizSocketEvents(io, socket,
 		}
 
 		quiz.student_socket_ids.forEach(socket_id => {
-			io.to(socket_id).emit('stopRealTimeQuiz')
+			io.to(socket_id).emit('endRealTimeQuiz')
 		})
 		real_time_quiz_ids.delete(quiz_id)
 		cb(true)
