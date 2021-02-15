@@ -140,8 +140,7 @@ export default {
     },
     checkIfUserAnsweredCurrentQuestion() {
       this.removeButtonHiglights()
-      if(this.submission == null || !this.userAnsweredQuestion(
-        this.submission, this.current_question_index)) {
+      if(this.submission == null || !this.userHasAnsweredQuestion()) {
         this.user_has_answered = false
       } else {
         this.user_has_answered = true
@@ -151,6 +150,10 @@ export default {
         this.highlightButtons()
       }
     },
+    userHasAnsweredQuestion() {
+      return this.submission.quiz_answer_indices[
+        this.current_question_index] !== -1
+    },
     selectAnswerChoice(index) {
       this.selected_choice_index = index 
     },
@@ -159,10 +162,13 @@ export default {
         this.is_correct =
           this.selected_choice_index ===
             this.current_question.correct_answer_index
-        if(this.submission != null)
-          this.submission.quiz_answer_indices.push(this.selected_choice_index)
+        if(this.submission != null) {
+          this.submission.quiz_answer_indices[this.current_question_index]
+            = this.selected_choice_index
+        }
         this.client_io.emit('addStudentQuizSubmission',
           this.state_user._id, this.quiz_id,
+          this.quiz.questions.length, this.current_question_index,
           this.selected_choice_index, this.is_correct,
           this.submission, (updated_submission) => {
             if(updated_submission != null) {
