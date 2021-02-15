@@ -132,6 +132,10 @@ export default {
       alert("Sorry, something went wrong")
     }
   },
+  beforeDestroy() {
+    this.client_io.emit('endRealTimeQuiz', this.quiz_id,
+      (event_successful) => {})
+  },
   methods: {
     async getMeeting() {
       try {
@@ -239,7 +243,7 @@ export default {
       )
     },
     endQuiz() {
-      this.client_io.emit('endRealTimeQuiz', this.quiz._id,
+      this.client_io.emit('endRealTimeQuiz', this.quiz_id,
         (event_successful) => {
           if(!event_successful)
             alert("Sorry, something went wrong")
