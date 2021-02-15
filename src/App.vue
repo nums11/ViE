@@ -312,6 +312,12 @@ html, body {
   color: #FF0000;
 }
 
+.warning-msg {
+  background-color: #fff4d3;
+  border-radius: 2px;
+  padding: 0;
+}
+
 .green-marker {
   background-color: #00b80c !important;
 }

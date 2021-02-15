@@ -248,6 +248,12 @@ export default {
 		userAnsweredQuestion(submission, current_question_index) {
 			return submission.quiz_answer_indices.length >
           		current_question_index
-		}
+		},
+		meetingIsRealTime(meeting, now) {
+		  if(meeting.real_time_portion == null)
+		    return false
+		  return moment(now).isBetween(meeting.real_time_portion.real_time_start,
+		    meeting.real_time_portion.real_time_end)
+		},
 	}
 }

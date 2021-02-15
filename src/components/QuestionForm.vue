@@ -141,10 +141,4 @@ export default {
   font-weight: bold;
   color: #a6a6a6;
 }
-
-.warning-msg {
-  background-color: #fff4d3;
-  border-radius: 2px;
-  padding: 0;
-}
 </style>
