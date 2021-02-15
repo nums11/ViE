@@ -266,8 +266,7 @@ export default {
   },
   methods: {
     setCopyVariables() {
-      // Deep Copy
-      this.meeting_copy = JSON.parse(JSON.stringify(this.meeting))
+      this.meeting_copy = this.getDeepCopy(this.meeting)
       // Remove submissions to reduce request payload size
       if(this.meeting_copy.real_time_portion != null) {
         this.meeting_copy.real_time_portion.qr_scans.forEach(
@@ -454,6 +453,11 @@ export default {
           i++) {
           this.meeting.real_time_portion.qr_scans[i].reminder_time
             = this.meeting_copy.real_time_portion.qr_scans[i].reminder_time
+        }
+        for(let i = 0; i < this.meeting.real_time_portion.quizzes.length;
+          i++) {
+          this.meeting.real_time_portion.quizzes[i].name
+            = this.meeting_copy.real_time_portion.quizzes[i].name
         }
       }
       if(this.meeting.async_portion != null) {

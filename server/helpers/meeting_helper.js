@@ -89,10 +89,13 @@ async function addMeeting(meeting, real_time_portion, async_portion,
 async function updateMeeting(meeting_id, meeting) {
   try {
     let qr_scan_promise;
+    let quiz_promise;
     let real_time_portion_promise;
     if(meeting.real_time_portion != null){
       qr_scan_promise = updateQRScans(
         meeting.real_time_portion.qr_scans)
+      quiz_promise = updateQuizzes(
+        meeting.real_time_portion.quizzes)
       real_time_portion_promise = updateRealTimePortion(
         meeting.real_time_portion)
     }
@@ -106,6 +109,7 @@ async function updateMeeting(meeting_id, meeting) {
     let meeting_promise = updateMeetingTitle(meeting_id,
       meeting.title)
     const updated_qr_scans = await Promise.resolve(qr_scan_promise)
+    const updated_quizzes = await Promise.resolve(quiz_promise)
     const updated_videos = await Promise.resolve(video_promise)
     const updated_real_time_portion =
       await Promise.resolve(real_time_portion_promise)
@@ -114,6 +118,7 @@ async function updateMeeting(meeting_id, meeting) {
     const updated_meeting = await Promise.resolve(meeting_promise)
     return {
       updated_qr_scans: updated_qr_scans,
+      updated_quizzes: updated_quizzes,
       updated_videos: updated_videos,
       updated_real_time_portion: updated_real_time_portion,
       updated_async_portion: updated_async_portion,
@@ -252,6 +257,39 @@ async function updateQRScans(qr_scans) {
     return updated_qr_scans
   } catch(error) {
     console.log("<ERROR> updateQRScans qr_scans", qr_scans,
+      error)
+    return null
+  }
+}
+
+async function updateQuizzes(quizzes) {
+  try {
+    let quiz_promises = []
+    quizzes.forEach(quiz => {
+      quiz_promises.push(new Promise((resolve,reject) => {
+        Quiz.findByIdAndUpdate(quiz._id,
+          {name: quiz.name},
+          {new: true},
+          (error, updated_quiz) => {
+            if(error) {
+              console.log(`<ERROR> updateQuizzes updating quiz with`
+              + ` id ${quiz._id} with name ${quiz.name}`,error)
+              reject(error)
+            } else if(updated_quiz == null) {
+              console.log(`<ERROR> updateQuizzes could not find`
+                + ` quiz with id ${quiz._id} `)
+              reject(null)
+            } else {
+              resolve(updated_quiz)
+            }
+          }
+        )
+      }))
+    })
+    const updated_quizzes = await Promise.all(quiz_promises)
+    return updated_quizzes
+  } catch(error) {
+    console.log("<ERROR> updateQuizzes quizzes", quizzes,
       error)
     return null
   }

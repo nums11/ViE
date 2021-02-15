@@ -282,6 +282,7 @@ meetingRoutes.post('/update/:meeting_id',
     if(updated_values == null)
       throw "<ERROR> (meetings/update) updating values"
     res.json(updated_values)
+    console.log("<SUCCESS> (meetings/update)")
   } catch(error) {
     console.log(`<ERROR> (meetings/update) meeting_id ${meeting_id}`
       + ` meeting`, meeting)
