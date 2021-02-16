@@ -1,7 +1,7 @@
 <template>
   <div class="mt-3 qr-stats">
     <div>
-      Statistics
+      QR Statistics
       <sui-button @click="$emit('hide-stats')"
       content="Back" icon="arrow left"
       label-position="left" size="small"
