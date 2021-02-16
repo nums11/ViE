@@ -43,6 +43,10 @@
             :meeting_students="meeting_students"
             v-on:hide-submission-table="hideSubmissionTable" />
           </div>
+          <TaskStats v-else-if="show_task_stats"
+          :task="stats_task" :task_type="stats_task_type"
+          :meeting_students="meeting_students"
+          v-on:hide-stats="hideStats" />
           <div v-else>
             <div v-if="is_real_time">
               <MeetingTasksContainer 
@@ -50,18 +54,21 @@
               task_type="qr_scan"
               :tasks="qr_scans" :portion="portion"
               v-on:show-qr="showQR"
-              v-on:view-submissions="viewSubmissions" />
+              v-on:view-submissions="viewSubmissions"
+              v-on:show-stats="showStats" />
               <MeetingTasksContainer 
               :meeting_id="meeting_id"
               task_type="quiz"
               :tasks="quizzes" :portion="portion"
-              v-on:view-submissions="viewSubmissions" />
+              v-on:view-submissions="viewSubmissions"
+              v-on:show-stats="showStats" />
             </div>
             <MeetingTasksContainer v-else
             :meeting_id="meeting_id"
             task_type="video"
             :tasks="videos" :portion="portion"
-            v-on:view-submissions="viewSubmissions" />
+            v-on:view-submissions="viewSubmissions"
+            v-on:show-stats="showStats" />
           </div>
         </div>
         <AddTaskModal ref="AddTaskModal"
@@ -102,6 +109,7 @@ import QRSubmissionTable from
 '@/components/QRSubmissionTable'
 import VideoQuizSubmissionTable from
 '@/components/VideoQuizSubmissionTable'
+import TaskStats from '@/components/TaskStats'
 
 export default {
   name: 'DesktopMeetingInfoPortionContainer',
@@ -127,12 +135,16 @@ export default {
     VideoQuizSubmissionTable,
     AddTaskModal,
     AddPortionModal,
+    TaskStats
   },
   data () {
     return {
       show_submission_table: false,
       table_task: null,
       table_task_type: null,
+      show_task_stats: false,
+      stats_task: null,
+      stats_task_type: null,
       portion_label: "",
       portion_type: "",
       btn_icon_name: "",
@@ -264,6 +276,16 @@ export default {
         console.log(error)
         window.alert("Sorry, something went wrong")
       }
+    },
+    showStats(task, task_type) {
+      this.show_task_stats = true
+      this.stats_task = task
+      this.stats_task_type = task_type
+    },
+    hideStats() {
+      this.show_task_stats = false
+      this.stats_task = null
+      this.stats_task_type = null
     }
   }
 }

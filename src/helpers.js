@@ -148,19 +148,20 @@ export default {
 			  timestamp, "seconds").format(format_string, {trim: false})
 			return formatted_timestamp
 		},
-		getPresentAndAbsentStudents(meeting_students) {
+		getPresentAndAbsentStudents(meeting_students, task) {
 			let absent_students = [], present_students = [],
 			num_table_rows = 0
 		  meeting_students.forEach(student => {
 		    let student_submission = null
-		    for(let i = 0; i < this.task.submissions.length;
+		    for(let i = 0; i < task.submissions.length;
 		      i++) {
-		      const submission = this.task.submissions[i]
+		      const submission = task.submissions[i]
 		      if(submission.submitter.user_id === student.user_id){
 		        student_submission = {
 		          first_name: student.first_name,
 		          last_name: student.last_name,
 		          user_id: student.user_id,
+		          quiz_answer_indices: submission.quiz_answer_indices,
 		          num_correct_answers: submission.num_correct_answers,
 		          video_percent_watched: submission.video_percent_watched,
 		          _id: student._id
@@ -259,5 +260,24 @@ export default {
 		  return submission.quiz_answer_indices[
 		    current_question_index] !== -1
 		},
+		calculateTaskAverage(type, task, present_students) {
+			let is_video_percent;
+		  if(type === "video_percent")
+		    is_video_percent = true
+		  const num_present_students = present_students.length
+		  if(num_present_students > 0) {
+		    let total = 0
+		    present_students.forEach(student => {
+		      total += is_video_percent ?
+		      student.video_percent_watched :
+		      (student.num_correct_answers / task.questions.length)
+		    })
+		    const average = total / num_present_students
+		    if(is_video_percent)
+		      return average
+		    else
+		      return average*100 
+		  }
+		}
 	}
 }
