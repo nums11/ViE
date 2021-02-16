@@ -260,5 +260,24 @@ export default {
 		  return submission.quiz_answer_indices[
 		    current_question_index] !== -1
 		},
+		calculateTaskAverage(type, task, present_students) {
+			let is_video_percent;
+		  if(type === "video_percent")
+		    is_video_percent = true
+		  const num_present_students = present_students.length
+		  if(num_present_students > 0) {
+		    let total = 0
+		    present_students.forEach(student => {
+		      total += is_video_percent ?
+		      student.video_percent_watched :
+		      (student.num_correct_answers / task.questions.length)
+		    })
+		    const average = total / num_present_students
+		    if(is_video_percent)
+		      return average
+		    else
+		      return average*100 
+		  }
+		}
 	}
 }

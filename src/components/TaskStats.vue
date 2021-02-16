@@ -11,8 +11,11 @@
       <QRStats v-if="task_type === 'qr_scan'"
       :qr_scan="task" :present_students="present_students"
       :absent_students="absent_students" />
-      <VideoStats v-if="task_type === 'video'"
+      <VideoStats v-else-if="task_type === 'video'"
       :video="task" :present_students="present_students"
+      :absent_students="absent_students" />
+      <QuizStats v-else-if="task_type === 'quiz'"
+      :quiz="task" :present_students="present_students"
       :absent_students="absent_students" />
     </div>
   </div>
@@ -21,6 +24,7 @@
 <script>
 import QRStats from '@/components/QRStats'
 import VideoStats from '@/components/VideoStats'
+import QuizStats from '@/components/QuizStats'
 import helpers from '@/helpers.js'
 
 export default {
@@ -42,7 +46,8 @@ export default {
   },
   components: {
     QRStats,
-    VideoStats
+    VideoStats,
+    QuizStats
   },
   data () {
     return {

@@ -2,7 +2,7 @@
   <div>
     <div class="inline-block">
       <h3 class="navy-blue" id="video-submissions-header">
-        Student Video Submissions
+        Student Quiz Submissions
       </h3>
       <PieChart
       :chart_data="chart_data"
@@ -11,15 +11,11 @@
     </div>
     <div class="inline-block center-text"
     id="avg-video-percent-container">
-      <h3 class="navy-blue">Average Video Percent Watched</h3>
-      <p class="percent mt-4">{{ avg_percent_watched.toFixed(1) }}%</p>
-    </div>
-    <div v-if="video.quiz != null" class="mt-3 center-text">
       <h3 class="navy-blue">Average Quiz Score</h3>
-      <p class="percent">{{ avg_quiz_score.toFixed(1) }}%</p>
-      <QuestionStats :questions="video.quiz.questions"
-      :submissions="present_students" />
+      <p class="percent mt-4">{{ avg_quiz_score.toFixed(1) }}%</p>
     </div>
+    <QuestionStats :questions="quiz.questions"
+    :submissions="present_students" />
   </div>
 </template>
 
@@ -29,10 +25,10 @@ import QuestionStats from '@/components/QuestionStats'
 import helpers from '@/helpers.js'
 
 export default {
-  name: 'VideoStats',
+  name: 'QuizStats',
   mixins: [helpers],
   props: {
-    video: {
+    quiz: {
       type: Object,
       required: true
     },
@@ -68,17 +64,13 @@ export default {
         height: '25rem',
         width: '35rem',
       },
-      avg_percent_watched: 0,
       avg_quiz_score: 0
     }
   },
   created() {
-    this.avg_percent_watched = this.calculateTaskAverage(
-      "video_percent",this.video, this.present_students)
-    if(this.video.quiz != null) {
-      this.avg_quiz_score = this.calculateTaskAverage(
-        "quiz_score", this.video.quiz, this.present_students)
-    }
+    console.log("Quiz", this.quiz)
+    this.avg_quiz_score = this.calculateTaskAverage(
+      "quiz_score", this.quiz, this.present_students)
   },
   methods: {
   }
@@ -91,8 +83,7 @@ export default {
   text-align: center;
 }
 
-#avg-video-percent-container {
-  /*border: red solid;*/
+#avg-quiz-percent-container {
   margin-left: 8rem;
 }
 

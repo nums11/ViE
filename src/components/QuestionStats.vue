@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="center-text">
     <div v-for="question in questions"
     class="mt-2 question-container light-border-shadow">
       <div class="question wrap-text">{{ question.question }}</div>
