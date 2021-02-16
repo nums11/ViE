@@ -114,7 +114,7 @@ export default {
   created () {
     this.setVariables()
     const students = this.getPresentAndAbsentStudents(
-      this.meeting_students)
+      this.meeting_students, this.task)
     this.present_students = students.present_students
     this.absent_students = students.absent_students
     this.num_table_rows = students.num_table_rows

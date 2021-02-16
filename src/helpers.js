@@ -148,14 +148,14 @@ export default {
 			  timestamp, "seconds").format(format_string, {trim: false})
 			return formatted_timestamp
 		},
-		getPresentAndAbsentStudents(meeting_students) {
+		getPresentAndAbsentStudents(meeting_students, task) {
 			let absent_students = [], present_students = [],
 			num_table_rows = 0
 		  meeting_students.forEach(student => {
 		    let student_submission = null
-		    for(let i = 0; i < this.task.submissions.length;
+		    for(let i = 0; i < task.submissions.length;
 		      i++) {
-		      const submission = this.task.submissions[i]
+		      const submission = task.submissions[i]
 		      if(submission.submitter.user_id === student.user_id){
 		        student_submission = {
 		          first_name: student.first_name,

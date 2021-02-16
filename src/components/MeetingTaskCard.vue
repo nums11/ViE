@@ -77,7 +77,7 @@
         @click="$emit('view-submissions')"
         style="background-color:#00B3FF; color:white;">
           <sui-button-content visible>
-            View Submissions
+            Submissions
           </sui-button-content>
           <sui-button-content hidden>
               <sui-icon name="arrow right" />
@@ -108,6 +108,19 @@
         <div v-else>
           No Submission <sui-icon name="x" color="red" />
         </div>
+      </div>
+      <div class="divider" v-if="is_instructor"></div>
+      <div v-if="is_instructor" class="btn-container">
+        <sui-button animated size="mini"
+        @click="$emit('show-stats')"
+        style="background-color:#00B3FF; color:white;">
+          <sui-button-content visible>
+            Stats
+          </sui-button-content>
+          <sui-button-content hidden>
+              <sui-icon name="chart bar" />
+          </sui-button-content>
+        </sui-button>
       </div>
     </div>
   </div>
@@ -194,7 +207,7 @@ export default {
 
 <style scoped>
 .meeting-task-card-container {
-  width: 38rem;
+  width: 44rem;
   display: inline-block;
   vertical-align: top;
 }
@@ -204,10 +217,11 @@ export default {
   margin-top: 2rem;
   height: 2.75rem;
   display: inline-block;
-  width: 37rem;
+  width: 43rem;
   padding-left: 0.45rem;
   padding-right: 0.2rem;
   padding-top: 0.35rem;
+  /*border: blue solid;*/
 }
 
 .meeting-title {
