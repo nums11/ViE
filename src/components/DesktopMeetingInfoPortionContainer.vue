@@ -43,11 +43,10 @@
             :meeting_students="meeting_students"
             v-on:hide-submission-table="hideSubmissionTable" />
           </div>
-          <div v-else-if="show_task_stats">
-            <QRStats :qr_scan="stats_task"
-            :meeting_students="meeting_students"
-            v-on:hide-stats="hideStats" />
-          </div>
+          <TaskStats v-else-if="show_task_stats"
+          :task="stats_task" :task_type="stats_task_type"
+          :meeting_students="meeting_students"
+          v-on:hide-stats="hideStats" />
           <div v-else>
             <div v-if="is_real_time">
               <MeetingTasksContainer 
@@ -110,7 +109,7 @@ import QRSubmissionTable from
 '@/components/QRSubmissionTable'
 import VideoQuizSubmissionTable from
 '@/components/VideoQuizSubmissionTable'
-import QRStats from '@/components/QRStats'
+import TaskStats from '@/components/TaskStats'
 
 export default {
   name: 'DesktopMeetingInfoPortionContainer',
@@ -136,15 +135,16 @@ export default {
     VideoQuizSubmissionTable,
     AddTaskModal,
     AddPortionModal,
-    QRStats
+    TaskStats
   },
   data () {
     return {
       show_submission_table: false,
-      show_task_stats: false,
-      stats_task: null,
       table_task: null,
       table_task_type: null,
+      show_task_stats: false,
+      stats_task: null,
+      stats_task_type: null,
       portion_label: "",
       portion_type: "",
       btn_icon_name: "",
@@ -280,10 +280,12 @@ export default {
     showStats(task, task_type) {
       this.show_task_stats = true
       this.stats_task = task
+      this.stats_task_type = task_type
     },
     hideStats() {
       this.show_task_stats = false
       this.stats_task = null
+      this.stats_task_type = null
     }
   }
 }

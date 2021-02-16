@@ -188,6 +188,10 @@ html, body {
   color: #e83e8c;
 }
 
+.navy-blue {
+  color:#2C3E50;
+}
+
 .bold {
   font-weight: bold;
 }
