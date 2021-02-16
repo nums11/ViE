@@ -12,13 +12,20 @@
     <div class="inline-block center-text"
     id="avg-video-percent-container">
       <h3 class="navy-blue">Average Video Percent Watched</h3>
-      <p id="percent">{{ avg_percent_watched.toFixed(1) }}%</p>
+      <p class="percent mt-4">{{ avg_percent_watched.toFixed(1) }}%</p>
+    </div>
+    <div v-if="video.quiz != null" class="mt-3 center-text">
+      <h3 class="navy-blue">Average Quiz Score</h3>
+      <p class="percent">{{ avg_quiz_score.toFixed(1) }}%</p>
+      <QuestionStats :questions="video.quiz.questions"
+      :submissions="present_students" />
     </div>
   </div>
 </template>
 
 <script>
 import PieChart from '@/components/PieChart'
+import QuestionStats from '@/components/QuestionStats'
 import helpers from '@/helpers.js'
 
 export default {
@@ -39,7 +46,8 @@ export default {
     }
   },
   components: {
-    PieChart
+    PieChart,
+    QuestionStats
   },
   data () {
     return {
@@ -60,21 +68,33 @@ export default {
         height: '25rem',
         width: '35rem',
       },
-      avg_percent_watched: 0
+      avg_percent_watched: 0,
+      avg_quiz_score: 0
     }
   },
   created() {
-    this.calculateAverageVideoPercentWatched()
+    this.calculateTaskAverage("video_percent")
+    if(this.video.quiz != null)
+      this.calculateTaskAverage("quiz_score")
   },
   methods: {
-    calculateAverageVideoPercentWatched() {
+    calculateTaskAverage(type) {
+      let is_video_percent = false
+      if(type === "video_percent")
+        is_video_percent = true
       const num_present_students = this.present_students.length
       if(num_present_students > 0) {
-        let total = 0;
+        let total = 0
         this.present_students.forEach(student => {
-          total += student.video_percent_watched
+          total += is_video_percent ?
+          student.video_percent_watched :
+          (student.num_correct_answers / this.video.quiz.questions.length)
         })
-        this.avg_percent_watched = total / num_present_students
+        const average = total / num_present_students
+        if(is_video_percent)
+          this.avg_percent_watched = average
+        else
+          this.avg_quiz_score = average*100 
       }
     }
   }
@@ -92,10 +112,10 @@ export default {
   margin-left: 8rem;
 }
 
-#percent {
+.percent {
   font-size: 10rem;
-  margin-top: 5rem;
   font-weight: bold;
   color: #00B3FF;
+  margin-bottom: 0;
 }
 </style>

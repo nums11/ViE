@@ -161,6 +161,7 @@ export default {
 		          first_name: student.first_name,
 		          last_name: student.last_name,
 		          user_id: student.user_id,
+		          quiz_answer_indices: submission.quiz_answer_indices,
 		          num_correct_answers: submission.num_correct_answers,
 		          video_percent_watched: submission.video_percent_watched,
 		          _id: student._id
