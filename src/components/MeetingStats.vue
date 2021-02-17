@@ -73,60 +73,18 @@ export default {
     }
   },
   created() {
-    this.calculatePercentages()
+    const meeting_percentages = this.calculateMeetingPercentages(
+      this.meeting, this.meeting_students)
+    this.real_time_percent = meeting_percentages.real_time_percent
+    this.async_percent = meeting_percentages.async_percent
+    this.overall_percent = meeting_percentages.overall_percent
+    this.submitter_user_ids = meeting_percentages.submitter_user_ids
+    this.getPresentAndAbsentStudentsForMeeting()
   },
   methods: {
-    calculatePercentages() {
-      if(this.meeting_students.size === 0)
-        return
-
-      const num_students = this.meeting_students.size
-      let submitter_user_ids = new Set()
-
-      if(this.meeting.real_time_portion != null) {
-        const qr_scans = this.meeting.real_time_portion.qr_scans
-        let submitter_user_ids_for_qr_scans =
-          this.getSubmitterUserIDsForTasks(qr_scans)
-        const quizzes = this.meeting.real_time_portion.quizzes
-        let submitter_user_ids_for_quizzes =
-          this.getSubmitterUserIDsForTasks(quizzes)
-        submitter_user_ids = new Set([...submitter_user_ids_for_qr_scans,
-          ...submitter_user_ids_for_quizzes])
-        this.real_time_percent =
-          (submitter_user_ids.size / num_students) * 100
-      }
-      if(this.meeting.async_portion != null) {
-        const videos = this.meeting.async_portion.videos
-        let submitter_user_ids_for_videos =
-          this.getSubmitterUserIDsForTasks(videos)
-        submitter_user_ids = new Set([...submitter_user_ids,
-          ...submitter_user_ids_for_videos])
-        this.async_percent =
-          (submitter_user_ids_for_videos.size / num_students) * 100
-      }
-
-      this.overall_percent =
-        (submitter_user_ids.size / num_students) * 100
-      this.getPresentAndAbsentStudentsForMeeting(submitter_user_ids)
-    },
-    getSubmitterUserIDsForTasks(tasks) {
-      const tasks_submitter_user_ids = new Set()
-      tasks.forEach(task => {
-        let students = this.getPresentAndAbsentStudents(
-          this.meeting_students, task)
-        let present_students = students.present_students
-          this.addStudentUserIDsToSet(tasks_submitter_user_ids, present_students)
-      })
-      return tasks_submitter_user_ids
-    },
-    addStudentUserIDsToSet(set, students) {
-      students.forEach(student => {
-        set.add(student.user_id)
-      })
-    },
-    getPresentAndAbsentStudentsForMeeting(submitter_user_ids) {
+    getPresentAndAbsentStudentsForMeeting() {
       this.meeting_students.forEach(student => {
-        if(submitter_user_ids.has(student.user_id))
+        if(this.submitter_user_ids.has(student.user_id))
           this.present_students.push(student)
         else
           this.absent_students.push(student)

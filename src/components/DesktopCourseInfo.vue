@@ -32,10 +32,8 @@
           </div>
           <CourseMeetingsCalendar :meetings="meetings" />
         </div>
-        <div v-else-if="active_section === 'Statistics'"
-        id="roster-section" key="statistics">
-          <h1>Coming Soon...</h1>
-        </div>
+        <CourseStats v-else-if="active_section === 'Statistics'"
+        :meetings="meetings" key="statistics" />
         <div v-else-if="active_section === 'Roster'"
         id="roster-section" key="roster">
           <SectionInfoContainer v-for="section in course.sections"
@@ -58,6 +56,7 @@ import SectionInfoContainer from
 '@/components/SectionInfoContainer'
 import CourseSettingsContainer from
 '@/components/CourseSettingsContainer'
+import CourseStats from '@/components/CourseStats'
 import CourseAPI from '@/services/CourseAPI'
 import helpers from '@/helpers.js'
 
@@ -87,7 +86,8 @@ export default {
     SideBar,
     CourseMeetingsCalendar,
     SectionInfoContainer,
-    CourseSettingsContainer
+    CourseSettingsContainer,
+    CourseStats
 
   },
   data () {

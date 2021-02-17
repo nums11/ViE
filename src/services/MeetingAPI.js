@@ -44,6 +44,12 @@ export default {
       meeting: meeting
     })
   },
+  // Post because request body is required
+  getPopulatedMeetings(meeting_ids) {
+    return API().post('meetings/get_populated_meetings/', {
+      meeting_ids: meeting_ids
+    })
+  },
   // DELETE -------------------
   deleteMeeting (meeting_id, real_time_portion_id, async_portion_id,
     qr_scans, quizzes, videos) {

@@ -278,6 +278,100 @@ export default {
 		    else
 		      return average*100 
 		  }
-		}
+		},
+		calculateMeetingPercentages(meeting, meeting_students) {
+			const meeting_percentages = {
+				overall_percent: 0,
+				real_time_percent: 0,
+				async_percent: 0,
+				average_qr_scan_submission_percent: 0,
+				average_quiz_submission_percent: 0,
+				average_video_submission_perent: 0,
+				submitter_user_ids: new Set()
+			}
+
+		  if(meeting_students.size === 0)
+		    return meeting_percentages
+
+		  const num_students = meeting_students.size
+		  let submitter_user_ids = new Set()
+
+		  if(meeting.real_time_portion != null) {
+		    const qr_scans = meeting.real_time_portion.qr_scans
+		    let qr_percentages_with_ids =
+		      this.getSubmitterUserIDsAndSubmissionPercentagesForTasks(
+		      	qr_scans, meeting_students)
+	     	meeting_percentages.average_qr_scan_submission_percent
+		     	= qr_percentages_with_ids.average_submission_percentage_for_tasks
+		    let submitter_user_ids_for_qr_scans =
+		    	qr_percentages_with_ids.submitter_user_ids_for_tasks
+
+		    const quizzes = meeting.real_time_portion.quizzes
+		    let quiz_percentages_with_ids =
+		      this.getSubmitterUserIDsAndSubmissionPercentagesForTasks(
+		      	quizzes, meeting_students)
+	      meeting_percentages.average_quiz_submission_percent
+	      	= quiz_percentages_with_ids.average_submission_percentage_for_tasks
+	      let submitter_user_ids_for_quizzes =
+	      	quiz_percentages_with_ids.submitter_user_ids_for_tasks
+
+		    submitter_user_ids = new Set([...submitter_user_ids_for_qr_scans,
+		      ...submitter_user_ids_for_quizzes])
+		    meeting_percentages.real_time_percent =
+		      (submitter_user_ids.size / num_students) * 100
+		  }
+		  if(meeting.async_portion != null) {
+		    const videos = meeting.async_portion.videos
+		    let video_percentages_with_ids =
+		      this.getSubmitterUserIDsAndSubmissionPercentagesForTasks(
+		      	videos, meeting_students)
+		    meeting_percentages.average_video_submission_perent
+		    	= video_percentages_with_ids.average_submission_percentage_for_tasks
+		    let submitter_user_ids_for_videos =
+		    	video_percentages_with_ids.submitter_user_ids_for_tasks
+
+		    submitter_user_ids = new Set([...submitter_user_ids,
+		      ...submitter_user_ids_for_videos])
+		    meeting_percentages.async_percent =
+		      (submitter_user_ids_for_videos.size / num_students) * 100
+		  }
+
+		  meeting_percentages.overall_percent =
+		    (submitter_user_ids.size / num_students) * 100
+	   	meeting_percentages.submitter_user_ids = submitter_user_ids
+		  return meeting_percentages
+		},
+		getSubmitterUserIDsAndSubmissionPercentagesForTasks(
+			tasks, meeting_students) {
+			const tasks_percentages_with_ids = {
+				average_submission_percentage_for_tasks: 0,
+				submitter_user_ids_for_tasks: new Set()
+			}
+			if(tasks.length === 0)
+				return tasks_percentages_with_ids
+
+		  const submitter_user_ids_for_tasks = new Set()
+		  let submission_percentage_total = 0
+		  tasks.forEach(task => {
+		    let students = this.getPresentAndAbsentStudents(
+		      meeting_students, task)
+		    let present_students = students.present_students
+		      this.addStudentUserIDsToSet(
+		      	submitter_user_ids_for_tasks, present_students)
+	     	let submission_percentage =
+	     		present_students.length / meeting_students.size
+	     	submission_percentage_total += submission_percentage
+		  })
+		  tasks_percentages_with_ids.average_submission_percentage_for_tasks
+		  	= submission_percentage_total / tasks.length
+		  tasks_percentages_with_ids.submitter_user_ids_for_tasks
+		  	= submitter_user_ids_for_tasks
+		  return tasks_percentages_with_ids
+		},
+		addStudentUserIDsToSet(set, students) {
+		  students.forEach(student => {
+		    set.add(student.user_id)
+		  })
+		},
 	}
 }

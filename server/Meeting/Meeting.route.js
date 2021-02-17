@@ -45,7 +45,7 @@ meetingRoutes.route('/all').get(
   });
 });
 
-meetingRoutes.route('/get/:id').get(function (req, res, next) {
+meetingRoutes.get('/get/:id', function (req, res, next) {
   let id = req.params.id;
   Meeting.findById(id).
   populate({
@@ -99,6 +99,7 @@ meetingRoutes.route('/get/:id').get(function (req, res, next) {
     }]
   }).
   exec((error,meeting) => {
+    console.log(`<ERROR> (meetings/get) id ${id}`)
     if(error){
       next(error);
     } else if(meeting == null) {
@@ -289,6 +290,69 @@ meetingRoutes.post('/update/:meeting_id',
     next(error)
   }
 });
+
+// Post because request body is required
+meetingRoutes.post('/get_populated_meetings/',
+  function (req, res, next) {
+  const meeting_ids = req.body.meeting_ids
+  Meeting.find({'_id': {$in: meeting_ids}}).
+  populate({
+    path: 'sections',
+    populate: {
+      path: 'students'
+    }
+  }).
+  populate({
+    path: 'real_time_portion',
+    populate: [{
+      path: 'qr_scans',
+      populate: {
+        path: 'submissions',
+        populate: {
+          path: 'submitter'
+        }
+      }
+    }, {
+      path: 'quizzes',
+      populate: [{
+        path: 'submissions',
+        populate: {
+          path: 'submitter'
+        }
+      }, {
+        path: 'questions'
+      }]
+    }]
+  }).
+  populate({
+    path: 'async_portion',
+    populate: [{
+      path: 'videos',
+      populate: [{
+        path: 'submissions',
+        populate: {
+          path: 'submitter'
+        }
+      }, {
+        path: 'quiz',
+        populate: {
+          path: 'questions'
+        }
+      }]
+    }]
+  }).
+  exec((error,meetings) => {
+    if(error){
+      console.log(`<ERROR> (meetings/get_populated_meetings)`
+        + ` meeting_ids`, meeting_ids)
+      next(error);
+    } else {
+      console.log("<SUCCESS> (meetings/get_populated_meetings)")
+      res.json(meetings);
+    }
+  })
+});
+
 
 // DELETE --------------
 
