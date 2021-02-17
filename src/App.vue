@@ -284,6 +284,10 @@ html, body {
   margin-left: 3rem;
 }
 
+.ml-4 {
+  margin-left: 4rem;
+}
+
 .mr-1 {
   margin-right: 1rem;
 }
@@ -294,6 +298,10 @@ html, body {
 
 .mr-3 {
   margin-right: 3rem;
+}
+
+.mr-4 {
+  margin-right: 4rem;
 }
 
 .mb-1 {

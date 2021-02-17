@@ -47,10 +47,9 @@
           v-on:hide-lottie-player="hideLottiePlayer"
           v-on:set-new-portion="setNewPortion(false, ...arguments)"
           :meeting_students="meeting_students" />
-          <div v-else-if="active_section === 'Statistics'"
-          key="statistics">
-            <h1>Coming Soon</h1>
-          </div>
+          <MeetingStats v-else-if="active_section === 'Statistics'"
+          :meeting="meeting" :meeting_students="meeting_students"
+          key="statistics" />
           <MeetingSettingsContainer
           v-else-if="active_section === 'Settings'"
           :meeting="meeting"
@@ -75,6 +74,8 @@ import MeetingSettingsContainer from
 '@/components/MeetingSettingsContainer'
 import helpers from '@/helpers.js'
 import VueLottiePlayer from 'vue-lottie-player'
+import MeetingStats from
+'@/components/MeetingStats'
 
 export default {
   name: 'DesktopMeetingInfo',
@@ -84,7 +85,8 @@ export default {
     FullScreenQRCodeModal,
     DesktopMeetingInfoPortionContainer,
     MeetingSettingsContainer,
-    VueLottiePlayer
+    VueLottiePlayer,
+    MeetingStats
   },
   props: {
     meeting: {
