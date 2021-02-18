@@ -450,6 +450,33 @@ export default {
 				return video_stats
 			} else
 				return video_stats
+		},
+		meetingHasTaskType(meeting, task_type) {
+		  if(task_type === 'qr_scan') {
+		    if(meeting.real_time_portion == null)
+		      return false
+		    return meeting.real_time_portion.qr_scans.length > 0
+		  } else if(task_type === 'quiz') {
+		    if(meeting.real_time_portion == null)
+		      return false
+		    return meeting.real_time_portion.quizzes.length > 0
+		  } else if(task_type === 'video') {
+		    if(meeting.async_portion == null)
+		      return false
+		    return meeting.async_portion.videos.length > 0
+		  } else if(task_type === 'video_quiz') {
+		    if(meeting.async_portion == null)
+		      return false
+		    const videos = meeting.async_portion.videos
+		    let video_has_quiz = false
+		    for(let i = 0; i < videos.length; i++) {
+		      if(videos[i].quiz != null) {
+		        video_has_quiz = true
+		        break
+		      }
+		    }
+		    return video_has_quiz
+		  }
 		}
 	}
 }
