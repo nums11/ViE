@@ -1,7 +1,7 @@
 <template>
   <div class="metric inline-block center-text">
     <h3 class="navy-blue header">{{ header }}</h3>
-    <p>{{ sub_header }}</p>
+    <p class="sub-header">{{ sub_header }}</p>
     <p class="percentage">{{ percentage }}%</p>
   </div>
 </template>
@@ -38,7 +38,7 @@ export default {
 }
 
 .sub-header {
-  border: black solid;
+  /*border: black solid;*/
   height: 3.1rem;
 }
 

@@ -24,18 +24,18 @@
       :percentage="average_qr_scan_submission_percent.toFixed(1)" />
       <Metric class="ml-2"
       header="Average Real-Time Quiz Score"
-      sub_header="Average percentage of videos students view."
-      percentage="20" />
+      sub_header="Average student real-time quiz score."
+      :percentage="average_quiz_score.toFixed(1)" />
       <Metric class="ml-2"
       header="Average Video Submission Percentage"
       sub_header="Average percentage of students who watch a video."
-      percentage="35" />
+      :percentage="average_video_submission_perent.toFixed(1)" />
     </div>
     <div class="mt-1">
       <Metric class="ml-2"
       header="Average Video Viewing Percentage"
       sub_header="Average student real-time quiz score."
-      percentage="35" />
+      percentage="21" />
       <Metric
       header="Average Video Quiz Score"
       sub_header="Average percentage of students who submit to
@@ -66,7 +66,9 @@ export default {
       average_overall_percent: 0,
       average_real_time_percent: 0,
       average_async_percent: 0,
-      average_qr_scan_submission_percent: 0
+      average_qr_scan_submission_percent: 0,
+      average_video_submission_perent: 0,
+      average_quiz_score: 0
     }
   },
   created () {
@@ -79,7 +81,10 @@ export default {
         return
 
       let total_overall_percent = 0, total_real_time_percent = 0,
-      total_async_percent = 0, total_qr_percent = 0
+      total_async_percent = 0,
+      total_qr_submission_percent = 0, num_meetings_with_qr = 0,
+      total_video_submission_percent = 0, num_meetings_with_video = 0,
+      total_quiz_score = 0, num_meetings_with_quiz = 0
       this.meetings.forEach(meeting => {
         const meeting_students = this.getMeetingStudents(
           meeting)
@@ -88,7 +93,21 @@ export default {
         total_overall_percent += percentages.overall_percent
         total_real_time_percent += percentages.real_time_percent
         total_async_percent += percentages.async_percent
-        total_qr_percent += percentages.average_qr_scan_submission_percent
+        if(this.meetingHasTaskType(meeting, 'qr_scan')) {
+          total_qr_submission_percent +=
+            percentages.average_qr_scan_submission_percent
+          num_meetings_with_qr++
+        }
+        if(this.meetingHasTaskType(meeting, 'video')) {
+          total_video_submission_percent +=
+            percentages.average_video_submission_perent
+          num_meetings_with_video++
+        }
+        if(this.meetingHasTaskType(meeting, 'quiz')) {
+          total_quiz_score +=
+            percentages.average_quiz_score
+          num_meetings_with_quiz++
+        }
       })
       this.average_overall_percent =
         (total_overall_percent / num_meetings)
@@ -96,8 +115,33 @@ export default {
         (total_real_time_percent / num_meetings)
       this.average_async_percent =
         (total_async_percent / num_meetings)
-      this.average_qr_scan_submission_percent =
-        (total_qr_percent / num_meetings) * 100
+      if(num_meetings_with_qr > 0) {
+        this.average_qr_scan_submission_percent =
+          (total_qr_submission_percent / num_meetings_with_qr) * 100
+      }
+      if(num_meetings_with_video > 0) {
+        this.average_video_submission_perent =
+          (total_video_submission_percent / num_meetings_with_video) * 100
+      }
+      if(num_meetings_with_quiz > 0) {
+        this.average_quiz_score =
+          (total_quiz_score / num_meetings_with_quiz) * 100
+      }
+    },
+    meetingHasTaskType(meeting, task_type) {
+      if(task_type === 'qr_scan') {
+        if(meeting.real_time_portion == null)
+          return false
+        return meeting.real_time_portion.qr_scans.length > 0
+      } else if(task_type === 'quiz') {
+        if(meeting.real_time_portion == null)
+          return false
+        return meeting.real_time_portion.quizzes.length > 0
+      } else if(task_type === 'video') {
+        if(meeting.async_portion == null)
+          return false
+        return meeting.async_portion.videos.length > 0
+      }
     }
   }
 }

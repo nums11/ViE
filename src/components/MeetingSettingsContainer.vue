@@ -659,7 +659,6 @@ export default {
             videos = this.getTasksWithSubmissionIds(
               'video')
           }
-          console.log("About to delete with videos", videos)
           await MeetingAPI.deleteMeeting(this.meeting._id,
             real_time_portion_id, async_portion_id, qr_scans,
             quizzes, videos)

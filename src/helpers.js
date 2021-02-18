@@ -287,6 +287,7 @@ export default {
 				average_qr_scan_submission_percent: 0,
 				average_quiz_submission_percent: 0,
 				average_video_submission_perent: 0,
+				average_quiz_score: 0,
 				submitter_user_ids: new Set()
 			}
 
@@ -297,37 +298,43 @@ export default {
 		  let submitter_user_ids = new Set()
 
 		  if(meeting.real_time_portion != null) {
+		  	// QR Scan Stats
 		    const qr_scans = meeting.real_time_portion.qr_scans
-		    let qr_percentages_with_ids =
+		    const qr_percentages_with_ids =
 		      this.getSubmitterUserIDsAndSubmissionPercentagesForTasks(
 		      	qr_scans, meeting_students)
 	     	meeting_percentages.average_qr_scan_submission_percent
 		     	= qr_percentages_with_ids.average_submission_percentage_for_tasks
-		    let submitter_user_ids_for_qr_scans =
+		    const submitter_user_ids_for_qr_scans =
 		    	qr_percentages_with_ids.submitter_user_ids_for_tasks
 
+		    // Quiz Stats
 		    const quizzes = meeting.real_time_portion.quizzes
-		    let quiz_percentages_with_ids =
+		    const quiz_percentages_with_ids =
 		      this.getSubmitterUserIDsAndSubmissionPercentagesForTasks(
 		      	quizzes, meeting_students)
 	      meeting_percentages.average_quiz_submission_percent
 	      	= quiz_percentages_with_ids.average_submission_percentage_for_tasks
-	      let submitter_user_ids_for_quizzes =
+	      const submitter_user_ids_for_quizzes =
 	      	quiz_percentages_with_ids.submitter_user_ids_for_tasks
+	      meeting_percentages.average_quiz_score =
+	      	this.getAverageQuizScoreForQuizzes(quizzes, meeting_students)
 
 		    submitter_user_ids = new Set([...submitter_user_ids_for_qr_scans,
 		      ...submitter_user_ids_for_quizzes])
 		    meeting_percentages.real_time_percent =
 		      (submitter_user_ids.size / num_students) * 100
 		  }
+
 		  if(meeting.async_portion != null) {
+		  	// Video Stats
 		    const videos = meeting.async_portion.videos
-		    let video_percentages_with_ids =
+		    const video_percentages_with_ids =
 		      this.getSubmitterUserIDsAndSubmissionPercentagesForTasks(
 		      	videos, meeting_students)
 		    meeting_percentages.average_video_submission_perent
 		    	= video_percentages_with_ids.average_submission_percentage_for_tasks
-		    let submitter_user_ids_for_videos =
+		    const submitter_user_ids_for_videos =
 		    	video_percentages_with_ids.submitter_user_ids_for_tasks
 
 		    submitter_user_ids = new Set([...submitter_user_ids,
@@ -373,5 +380,29 @@ export default {
 		    set.add(student.user_id)
 		  })
 		},
+		getAverageQuizScoreForQuizzes(quizzes, meeting_students) {
+			if(quizzes.length === 0)
+				return 0
+
+			let total_score_for_all_quizzes = 0
+			quizzes.forEach(quiz => {
+				const num_questions = quiz.questions.length
+				const students = this.getPresentAndAbsentStudents(
+					meeting_students, quiz)
+				const submitters = students.present_students
+				let total_quiz_score = 0
+				if(submitters.length > 0) {
+					submitters.forEach(submitter => {
+						const quiz_score =
+							submitter.num_correct_answers / num_questions
+						total_quiz_score += quiz_score
+					})
+					const average_quiz_score =
+						total_quiz_score / submitters.length
+					total_score_for_all_quizzes += average_quiz_score
+				}
+			})
+			return total_score_for_all_quizzes / quizzes.length
+		}
 	}
 }

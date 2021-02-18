@@ -68,6 +68,8 @@ export default {
         type = "QR"
       else if(this.task_type === 'video')
         type = "Video"
+      else if(this.task_type === 'quiz')
+        type = "Quiz"
       this.stats_label = `${type} Statistics`
     },
     separateAttendees() {
