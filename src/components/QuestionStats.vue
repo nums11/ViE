@@ -3,12 +3,10 @@
     <div v-for="question in questions"
     class="mt-2 question-container light-border-shadow">
       <div class="question wrap-text">{{ question.question }}</div>
-      <h4 class="navy-blue">
-        Percentage of students who answered correctly
-      </h4>
-      <p class="percent">
-        {{ question.percent_correct.toFixed(1) }}%
-      </p>
+      <Metric class="mt-1"
+      header="Percentage of students who answered correctly"
+      :percentage="question.percent_correct.toFixed(1)"
+      size="small" />
       <sui-table celled>
         <sui-table-header>
           <sui-table-row>
@@ -37,6 +35,8 @@
 </template>
 
 <script>
+import Metric from '@/components/Metric'
+
 export default {
   name: 'QuestionStats',
   props: {
@@ -50,6 +50,7 @@ export default {
     }
   },
   components: {
+    Metric
   },
   data () {
     return {

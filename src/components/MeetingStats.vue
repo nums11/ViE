@@ -1,36 +1,24 @@
 <template>
   <div>
     <div>
-      <div class="percent-container inline-block center-text">
-        <h3 class="navy-blue">
-          Overall Attendance Percentage
-        </h3>
-        <p>
-          Percentage of students who submitted to
-          at least 1 task.
-        </p>
-        <p class="percent">{{ overall_percent.toFixed(1) }}%</p>
-      </div>
-      <div class="ml-2 percent-container inline-block center-text">
-        <h3 class="navy-blue">
-          Real-Time Attendance Percentage
-        </h3>
-        <p>
-          Percentage of students who submitted to at least
-          1 real-time task.
-        </p>
-        <p class="percent">{{ real_time_percent.toFixed(1) }}%</p>
-      </div>
-      <div class="ml-2 percent-container inline-block center-text">
-        <h3 class="navy-blue">
-          Async Attendance Percentage
-        </h3>
-        <p>
-          Percentage of students who submitted to at least
-          1 async task.
-        </p>
-        <p class="percent">{{ async_percent.toFixed(1) }}%</p>
-      </div>
+      <Metric
+      header="Overall Attendance Percentage"
+      sub_header="Percentage of students who submitted to
+      at least 1 task."
+      :percentage="overall_percent.toFixed(1)"
+      size="medium" />
+      <Metric class="ml-3"
+      header="Real-Time Attendance Percentage"
+      sub_header="Percentage of students who submitted to
+      at least 1 real-time task."
+      :percentage="real_time_percent.toFixed(1)"
+      size="medium" />
+      <Metric class="ml-3"
+      header="Async Attendance Percentage"
+      sub_header="Percentage of students who submitted to at least
+      1 async task."
+      :percentage="async_percent.toFixed(1)"
+      size="medium" />
     </div>
     <div class="mt-2" v-if="students_loaded">
       <MeetingSubmissionTable :meeting="meeting"
@@ -44,6 +32,7 @@
 <script>
 import MeetingSubmissionTable from
 '@/components/MeetingSubmissionTable'
+import Metric from '@/components/Metric'
 import helpers from '@/helpers.js'
 
 export default {
@@ -60,7 +49,8 @@ export default {
     }
   },
   components: {
-    MeetingSubmissionTable
+    MeetingSubmissionTable,
+    Metric
   },
   data () {
     return {

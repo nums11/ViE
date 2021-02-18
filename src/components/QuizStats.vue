@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="inline-block">
-      <h3 class="navy-blue" id="video-submissions-header">
+      <h3 class="center-text navy-blue">
         Student Quiz Submissions
       </h3>
       <PieChart
@@ -9,10 +9,11 @@
       :chart_options="chart_options"
       :style="chart_styles" />
     </div>
-    <div class="inline-block center-text"
-    id="avg-video-percent-container">
-      <h3 class="navy-blue">Average Quiz Score</h3>
-      <p class="percent mt-4">{{ avg_quiz_score.toFixed(1) }}%</p>
+    <div class="inline-block" style="margin-left:8rem;">
+      <Metric
+      header="Average Quiz Score"
+      :percentage="avg_quiz_score.toFixed(1)"
+      size="large" />
     </div>
     <QuestionStats :questions="quiz.questions"
     :submissions="present_students" />
@@ -21,6 +22,7 @@
 
 <script>
 import PieChart from '@/components/PieChart'
+import Metric from '@/components/Metric'
 import QuestionStats from '@/components/QuestionStats'
 import helpers from '@/helpers.js'
 
@@ -43,7 +45,8 @@ export default {
   },
   components: {
     PieChart,
-    QuestionStats
+    QuestionStats,
+    Metric
   },
   data () {
     return {
@@ -62,7 +65,7 @@ export default {
       },
       chart_styles: {
         height: '25rem',
-        width: '35rem',
+        width: '30rem'
       },
       avg_quiz_score: 0
     }
@@ -76,21 +79,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-#video-submissions-header {
-  width: 35rem;
-  text-align: center;
-}
-
-#avg-quiz-percent-container {
-  margin-left: 8rem;
-}
-
-.percent {
-  font-size: 10rem;
-  font-weight: bold;
-  color: #00B3FF;
-  margin-bottom: 0;
-}
-</style>

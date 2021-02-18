@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="inline-block">
-      <h3 class="navy-blue" id="video-submissions-header">
+      <h3 class="navy-blue center-text">
         Student Video Submissions
       </h3>
       <PieChart
@@ -9,14 +9,17 @@
       :chart_options="chart_options"
       :style="chart_styles" />
     </div>
-    <div class="inline-block center-text"
-    id="avg-video-percent-container">
-      <h3 class="navy-blue">Average Video Percent Watched</h3>
-      <p class="percent mt-4">{{ avg_percent_watched.toFixed(1) }}%</p>
+    <div class="inline-block center-text" style="margin-left:8rem;">
+      <Metric
+      header="Average Video Percent Watched"
+      :percentage="avg_percent_watched.toFixed(1)"
+      size="large" />
     </div>
     <div v-if="video.quiz != null" class="mt-3 center-text">
-      <h3 class="navy-blue">Average Quiz Score</h3>
-      <p class="percent">{{ avg_quiz_score.toFixed(1) }}%</p>
+      <Metric
+      header="Average Quiz Score"
+      :percentage="avg_quiz_score.toFixed(1)"
+      size="large" />
       <QuestionStats :questions="video.quiz.questions"
       :submissions="present_students" />
     </div>
@@ -25,6 +28,7 @@
 
 <script>
 import PieChart from '@/components/PieChart'
+import Metric from '@/components/Metric'
 import QuestionStats from '@/components/QuestionStats'
 import helpers from '@/helpers.js'
 
@@ -47,7 +51,8 @@ export default {
   },
   components: {
     PieChart,
-    QuestionStats
+    QuestionStats,
+    Metric
   },
   data () {
     return {
@@ -66,7 +71,7 @@ export default {
       },
       chart_styles: {
         height: '25rem',
-        width: '35rem',
+        width: '30rem',
       },
       avg_percent_watched: 0,
       avg_quiz_score: 0
@@ -84,22 +89,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-#video-submissions-header {
-  width: 35rem;
-  text-align: center;
-}
-
-#avg-video-percent-container {
-  /*border: red solid;*/
-  margin-left: 8rem;
-}
-
-.percent {
-  font-size: 10rem;
-  font-weight: bold;
-  color: #00B3FF;
-  margin-bottom: 0;
-}
-</style>
