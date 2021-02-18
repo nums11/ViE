@@ -34,13 +34,12 @@
     <div class="mt-1">
       <Metric class="ml-2"
       header="Average Video Viewing Percentage"
-      sub_header="Average student real-time quiz score."
-      percentage="21" />
+      sub_header="Average percent of videos that students view."
+      :percentage="average_video_viewing_percent.toFixed(1)" />
       <Metric
       header="Average Video Quiz Score"
-      sub_header="Average percentage of students who submit to
-      at least 1 QR Scan in a meeting."
-      percentage="55" />
+      sub_header="Average student video quiz score"
+      :percentage="average_video_quiz_score.toFixed(1)" />
     </div>
   </div>
 </template>
@@ -68,7 +67,9 @@ export default {
       average_async_percent: 0,
       average_qr_scan_submission_percent: 0,
       average_video_submission_perent: 0,
-      average_quiz_score: 0
+      average_quiz_score: 0,
+      average_video_viewing_percent: 0,
+      average_video_quiz_score: 0
     }
   },
   created () {
@@ -84,6 +85,8 @@ export default {
       total_async_percent = 0,
       total_qr_submission_percent = 0, num_meetings_with_qr = 0,
       total_video_submission_percent = 0, num_meetings_with_video = 0,
+      total_video_viewing_percent = 0, total_video_quiz_score = 0,
+      num_meetings_with_video_quiz = 0,
       total_quiz_score = 0, num_meetings_with_quiz = 0
       this.meetings.forEach(meeting => {
         const meeting_students = this.getMeetingStudents(
@@ -101,7 +104,14 @@ export default {
         if(this.meetingHasTaskType(meeting, 'video')) {
           total_video_submission_percent +=
             percentages.average_video_submission_perent
+          total_video_viewing_percent +=
+            percentages.average_video_viewing_percent
           num_meetings_with_video++
+          if(this.meetingHasTaskType(meeting, 'video_quiz')) {
+            total_video_quiz_score +=
+              percentages.average_video_quiz_score
+            num_meetings_with_video_quiz++
+          }
         }
         if(this.meetingHasTaskType(meeting, 'quiz')) {
           total_quiz_score +=
@@ -122,10 +132,16 @@ export default {
       if(num_meetings_with_video > 0) {
         this.average_video_submission_perent =
           (total_video_submission_percent / num_meetings_with_video) * 100
+        this.average_video_viewing_percent =
+          (total_video_viewing_percent / num_meetings_with_video)
+        if(num_meetings_with_video_quiz > 0) {
+          this.average_video_quiz_score =
+            (total_video_quiz_score / num_meetings_with_video_quiz)
+        }
       }
       if(num_meetings_with_quiz > 0) {
         this.average_quiz_score =
-          (total_quiz_score / num_meetings_with_quiz) * 100
+          (total_quiz_score / num_meetings_with_quiz)
       }
     },
     meetingHasTaskType(meeting, task_type) {
@@ -141,6 +157,18 @@ export default {
         if(meeting.async_portion == null)
           return false
         return meeting.async_portion.videos.length > 0
+      } else if(task_type === 'video_quiz') {
+        if(meeting.async_portion == null)
+          return false
+        const videos = meeting.async_portion.videos
+        let video_has_quiz = false
+        for(let i = 0; i < videos.length; i++) {
+          if(videos[i].quiz != null) {
+            video_has_quiz = true
+            break
+          }
+        }
+        return video_has_quiz
       }
     }
   }

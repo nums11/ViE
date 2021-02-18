@@ -288,6 +288,8 @@ export default {
 				average_quiz_submission_percent: 0,
 				average_video_submission_perent: 0,
 				average_quiz_score: 0,
+				average_video_viewing_percent: 0,
+				average_video_quiz_score: 0,
 				submitter_user_ids: new Set()
 			}
 
@@ -336,6 +338,13 @@ export default {
 		    	= video_percentages_with_ids.average_submission_percentage_for_tasks
 		    const submitter_user_ids_for_videos =
 		    	video_percentages_with_ids.submitter_user_ids_for_tasks
+		    const video_stats =
+		    	this.getAverageViewingPercentageAndQuizScoreForVideos(
+		    		videos, meeting_students)
+		    meeting_percentages.average_video_viewing_percent =
+		    	video_stats.average_video_viewing_percent
+		    meeting_percentages.average_video_quiz_score =
+		    	video_stats.average_video_quiz_score
 
 		    submitter_user_ids = new Set([...submitter_user_ids,
 		      ...submitter_user_ids_for_videos])
@@ -385,24 +394,62 @@ export default {
 				return 0
 
 			let total_score_for_all_quizzes = 0
+			let num_quizzes_with_submissions = 0
 			quizzes.forEach(quiz => {
-				const num_questions = quiz.questions.length
 				const students = this.getPresentAndAbsentStudents(
 					meeting_students, quiz)
-				const submitters = students.present_students
-				let total_quiz_score = 0
-				if(submitters.length > 0) {
-					submitters.forEach(submitter => {
-						const quiz_score =
-							submitter.num_correct_answers / num_questions
-						total_quiz_score += quiz_score
-					})
-					const average_quiz_score =
-						total_quiz_score / submitters.length
-					total_score_for_all_quizzes += average_quiz_score
+				const present_students = students.present_students
+				if(present_students.length > 0) {
+					num_quizzes_with_submissions++
+					let avg_quiz_score = this.calculateTaskAverage(
+						'quiz_score', quiz, present_students)
+					total_score_for_all_quizzes += avg_quiz_score
 				}
 			})
-			return total_score_for_all_quizzes / quizzes.length
+			if(num_quizzes_with_submissions > 0)
+				return total_score_for_all_quizzes / num_quizzes_with_submissions
+			else
+				return 0
+		},
+		getAverageViewingPercentageAndQuizScoreForVideos(
+			videos, meeting_students) {
+			const video_stats = {
+				average_video_viewing_percent: 0,
+				average_video_quiz_score: 0
+			}
+
+			if(videos.length === 0)
+				return video_stats
+
+			let total_viewing_percentage_for_videos = 0
+			let total_quiz_score_for_videos = 0
+			let num_videos_with_submissions = 0
+			videos.forEach(video => {
+				const students = this.getPresentAndAbsentStudents(
+					meeting_students, video)
+				const present_students = students.present_students
+				if(present_students.length > 0) {
+					num_videos_with_submissions++
+					let avg_viewing_percentage = this.calculateTaskAverage(
+						'video_percent', video, present_students)
+					total_viewing_percentage_for_videos += avg_viewing_percentage
+					if(video.quiz != null) {
+						let avg_video_quiz_score = this.calculateTaskAverage(
+						'quiz_score', video.quiz, present_students)
+						total_quiz_score_for_videos += avg_video_quiz_score
+					}
+				}
+			})
+			if(num_videos_with_submissions > 0) {
+				video_stats.average_video_viewing_percent =
+					(total_viewing_percentage_for_videos /
+						num_videos_with_submissions)
+				video_stats.average_video_quiz_score =
+					(total_quiz_score_for_videos /
+						num_videos_with_submissions)
+				return video_stats
+			} else
+				return video_stats
 		}
 	}
 }
