@@ -1,52 +1,15 @@
 <template>
   <div>
-    <div class="mt-1">
-      <Metric
-      header="Average Overall Attendance Percentage"
-      sub_header="Average percentage of students who submit to
-      at least 1 task in a meeting."
-      :percentage="average_overall_percent.toFixed(1)"
-      size="medium" />
-      <Metric class="ml-2"
-      header="Average Real-Time Attendance Percentage"
-      sub_header="Average percentage of students who submit to at
-      least 1 real-time task in a meeting."
-      :percentage="average_real_time_percent.toFixed(1)"
-      size="medium" />
-      <Metric class="ml-2"
-      header="Average Async Attendance Percentage"
-      sub_header="Average percentage of students who submit to at
-      least 1 asyc task in a meeting."
-      :percentage="average_async_percent.toFixed(1)"
-      size="medium" />
+    <div v-if="meetings.length === 0"
+    class="center-text" id="no-averages">
+      Schedule a meeting to see course averages.
     </div>
-    <div class="mt-1">
-      <Metric
-      header="Average QR Scan Submission Percentage"
-      sub_header="Average percentage of students who scan a qr."
-      :percentage="average_qr_scan_submission_percent.toFixed(1)"
-      size="medium" />
-      <Metric class="ml-2"
-      header="Average Real-Time Quiz Score"
-      sub_header="Average student real-time quiz score."
-      :percentage="average_quiz_score.toFixed(1)"
-      size="medium" />
-      <Metric class="ml-2"
-      header="Average Video Submission Percentage"
-      sub_header="Average percentage of students who watch a video."
-      :percentage="average_video_submission_perent.toFixed(1)"
-      size="medium" />
-    </div>
-    <div class="mt-1">
-      <Metric class="ml-2"
-      header="Average Video Viewing Percentage"
-      sub_header="Average percent of videos that students view."
-      :percentage="average_video_viewing_percent.toFixed(1)"
-      size="medium" />
-      <Metric
-      header="Average Video Quiz Score"
-      sub_header="Average student video quiz score"
-      :percentage="average_video_quiz_score.toFixed(1)"
+    <div v-else>
+      <Metric v-for="(metric,index) in metrics"
+      :class="`mt-1 ${index % 3 !== 0 ? 'ml-2' : ''}`"
+      :header="metric.header"
+      :sub_header="metric.sub_header"
+      :percentage="metric.percentage"
       size="medium" />
     </div>
   </div>
@@ -77,11 +40,20 @@ export default {
       average_video_submission_perent: 0,
       average_quiz_score: 0,
       average_video_viewing_percent: 0,
-      average_video_quiz_score: 0
+      average_video_quiz_score: 0,
+      course_has_meetings_with_qr_scans: false,
+      course_has_meetings_with_quizzes: false,
+      course_has_meetings_with_videos: false,
+      course_has_meetings_with_video_quizzes: false,
+      course_has_meetings_with_real_time_tasks: false,
+      course_has_meetings_with_async_tasks: false,
+      course_has_meetings_with_tasks: false,
+      metrics: []
     }
   },
   created () {
     this.calculateCourseAverages()
+    this.setMetrics()
   },
   methods: {
     calculateCourseAverages() {
@@ -134,22 +106,93 @@ export default {
       this.average_async_percent =
         (total_async_percent / num_meetings)
       if(num_meetings_with_qr > 0) {
+        this.course_has_meetings_with_qr_scans = true
         this.average_qr_scan_submission_percent =
           (total_qr_submission_percent / num_meetings_with_qr) * 100
       }
+      if(num_meetings_with_quiz > 0) {
+        this.course_has_meetings_with_quizzes = true
+        this.average_quiz_score =
+          (total_quiz_score / num_meetings_with_quiz)
+      }
       if(num_meetings_with_video > 0) {
+        this.course_has_meetings_with_videos = true
         this.average_video_submission_perent =
           (total_video_submission_percent / num_meetings_with_video) * 100
         this.average_video_viewing_percent =
           (total_video_viewing_percent / num_meetings_with_video)
         if(num_meetings_with_video_quiz > 0) {
+          this.course_has_meetings_with_video_quizzes = true
           this.average_video_quiz_score =
             (total_video_quiz_score / num_meetings_with_video_quiz)
         }
       }
-      if(num_meetings_with_quiz > 0) {
-        this.average_quiz_score =
-          (total_quiz_score / num_meetings_with_quiz)
+      this.course_has_meetings_with_real_time_tasks =
+        this.course_has_meetings_with_qr_scans ||
+          this.course_has_meetings_with_quizzes
+      this.course_has_meetings_with_async_tasks =
+        this.course_has_meetings_with_videos
+      this.course_has_meetings_with_tasks =
+        this.course_has_meetings_with_real_time_tasks ||
+          this.course_has_meetings_with_async_tasks
+    },
+    setMetrics() {
+      if(this.course_has_meetings_with_tasks) {
+        this.metrics.push({
+          header: "Average Overall Attendance Percentage",
+          sub_header: "Average percentage of students who submit to "
+            + "at least 1 task in a meeting.",
+          percentage: this.average_overall_percent.toFixed(1)
+        })
+      }
+      if(this.course_has_meetings_with_real_time_tasks) {
+        this.metrics.push({
+          header: "Average Real-Time Attendance Percentage",
+          sub_header: "Average percentage of students who submit to at "
+            + "least 1 real-time task in a meeting.",
+          percentage: this.average_real_time_percent.toFixed(1)
+        })
+      }
+      if(this.course_has_meetings_with_async_tasks) {
+        this.metrics.push({
+          header: "Average Async Attendance Percentage",
+          sub_header: "Average percentage of students who submit to at "
+            + "least 1 asyc task in a meeting.",
+          percentage: this.average_async_percent.toFixed(1)
+        })
+      }
+      if(this.course_has_meetings_with_qr_scans) {
+        this.metrics.push({
+          header: "Average QR Scan Submission Percentage",
+          sub_header: "Average percentage of students who scan a qr.",
+          percentage: this.average_qr_scan_submission_percent.toFixed(1)
+        })
+      }
+      if(this.course_has_meetings_with_quizzes) {
+        this.metrics.push({
+          header: "Average Real-Time Quiz Score",
+          sub_header: "Average student real-time quiz score.",
+          percentage: this.average_quiz_score.toFixed(1)
+        })
+      }
+      if(this.course_has_meetings_with_videos) {
+        this.metrics.push({
+          header: "Average Video Submission Percentage",
+          sub_header: "Average percentage of students who watch a video.",
+          percentage: this.average_video_submission_perent.toFixed(1)
+        })
+        this.metrics.push({
+          header: "Average Video Viewing Percentage",
+          sub_header: "Average percent of videos that students view.",
+          percentage: this.average_video_viewing_percent.toFixed(1)
+        })
+        if(this.course_has_meetings_with_video_quizzes) {
+          this.metrics.push({
+            header: "Average Video Quiz Score",
+            sub_header: "Average student video quiz score",
+            percentage: this.average_video_quiz_score.toFixed(1)
+          })
+        }
       }
     }
   }
@@ -157,22 +200,8 @@ export default {
 </script>
 
 <style scoped>
-.percent-container {
-  width: 23rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  /*border: red solid;*/
-}
-
-.percent {
-  font-size: 7.5rem;
-  font-weight: bold;
-  color: #00B3FF;
-  margin-bottom: 0;
-}
-
-.sub-header {
-  border: black solid;
-  height: 3.1rem;
+#no-averages {
+  margin-top: 6rem;
+  font-size: 1.25rem;
 }
 </style>

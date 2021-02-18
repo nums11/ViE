@@ -9,13 +9,13 @@
         <CourseAverages :meetings="populated_meetings" />
       </sui-tab-pane>
       <sui-tab-pane class="stats-pane" title="Attendance By Meeting">
-        Box
+        Coming Soon...
       </sui-tab-pane>
       <sui-tab-pane class="stats-pane" title="Percentiles">
-        Triangle
+        Coming Soon...
       </sui-tab-pane>
       <sui-tab-pane class="stats-pane" title="Engagement Warnings">
-        Triangle
+        Coming Soon...
       </sui-tab-pane>
     </sui-tab>
   </div>
