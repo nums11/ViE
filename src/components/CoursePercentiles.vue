@@ -11,7 +11,8 @@
         </sui-form-field>
         <sui-form-field style="margin-left:3rem;" inline>
           <label>Percentile</label>
-          <input type="Number" placeholder="Percentile" />
+          <input type="Number" placeholder="Percentile"
+          v-model="percentile" />
         </sui-form-field>
         <sui-form-field style="margin-left:3rem;" inline>
           <label>Top or Bottom</label>
@@ -74,8 +75,9 @@ export default {
           value: 2
         }
       ],
-      attendance_type: null,
-      top_or_bottom: null,
+      attendance_type: 1,
+      percentile: 50,
+      top_or_bottom: 1,
       chart_data: {
         labels: ['0-9', '10-19', '20-29', '30-39', '40-49',
         '50-59', '60-69', '70-79', '80-89', '90-100'],
@@ -92,6 +94,10 @@ export default {
         legend: {display: false},
         responsive: true,
         maintainAspectRatio: false,
+        title: {
+          display: true,
+          text: "Frequency of Overall Attendance Percentages"
+        },
         scales: {
           yAxes: [{
             ticks: {
