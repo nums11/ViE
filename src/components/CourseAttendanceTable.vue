@@ -37,10 +37,11 @@
       </sui-table-row>
     </sui-table-header>
     <sui-table-body class="center-text">
-      <sui-table-row v-for="student_attendance in
-      student_attendance_by_meeting">
-        <sui-table-cell v-for="(value,index) in student_attendance"
-        :class="index === 0 ? 'bold grey-background' : ''">
+      <sui-table-row v-for="data in student_attendance_data">
+        <sui-table-cell class="bold grey-background">
+          {{ data.student_name }}
+        </sui-table-cell>
+        <sui-table-cell v-for="value in data.attendance_by_meeting">
           {{ value }}
         </sui-table-cell>
       </sui-table-row>
@@ -52,79 +53,46 @@
 import helpers from '@/helpers.js'
 
 export default {
-  name: 'MeetingSubmissionTable',
+  name: 'CourseAttendanceTable',
   mixins: [helpers],
   props:{
     meetings: {
       type: Array,
       required: true
     },
-    course: {
-      type: Object,
+    course_name: {
+      type: String,
+      required: true
+    },
+    student_attendance_data: {
+      type: Array,
       required: true
     }
   },
   data: function () {
     return {
-      students: [],
-      student_attendance_by_meeting: []
+      all_student_attendance_by_meeting: []
     }
   },
   created () {
-    this.getStudentsFromCourse()
-    this.getStudentAttendanceByMeeting()
+    this.getAllStudentAttendanceByMeeting()
   },
   methods: {
-    getStudentsFromCourse() {
-      this.course.sections.forEach(section => {
-        this.students = this.students.concat(
-          section.students)
+    getAllStudentAttendanceByMeeting() {
+      this.student_attendance_data.forEach(data => {
+        this.all_student_attendance_by_meeting.push(
+          data.attendance_by_meeting)
       })
-    },
-    getStudentAttendanceByMeeting() {
-      const submitter_user_ids_for_each_meeting =
-        this.getSubmitterUserIDsForEachMeeting()
-      this.students.forEach(student => {
-        let student_attendance = []
-        student_attendance.push(
-          `${student.first_name} ${student.last_name} `
-          + `(${student.user_id})`)
-        submitter_user_ids_for_each_meeting.forEach(
-          submitter_user_ids => {
-            if(submitter_user_ids.has(student.user_id))
-              student_attendance.push("Yes")
-            else
-              student_attendance.push("No")
-          }
-        )
-        this.student_attendance_by_meeting.push(
-          student_attendance)
-      })
-    },
-    getSubmitterUserIDsForEachMeeting() {
-      const submitter_user_ids_for_each_meeting = []
-      this.meetings.forEach(meeting => {
-        const meeting_students = this.getMeetingStudents(
-          meeting)
-        const meeting_percentages =
-          this.calculateMeetingPercentages(meeting,
-            meeting_students)
-        const submitter_user_ids =
-          meeting_percentages.submitter_user_ids
-        submitter_user_ids_for_each_meeting.push(
-          submitter_user_ids)
-      })
-      return submitter_user_ids_for_each_meeting
     },
     exportTable() {
       const csv_content = "data:text/csv;charset=utf-8," 
-          + this.student_attendance_by_meeting.map
+          + this.all_student_attendance_by_meeting.map
           (e => e.join(",")).join("\n");
       const encoded_uri = encodeURI(csv_content);
       const link = document.createElement("a");
       link.setAttribute("href", encoded_uri);
       link.setAttribute("download",
-        `${this.course.name} Attendance By Meeting.csv`);
+        `${this.course_name} Attendance By Meeting.csv`);
       document.body.appendChild(link); // Required for FF
       link.click(); // This will download the data file named "my_data.csv".
     }
