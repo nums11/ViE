@@ -4,6 +4,15 @@
       <sui-table-row>
         <sui-table-header-cell :colspan="meetings.length+1">
           Overall Meeting Attendance
+          <sui-button @click="exportTable"
+          size="small" animated
+          style="background-color:#00B3FF; color:white;
+          margin-left: 2rem;">
+              <sui-button-content visible>Export As CSV</sui-button-content>
+              <sui-button-content hidden>
+                  <sui-icon name="download" />
+              </sui-button-content>
+          </sui-button>
         </sui-table-header-cell>
       </sui-table-row>
       <sui-table-row class="center-text">
@@ -106,6 +115,18 @@ export default {
           submitter_user_ids)
       })
       return submitter_user_ids_for_each_meeting
+    },
+    exportTable() {
+      const csv_content = "data:text/csv;charset=utf-8," 
+          + this.student_attendance_by_meeting.map
+          (e => e.join(",")).join("\n");
+      const encoded_uri = encodeURI(csv_content);
+      const link = document.createElement("a");
+      link.setAttribute("href", encoded_uri);
+      link.setAttribute("download",
+        `${this.course.name} Attendance By Meeting.csv`);
+      document.body.appendChild(link); // Required for FF
+      link.click(); // This will download the data file named "my_data.csv".
     }
   }
 }
