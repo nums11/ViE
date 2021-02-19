@@ -8,13 +8,14 @@
           <sui-dropdown selection
           placeholder="Attendance Type"
           :options="attendance_type_options"
-          v-model="attendance_type" />
+          v-model="attendance_type"
+          disabled />
         </sui-form-field>
         <sui-form-field style="margin-left:3rem;" inline>
           <label>Percentile</label>
           <input type="Number" placeholder="Percentile"
           v-model="percentile" min="1" max="100"
-          @change="updatePercentileGraph" />
+          @change="updateChart" />
         </sui-form-field>
         <sui-form-field style="margin-left:3rem;" inline>
           <label>Top or Bottom</label>
@@ -26,19 +27,22 @@
       </sui-form-fields>
     </sui-form>
     <p class="bold center-text pink-text">
-      The pink area represents students in the top
-      {{ percentile }}% based on overall attendance.
+      The pink area represents {{ table_title.toLowerCase() }}
     </p>
     <BarChart ref="BarChart"
     :chart_data="chart_data"
     :chart_options="chart_options"
     :style="chart_styles" />
+    <StudentPercentileTable :table_title="table_title"
+    :students="table_students" />
   </div>
 </template>
 
 <script>
 import BarChart from '@/components/BarChart'
 import 'chartjs-plugin-datalabels'
+import StudentPercentileTable from
+'@/components/StudentPercentileTable'
 
 export default {
   name: 'CoursePercentiles',
@@ -53,7 +57,8 @@ export default {
     }
   },
   components: {
-    BarChart
+    BarChart,
+    StudentPercentileTable
   },
   data () {
     return {
@@ -137,12 +142,13 @@ export default {
         }
       },
       chart_styles: {},
-      overall_attendance_percentages: []
+      overall_attendance_percentages: [],
+      table_title: "",
+      table_students: []
     }
   },
   created() {
     this.getChartData()
-    this.getDataForPercentileHiglighting()
   },
   mounted() {
     this.updateChart()
@@ -173,6 +179,7 @@ export default {
         num_values_in_percentile
       const values_in_percentile =
         this.overall_attendance_percentages.slice(start_index)
+      this.setTableStudents(values_in_percentile)
       // Get the line graph data points based on percentile values
       const start_bucket_index = Math.floor(values_in_percentile[0]/10)
       const end_bucket_index = Math.floor(values_in_percentile[
@@ -188,14 +195,22 @@ export default {
       this.chart_data.datasets[1].data = line_data
     },
     updateChart() {
-      this.$refs.BarChart.$data._chart.update()
-    },
-    updatePercentileGraph() {
       if(this.percentile >= 1 && this.percentile
         <= 100) {
+        this.table_title = `Students in the top ${this.percentile}% `
+          + `based on overall attendance.`
         this.getDataForPercentileHiglighting()
-        this.updateChart()
       }
+      this.$refs.BarChart.$data._chart.update()
+    },
+    setTableStudents(percentile_values) {
+      this.table_students = []
+      this.student_attendance_data.forEach(data => {
+        if(percentile_values.includes(
+          data.overall_attendance_percentage)) {
+          this.table_students.push(data.student_name)
+        }
+      })
     }
   }
 }
