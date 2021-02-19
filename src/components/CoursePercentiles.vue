@@ -26,8 +26,8 @@
       </sui-form-fields>
     </sui-form>
     <p class="bold center-text pink-text">
-      The pink area represents students in the top 50%
-      based on overall attendance.
+      The pink area represents students in the top
+      {{ percentile }}% based on overall attendance.
     </p>
     <BarChart ref="BarChart"
     :chart_data="chart_data"
