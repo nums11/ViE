@@ -33,7 +33,7 @@
           <CourseMeetingsCalendar :meetings="meetings" />
         </div>
         <CourseStats v-else-if="active_section === 'Statistics'"
-        :meetings="meetings" key="statistics" />
+        :meetings="meetings" :course="course" key="statistics" />
         <div v-else-if="active_section === 'Roster'"
         id="roster-section" key="roster">
           <SectionInfoContainer v-for="section in course.sections"

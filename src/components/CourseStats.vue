@@ -9,7 +9,8 @@
         <CourseAverages :meetings="populated_meetings" />
       </sui-tab-pane>
       <sui-tab-pane class="stats-pane" title="Attendance By Meeting">
-        Coming Soon...
+        <CourseAttendanceTable :meetings="populated_meetings"
+        :course="course" />
       </sui-tab-pane>
       <sui-tab-pane class="stats-pane" title="Percentiles">
         Coming Soon...
@@ -23,6 +24,8 @@
 
 <script>
 import CourseAverages from '@/components/CourseAverages'
+import CourseAttendanceTable from
+'@/components/CourseAttendanceTable'
 import MeetingAPI from '@/services/MeetingAPI'
 import helpers from '@/helpers'
 
@@ -34,8 +37,13 @@ export default {
       type: Array,
       required: true
     },
+    course: {
+      type: Object,
+      required: true
+    }
   },
   components: {
+    CourseAttendanceTable,
     CourseAverages
   },
   data () {
