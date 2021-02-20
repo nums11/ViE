@@ -19,7 +19,7 @@
         </sui-form-field>
         <sui-form-field style="margin-left:3rem;" inline>
           <label>Top or Bottom</label>
-          <sui-dropdown selection
+           <sui-dropdown selection
           placeholder="Top or Bottom"
           :options="top_or_bottom_options"
           v-model="top_or_bottom" />
@@ -147,6 +147,11 @@ export default {
       table_students: []
     }
   },
+  watch: {
+    top_or_bottom: function() {
+      this.updateChart()
+    }
+  },
   created() {
     this.getChartData()
   },
@@ -175,10 +180,18 @@ export default {
       const total_num_values = this.student_attendance_data.length
       const num_values_in_percentile =
         Math.ceil(total_num_values * (this.percentile/100))
-      const start_index = this.overall_attendance_percentages.length -
-        num_values_in_percentile
-      const values_in_percentile =
-        this.overall_attendance_percentages.slice(start_index)
+      let values_in_percentile;
+      if(this.top_or_bottom === 1) { //top
+        const start_index = this.overall_attendance_percentages.length -
+          num_values_in_percentile
+        values_in_percentile =
+          this.overall_attendance_percentages.slice(start_index)
+      } else { //bottom
+        values_in_percentile =
+          this.overall_attendance_percentages.slice(0,
+            num_values_in_percentile)
+
+      }
       this.setTableStudents(values_in_percentile)
       // Get the line graph data points based on percentile values
       const start_bucket_index = Math.floor(values_in_percentile[0]/10)
@@ -197,8 +210,10 @@ export default {
     updateChart() {
       if(this.percentile >= 1 && this.percentile
         <= 100) {
-        this.table_title = `Students in the top ${this.percentile}% `
-          + `based on overall attendance.`
+        let percentile_half = this.top_or_bottom === 1 ?
+        'top' : 'bottom'
+        this.table_title = `Students in the ${percentile_half} `
+        + `${this.percentile}% based on overall attendance.`
         this.getDataForPercentileHiglighting()
       }
       this.$refs.BarChart.$data._chart.update()
@@ -208,7 +223,11 @@ export default {
       this.student_attendance_data.forEach(data => {
         if(percentile_values.includes(
           data.overall_attendance_percentage)) {
-          this.table_students.push(data.student_name)
+          this.table_students.push({
+            name: data.student_name,
+            attendance_percentage:
+            data.overall_attendance_percentage
+          })
         }
       })
     }
