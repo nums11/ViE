@@ -271,6 +271,11 @@ export default {
           })
         }
       })
+      this.table_students.sort(
+        (a,b) => {
+          return b.attendance_percentage - a.attendance_percentage
+        }
+      )
     }
   }
 }
