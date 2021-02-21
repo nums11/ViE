@@ -11,7 +11,7 @@
         	Name
         </sui-table-header-cell>
         <sui-table-header-cell colspan="1">
-        	Overall Attendance Percentage
+        	{{ attendance_type }} Attendance Percentage
         </sui-table-header-cell>
     	</sui-table-row>
     </sui-table-header>
@@ -34,6 +34,10 @@ export default {
   		type: String,
   		required: true
   	},
+    attendance_type: {
+      type: String,
+      required: true
+    },
   	students: {
   		type: Array,
   		required: true

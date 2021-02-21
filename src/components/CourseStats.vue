@@ -108,30 +108,64 @@ export default {
     },
     getStudentAttendanceData() {
       const student_attendance_data = []
-      const submitter_user_ids_for_each_meeting =
+      const meetings =
         this.getSubmitterUserIDsForEachMeeting()
       this.students.forEach(student => {
         const student_name = `${student.first_name} `
         + `${student.last_name} (${student.user_id})`
         const attendance_by_meeting = []
-        let num_meetings_attended = 0
-        submitter_user_ids_for_each_meeting.forEach(
-          submitter_user_ids => {
-            if(submitter_user_ids.has(student.user_id)) {
-              attendance_by_meeting.push("Yes")
-              num_meetings_attended++
-            } else {
-              attendance_by_meeting.push("No")
+        let num_meetings_attended = 0,
+        num_real_time_meetings_attended = 0,
+        num_async_meetings_attended = 0,
+        total_num_real_time_meetings = 0,
+        total_num_async_meetings = 0
+        meetings.forEach(meeting => {
+          if(meeting.submitter_user_ids.has(student.user_id)) {
+            attendance_by_meeting.push("Yes")
+            num_meetings_attended++
+          } else {
+            attendance_by_meeting.push("No")
+          }
+          if(meeting.has_real_time_tasks) {
+            total_num_real_time_meetings++
+            if(meeting.real_time_submitter_user_ids.has(
+              student.user_id)) {
+              num_real_time_meetings_attended++
             }
           }
-        )
-        const overall_attendance_percentage =
-          (num_meetings_attended /
+          if(meeting.has_async_tasks) {
+            total_num_async_meetings++
+            if(meeting.async_submitter_user_ids.has(
+              student.user_id)) {
+              num_async_meetings_attended++
+            }
+          }
+        })
+        let overall_attendance_percentage = 0,
+        real_time_attendance_percentage = 0,
+        async_attendance_percentage = 0
+        if(this.populated_meetings.length > 0) {
+          overall_attendance_percentage = (num_meetings_attended /
             this.populated_meetings.length) * 100
+          if(total_num_real_time_meetings > 0) {
+            real_time_attendance_percentage =
+              (num_real_time_meetings_attended /
+                total_num_real_time_meetings) * 100
+          }
+          if(total_num_async_meetings > 0) {
+            async_attendance_percentage =
+              (num_async_meetings_attended /
+                total_num_async_meetings) * 100
+          }
+        }
         this.student_attendance_data.push({
           student_name: student_name,
           overall_attendance_percentage:
           overall_attendance_percentage,
+          real_time_attendance_percentage:
+          real_time_attendance_percentage,
+          async_attendance_percentage:
+          async_attendance_percentage,
           attendance_by_meeting: attendance_by_meeting
         })
       })
@@ -146,8 +180,22 @@ export default {
             meeting_students)
         const submitter_user_ids =
           meeting_percentages.submitter_user_ids
-        submitter_user_ids_for_each_meeting.push(
-          submitter_user_ids)
+        const real_time_submitter_user_ids =
+          meeting_percentages.real_time_submitter_user_ids
+        const async_submitter_user_ids =
+          meeting_percentages.async_submitter_user_ids
+        const has_real_time_tasks = this.meetingHasTaskType(
+        meeting, 'qr_scan') || this.meetingHasTaskType(
+        meeting, 'quiz')
+        const has_async_tasks = this.meetingHasTaskType(
+        meeting, 'video')
+        submitter_user_ids_for_each_meeting.push({
+          submitter_user_ids: submitter_user_ids,
+          real_time_submitter_user_ids: real_time_submitter_user_ids,
+          async_submitter_user_ids: async_submitter_user_ids,
+          has_real_time_tasks: has_real_time_tasks,
+          has_async_tasks: has_async_tasks
+        })
       })
       return submitter_user_ids_for_each_meeting
     },

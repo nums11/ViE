@@ -290,7 +290,9 @@ export default {
 				average_quiz_score: 0,
 				average_video_viewing_percent: 0,
 				average_video_quiz_score: 0,
-				submitter_user_ids: new Set()
+				submitter_user_ids: new Set(),
+				real_time_submitter_user_ids: new Set(),
+				async_submitter_user_ids: new Set()
 			}
 
 		  if(meeting_students.size === 0)
@@ -324,6 +326,9 @@ export default {
 
 		    submitter_user_ids = new Set([...submitter_user_ids_for_qr_scans,
 		      ...submitter_user_ids_for_quizzes])
+		    meeting_percentages.real_time_submitter_user_ids =
+		    	new Set([...submitter_user_ids_for_qr_scans,
+		    			      ...submitter_user_ids_for_quizzes])
 		    meeting_percentages.real_time_percent =
 		      (submitter_user_ids.size / num_students) * 100
 		  }
@@ -348,6 +353,8 @@ export default {
 
 		    submitter_user_ids = new Set([...submitter_user_ids,
 		      ...submitter_user_ids_for_videos])
+		    meeting_percentages.async_submitter_user_ids =
+		    	submitter_user_ids_for_videos
 		    meeting_percentages.async_percent =
 		      (submitter_user_ids_for_videos.size / num_students) * 100
 		  }

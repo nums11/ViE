@@ -8,8 +8,7 @@
           <sui-dropdown selection
           placeholder="Attendance Type"
           :options="attendance_type_options"
-          v-model="attendance_type"
-          disabled />
+          v-model="attendance_type" />
         </sui-form-field>
         <sui-form-field style="margin-left:3rem;" inline>
           <label>Percentile</label>
@@ -34,6 +33,7 @@
     :chart_options="chart_options"
     :style="chart_styles" />
     <StudentPercentileTable :table_title="table_title"
+    :attendance_type="attendanceType"
     :students="table_students" />
   </div>
 </template>
@@ -143,6 +143,8 @@ export default {
       },
       chart_styles: {},
       overall_attendance_percentages: [],
+      real_time_attendance_percentages: [],
+      async_attendance_percentages: [],
       table_title: "",
       table_students: []
     }
@@ -150,29 +152,54 @@ export default {
   watch: {
     top_or_bottom: function() {
       this.updateChart()
+    },
+    attendance_type: function() {
+      this.getChartData()
+      this.updateChart()
+    }
+  },
+  computed: {
+    attendanceType() {
+      return this.attendance_type_options[
+        this.attendance_type-1].text
     }
   },
   created() {
+    this.getAttendancePercentages()
     this.getChartData()
   },
   mounted() {
     this.updateChart()
   },
   methods: {
+    getAttendancePercentages() {
+      this.student_attendance_data.forEach(data => {
+        this.overall_attendance_percentages.push(
+          data.overall_attendance_percentage)
+        this.real_time_attendance_percentages.push(
+          data.real_time_attendance_percentage)
+        this.async_attendance_percentages.push(
+          data.async_attendance_percentage)
+        this.overall_attendance_percentages.sort(
+          (a,b) => {return a-b})
+        this.real_time_attendance_percentages.sort(
+          (a,b) => {return a-b})
+        this.async_attendance_percentages.sort(
+          (a,b) => {return a-b})
+      })
+    },
     getChartData() {
       const bar_data = new Array(10).fill(0)
-      this.student_attendance_data.forEach(data => {
-        const percentage = data.overall_attendance_percentage
-        this.overall_attendance_percentages.push(percentage)
+      const percentages =
+        this.getPercentagesBasedOnAttendanceType()
+      percentages.forEach(percentage => {
         if(percentage === 100)
-          data[9]++
+          bar_data[9]++
         else {
           const bucket =  Math.floor(percentage/10)
           bar_data[bucket]++
         }
       })
-      this.overall_attendance_percentages.sort(
-        (a,b) => {return a-b})
       this.chart_data.datasets[0].data = bar_data
     },
     getDataForPercentileHiglighting() {
@@ -181,16 +208,16 @@ export default {
       const num_values_in_percentile =
         Math.ceil(total_num_values * (this.percentile/100))
       let values_in_percentile;
+      const percentages =
+        this.getPercentagesBasedOnAttendanceType()
       if(this.top_or_bottom === 1) { //top
-        const start_index = this.overall_attendance_percentages.length -
+        const start_index = percentages.length -
           num_values_in_percentile
         values_in_percentile =
-          this.overall_attendance_percentages.slice(start_index)
+          percentages.slice(start_index)
       } else { //bottom
         values_in_percentile =
-          this.overall_attendance_percentages.slice(0,
-            num_values_in_percentile)
-
+          percentages.slice(0, num_values_in_percentile)
       }
       this.setTableStudents(values_in_percentile)
       // Get the line graph data points based on percentile values
@@ -207,13 +234,22 @@ export default {
       }
       this.chart_data.datasets[1].data = line_data
     },
+    getPercentagesBasedOnAttendanceType() {
+      if(this.attendance_type === 1)
+        return this.overall_attendance_percentages
+      else if(this.attendance_type === 2)
+        return this.real_time_attendance_percentages
+      else
+        return this.async_attendance_percentages
+    },
     updateChart() {
       if(this.percentile >= 1 && this.percentile
         <= 100) {
-        let percentile_half = this.top_or_bottom === 1 ?
+        const percentile_half = this.top_or_bottom === 1 ?
         'top' : 'bottom'
+        const attendance_type = this.attendanceType.toLowerCase() 
         this.table_title = `Students in the ${percentile_half} `
-        + `${this.percentile}% based on overall attendance.`
+        + `${this.percentile}% based on ${attendance_type} attendance.`
         this.getDataForPercentileHiglighting()
       }
       this.$refs.BarChart.$data._chart.update()
@@ -221,12 +257,17 @@ export default {
     setTableStudents(percentile_values) {
       this.table_students = []
       this.student_attendance_data.forEach(data => {
-        if(percentile_values.includes(
-          data.overall_attendance_percentage)) {
+        let student_percentage;
+        if(this.attendance_type === 1)
+          student_percentage = data.overall_attendance_percentage
+        else if(this.attendance_type === 2)
+          student_percentage = data.real_time_attendance_percentage
+        else
+          student_percentage = data.async_attendance_percentage
+        if(percentile_values.includes(student_percentage)) {
           this.table_students.push({
             name: data.student_name,
-            attendance_percentage:
-            data.overall_attendance_percentage
+            attendance_percentage: student_percentage
           })
         }
       })
