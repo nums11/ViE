@@ -32,6 +32,7 @@ import CoursePercentiles from
 '@/components/CoursePercentiles'
 import MeetingAPI from '@/services/MeetingAPI'
 import helpers from '@/helpers'
+import moment from 'moment'
 
 export default {
   name: 'CourseStats',
@@ -62,6 +63,7 @@ export default {
   async created() {
     try {
       await this.getPopulatedMeetings()
+      this.removeUpcomingMeetings()
       this.getStudentsFromCourse()
       this.getStudentAttendanceData()
       this.data_loaded = true
@@ -82,6 +84,21 @@ export default {
         console.log(error)
         alert("Sorry, something went wrong")
       }
+    },
+    removeUpcomingMeetings() {
+      const meetings = []
+      const now = Date.now()
+      this.populated_meetings.forEach(meeting => {
+        if((meeting.real_time_portion != null
+          && moment(meeting.real_time_portion.real_time_start).
+              isBefore(now)) ||
+          (meeting.async_portion != null &&
+            moment(meeting.async_portion.async_start).
+              isBefore(now))) {
+          meetings.push(meeting)
+        }
+      })
+      this.populated_meetings = meetings
     },
     getStudentsFromCourse() {
       this.course.sections.forEach(section => {
