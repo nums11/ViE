@@ -43,15 +43,13 @@ import BarChart from '@/components/BarChart'
 import 'chartjs-plugin-datalabels'
 import StudentPercentileTable from
 '@/components/StudentPercentileTable'
+import helpers from '@/helpers.js'
 
 export default {
   name: 'CoursePercentiles',
+  mixins: [helpers],
   props: {
     student_attendance_data: {
-      type: Array,
-      required: true
-    },
-    meetings: {
       type: Array,
       required: true
     }
@@ -165,29 +163,21 @@ export default {
     }
   },
   created() {
-    this.getAttendancePercentages()
+    const attendance_percentages =
+      this.getAttendancePercentagesFromStudentData(
+        this.student_attendance_data)
+    this.overall_attendance_percentages =
+      attendance_percentages.overall_attendance_percentages
+    this.real_time_attendance_percentages =
+      attendance_percentages.real_time_attendance_percentages
+    this.async_attendance_percentages =
+      attendance_percentages.async_attendance_percentages
     this.getChartData()
   },
   mounted() {
     this.updateChart()
   },
   methods: {
-    getAttendancePercentages() {
-      this.student_attendance_data.forEach(data => {
-        this.overall_attendance_percentages.push(
-          data.overall_attendance_percentage)
-        this.real_time_attendance_percentages.push(
-          data.real_time_attendance_percentage)
-        this.async_attendance_percentages.push(
-          data.async_attendance_percentage)
-        this.overall_attendance_percentages.sort(
-          (a,b) => {return a-b})
-        this.real_time_attendance_percentages.sort(
-          (a,b) => {return a-b})
-        this.async_attendance_percentages.sort(
-          (a,b) => {return a-b})
-      })
-    },
     getChartData() {
       const bar_data = new Array(10).fill(0)
       const percentages =
@@ -203,27 +193,18 @@ export default {
       this.chart_data.datasets[0].data = bar_data
     },
     getDataForPercentileHiglighting() {
-      // Get the values in the percentile
-      const total_num_values = this.student_attendance_data.length
-      const num_values_in_percentile =
-        Math.ceil(total_num_values * (this.percentile/100))
-      let values_in_percentile;
       const percentages =
         this.getPercentagesBasedOnAttendanceType()
-      if(this.top_or_bottom === 1) { //top
-        const start_index = percentages.length -
-          num_values_in_percentile
-        values_in_percentile =
-          percentages.slice(start_index)
-      } else { //bottom
-        values_in_percentile =
-          percentages.slice(0, num_values_in_percentile)
-      }
-      this.setTableStudents(values_in_percentile)
+      const percentile_values = this.getPercentileValues(
+        this.student_attendance_data, percentages,
+        this.percentile, this.top_or_bottom === 1)
+      this.table_students = this.getStudentsInPercentile(
+        this.student_attendance_data, percentile_values,
+        this.attendance_type)
       // Get the line graph data points based on percentile values
-      const start_bucket_index = Math.floor(values_in_percentile[0]/10)
-      const end_bucket_index = Math.floor(values_in_percentile[
-        num_values_in_percentile - 1]/10)
+      const start_bucket_index = Math.floor(percentile_values[0]/10)
+      const end_bucket_index = Math.floor(percentile_values[
+        percentile_values.length - 1]/10)
       const bar_data = this.chart_data.datasets[0].data
       const line_data = new Array(10).fill(0)
       for(let i = 0; i < 10; i++) {
@@ -253,29 +234,6 @@ export default {
         this.getDataForPercentileHiglighting()
       }
       this.$refs.BarChart.$data._chart.update()
-    },
-    setTableStudents(percentile_values) {
-      this.table_students = []
-      this.student_attendance_data.forEach(data => {
-        let student_percentage;
-        if(this.attendance_type === 1)
-          student_percentage = data.overall_attendance_percentage
-        else if(this.attendance_type === 2)
-          student_percentage = data.real_time_attendance_percentage
-        else
-          student_percentage = data.async_attendance_percentage
-        if(percentile_values.includes(student_percentage)) {
-          this.table_students.push({
-            name: data.student_name,
-            attendance_percentage: student_percentage
-          })
-        }
-      })
-      this.table_students.sort(
-        (a,b) => {
-          return b.attendance_percentage - a.attendance_percentage
-        }
-      )
     }
   }
 }

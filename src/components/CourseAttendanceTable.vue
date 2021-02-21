@@ -39,7 +39,7 @@
     <sui-table-body class="center-text">
       <sui-table-row v-for="data in student_attendance_data">
         <sui-table-cell class="bold grey-background">
-          {{ data.student_name }}
+          {{ data.student_name }} ({{ data.user_id }})
         </sui-table-cell>
         <sui-table-cell v-for="value in data.attendance_by_meeting">
           {{ value }}

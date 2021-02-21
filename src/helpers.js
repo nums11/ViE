@@ -484,6 +484,77 @@ export default {
 		    }
 		    return video_has_quiz
 		  }
+		},
+		getAttendancePercentagesFromStudentData(
+			student_attendance_data) {
+			const overall_attendance_percentages = [],
+			real_time_attendance_percentages = [],
+			async_attendance_percentages = []
+		  student_attendance_data.forEach(data => {
+		    overall_attendance_percentages.push(
+		      data.overall_attendance_percentage)
+		    real_time_attendance_percentages.push(
+		      data.real_time_attendance_percentage)
+		    async_attendance_percentages.push(
+		      data.async_attendance_percentage)
+		    overall_attendance_percentages.sort(
+		      (a,b) => {return a-b})
+		    real_time_attendance_percentages.sort(
+		      (a,b) => {return a-b})
+		    async_attendance_percentages.sort(
+		      (a,b) => {return a-b})
+		  })
+		  return {
+		  	overall_attendance_percentages:
+		  	overall_attendance_percentages,
+		  	real_time_attendance_percentages:
+		  	real_time_attendance_percentages,
+		  	async_attendance_percentages:
+		  	async_attendance_percentages
+		  }
+		},
+		getPercentileValues(student_attendance_data,
+			percentages, percentile, top) {
+			const total_num_values = student_attendance_data.length
+			const num_values_in_percentile =
+			  Math.ceil(total_num_values * (percentile/100))
+			let values_in_percentile;
+			if(top) { //top
+			  const start_index = percentages.length -
+			    num_values_in_percentile
+			  values_in_percentile =
+			    percentages.slice(start_index)
+			} else { //bottom
+			  values_in_percentile =
+			    percentages.slice(0, num_values_in_percentile)
+			}
+			return values_in_percentile
+		},
+		getStudentsInPercentile(student_attendance_data,
+			percentile_values, attendance_type) {
+		  const table_students = []
+		  student_attendance_data.forEach(data => {
+		    let student_percentage;
+		    if(attendance_type === 1)
+		      student_percentage = data.overall_attendance_percentage
+		    else if(attendance_type === 2)
+		      student_percentage = data.real_time_attendance_percentage
+		    else
+		      student_percentage = data.async_attendance_percentage
+		    if(percentile_values.includes(student_percentage)) {
+		      table_students.push({
+		        name: data.student_name,
+		        user_id: data.user_id,
+		        attendance_percentage: student_percentage
+		      })
+		    }
+		  })
+		  table_students.sort(
+		    (a,b) => {
+		      return b.attendance_percentage - a.attendance_percentage
+		    }
+		  )
+		  return table_students
 		}
 	}
 }

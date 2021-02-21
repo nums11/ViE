@@ -14,11 +14,12 @@
         :student_attendance_data="student_attendance_data" />
       </sui-tab-pane>
       <sui-tab-pane class="stats-pane" title="Percentiles">
-        <CoursePercentiles :meetings="populated_meetings"
+        <CoursePercentiles
         :student_attendance_data="student_attendance_data" />
       </sui-tab-pane>
       <sui-tab-pane class="stats-pane" title="Engagement Warnings">
-        Coming Soon...
+        <CourseEngagementWarnings
+        :student_attendance_data="student_attendance_data" />
       </sui-tab-pane>
     </sui-tab>
   </div>
@@ -30,6 +31,8 @@ import CourseAttendanceTable from
 '@/components/CourseAttendanceTable'
 import CoursePercentiles from
 '@/components/CoursePercentiles'
+import CourseEngagementWarnings from
+'@/components/CourseEngagementWarnings'
 import MeetingAPI from '@/services/MeetingAPI'
 import helpers from '@/helpers'
 import moment from 'moment'
@@ -50,7 +53,8 @@ export default {
   components: {
     CourseAttendanceTable,
     CourseAverages,
-    CoursePercentiles
+    CoursePercentiles,
+    CourseEngagementWarnings
   },
   data () {
     return {
@@ -66,6 +70,7 @@ export default {
       this.removeUpcomingMeetings()
       this.getStudentsFromCourse()
       this.getStudentAttendanceData()
+      console.log("student_attendance_data", this.student_attendance_data)
       this.data_loaded = true
     } catch(error) {
       console.log(error)
@@ -112,7 +117,7 @@ export default {
         this.getSubmitterUserIDsForEachMeeting()
       this.students.forEach(student => {
         const student_name = `${student.first_name} `
-        + `${student.last_name} (${student.user_id})`
+        + `${student.last_name}`
         const attendance_by_meeting = []
         let num_meetings_attended = 0,
         num_real_time_meetings_attended = 0,
@@ -160,6 +165,7 @@ export default {
         }
         this.student_attendance_data.push({
           student_name: student_name,
+          user_id: student.user_id,
           overall_attendance_percentage:
           overall_attendance_percentage,
           real_time_attendance_percentage:
