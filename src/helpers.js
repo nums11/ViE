@@ -277,6 +277,8 @@ export default {
 		      return average
 		    else
 		      return average*100 
+		  } else {
+		  	return 0
 		  }
 		},
 		calculateMeetingPercentages(meeting, meeting_students) {
