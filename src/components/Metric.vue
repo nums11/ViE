@@ -71,7 +71,7 @@ export default {
 }
 
 .percentage.medium {
-  font-size: 7.5rem;
+  font-size: 6.5rem;
 }
 
 .percentage.large {
