@@ -1,17 +1,11 @@
 <template>
   <div>
-    <div v-if="meetings.length === 0"
-    class="center-text" id="no-averages">
-      Schedule a meeting to see course averages.
-    </div>
-    <div v-else>
-      <Metric v-for="(metric,index) in metrics"
-      :class="`mt-1 ${index % 3 !== 0 ? 'ml-2' : ''}`"
-      :header="metric.header"
-      :sub_header="metric.sub_header"
-      :percentage="metric.percentage"
-      size="medium" />
-    </div>
+    <Metric v-for="(metric,index) in metrics"
+    :class="`mt-1 ${index % 3 !== 0 ? 'ml-2' : ''}`"
+    :header="metric.header"
+    :sub_header="metric.sub_header"
+    :percentage="metric.percentage"
+    size="medium" />
   </div>
 </template>
 
@@ -223,8 +217,4 @@ export default {
 </script>
 
 <style scoped>
-#no-averages {
-  margin-top: 6rem;
-  font-size: 1.25rem;
-}
 </style>

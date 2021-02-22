@@ -4,29 +4,35 @@
     active size="medium">
       Calculating Statistics...
     </sui-loader>
-    <sui-tab v-else>
-      <sui-tab-pane class="stats-pane" title="Course Averages">
-        <CourseAverages :meetings="populated_meetings" />
-      </sui-tab-pane>
-      <sui-tab-pane class="stats-pane" title="Attendance By Meeting">
-        <CourseAttendanceTable :meetings="populated_meetings"
-        :course_name="course.name"
-        :student_attendance_data="student_attendance_data" />
-      </sui-tab-pane>
-      <sui-tab-pane class="stats-pane" title="Percentiles">
-        <CoursePercentiles
-        :student_attendance_data="student_attendance_data" />
-      </sui-tab-pane>
-      <sui-tab-pane class="stats-pane" title="Engagement Warnings">
-        <CourseEngagementWarnings
-        :student_attendance_data="student_attendance_data" />
-      </sui-tab-pane>
-      <sui-tab-pane class="stats-pane" title="Student Insights">
-        <StudentInsights
-        :student_attendance_data="student_attendance_data"
-        :meetings="populated_meetings" />
-      </sui-tab-pane>
-    </sui-tab>
+    <div v-else>
+      <div v-if="populated_meetings.length === 0"
+      class="center-text no-meetings">
+        Schedule a meeting to see Course Statistics.
+      </div>
+      <sui-tab v-else>
+        <sui-tab-pane class="stats-pane" title="Course Averages">
+          <CourseAverages :meetings="populated_meetings" />
+        </sui-tab-pane>
+        <sui-tab-pane class="stats-pane" title="Attendance By Meeting">
+          <CourseAttendanceTable :meetings="populated_meetings"
+          :course_name="course.name"
+          :student_attendance_data="student_attendance_data" />
+        </sui-tab-pane>
+        <sui-tab-pane class="stats-pane" title="Percentiles">
+          <CoursePercentiles
+          :student_attendance_data="student_attendance_data" />
+        </sui-tab-pane>
+        <sui-tab-pane class="stats-pane" title="Engagement Warnings">
+          <CourseEngagementWarnings
+          :student_attendance_data="student_attendance_data" />
+        </sui-tab-pane>
+        <sui-tab-pane class="stats-pane" title="Student Insights">
+          <StudentInsights
+          :student_attendance_data="student_attendance_data"
+          :meetings="populated_meetings" />
+        </sui-tab-pane>
+      </sui-tab>
+    </div>
   </div>
 </template>
 
@@ -225,5 +231,9 @@ export default {
 .stats-pane {
   height: 40rem;
   overflow-y: auto;
+}
+.no-meetings {
+  margin-top: 6rem;
+  font-size: 1.25rem;
 }
 </style>
