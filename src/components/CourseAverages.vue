@@ -68,11 +68,14 @@ export default {
       total_video_viewing_percent = 0, total_video_quiz_score = 0,
       num_meetings_with_video_quiz = 0,
       total_quiz_score = 0, num_meetings_with_quiz = 0
+      let index=1;
       this.meetings.forEach(meeting => {
         const meeting_students = this.getMeetingStudents(
           meeting)
         const percentages = this.calculateMeetingPercentages(
           meeting, meeting_students)
+        console.log(`Meeting ${index} percentages`, percentages)
+        index++
         total_overall_percent += percentages.overall_percent
         total_real_time_percent += percentages.real_time_percent
         total_async_percent += percentages.async_percent
@@ -99,6 +102,8 @@ export default {
           num_meetings_with_quiz++
         }
       })
+      // Real-Time and async might be broken? Only want to calculate
+      // Over meetings with real-time and async tasks
       this.average_overall_percent =
         (total_overall_percent / num_meetings)
       this.average_real_time_percent =
