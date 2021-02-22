@@ -120,7 +120,8 @@ export default {
         this.metrics.push({
           header: "Average QR Scan Submission Percentage",
           sub_header: "Average percentage of students who scan a qr.",
-          percentage: this.average_qr_scan_submission_percent.toFixed(1)
+          percentage: ((this.average_qr_scan_submission_percent)
+            * 100).toFixed(1)
         })
       }
       if(meeting_has_quizzes) {
@@ -134,7 +135,8 @@ export default {
         this.metrics.push({
           header: "Average Video Submission Percentage",
           sub_header: "Average percentage of students who watch a video",
-          percentage: this.average_video_submission_perent.toFixed(1)
+          percentage: ((this.average_video_submission_perent)
+            * 100).toFixed(1)
         })
         this.metrics.push({
           header: "Average Video Viewing Percentage",

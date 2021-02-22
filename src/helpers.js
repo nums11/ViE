@@ -428,9 +428,10 @@ export default {
 			if(videos.length === 0)
 				return video_stats
 
-			let total_viewing_percentage_for_videos = 0
-			let total_quiz_score_for_videos = 0
-			let num_videos_with_submissions = 0
+			let total_viewing_percentage_for_videos = 0,
+			total_quiz_score_for_videos = 0,
+			num_videos_with_submissions = 0,
+			num_videos_with_quizzes = 0
 			videos.forEach(video => {
 				const students = this.getPresentAndAbsentStudents(
 					meeting_students, video)
@@ -444,6 +445,7 @@ export default {
 						let avg_video_quiz_score = this.calculateTaskAverage(
 						'quiz_score', video.quiz, present_students)
 						total_quiz_score_for_videos += avg_video_quiz_score
+						num_videos_with_quizzes++
 					}
 				}
 			})
@@ -451,9 +453,11 @@ export default {
 				video_stats.average_video_viewing_percent =
 					(total_viewing_percentage_for_videos /
 						num_videos_with_submissions)
-				video_stats.average_video_quiz_score =
-					(total_quiz_score_for_videos /
-						num_videos_with_submissions)
+				if(num_videos_with_quizzes > 0) {
+					video_stats.average_video_quiz_score =
+						(total_quiz_score_for_videos /
+							num_videos_with_quizzes)
+				}
 				return video_stats
 			} else
 				return video_stats
