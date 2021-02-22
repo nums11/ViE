@@ -267,6 +267,7 @@ export default {
   methods: {
     setCopyVariables() {
       this.meeting_copy = this.getDeepCopy(this.meeting)
+      this.meeting_copy.sections = []
       // Remove submissions to reduce request payload size
       if(this.meeting_copy.real_time_portion != null) {
         this.meeting_copy.real_time_portion.qr_scans.forEach(
@@ -413,6 +414,7 @@ export default {
       }
 
       try {
+        console.log("Updating. Sending", this.meeting_copy)
         await MeetingAPI.updateMeeting(
           this.meeting._id, this.meeting_copy)
         this.updateMeetingValues()
