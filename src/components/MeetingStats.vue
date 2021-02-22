@@ -1,49 +1,24 @@
 <template>
   <div>
-    <div>
-      <div class="percent-container inline-block center-text">
-        <h3 class="navy-blue">
-          Overall Attendance Percentage
-        </h3>
-        <p>
-          Percentage of students who submitted to
-          at least 1 task.
-        </p>
-        <p class="percent">{{ overall_percent.toFixed(1) }}%</p>
-      </div>
-      <div class="ml-2 percent-container inline-block center-text">
-        <h3 class="navy-blue">
-          Real-Time Attendance Percentage
-        </h3>
-        <p>
-          Percentage of students who submitted to at least
-          1 real-time task.
-        </p>
-        <p class="percent">{{ real_time_percent.toFixed(1) }}%</p>
-      </div>
-      <div class="ml-2 percent-container inline-block center-text">
-        <h3 class="navy-blue">
-          Async Attendance Percentage
-        </h3>
-        <p>
-          Percentage of students who submitted to at least
-          1 async task.
-        </p>
-        <p class="percent">{{ async_percent.toFixed(1) }}%</p>
-      </div>
-    </div>
-    <div class="mt-2" v-if="students_loaded">
+    <div v-if="students_loaded" id="table-container">
       <MeetingSubmissionTable :meeting="meeting"
       :meeting_students="meeting_students"
       :present_students="present_students"
       :absent_students="absent_students" />
     </div>
+    <Metric v-for="(metric,index) in metrics"
+    :class="`mt-2 ${index % 3 !== 0 ? 'ml-3' : ''}`"
+    :header="metric.header"
+    :sub_header="metric.sub_header"
+    :percentage="metric.percentage"
+    size="medium" />
   </div>
 </template>
 
 <script>
 import MeetingSubmissionTable from
 '@/components/MeetingSubmissionTable'
+import Metric from '@/components/Metric'
 import helpers from '@/helpers.js'
 
 export default {
@@ -60,73 +35,114 @@ export default {
     }
   },
   components: {
-    MeetingSubmissionTable
+    MeetingSubmissionTable,
+    Metric
   },
   data () {
     return {
       overall_percent: 0,
       real_time_percent: 0,
       async_percent: 0,
+      average_qr_scan_submission_percent: 0,
+      average_quiz_score: 0,
+      average_video_submission_perent: 0,
+      average_video_viewing_percent: 0,
+      average_video_quiz_score: 0,
       present_students: [],
       absent_students: [],
-      students_loaded: false
+      students_loaded: false,
+      metrics: []
     }
   },
   created() {
-    this.calculatePercentages()
+    this.getMeetingPercentages()
+    this.setMetrics()
+    this.getPresentAndAbsentStudentsForMeeting()
   },
   methods: {
-    calculatePercentages() {
-      if(this.meeting_students.size === 0)
-        return
-
-      const num_students = this.meeting_students.size
-      let submitter_user_ids = new Set()
-
-      if(this.meeting.real_time_portion != null) {
-        const qr_scans = this.meeting.real_time_portion.qr_scans
-        let submitter_user_ids_for_qr_scans =
-          this.getSubmitterUserIDsForTasks(qr_scans)
-        const quizzes = this.meeting.real_time_portion.quizzes
-        let submitter_user_ids_for_quizzes =
-          this.getSubmitterUserIDsForTasks(quizzes)
-        submitter_user_ids = new Set([...submitter_user_ids_for_qr_scans,
-          ...submitter_user_ids_for_quizzes])
-        this.real_time_percent =
-          (submitter_user_ids.size / num_students) * 100
+    getMeetingPercentages() {
+      const meeting_percentages = this.calculateMeetingPercentages(
+        this.meeting, this.meeting_students)
+      this.real_time_percent = meeting_percentages.real_time_percent
+      this.async_percent = meeting_percentages.async_percent
+      this.overall_percent = meeting_percentages.overall_percent
+      this.average_qr_scan_submission_percent =
+        meeting_percentages.average_qr_scan_submission_percent
+      this.average_quiz_score = meeting_percentages.average_quiz_score
+      this.average_video_submission_perent =
+        meeting_percentages.average_video_submission_perent
+      this.average_video_viewing_percent =
+        meeting_percentages.average_video_viewing_percent
+      this.average_video_quiz_score =
+        meeting_percentages.average_video_quiz_score
+      this.submitter_user_ids = meeting_percentages.submitter_user_ids
+    },
+    setMetrics() {
+      const meeting_task_types = this.getMeetingTaskTypes(
+        this.meeting)
+      if(meeting_task_types.has_tasks) {
+        this.metrics.push({
+          header: "Overall Attendance Percentage",
+          sub_header: "Percentage of students who submitted to "
+            + "at least 1 task.",
+          percentage: this.overall_percent.toFixed(1)
+        })
       }
-      if(this.meeting.async_portion != null) {
-        const videos = this.meeting.async_portion.videos
-        let submitter_user_ids_for_videos =
-          this.getSubmitterUserIDsForTasks(videos)
-        submitter_user_ids = new Set([...submitter_user_ids,
-          ...submitter_user_ids_for_videos])
-        this.async_percent =
-          (submitter_user_ids_for_videos.size / num_students) * 100
+      if(meeting_task_types.has_real_time_tasks) {
+        this.metrics.push({
+          header: "Real-Time Attendance Percentage",
+          sub_header: "Percentage of students who submitted to "
+            + "at least 1 real-time task.",
+          percentage: this.real_time_percent.toFixed(1)
+        })
       }
-
-      this.overall_percent =
-        (submitter_user_ids.size / num_students) * 100
-      this.getPresentAndAbsentStudentsForMeeting(submitter_user_ids)
+      if(meeting_task_types.has_async_tasks) {
+        this.metrics.push({
+          header: "Async Attendance Percentage",
+          sub_header: "Percentage of students who submitted to "
+            + "at least 1 async task.",
+          percentage: this.async_percent.toFixed(1)
+        })
+      }
+      if(meeting_task_types.has_qr_scans) {
+        this.metrics.push({
+          header: "Average QR Scan Submission Percentage",
+          sub_header: "Average percentage of students who scan a qr.",
+          percentage: ((this.average_qr_scan_submission_percent)
+            * 100).toFixed(1)
+        })
+      }
+      if(meeting_task_types.has_quizzes) {
+        this.metrics.push({
+          header: "Average Real-Time Quiz Score",
+          sub_header: "Average student real-time quiz score.",
+          percentage: this.average_quiz_score.toFixed(1)
+        })
+      }
+      if(meeting_task_types.has_videos) {
+        this.metrics.push({
+          header: "Average Video Submission Percentage",
+          sub_header: "Average percentage of students who watch a video",
+          percentage: ((this.average_video_submission_perent)
+            * 100).toFixed(1)
+        })
+        this.metrics.push({
+          header: "Average Video Viewing Percentage",
+          sub_header: "Average percent of videos that students view.",
+          percentage: this.average_video_viewing_percent.toFixed(1)
+        })
+        if(meeting_task_types.has_video_quizzes) {
+          this.metrics.push({
+            header: "Average Video Quiz Score",
+            sub_header: "Average student video quiz score",
+            percentage: this.average_video_quiz_score.toFixed(1)
+          })
+        }
+      }
     },
-    getSubmitterUserIDsForTasks(tasks) {
-      const tasks_submitter_user_ids = new Set()
-      tasks.forEach(task => {
-        let students = this.getPresentAndAbsentStudents(
-          this.meeting_students, task)
-        let present_students = students.present_students
-          this.addStudentUserIDsToSet(tasks_submitter_user_ids, present_students)
-      })
-      return tasks_submitter_user_ids
-    },
-    addStudentUserIDsToSet(set, students) {
-      students.forEach(student => {
-        set.add(student.user_id)
-      })
-    },
-    getPresentAndAbsentStudentsForMeeting(submitter_user_ids) {
+    getPresentAndAbsentStudentsForMeeting() {
       this.meeting_students.forEach(student => {
-        if(submitter_user_ids.has(student.user_id))
+        if(this.submitter_user_ids.has(student.user_id))
           this.present_students.push(student)
         else
           this.absent_students.push(student)
@@ -138,20 +154,8 @@ export default {
 </script>
 
 <style scoped>
-.percent-container {
-  width: 24rem;
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
-#async-percent {
-  margin-left: 2rem;
-}
-
-.percent {
-  font-size: 7.5rem;
-  font-weight: bold;
-  color: #00B3FF;
-  margin-bottom: 0;
+#table-container {
+  max-height: 30rem;
+  overflow-y: auto;
 }
 </style>

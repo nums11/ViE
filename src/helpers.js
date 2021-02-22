@@ -278,6 +278,307 @@ export default {
 		    else
 		      return average*100 
 		  }
+		},
+		calculateMeetingPercentages(meeting, meeting_students) {
+			const meeting_percentages = {
+				overall_percent: 0,
+				real_time_percent: 0,
+				async_percent: 0,
+				average_qr_scan_submission_percent: 0,
+				average_quiz_submission_percent: 0,
+				average_video_submission_perent: 0,
+				average_quiz_score: 0,
+				average_video_viewing_percent: 0,
+				average_video_quiz_score: 0,
+				submitter_user_ids: new Set(),
+				real_time_submitter_user_ids: new Set(),
+				async_submitter_user_ids: new Set()
+			}
+
+		  if(meeting_students.size === 0)
+		    return meeting_percentages
+
+		  const num_students = meeting_students.size
+		  let submitter_user_ids = new Set()
+
+		  if(meeting.real_time_portion != null) {
+		  	// QR Scan Stats
+		    const qr_scans = meeting.real_time_portion.qr_scans
+		    const qr_percentages_with_ids =
+		      this.getSubmitterUserIDsAndSubmissionPercentagesForTasks(
+		      	qr_scans, meeting_students)
+	     	meeting_percentages.average_qr_scan_submission_percent
+		     	= qr_percentages_with_ids.average_submission_percentage_for_tasks
+		    const submitter_user_ids_for_qr_scans =
+		    	qr_percentages_with_ids.submitter_user_ids_for_tasks
+
+		    // Quiz Stats
+		    const quizzes = meeting.real_time_portion.quizzes
+		    const quiz_percentages_with_ids =
+		      this.getSubmitterUserIDsAndSubmissionPercentagesForTasks(
+		      	quizzes, meeting_students)
+	      meeting_percentages.average_quiz_submission_percent
+	      	= quiz_percentages_with_ids.average_submission_percentage_for_tasks
+	      const submitter_user_ids_for_quizzes =
+	      	quiz_percentages_with_ids.submitter_user_ids_for_tasks
+	      meeting_percentages.average_quiz_score =
+	      	this.getAverageQuizScoreForQuizzes(quizzes, meeting_students)
+
+		    submitter_user_ids = new Set([...submitter_user_ids_for_qr_scans,
+		      ...submitter_user_ids_for_quizzes])
+		    meeting_percentages.real_time_submitter_user_ids =
+		    	new Set([...submitter_user_ids_for_qr_scans,
+		    			      ...submitter_user_ids_for_quizzes])
+		    meeting_percentages.real_time_percent =
+		      (submitter_user_ids.size / num_students) * 100
+		  }
+
+		  if(meeting.async_portion != null) {
+		  	// Video Stats
+		    const videos = meeting.async_portion.videos
+		    const video_percentages_with_ids =
+		      this.getSubmitterUserIDsAndSubmissionPercentagesForTasks(
+		      	videos, meeting_students)
+		    meeting_percentages.average_video_submission_perent
+		    	= video_percentages_with_ids.average_submission_percentage_for_tasks
+		    const submitter_user_ids_for_videos =
+		    	video_percentages_with_ids.submitter_user_ids_for_tasks
+		    const video_stats =
+		    	this.getAverageViewingPercentageAndQuizScoreForVideos(
+		    		videos, meeting_students)
+		    meeting_percentages.average_video_viewing_percent =
+		    	video_stats.average_video_viewing_percent
+		    meeting_percentages.average_video_quiz_score =
+		    	video_stats.average_video_quiz_score
+
+		    submitter_user_ids = new Set([...submitter_user_ids,
+		      ...submitter_user_ids_for_videos])
+		    meeting_percentages.async_submitter_user_ids =
+		    	submitter_user_ids_for_videos
+		    meeting_percentages.async_percent =
+		      (submitter_user_ids_for_videos.size / num_students) * 100
+		  }
+
+		  meeting_percentages.overall_percent =
+		    (submitter_user_ids.size / num_students) * 100
+	   	meeting_percentages.submitter_user_ids = submitter_user_ids
+		  return meeting_percentages
+		},
+		getSubmitterUserIDsAndSubmissionPercentagesForTasks(
+			tasks, meeting_students) {
+			const tasks_percentages_with_ids = {
+				average_submission_percentage_for_tasks: 0,
+				submitter_user_ids_for_tasks: new Set()
+			}
+			if(tasks.length === 0)
+				return tasks_percentages_with_ids
+
+		  const submitter_user_ids_for_tasks = new Set()
+		  let submission_percentage_total = 0
+		  tasks.forEach(task => {
+		    let students = this.getPresentAndAbsentStudents(
+		      meeting_students, task)
+		    let present_students = students.present_students
+		      this.addStudentUserIDsToSet(
+		      	submitter_user_ids_for_tasks, present_students)
+	     	let submission_percentage =
+	     		present_students.length / meeting_students.size
+	     	submission_percentage_total += submission_percentage
+		  })
+		  tasks_percentages_with_ids.average_submission_percentage_for_tasks
+		  	= submission_percentage_total / tasks.length
+		  tasks_percentages_with_ids.submitter_user_ids_for_tasks
+		  	= submitter_user_ids_for_tasks
+		  return tasks_percentages_with_ids
+		},
+		addStudentUserIDsToSet(set, students) {
+		  students.forEach(student => {
+		    set.add(student.user_id)
+		  })
+		},
+		getAverageQuizScoreForQuizzes(quizzes, meeting_students) {
+			if(quizzes.length === 0)
+				return 0
+
+			let total_score_for_all_quizzes = 0
+			let num_quizzes_with_submissions = 0
+			quizzes.forEach(quiz => {
+				const students = this.getPresentAndAbsentStudents(
+					meeting_students, quiz)
+				const present_students = students.present_students
+				if(present_students.length > 0) {
+					num_quizzes_with_submissions++
+					let avg_quiz_score = this.calculateTaskAverage(
+						'quiz_score', quiz, present_students)
+					total_score_for_all_quizzes += avg_quiz_score
+				}
+			})
+			if(num_quizzes_with_submissions > 0)
+				return total_score_for_all_quizzes / num_quizzes_with_submissions
+			else
+				return 0
+		},
+		getAverageViewingPercentageAndQuizScoreForVideos(
+			videos, meeting_students) {
+			const video_stats = {
+				average_video_viewing_percent: 0,
+				average_video_quiz_score: 0
+			}
+
+			if(videos.length === 0)
+				return video_stats
+
+			let total_viewing_percentage_for_videos = 0,
+			total_quiz_score_for_videos = 0,
+			num_videos_with_submissions = 0,
+			num_videos_with_quizzes = 0
+			videos.forEach(video => {
+				const students = this.getPresentAndAbsentStudents(
+					meeting_students, video)
+				const present_students = students.present_students
+				if(present_students.length > 0) {
+					num_videos_with_submissions++
+					let avg_viewing_percentage = this.calculateTaskAverage(
+						'video_percent', video, present_students)
+					total_viewing_percentage_for_videos += avg_viewing_percentage
+					if(video.quiz != null) {
+						let avg_video_quiz_score = this.calculateTaskAverage(
+						'quiz_score', video.quiz, present_students)
+						total_quiz_score_for_videos += avg_video_quiz_score
+						num_videos_with_quizzes++
+					}
+				}
+			})
+			if(num_videos_with_submissions > 0) {
+				video_stats.average_video_viewing_percent =
+					(total_viewing_percentage_for_videos /
+						num_videos_with_submissions)
+				if(num_videos_with_quizzes > 0) {
+					video_stats.average_video_quiz_score =
+						(total_quiz_score_for_videos /
+							num_videos_with_quizzes)
+				}
+				return video_stats
+			} else
+				return video_stats
+		},
+		getMeetingTaskTypes(meeting) {
+			const meeting_task_types = {}
+			meeting_task_types.has_qr_scans =
+				this.meetingHasTaskType(meeting, 'qr_scan')
+			meeting_task_types.has_quizzes =
+				this.meetingHasTaskType(meeting, 'quiz')
+			meeting_task_types.has_videos =
+				this.meetingHasTaskType(meeting, 'video')
+			meeting_task_types.has_video_quizzes =
+				this.meetingHasTaskType(meeting, 'video_quiz')
+			meeting_task_types.has_real_time_tasks =
+				meeting_task_types.has_qr_scans ||
+					meeting_task_types.has_quizzes
+			meeting_task_types.has_async_tasks =
+				meeting_task_types.has_videos
+			meeting_task_types.has_tasks =
+				meeting_task_types.has_real_time_tasks ||
+					meeting_task_types.has_async_tasks
+			return meeting_task_types
+		},
+		meetingHasTaskType(meeting, task_type) {
+		  if(task_type === 'qr_scan') {
+		    if(meeting.real_time_portion == null)
+		      return false
+		    return meeting.real_time_portion.qr_scans.length > 0
+		  } else if(task_type === 'quiz') {
+		    if(meeting.real_time_portion == null)
+		      return false
+		    return meeting.real_time_portion.quizzes.length > 0
+		  } else if(task_type === 'video') {
+		    if(meeting.async_portion == null)
+		      return false
+		    return meeting.async_portion.videos.length > 0
+		  } else if(task_type === 'video_quiz') {
+		    if(meeting.async_portion == null)
+		      return false
+		    const videos = meeting.async_portion.videos
+		    let video_has_quiz = false
+		    for(let i = 0; i < videos.length; i++) {
+		      if(videos[i].quiz != null) {
+		        video_has_quiz = true
+		        break
+		      }
+		    }
+		    return video_has_quiz
+		  }
+		},
+		getAttendancePercentagesFromStudentData(
+			student_attendance_data) {
+			const overall_attendance_percentages = [],
+			real_time_attendance_percentages = [],
+			async_attendance_percentages = []
+		  student_attendance_data.forEach(data => {
+		    overall_attendance_percentages.push(
+		      data.overall_attendance_percentage)
+		    real_time_attendance_percentages.push(
+		      data.real_time_attendance_percentage)
+		    async_attendance_percentages.push(
+		      data.async_attendance_percentage)
+		    overall_attendance_percentages.sort(
+		      (a,b) => {return a-b})
+		    real_time_attendance_percentages.sort(
+		      (a,b) => {return a-b})
+		    async_attendance_percentages.sort(
+		      (a,b) => {return a-b})
+		  })
+		  return {
+		  	overall_attendance_percentages:
+		  	overall_attendance_percentages,
+		  	real_time_attendance_percentages:
+		  	real_time_attendance_percentages,
+		  	async_attendance_percentages:
+		  	async_attendance_percentages
+		  }
+		},
+		getPercentileValues(student_attendance_data,
+			percentages, percentile, top) {
+			const total_num_values = student_attendance_data.length
+			const num_values_in_percentile =
+			  Math.ceil(total_num_values * (percentile/100))
+			let values_in_percentile;
+			if(top) { //top
+			  const start_index = percentages.length -
+			    num_values_in_percentile
+			  values_in_percentile =
+			    percentages.slice(start_index)
+			} else { //bottom
+			  values_in_percentile =
+			    percentages.slice(0, num_values_in_percentile)
+			}
+			return values_in_percentile
+		},
+		getStudentsInPercentile(student_attendance_data,
+			percentile_values, attendance_type) {
+		  const table_students = []
+		  student_attendance_data.forEach(data => {
+		    let student_percentage;
+		    if(attendance_type === 1)
+		      student_percentage = data.overall_attendance_percentage
+		    else if(attendance_type === 2)
+		      student_percentage = data.real_time_attendance_percentage
+		    else
+		      student_percentage = data.async_attendance_percentage
+		    if(percentile_values.includes(student_percentage)) {
+		      table_students.push({
+		        name: data.student_name,
+		        user_id: data.user_id,
+		        attendance_percentage: student_percentage
+		      })
+		    }
+		  })
+		  table_students.sort(
+		    (a,b) => {
+		      return b.attendance_percentage - a.attendance_percentage
+		    }
+		  )
+		  return table_students
 		}
 	}
 }

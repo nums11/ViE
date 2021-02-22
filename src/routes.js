@@ -26,7 +26,6 @@ import LandingPage from './views/LandingPage.vue';
 import SetPermanentPassword from './views/SetPermanentPassword.vue';
 import ExternalForm from './views/ExternalForm.vue';
 import Dashboard from './views/Dashboard.vue';
-import CourseOrgInfo from './views/CourseOrgInfo.vue';
 import CourseInfo from './views/CourseInfo.vue';
 import WebexTest from './views/WebexTest.vue';
 import MeetingInfo from './views/MeetingInfo.vue';

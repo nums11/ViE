@@ -265,6 +265,7 @@ export default {
     this.initTimePickers()
   },
   methods: {
+    // For decreasing the payload size
     setCopyVariables() {
       this.meeting_copy = this.getDeepCopy(this.meeting)
       this.meeting_copy.sections = []
@@ -661,7 +662,6 @@ export default {
             videos = this.getTasksWithSubmissionIds(
               'video')
           }
-          console.log("About to delete with videos", videos)
           await MeetingAPI.deleteMeeting(this.meeting._id,
             real_time_portion_id, async_portion_id, qr_scans,
             quizzes, videos)

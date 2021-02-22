@@ -92,7 +92,6 @@ export default {
             ticks: {
               beginAtZero: true,
               stepSize: 1
-              // max: 4
             },
           }],
           xAxes: [{

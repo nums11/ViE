@@ -1,173 +1,152 @@
 <template>
-  <div class="student-stats">
-    <sui-button 
-      compact icon="left arrow" 
-      label-position="left" 
-      @click="$emit('show-student-list')"
-      content="Back" />
-    <h1>{{ student.first_name }} {{ student.last_name }} ({{ student.user_id }})</h1>
-    <div class="metrics-container">
-      <div class="metric-container">
-        <h3 class="metric-title">Overall Attendance %</h3>
-        <h4 class="metric-description">Percentage of meetings attend either live or asynchrnously</h4>
-        <div class="spinner-border" role="status" v-if="calculating_metrics">
-          <span class="sr-only">Loading...</span>
-        </div>
-        <div class="metric-details" v-else>
-          <p class="metric-value">{{ overall_percent }}%</p>
-          <p class="metric-fraction">({{num_overall_meetings_attended}}/{{num_meetings}})</p>
-        </div>
-      </div>
-      <div class="metric-container">
-        <h3 class="metric-title">Live Attendance %</h3>
-        <h4 class="metric-description">Percentage of meetings attend live</h4>
-        <div class="spinner-border" role="status" v-if="calculating_metrics">
-          <span class="sr-only">Loading...</span>
-        </div>
-        <div class="metric-details" v-else>
-          <p class="metric-value">{{ live_percent }}%</p>
-          <p class="metric-fraction">({{num_live_meetings_attended}}/{{num_live_meetings}})</p>
-        </div>
-      </div>
-      <div class="metric-container">
-        <h3 class="metric-title">Async Attendance %</h3>
-        <h4 class="metric-description">Percentage of meetings attend asynchronously</h4>
-        <div class="spinner-border" role="status" v-if="calculating_metrics">
-          <span class="sr-only">Loading...</span>
-        </div>
-        <div class="metric-details" v-else>
-          <p class="metric-value">{{ async_percent }}%</p>
-          <p class="metric-fraction">({{num_async_meetings_attended}}/{{num_async_meetings}})</p>
-        </div>
+  <div>
+    <div class="center-text">
+      <sui-button @click="$emit('hide-stats')"
+      content="Back" icon="arrow left"
+      label-position="left" size="small"
+      class="float-left" />
+      <div class="inline-block" id="student-name">
+        {{ student_data.student_name }}
+        ({{ student_data.user_id }})
       </div>
     </div>
+    <div class="mt-3">
+      <Metric
+      header="Overall Attendance Percentage"
+      sub_header="Percentage of meetings this student attended
+         in real-time or asynchronously"
+      :percentage="
+        student_data.overall_attendance_percentage.toFixed(1)"
+      size="medium" />
+      <Metric class="ml-2"
+      header="Real-Time Attendance Percentage"
+      sub_header="Percentage of meetings this student attended
+         in real-time"
+      :percentage="
+        student_data.real_time_attendance_percentage.toFixed(1)"
+      size="medium" />
+      <Metric class="ml-2"
+      header="Async Attendance Percentage"
+      sub_header="Percentage of meetings this student attended
+         asynchronously"
+      :percentage="
+        student_data.async_attendance_percentage.toFixed(1)"
+      size="medium" />
+    </div>
+    <LineChart
+    :chart_data="chart_data"
+    :chart_options="chart_options"
+    :chart_styles="chart_styles" />
   </div>
 </template>
 
 <script>
+import Metric from '@/components/Metric'
+import LineChart from '@/components/LineChart'
+import 'chartjs-plugin-datalabels'
+
 export default {
   name: 'StudentStats',
   props: {
-    student: {
+    student_data: {
       type: Object,
       required: true
     },
-    course: {
-      type: Object,
+    meetings: {
+      type: Array,
       required: true
     }
   },
   components: {
-
+    Metric,
+    LineChart
   },
-  data () {
+  data() {
     return {
-      calculating_metrics: true,
-      overall_percent: 0,
-      live_percent: 0,
-      async_percent: 0,
-      num_meetings: 0,
-      num_live_meetings_attended: 0,
-      num_async_meetings_attended: 0,
-      num_overall_meetings_attended: 0,
-      num_live_meetings: 0,
-      num_async_meetings: 0
+      chart_data: {
+        labels: [],
+        datasets: [{
+          backgroundColor: 'rgba(232, 62, 140, 0.65)',
+          borderWidth: 3,
+          data: [],
+        }]
+      },
+      chart_options: {
+        legend: {display: false},
+        responsive: true,
+        maintainAspectRatio: false,
+        title: {
+          display: true,
+          text: "Engagement Over Time"
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true,
+              stepSize: 1,
+              max: 1,
+              callback: function(value, index, values) {
+                if(value === 0)
+                  return "No"
+                else
+                  return "Yes"
+              }
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'Attendance Status (Yes if they '
+                + 'submitted to at least 1 task)'
+            }
+          }],
+          xAxes: [{
+            gridLines: {
+              display: false
+            },
+            scaleLabel: {
+              display: true,
+              labelString: 'Meeting'
+            },
+            ticks: {
+              callback: function(label) {
+                if (/\s/.test(label)) {
+                  return label.split(" ");
+                }else{
+                  return label;
+                } 
+              }
+            }
+          }]
+        },
+        plugins: {
+          datalabels: {
+            display: false
+          }
+        }
+      },
+      chart_styles: {},
     }
   },
-  created () {
-    console.log("Course", this.course)
-    this.calculateMetrics()
-    this.calculating_metrics = false
+  created() {
+    this.getChartData()
   },
   methods: {
-    calculateMetrics() {
-      this.num_meetings = this.course.meetings.length
-      this.course.meetings.forEach(meeting => {
-        if(meeting.has_real_time_portion)
-          this.num_live_meetings++
-        if(meeting.has_async_portion)
-          this.num_async_meetings++
-        let [submission_ids, async_submission_ids] = this.getMeetingSubmissionIDs(meeting)
-        let attended = false
-        if(submission_ids.has(this.student.user_id)) {
-          this.num_live_meetings_attended++
-          attended = true
-        }
-        if(async_submission_ids.has(this.student.user_id)) {
-          this.num_async_meetings_attended++
-          attended = true
-        }
-        if(attended)
-          this.num_overall_meetings_attended++
-      })
-      if(this.num_meetings > 0)
-        this.overall_percent = ((this.num_overall_meetings_attended / this.num_meetings) * 100).toFixed(1)
-      if(this.num_live_meetings > 0)
-        this.live_percent = ((this.num_live_meetings_attended / this.num_live_meetings) * 100).toFixed(1)
-      if(this.num_async_meetings >0)
-        this.async_percent = ((this.num_async_meetings_attended / this.num_async_meetings) * 100).toFixed(1)
-    },
-    getMeetingSubmissionIDs(meeting) {
-      let submission_ids = new Set()
-      meeting.real_time_portion.qr_scans.forEach(qr_scan =>{
-        qr_scan.submissions.forEach(submission => {
-          submission_ids.add(submission.submitter.user_id)
-        })
-      })
-      let async_submission_ids = new Set()
-      meeting.async_portion.videos.forEach(video =>{
-        video.video_submissions.forEach(submission => {
-          async_submission_ids.add(submission.submitter.user_id)
-        })
-      })
-      return [submission_ids, async_submission_ids]
+    getChartData() {
+      const attendance = this.student_data.attendance_by_meeting
+      for(let i = 0; i < attendance.length; i++) {
+        this.chart_data.labels.push(this.meetings[i].title)
+        const attendance_status = attendance[i] === 'Yes' ?
+        1 : 0
+        this.chart_data.datasets[0].data.push(attendance_status)
+      }
     }
   }
 }
 </script>
 
-<style lang="css" scoped>
-.metrics-container {
-  margin-top: 2rem;
-  height: 32rem;
-}
-
-.metric-container {
-  width: 33%;
-  height: 100%;
-  display: inline-block;
-  vertical-align: top;
-}
-
-.metric-title {
+<style scoped>
+#student-name {
+  margin-left: -8rem;
+  font-size: 1.5rem;
   margin-top: 0.5rem;
-  text-align: center;
-}
-
-.metric-description {
-  margin-top: 0;
-  text-align: center;
-  font-weight: bold;
-  color: #595757;
-  height: 10%;
-}
-
-.metric-details {
-  margin-top: 0;
-}
-
-.metric-value {
-  text-align: center;
-  font-size: 6rem;
-  margin-bottom: 0;
-}
-
-.metric-fraction {
-  top: 0;
-  margin-top: 1rem;
-  text-align: center;
-  font-size: 2rem;
-  font-weight: bold;
-  color: #595757;
 }
 </style>
