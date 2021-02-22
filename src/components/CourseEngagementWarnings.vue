@@ -97,6 +97,12 @@ export default {
           })
         }
       })
+      this.bottom_10_percent_of_students.sort(
+        (a,b) => {
+          return a.overall_attendance_percentage -
+          b.overall_attendance_percentage
+        }
+      )
     }
   }
 }
