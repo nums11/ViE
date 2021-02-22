@@ -78,21 +78,9 @@ export default {
       this.submitter_user_ids = meeting_percentages.submitter_user_ids
     },
     setMetrics() {
-      const meeting_has_qr_scans = this.meetingHasTaskType(
-        this.meeting, 'qr_scan')
-      const meeting_has_quizzes = this.meetingHasTaskType(
-        this.meeting, 'quiz')
-      const meeting_has_videos = this.meetingHasTaskType(
-        this.meeting, 'video')
-      const meeting_has_video_quizzes = this.meetingHasTaskType(
-        this.meeting, 'video_quiz')
-      const meeting_has_real_time_tasks =
-        meeting_has_qr_scans || meeting_has_quizzes
-      const meeting_has_async_tasks =
-        meeting_has_videos
-      const meeting_has_tasks =
-        meeting_has_real_time_tasks || meeting_has_async_tasks
-      if(meeting_has_tasks) {
+      const meeting_task_types = this.getMeetingTaskTypes(
+        this.meeting)
+      if(meeting_task_types.has_tasks) {
         this.metrics.push({
           header: "Overall Attendance Percentage",
           sub_header: "Percentage of students who submitted to "
@@ -100,7 +88,7 @@ export default {
           percentage: this.overall_percent.toFixed(1)
         })
       }
-      if(meeting_has_real_time_tasks) {
+      if(meeting_task_types.has_real_time_tasks) {
         this.metrics.push({
           header: "Real-Time Attendance Percentage",
           sub_header: "Percentage of students who submitted to "
@@ -108,7 +96,7 @@ export default {
           percentage: this.real_time_percent.toFixed(1)
         })
       }
-      if(meeting_has_async_tasks) {
+      if(meeting_task_types.has_async_tasks) {
         this.metrics.push({
           header: "Async Attendance Percentage",
           sub_header: "Percentage of students who submitted to "
@@ -116,7 +104,7 @@ export default {
           percentage: this.async_percent.toFixed(1)
         })
       }
-      if(meeting_has_qr_scans) {
+      if(meeting_task_types.has_qr_scans) {
         this.metrics.push({
           header: "Average QR Scan Submission Percentage",
           sub_header: "Average percentage of students who scan a qr.",
@@ -124,14 +112,14 @@ export default {
             * 100).toFixed(1)
         })
       }
-      if(meeting_has_quizzes) {
+      if(meeting_task_types.has_quizzes) {
         this.metrics.push({
           header: "Average Real-Time Quiz Score",
           sub_header: "Average student real-time quiz score.",
           percentage: this.average_quiz_score.toFixed(1)
         })
       }
-      if(meeting_has_videos) {
+      if(meeting_task_types.has_videos) {
         this.metrics.push({
           header: "Average Video Submission Percentage",
           sub_header: "Average percentage of students who watch a video",
@@ -143,7 +131,7 @@ export default {
           sub_header: "Average percent of videos that students view.",
           percentage: this.average_video_viewing_percent.toFixed(1)
         })
-        if(meeting_has_video_quizzes) {
+        if(meeting_task_types.has_video_quizzes) {
           this.metrics.push({
             header: "Average Video Quiz Score",
             sub_header: "Average student video quiz score",

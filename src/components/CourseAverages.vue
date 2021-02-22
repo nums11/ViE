@@ -67,49 +67,67 @@ export default {
       total_video_submission_percent = 0, num_meetings_with_video = 0,
       total_video_viewing_percent = 0, total_video_quiz_score = 0,
       num_meetings_with_video_quiz = 0,
-      total_quiz_score = 0, num_meetings_with_quiz = 0
-      let index=1;
+      total_quiz_score = 0, num_meetings_with_quiz = 0,
+      num_meetings_with_tasks = 0,
+      num_meetings_with_real_time_tasks = 0,
+      num_meetings_with_async_tasks = 0
       this.meetings.forEach(meeting => {
         const meeting_students = this.getMeetingStudents(
           meeting)
         const percentages = this.calculateMeetingPercentages(
           meeting, meeting_students)
-        console.log(`Meeting ${index} percentages`, percentages)
-        index++
-        total_overall_percent += percentages.overall_percent
-        total_real_time_percent += percentages.real_time_percent
-        total_async_percent += percentages.async_percent
-        if(this.meetingHasTaskType(meeting, 'qr_scan')) {
+        const meeting_task_types = this.getMeetingTaskTypes(meeting)
+        if(meeting_task_types.has_tasks) {
+          num_meetings_with_tasks++
+          total_overall_percent += percentages.overall_percent
+          if(meeting_task_types.has_real_time_tasks) {
+            num_meetings_with_real_time_tasks++
+            total_real_time_percent += percentages.real_time_percent
+          }
+          if(meeting_task_types.has_async_tasks) {
+            num_meetings_with_async_tasks++
+            total_async_percent += percentages.async_percent
+          }
+        }
+        if(meeting_task_types.has_qr_scans) {
           total_qr_submission_percent +=
             percentages.average_qr_scan_submission_percent
           num_meetings_with_qr++
         }
-        if(this.meetingHasTaskType(meeting, 'video')) {
+        if(meeting_task_types.has_videos) {
           total_video_submission_percent +=
             percentages.average_video_submission_perent
           total_video_viewing_percent +=
             percentages.average_video_viewing_percent
           num_meetings_with_video++
-          if(this.meetingHasTaskType(meeting, 'video_quiz')) {
+          if(meeting_task_types.has_video_quizzes) {
             total_video_quiz_score +=
               percentages.average_video_quiz_score
             num_meetings_with_video_quiz++
           }
         }
-        if(this.meetingHasTaskType(meeting, 'quiz')) {
+        if(meeting_task_types.has_quizzes) {
           total_quiz_score +=
             percentages.average_quiz_score
           num_meetings_with_quiz++
         }
       })
-      // Real-Time and async might be broken? Only want to calculate
-      // Over meetings with real-time and async tasks
-      this.average_overall_percent =
-        (total_overall_percent / num_meetings)
-      this.average_real_time_percent =
-        (total_real_time_percent / num_meetings)
-      this.average_async_percent =
-        (total_async_percent / num_meetings)
+
+      if(num_meetings_with_tasks > 0) {
+        this.average_overall_percent =
+          (total_overall_percent /
+            num_meetings_with_tasks)
+        }
+      if(num_meetings_with_real_time_tasks > 0) {
+        this.average_real_time_percent =
+          (total_real_time_percent /
+            num_meetings_with_real_time_tasks)
+      }
+      if(num_meetings_with_async_tasks > 0) {
+        this.average_async_percent =
+          (total_async_percent /
+            num_meetings_with_async_tasks)
+      }
       if(num_meetings_with_qr > 0) {
         this.course_has_meetings_with_qr_scans = true
         this.average_qr_scan_submission_percent =

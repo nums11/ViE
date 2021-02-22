@@ -462,6 +462,26 @@ export default {
 			} else
 				return video_stats
 		},
+		getMeetingTaskTypes(meeting) {
+			const meeting_task_types = {}
+			meeting_task_types.has_qr_scans =
+				this.meetingHasTaskType(meeting, 'qr_scan')
+			meeting_task_types.has_quizzes =
+				this.meetingHasTaskType(meeting, 'quiz')
+			meeting_task_types.has_videos =
+				this.meetingHasTaskType(meeting, 'video')
+			meeting_task_types.has_video_quizzes =
+				this.meetingHasTaskType(meeting, 'video_quiz')
+			meeting_task_types.has_real_time_tasks =
+				meeting_task_types.has_qr_scans ||
+					meeting_task_types.has_quizzes
+			meeting_task_types.has_async_tasks =
+				meeting_task_types.has_videos
+			meeting_task_types.has_tasks =
+				meeting_task_types.has_real_time_tasks ||
+					meeting_task_types.has_async_tasks
+			return meeting_task_types
+		},
 		meetingHasTaskType(meeting, task_type) {
 		  if(task_type === 'qr_scan') {
 		    if(meeting.real_time_portion == null)
