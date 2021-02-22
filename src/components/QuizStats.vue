@@ -71,7 +71,6 @@ export default {
     }
   },
   created() {
-    console.log("Quiz", this.quiz)
     this.avg_quiz_score = this.calculateTaskAverage(
       "quiz_score", this.quiz, this.present_students)
   },
