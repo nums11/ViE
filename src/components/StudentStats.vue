@@ -23,14 +23,14 @@
       sub_header="Percentage of meetings this student attended
          in real-time"
       :percentage="
-        student_data.overall_attendance_percentage.toFixed(1)"
+        student_data.real_time_attendance_percentage.toFixed(1)"
       size="medium" />
       <Metric class="ml-2"
       header="Async Attendance Percentage"
       sub_header="Percentage of meetings this student attended
          asynchronously"
       :percentage="
-        student_data.overall_attendance_percentage.toFixed(1)"
+        student_data.async_attendance_percentage.toFixed(1)"
       size="medium" />
     </div>
     <LineChart
@@ -94,7 +94,8 @@ export default {
             },
             scaleLabel: {
               display: true,
-              labelString: 'Attendance Status (Yes if they submitted to at least 1 task)'
+              labelString: 'Attendance Status (Yes if they '
+                + 'submitted to at least 1 task)'
             }
           }],
           xAxes: [{
