@@ -21,6 +21,11 @@
         <CourseEngagementWarnings
         :student_attendance_data="student_attendance_data" />
       </sui-tab-pane>
+      <sui-tab-pane class="stats-pane" title="Student Insights">
+        <StudentInsights
+        :student_attendance_data="student_attendance_data"
+        :meetings="populated_meetings" />
+      </sui-tab-pane>
     </sui-tab>
   </div>
 </template>
@@ -33,6 +38,8 @@ import CoursePercentiles from
 '@/components/CoursePercentiles'
 import CourseEngagementWarnings from
 '@/components/CourseEngagementWarnings'
+import StudentInsights from
+'@/components/StudentInsights'
 import MeetingAPI from '@/services/MeetingAPI'
 import helpers from '@/helpers'
 import moment from 'moment'
@@ -54,7 +61,8 @@ export default {
     CourseAttendanceTable,
     CourseAverages,
     CoursePercentiles,
-    CourseEngagementWarnings
+    CourseEngagementWarnings,
+    StudentInsights
   },
   data () {
     return {
@@ -70,7 +78,6 @@ export default {
       this.removeUpcomingMeetings()
       this.getStudentsFromCourse()
       this.getStudentAttendanceData()
-      console.log("student_attendance_data", this.student_attendance_data)
       this.data_loaded = true
     } catch(error) {
       console.log(error)
