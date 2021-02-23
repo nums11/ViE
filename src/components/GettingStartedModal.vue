@@ -12,6 +12,8 @@
         <iframe id="video-2" class="getting-started-video" src="https://www.youtube.com/embed/U1HL8NcotI0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         <p class="mt-2">How to Conduct Real-Time Quizzes</p>
         <iframe width="560" height="315" src="https://www.youtube.com/embed/ykBW_46nV58" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <p class="mt-2">How to View Course Statistics</p>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/e132FwigCgU" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
     </sui-modal-content>
     <sui-modal-actions>
