@@ -202,17 +202,27 @@ export default {
         this.student_attendance_data, percentile_values,
         this.attendance_type)
       // Get the line graph data points based on percentile values
-      const start_bucket_index = Math.floor(percentile_values[0]/10)
-      const end_bucket_index = Math.floor(percentile_values[
+      let start_bucket_index = Math.floor(percentile_values[0]/10)
+      let end_bucket_index = Math.floor(percentile_values[
         percentile_values.length - 1]/10)
+      if(start_bucket_index === 10)
+        start_bucket_index = 9
+      if(end_bucket_index === 10)
+        end_bucket_index = 9
       const bar_data = this.chart_data.datasets[0].data
       const line_data = new Array(10).fill(0)
       for(let i = 0; i < 10; i++) {
-        if(i >= start_bucket_index && i <= end_bucket_index)
+        if(i >= start_bucket_index && i <= end_bucket_index) {
+          console.log("here, i", i)
+          console.log("bar_data[i]", bar_data[i])
           line_data[i] = bar_data[i]
-        else
+        }
+        else {
+          console.log("outisde, i", i)
           line_data[i] = 0
+        }
       }
+      console.log("line_data", line_data)
       this.chart_data.datasets[1].data = line_data
     },
     getPercentagesBasedOnAttendanceType() {
