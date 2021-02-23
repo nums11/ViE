@@ -42,7 +42,7 @@ function handleRealTimeQuizSocketEvents(io, socket,
 	socket.on('addStudentQuizSubmission',
 		async (student_object_id, quiz_id,
 			num_quiz_questions, current_question_index,
-			selected_choice_index, is_correct,
+			selected_indices, is_correct,
 			existing_submission, cb) => {
 	  console.log(`received addStudentQuizSubmission event for `
 	  + `quiz_id ${quiz_id}`)
@@ -66,8 +66,8 @@ function handleRealTimeQuizSocketEvents(io, socket,
 	  	  num_correct_answers: num_correct_answers 
 	  	}
 	  	submission.quiz_answer_indices =
-	  		new Array(num_quiz_questions).fill(-1)
-	  	submission.quiz_answer_indices[current_question_index] = selected_choice_index
+	  		new Array(num_quiz_questions).fill([])
+	  	submission.quiz_answer_indices[current_question_index] = selected_indices
 	  	updated_submission = await SubmissionHelper.addQuizSubmission(
 	  	  quiz_id, submission)
 	  }
@@ -77,7 +77,7 @@ function handleRealTimeQuizSocketEvents(io, socket,
   	}
 
 	  io.to(quiz.instructor_socket_id).emit(
-	  	'addStudentSubmission',selected_choice_index,updated_submission)
+	  	'addStudentSubmission',selected_indices,updated_submission)
 	  cb(updated_submission)
 	})
 

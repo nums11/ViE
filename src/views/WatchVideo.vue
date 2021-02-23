@@ -254,8 +254,7 @@ export default {
         this.submission = submission
         const quiz_answer_indices = this.submission.quiz_answer_indices
         for(let i = 0; i < quiz_answer_indices.length; i++) {
-          // student has not yet answered this question
-          if(quiz_answer_indices[i].length === 0) {
+          if(!this.userAnsweredQuestion(quiz_answer_indices,i)) {
             this.current_question_index = i
             break
           }
@@ -401,9 +400,8 @@ export default {
       })
     },
     getMarkerClass(unrestricted_mode, question_index) {
-      if(unrestricted_mode ||
-        this.submission.quiz_answer_indices[question_index].length
-          === 0)
+      if(unrestricted_mode || !this.userAnsweredQuestion(
+        this.submission.quiz_answer_indices, question_index))
         return "blue-marker"
 
       // Student has already answered the question

@@ -41,10 +41,10 @@
         </div>
       </div>
       <div>
-        <QuizRadioButton
+        <QuizButton
         v-for="(answer, index) in
         current_question.answer_choices"
-        :ref="`QuizRadioButton${index}`"
+        :ref="`QuizButton${index}`"
         :answer="answer" :index="index"
         v-on:select-answer-choice="selectAnswerChoice" />
         <div @click="submit" id="btn-container">
@@ -62,14 +62,14 @@ import MeetingAPI from '@/services/MeetingAPI'
 import QuizAPI from '@/services/QuizAPI'
 import helpers from '@/helpers.js'
 import io from 'socket.io-client';
-import QuizRadioButton from '@/components/QuizRadioButton'
+import QuizButton from '@/components/QuizButton'
 import Button from '@/components/Button'
 
 export default {
   name: 'StudentRealTimeQuiz',
   mixins: [helpers],
   components: {
-    QuizRadioButton,
+    QuizButton,
     Button
   },
   data(){
@@ -80,7 +80,7 @@ export default {
       quiz_has_loaded: false,
       current_question: null,
       current_question_index: null,
-      selected_choice_index: null,
+      selected_indices: [],
       is_correct: false,
       user_has_answered: false,
       no_quiz_found: false
@@ -88,7 +88,7 @@ export default {
   },
   computed: {
     choiceSelected() {
-      return this.selected_choice_index != null
+      return this.selected_indices.length > 0
     }
   },
   async created() {
@@ -171,35 +171,38 @@ export default {
     },
     checkIfUserAnsweredCurrentQuestion() {
       this.removeButtonHiglights()
-      if(this.submission == null || !this.userAnsweredRealTimeQuestion(
-        this.submission, this.current_question_index)) {
+      if(this.submission == null || !this.userAnsweredQuestion(
+        this.submission.quiz_answer_indices, this.current_question_index)) {
         this.user_has_answered = false
       } else {
         this.user_has_answered = true
-        this.is_correct =
-          this.submission.quiz_answer_indices[this.current_question_index]
-            === this.current_question.correct_answer_index
+        this.is_correct = this.userWasCorrect(
+          this.submission.quiz_answer_indices[this.current_question_index],
+          this.current_question.correct_answer_indices)
         this.highlightButtons()
       }
     },
     selectAnswerChoice(index) {
-      this.selected_choice_index = index 
+      if(this.selected_indices.includes(index)) {
+        const array_index = this.selected_indices.indexOf(index)
+        this.selected_indices.splice(array_index,1)
+      } else
+        this.selected_indices.push(index)
     },
     submit() {
       if(this.choiceSelected) {
-        this.is_correct =
-          this.selected_choice_index ===
-            this.current_question.correct_answer_index
+        this.is_correct = this.userWasCorrect(this.selected_indices,
+          this.current_question.correct_answer_indices)
         if(this.submission != null) {
           this.submission.quiz_answer_indices[this.current_question_index]
-            = this.selected_choice_index
+            = this.selected_indices
           if(this.is_correct)
             this.submission.num_correct_answers++
         }
         this.client_io.emit('addStudentQuizSubmission',
           this.state_user._id, this.quiz_id,
           this.quiz.questions.length, this.current_question_index,
-          this.selected_choice_index, this.is_correct,
+          this.selected_indices, this.is_correct,
           this.submission, (updated_submission) => {
             if(updated_submission != null) {
               this.user_has_answered = true
@@ -214,8 +217,8 @@ export default {
     highlightButtons() {
       for(let i = 0; i < this.current_question.answer_choices.length;
         i++) {
-        const btn = this.$refs[`QuizRadioButton${i}`][0]
-        if(i === this.current_question.correct_answer_index)
+        const btn = this.$refs[`QuizButton${i}`][0]
+        if(this.current_question.correct_answer_indices.includes(i))
           btn.highlightButton(true)
         else
           btn.highlightButton(false)
@@ -224,7 +227,7 @@ export default {
     removeButtonHiglights() {
       for(let i = 0; i < this.current_question.answer_choices.length;
         i++) {
-        const btn = this.$refs[`QuizRadioButton${i}`][0]
+        const btn = this.$refs[`QuizButton${i}`][0]
         btn.removeHighlight()
       }
     }

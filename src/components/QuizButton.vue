@@ -1,7 +1,7 @@
 <template>
   <div @click="selectButton"
-  class="quiz-radio-button light-border-shadow"
-  :id="`quiz-radio-button-${index}`">
+  class="quiz-button light-border-shadow"
+  :id="`quiz-button-${index}`">
     <div class="circle inline-block"></div>
     <div class="answer inline-block">
       {{ answer }}
@@ -11,7 +11,7 @@
 
 <script>
 export default {
-  name: 'QuizRadioButton',
+  name: 'QuizButton',
   props: {
     answer: {
       type: String,
@@ -40,12 +40,10 @@ export default {
         return
 
       this.$emit('select-answer-choice', this.index)
-      document.querySelectorAll('.quiz-radio-button').forEach(
-        el => {
-          el.classList.remove('selected-button')
-          el.firstElementChild.classList.remove('selected-button')
-      })
-      this.addClass('selected-button')
+      if(button.classList.contains('selected-button'))
+        this.removeClass('selected-button')
+      else
+        this.addClass('selected-button')
     },
     highlightButton(is_green) {
       const class_name = is_green ?
@@ -69,14 +67,14 @@ export default {
     },
     getButtonElement() {
       return document.getElementById(
-        `quiz-radio-button-${this.index}`)
+        `quiz-button-${this.index}`)
     }
   }
 }
 </script>
 
 <style scoped>
-.quiz-radio-button {
+.quiz-button {
   width: 35rem;
   min-height: 4rem;
   max-height: 8rem;
@@ -93,7 +91,7 @@ export default {
   overflow-y: auto;
 }
 
-.quiz-radio-button:hover {
+.quiz-button:hover {
   border-color: #00B3FF;
   color: #00B3FF;
 }
@@ -131,7 +129,7 @@ export default {
 
 /* Phones */
 @media (max-width: 744px) {
-  .quiz-radio-button {
+  .quiz-button {
     width: 90%;
     min-height: 3.5rem;
     padding-top: 0.8rem;
