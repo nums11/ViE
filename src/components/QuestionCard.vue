@@ -16,9 +16,9 @@
           <div v-for="(answer,index) in question.answer_choices"
           class="mt-1">
             <sui-form-field>
-              <div class="ui radio checkbox correct-answer">
+              <div class="ui checkbox correct-answer">
                 <input @click="selectAnswer(index)"
-                type="radio" name="answer" :disabled="unrestricted_mode"
+                type="checkbox" name="answer" :disabled="unrestricted_mode"
                 />
                 <label :id="`label-${index}`">{{ answer }}</label>
               </div>
@@ -97,7 +97,7 @@ export default {
     changeAnswerColors() {
       for(let i = 0; i < this.question.answer_choices.length; i++) {
         let label = document.getElementById(`label-${i}`)
-        if(i === this.question.correct_answer_index)
+        if(this.question.correct_answer_indices.includes(i))
           label.style.color = "#00b80c";
         else
           label.style.color = "#FF0000";
