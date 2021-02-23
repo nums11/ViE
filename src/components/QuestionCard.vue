@@ -43,13 +43,15 @@ import Button from '@/components/Button'
 import moment from 'moment'
 import momentDurationFormatSetup from "moment-duration-format"
 momentDurationFormatSetup(moment)
+import helpers from '@/helpers.js'
 
 export default {
   name: "QuestionCard",
+  mixins: [helpers],
   data() {
     return {
       question: null,
-      selected_answer_index: null,
+      selected_indices: [],
       user_was_correct: false,
       user_has_answered: false,
       unrestricted_mode: false
@@ -63,7 +65,7 @@ export default {
   },
   computed: {
     disableSubmit() {
-      return this.selected_answer_index == null
+      return this.selected_indices.length === 0
     },
     getButtonText() {
       if(this.user_has_answered)
@@ -77,7 +79,11 @@ export default {
       this.question = question
     },
     selectAnswer(index) {
-      this.selected_answer_index = index
+      if(this.selected_indices.includes(index)) {
+        const array_index = this.selected_indices.indexOf(index)
+        this.selected_indices.splice(array_index,1)
+      } else
+        this.selected_indices.push(index)
     },
     submit() {
       if(!this.disableSubmit) {
@@ -85,11 +91,11 @@ export default {
           this.reset()
           this.$emit('resume-video')
         } else {
-          this.user_was_correct =
-            this.selected_answer_index === this.question.correct_answer_index
+          this.user_was_correct = this.userWasCorrect(
+            this.selected_indices, this.question.correct_answer_indices)
           this.user_has_answered = true
           this.changeAnswerColors()
-          this.$emit('submit', this.selected_answer_index,
+          this.$emit('submit', this.selected_indices,
             this.user_was_correct)
         }
       }
@@ -116,7 +122,7 @@ export default {
     reset() {
       this.resetAnswerColors()
       this.question = null
-      this.selected_answer_index = null
+      this.selected_indices = []
       this.user_has_answered = false
       this.user_was_correct = false
     },

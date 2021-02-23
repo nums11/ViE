@@ -581,6 +581,17 @@ export default {
 		    }
 		  )
 		  return table_students
+		},
+		userWasCorrect(selected_indices, correct_answer_indices) {
+			if(selected_indices.length !== correct_answer_indices.length)
+			  return false
+
+			for(let i = 0; i < selected_indices.length; i++) {
+			  if(!correct_answer_indices.includes(
+			    selected_indices[i]))
+			    return false
+			}
+			return true
 		}
 	}
 }
