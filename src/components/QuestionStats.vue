@@ -1,6 +1,6 @@
 <template>
   <div class="center-text">
-    <div v-for="question in questions"
+    <div v-for="(question,question_index) in questions"
     class="mt-2 question-container light-border-shadow">
       <div class="question wrap-text">{{ question.question }}</div>
       <Metric class="mt-1"
@@ -20,12 +20,13 @@
         </sui-table-header>
         <sui-table-body>
           <sui-table-row
-          v-for="(choice,index) in question.answer_choices"
-          :positive="index === question.correct_answer_index"
-          :negative="index !== question.correct_answer_index">
+          v-for="(choice,choice_index) in question.answer_choices"
+          :positive="question.correct_answer_indices.includes(choice_index)"
+          :negative="!question.correct_answer_indices.includes(choice_index)">
             <sui-table-cell>{{ choice }}</sui-table-cell>
             <sui-table-cell>
-              {{ choice_percentages[index].toFixed(1) }} %
+              {{ choice_percentages[question_index][
+                  choice_index].toFixed(1) }} %
             </sui-table-cell>
           </sui-table-row>
         </sui-table-body>
@@ -36,9 +37,11 @@
 
 <script>
 import Metric from '@/components/Metric'
+import helpers from '@/helpers'
 
 export default {
   name: 'QuestionStats',
+  mixins: [helpers],
   props: {
     questions: {
       type: Array,
@@ -62,28 +65,33 @@ export default {
   },
   methods: {
     calculatePercentages() {
-      let num_submissions = this.submissions.length 
+      const num_submissions = this.submissions.length 
       for(let i = 0; i < this.questions.length; i++) {
-        let question = this.questions[i]
+        const question = this.questions[i]
         let num_correct = 0
         if(num_submissions === 0) {
           this.questions[i].percent_correct = 0
+          this.choice_percentages.push([])
           question.answer_choices.forEach(choice => {
-            choice.percent_chosen = 0
+            this.choice_percentages[i].push(0)
           })
         } else {
-          let choice_frequencies =
+          const choice_frequencies =
             new Array(question.answer_choices.length).fill(0)
           this.submissions.forEach(submission => {
-            let choice_index = submission.quiz_answer_indices[i]
-            if(choice_index === question.correct_answer_index)
+            const selected_indices = submission.quiz_answer_indices[i]
+            if(this.userWasCorrect(selected_indices,
+              question.correct_answer_indices))
               num_correct++
-            choice_frequencies[choice_index]++
+            selected_indices.forEach(index => {
+              choice_frequencies[index]++
+            })
           })
           this.questions[i].percent_correct =
             (num_correct / num_submissions) * 100
+          this.choice_percentages.push([])
           for(let j = 0; j < question.answer_choices.length; j++) {
-            this.choice_percentages.push(
+            this.choice_percentages[i].push(
               (choice_frequencies[j] / num_submissions) * 100)
           }
         }
