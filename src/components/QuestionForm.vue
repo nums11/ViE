@@ -14,12 +14,12 @@
       @click="removeChoice(index)" name="x" class="float-right pointer"
       style="margin-right:1rem;" />
       <sui-form-field>
-        <sui-popup content="Mark this choice as the correct answer"
+        <sui-popup content="Mark this choice as correct"
         position="top center" inverted>
-          <div class="ui radio checkbox" slot="trigger"
+          <div class="ui checkbox" slot="trigger"
           style="float:left; margin-top:0.65rem;">
             <input @click="markCorrect(index)" 
-            type="radio" name="correct_answer_index" />
+            type="checkbox" name="correct_answer_index" />
             <label></label>
           </div>
         </sui-popup>
@@ -58,7 +58,7 @@ export default {
           {text: ""},
           {text: ""}
         ],
-        correct_answer_index: null,
+        correct_answer_indices: [],
         video_timestamp: 0
       },
     }
@@ -77,7 +77,7 @@ export default {
     },
     disableSaveQuestionBtn() {
       return !this.questionInputsFilled ||
-      this.question.correct_answer_index == null
+      this.question.correct_answer_indices.length === 0
     },
   },
   created () {
@@ -90,13 +90,21 @@ export default {
     },
     removeChoice(index) {
       this.question.answer_choices.splice(index, 1)
-      if(this.question.correct_answer_index === index) {
-        this.question.correct_answer_index = null
+      if(this.question.correct_answer_indices.includes(index)) {
+        this.removeIndexFromCorrectAnswerIndices(index)
         this.uncheckAnswers()
       }
     },
     markCorrect(index) {
-      this.question.correct_answer_index = index
+      if(this.question.correct_answer_indices.includes(index))
+        this.removeIndexFromCorrectAnswerIndices(index)
+      else
+        this.question.correct_answer_indices.push(index)
+    },
+    removeIndexFromCorrectAnswerIndices(index) {
+      const array_index =
+        this.question.correct_answer_indices.indexOf(index)
+      this.question.correct_answer_indices.splice(array_index,1)
     },
     clearQuestion() {
       this.question = {
@@ -105,7 +113,7 @@ export default {
           {text: ""},
           {text: ""}
         ],
-        correct_answer_index: null,
+        correct_answer_indices: [],
         video_timestamp: 0
       }
       this.uncheckAnswers()

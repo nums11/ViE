@@ -36,7 +36,7 @@ async function createQuizQuestions(questions) {
           const new_question = new QuizQuestion({
             question: question.question,
             answer_choices: answer_choices,
-            correct_answer_index: question.correct_answer_index,
+            correct_answer_indices: question.correct_answer_indices,
             video_timestamp: question.video_timestamp
           })
           const saved_question = await new_question.save()
