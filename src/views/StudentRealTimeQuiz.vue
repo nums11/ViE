@@ -207,6 +207,7 @@ export default {
             if(updated_submission != null) {
               this.user_has_answered = true
               this.submission = updated_submission
+              this.selected_indices = []
               this.highlightButtons()
             } else
               alert("Sorry, something went wrong")
