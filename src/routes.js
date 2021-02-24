@@ -18,7 +18,7 @@ import AdminEditQRScan from './components/admin/QRScan/AdminEditQRScan.vue';
 import OnboardUser from './views/OnboardUser.vue';
 import AdminEditMeeting from './components/admin/Meeting/AdminEditMeeting.vue';
 import NewMeeting from './views/NewMeeting.vue';
-import AdminGlobalCommands from './views/AdminGlobalCommands.vue';
+import AdminMigrations from './views/AdminMigrations.vue';
 import AdminNotificationJobs from './components/admin/Notification/AdminNotificationJobs.vue';
 import AdminUpdatedAuthHeaders from './components/admin/User/AdminUpdatedAuthHeaders.vue';
 import AdminStudentInvite from './components/admin/Course/StudentInvite.vue';
@@ -334,9 +334,9 @@ const router = new VueRouter({
       }
     },
     {
-      name: 'admin_global_commands',
-      path: '/admin/global_commands',
-      component: AdminGlobalCommands,
+      name: 'admin_migrations',
+      path: '/admin/migrations',
+      component: AdminMigrations,
       meta: {
         requiresAuth: true,
         requireAdmin: true

@@ -1,5 +1,5 @@
 const express = require('express');
-const globalCommandRoutes = express.Router();
+const migrationRoutes = express.Router();
 const Course = require('./Course/Course.model');
 const NotificationJob =
 require('./Notification/NotificationJob.model');
@@ -8,11 +8,11 @@ require('./RealTimePortion/RealTimePortion.model');
 const QuizQuestion =
 require('./QuizQuestion/QuizQuestion.model');
 
-globalCommandRoutes.post('/change_course_instructor_to_array',
+migrationRoutes.post('/change_course_instructor_to_array',
   function(req, res, next) {
   Course.find(async function(error, courses) {
     if(error) {
-      console.log("<ERROR> (global_commands/"
+      console.log("<ERROR> (migrations/"
         + "change_course_instructor_to_array) finding courses")
       next(error)
     } else {
@@ -28,7 +28,7 @@ globalCommandRoutes.post('/change_course_instructor_to_array',
                   const saved_course = await course.save()
                   resolve(saved_course)
                 } catch(error) {
-                  console.log("<ERROR> (global_commands/"
+                  console.log("<ERROR> (migrations/"
                     + "change_course_instructor_to_array) saving course",
                     error)
                   reject(null)
@@ -38,11 +38,11 @@ globalCommandRoutes.post('/change_course_instructor_to_array',
           }
         })
         const updated_courses = await Promise.all(course_update_promises)
-        console.log("<SUCCESS> (global_commands/"
+        console.log("<SUCCESS> (migrations/"
           + "change_course_instructor_to_array)")
         res.json(updated_courses)
       } catch(error) {
-        console.log("<ERROR> (global_commands/"
+        console.log("<ERROR> (migrations/"
           + "change_course_instructor_to_array)")
         next(error)
       }
@@ -51,11 +51,11 @@ globalCommandRoutes.post('/change_course_instructor_to_array',
   }
 )
 
-globalCommandRoutes.post('/change_notification_job_instructor_to_array',
+migrationRoutes.post('/change_notification_job_instructor_to_array',
   function(req, res, next) {
   NotificationJob.find(async function(error, notification_jobs) {
     if(error) {
-      console.log("<ERROR> (global_commands/"
+      console.log("<ERROR> (migrations/"
         + "change_notification_job_instructor_to_array) finding"
         + " notification_jobs")
       next(error)
@@ -78,7 +78,7 @@ globalCommandRoutes.post('/change_notification_job_instructor_to_array',
                   const saved_notification_job = await notification_job.save()
                   resolve(saved_notification_job)
                 } catch(error) {
-                  console.log("<ERROR> (global_commands/"
+                  console.log("<ERROR> (migrations/"
                     + "change_notification_job_instructor_to_array) "
                     + "saving notification_job",
                     error)
@@ -90,11 +90,11 @@ globalCommandRoutes.post('/change_notification_job_instructor_to_array',
         })
         const updated_notification_jobs = await Promise.all(
           notifcation_job_update_promises)
-        console.log("<SUCCESS> (global_commands/"
+        console.log("<SUCCESS> (migrations/"
           + "change_notification_job_instructor_to_array)")
         res.json(updated_notification_jobs)
       } catch(error) {
-        console.log("<ERROR> (global_commands/"
+        console.log("<ERROR> (migrations/"
           + "change_notification_job_instructor_to_array)")
         next(error)
       }
@@ -103,18 +103,18 @@ globalCommandRoutes.post('/change_notification_job_instructor_to_array',
   }
 )
 
-globalCommandRoutes.post('/add_quizzes_to_real_time_portions',
+migrationRoutes.post('/add_quizzes_to_real_time_portions',
   function(req, res, next) {
   RealTimePortion.updateMany({},
     {quizzes: []},
     {new: true},
     (error, updated_real_time_portions) => {
       if(error) {
-        console.log("<ERROR> (global_commands/"
+        console.log("<ERROR> (migrations/"
           + "add_quizzes_to_real_time_portions) updating real_time_portions")
         next(error)
       } else {
-        console.log("<SUCCESS> (global_commands/"
+        console.log("<SUCCESS> (migrations/"
           + "add_quizzes_to_real_time_portions) updating real_time_portions")
         res.json(updated_real_time_portions)
       }
@@ -123,11 +123,11 @@ globalCommandRoutes.post('/add_quizzes_to_real_time_portions',
   }
 )
 
-globalCommandRoutes.post('/change_correct_answer_index_to_array',
+migrationRoutes.post('/change_correct_answer_index_to_array',
   function(req, res, next) {
   QuizQuestion.find(async function(error, questions) {
     if(error) {
-      console.log("<ERROR> (global_commands/"
+      console.log("<ERROR> (migrations/"
         + "change_correct_answer_index_to_array) finding"
         + " quiz questions")
       next(error)
@@ -146,7 +146,7 @@ globalCommandRoutes.post('/change_correct_answer_index_to_array',
                   const saved_question = await question.save()
                   resolve(saved_question)
                 } catch(error) {
-                  console.log("<ERROR> (global_commands/"
+                  console.log("<ERROR> (migrations/"
                     + "change_correct_answer_index_to_array) "
                     + "saving quiz question",
                     error)
@@ -158,11 +158,11 @@ globalCommandRoutes.post('/change_correct_answer_index_to_array',
         })
         const updated_questions = await Promise.all(
           question_update_promises)
-        console.log("<SUCCESS> (global_commands/"
+        console.log("<SUCCESS> (migrations/"
           + "change_correct_answer_index_to_array)")
         res.json(updated_questions)
       } catch(error) {
-        console.log("<ERROR> (global_commands/"
+        console.log("<ERROR> (migrations/"
           + "change_correct_answer_index_to_array)")
         next(error)
       }
@@ -171,4 +171,4 @@ globalCommandRoutes.post('/change_correct_answer_index_to_array',
   }
 )
 
-module.exports = globalCommandRoutes;
+module.exports = migrationRoutes;
