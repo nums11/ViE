@@ -16,5 +16,9 @@ export default {
   changeCorrectAnswerIndexToArray() {
     return API().post('migrations/'
       + 'change_correct_answer_index_to_array', {})
+  },
+  changeQuizAnswerIndicecsTo2DArray() {
+    return API().post('migrations/'
+      + 'change_quiz_answer_indices_to_2d_array', {})
   }
 }

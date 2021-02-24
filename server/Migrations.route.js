@@ -7,6 +7,7 @@ const RealTimePortion =
 require('./RealTimePortion/RealTimePortion.model');
 const QuizQuestion =
 require('./QuizQuestion/QuizQuestion.model');
+const Submission = require('./Submission/Submission.model')
 
 migrationRoutes.post('/change_course_instructor_to_array',
   function(req, res, next) {
@@ -164,6 +165,65 @@ migrationRoutes.post('/change_correct_answer_index_to_array',
       } catch(error) {
         console.log("<ERROR> (migrations/"
           + "change_correct_answer_index_to_array)")
+        next(error)
+      }
+    }
+  })
+  }
+)
+
+migrationRoutes.post('/change_quiz_answer_indices_to_2d_array',
+  function(req, res, next) {
+  Submission.find(async function(error, submissions) {
+    if(error) {
+      console.log("<ERROR> (migrations/"
+        + "change_quiz_answer_indices_to_2d_array) finding"
+        + " submissions")
+      next(error)
+    } else {
+      try {
+        submission_update_promises = []
+        let i = 1;
+        submissions.forEach(submission => {
+          console.log(`Submission number ${i}`)
+          i++
+          submission_update_promises.push(new Promise(
+            (resolve, reject) => {
+              let updated = false
+              for(let i = 0; i < submission.quiz_answer_indices.length;
+                i++) {
+                if(submission.quiz_answer_indices[i].constructor
+                  !== Array) {
+                  submission.quiz_answer_indices[i] =
+                    [submission.quiz_answer_indices[i]]
+                }
+              }
+              Submission.findByIdAndUpdate(submission._id,
+                {quiz_answer_indices: submission.quiz_answer_indices},
+                {new: true},
+                (error, updated_submission) => {
+                  if(error) {
+                    console.log("<ERROR> (migrations/"
+                      + "change_quiz_answer_indices_to_2d_array) "
+                      + "updating submission",
+                      error)
+                    reject(null)
+                  } else {
+                    resolve(updated_submission)
+                  }
+                }
+              )
+            })
+          )
+        })
+        const updated_submissions = await Promise.all(
+          submission_update_promises)
+        console.log("<SUCCESS> (migrations/"
+          + "change_quiz_answer_indices_to_2d_array)")
+        res.json(updated_submissions)
+      } catch(error) {
+        console.log("<ERROR> (migrations/"
+          + "change_quiz_answer_indices_to_2d_array)")
         next(error)
       }
     }
