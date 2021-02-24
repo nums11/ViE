@@ -18,7 +18,8 @@
         position="top center" inverted>
           <div class="ui checkbox" slot="trigger"
           style="float:left; margin-top:0.65rem;">
-            <input @click="markCorrect(index)" 
+            <input @click="markCorrect(index)"
+            :id="`checkbox-${index}`"
             type="checkbox" name="correct_answer_index" />
             <label></label>
           </div>
@@ -91,9 +92,19 @@ export default {
     removeChoice(index) {
       this.question.answer_choices.splice(index, 1)
       if(this.question.correct_answer_indices.includes(index)) {
+        const checkbox = document.getElementById(`checkbox-${index}`)
+        checkbox.checked = false
         this.removeIndexFromCorrectAnswerIndices(index)
-        this.uncheckAnswers()
       }
+      this.updateCorrectAnswerIndices(index)
+      this.recheckCorrectAnswers()
+    },
+    recheckCorrectAnswers() {
+      this.question.correct_answer_indices.forEach(index => {
+
+        const checkbox = document.getElementById(`checkbox-${index}`)
+        checkbox.checked = true
+      })
     },
     markCorrect(index) {
       if(this.question.correct_answer_indices.includes(index))
@@ -105,6 +116,13 @@ export default {
       const array_index =
         this.question.correct_answer_indices.indexOf(index)
       this.question.correct_answer_indices.splice(array_index,1)
+    },
+    updateCorrectAnswerIndices(removed_index) {
+      for(let i = 0; i < this.question.correct_answer_indices.length;
+        i++) {
+        if(this.question.correct_answer_indices[i] > removed_index)
+          this.question.correct_answer_indices[i]--
+      }
     },
     clearQuestion() {
       this.question = {
