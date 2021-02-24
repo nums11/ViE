@@ -18,8 +18,11 @@
     <button @click="changeNotificationJobInstructorToArray" disabled>
       Convert notification job instructor into an array
     </button>
-    <button @click="addQuizzesToRealTimePortions">
+    <button @click="addQuizzesToRealTimePortions" disabled>
       Add quizzes to real time portions
+    </button>
+    <button @click="changeCorrectAnswerIndexToArray">
+      Change quiz question correct_answer_index to array
     </button>
   </div>
 </template>
@@ -104,6 +107,17 @@ export default {
       try {
         const response = 
           await GlobalCommandAPI.addQuizzesToRealTimePortions()
+        alert("Global command completed")
+        console.log(response.data)
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
+    },
+    async changeCorrectAnswerIndexToArray() {
+      try {
+        const response = 
+          await GlobalCommandAPI.changeCorrectAnswerIndexToArray()
         alert("Global command completed")
         console.log(response.data)
       } catch(error) {

@@ -5,6 +5,8 @@ const NotificationJob =
 require('./Notification/NotificationJob.model');
 const RealTimePortion =
 require('./RealTimePortion/RealTimePortion.model');
+const QuizQuestion =
+require('./QuizQuestion/QuizQuestion.model');
 
 globalCommandRoutes.post('/change_course_instructor_to_array',
   function(req, res, next) {
@@ -118,6 +120,54 @@ globalCommandRoutes.post('/add_quizzes_to_real_time_portions',
       }
     }
   )
+  }
+)
+
+globalCommandRoutes.post('/change_correct_answer_index_to_array',
+  function(req, res, next) {
+  QuizQuestion.find(async function(error, questions) {
+    if(error) {
+      console.log("<ERROR> (global_commands/"
+        + "change_correct_answer_index_to_array) finding"
+        + " quiz questions")
+      next(error)
+    } else {
+      try {
+        question_update_promises = []
+        questions.forEach(question => {
+          if(question._doc.correct_answer_index != null) {
+            question_update_promises.push(new Promise(
+              async (resolve,reject) => {
+                try {
+                  question.correct_answer_indices = [
+                    question._doc.correct_answer_index]
+                  question.set('correct_answer_index',
+                    undefined, {strict: false})
+                  const saved_question = await question.save()
+                  resolve(saved_question)
+                } catch(error) {
+                  console.log("<ERROR> (global_commands/"
+                    + "change_correct_answer_index_to_array) "
+                    + "saving quiz question",
+                    error)
+                  reject(null)
+                }
+              })
+            )
+          }
+        })
+        const updated_questions = await Promise.all(
+          question_update_promises)
+        console.log("<SUCCESS> (global_commands/"
+          + "change_correct_answer_index_to_array)")
+        res.json(updated_questions)
+      } catch(error) {
+        console.log("<ERROR> (global_commands/"
+          + "change_correct_answer_index_to_array)")
+        next(error)
+      }
+    }
+  })
   }
 )
 

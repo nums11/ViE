@@ -12,5 +12,9 @@ export default {
   addQuizzesToRealTimePortions() {
     return API().post('global_commands/'
       + 'add_quizzes_to_real_time_portions', {})
+  },
+  changeCorrectAnswerIndexToArray() {
+    return API().post('global_commands/'
+      + 'change_correct_answer_index_to_array', {})
   }
 }
