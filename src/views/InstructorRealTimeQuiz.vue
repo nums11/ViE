@@ -187,12 +187,14 @@ export default {
       const num_submissions_for_each_answer = new Array(
         this.current_question.answer_choices.length).fill(0)
       this.quiz.submissions.forEach(submission => {
-        if(this.userAnsweredRealTimeQuestion(submission,
+        if(this.userAnsweredQuestion(submission.quiz_answer_indices,
           this.current_question_index)) {
           this.num_answers_for_current_question++
-          const user_choice_index = submission.quiz_answer_indices[
+          const selected_indices = submission.quiz_answer_indices[
             this.current_question_index]
-          num_submissions_for_each_answer[user_choice_index]++
+          selected_indices.forEach(index => {
+            num_submissions_for_each_answer[index]++
+          })
         }
       })
       return num_submissions_for_each_answer
@@ -218,9 +220,11 @@ export default {
     },
     handleEmissions() {
       this.client_io.on('addStudentSubmission',
-        (selected_answer_index, submission) => {
+        (selected_indices, submission) => {
         this.addOrUpdateSubmission(submission)
-        this.chart_data.datasets[0].data[selected_answer_index]++
+        selected_indices.forEach(index => {
+          this.chart_data.datasets[0].data[index]++
+        })
         this.updateChart()
         this.num_answers_for_current_question++
       })

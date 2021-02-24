@@ -14,12 +14,13 @@
       @click="removeChoice(index)" name="x" class="float-right pointer"
       style="margin-right:1rem;" />
       <sui-form-field>
-        <sui-popup content="Mark this choice as the correct answer"
+        <sui-popup content="Mark this choice as correct"
         position="top center" inverted>
-          <div class="ui radio checkbox" slot="trigger"
+          <div class="ui checkbox" slot="trigger"
           style="float:left; margin-top:0.65rem;">
-            <input @click="markCorrect(index)" 
-            type="radio" name="correct_answer_index" />
+            <input @click="markCorrect(index)"
+            :id="`checkbox-${index}`"
+            type="checkbox" name="correct_answer_index" />
             <label></label>
           </div>
         </sui-popup>
@@ -58,7 +59,7 @@ export default {
           {text: ""},
           {text: ""}
         ],
-        correct_answer_index: null,
+        correct_answer_indices: [],
         video_timestamp: 0
       },
     }
@@ -77,7 +78,7 @@ export default {
     },
     disableSaveQuestionBtn() {
       return !this.questionInputsFilled ||
-      this.question.correct_answer_index == null
+      this.question.correct_answer_indices.length === 0
     },
   },
   created () {
@@ -90,13 +91,38 @@ export default {
     },
     removeChoice(index) {
       this.question.answer_choices.splice(index, 1)
-      if(this.question.correct_answer_index === index) {
-        this.question.correct_answer_index = null
-        this.uncheckAnswers()
+      if(this.question.correct_answer_indices.includes(index)) {
+        const checkbox = document.getElementById(`checkbox-${index}`)
+        checkbox.checked = false
+        this.removeIndexFromCorrectAnswerIndices(index)
       }
+      this.updateCorrectAnswerIndices(index)
+      this.recheckCorrectAnswers()
+    },
+    recheckCorrectAnswers() {
+      this.question.correct_answer_indices.forEach(index => {
+
+        const checkbox = document.getElementById(`checkbox-${index}`)
+        checkbox.checked = true
+      })
     },
     markCorrect(index) {
-      this.question.correct_answer_index = index
+      if(this.question.correct_answer_indices.includes(index))
+        this.removeIndexFromCorrectAnswerIndices(index)
+      else
+        this.question.correct_answer_indices.push(index)
+    },
+    removeIndexFromCorrectAnswerIndices(index) {
+      const array_index =
+        this.question.correct_answer_indices.indexOf(index)
+      this.question.correct_answer_indices.splice(array_index,1)
+    },
+    updateCorrectAnswerIndices(removed_index) {
+      for(let i = 0; i < this.question.correct_answer_indices.length;
+        i++) {
+        if(this.question.correct_answer_indices[i] > removed_index)
+          this.question.correct_answer_indices[i]--
+      }
     },
     clearQuestion() {
       this.question = {
@@ -105,16 +131,17 @@ export default {
           {text: ""},
           {text: ""}
         ],
-        correct_answer_index: null,
+        correct_answer_indices: [],
         video_timestamp: 0
       }
       this.uncheckAnswers()
     },
     uncheckAnswers() {
-      let checked_inputs = document.querySelector(
-        'input[name="correct_answer_index"]:checked')
-      if(checked_inputs != null)
-        checked_inputs.checked = false;
+      const checkboxes =
+        document.getElementsByName('correct_answer_index')
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = false
+      })
     },
     saveQuestion() {
       this.$emit('save-question', this.question)

@@ -244,7 +244,6 @@ export default {
       this.adding_task = false
     },
     async addVideo(task) {
-      console.log("Here... emitting")
       this.$emit('show-lottie-player')
       try {
         let response =

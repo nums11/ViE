@@ -252,11 +252,19 @@ export default {
         = this.submissionExistsForStudent()
       if(submission_exists) {
         this.submission = submission
-        this.current_question_index =
-          this.submission.quiz_answer_indices.length
+        const quiz_answer_indices = this.submission.quiz_answer_indices
+        for(let i = 0; i < quiz_answer_indices.length; i++) {
+          if(!this.userAnsweredQuestion(quiz_answer_indices,i)) {
+            this.current_question_index = i
+            break
+          }
+        }
       } else {
+        const quiz_answer_indices =
+          new Array(this.quiz.questions.length).fill([])
         const submission = {
           submitter: this.state_user._id,
+          quiz_answer_indices: quiz_answer_indices,
           task_type: "Video"
         }
         try {
@@ -392,14 +400,15 @@ export default {
       })
     },
     getMarkerClass(unrestricted_mode, question_index) {
-      if(unrestricted_mode ||
-        question_index >= this.submission.quiz_answer_indices.length)
+      if(unrestricted_mode || !this.userAnsweredQuestion(
+        this.submission.quiz_answer_indices, question_index))
         return "blue-marker"
 
       // Student has already answered the question
       // Green marker if they got the question right, red otherwise
-      if(this.submission.quiz_answer_indices[question_index]
-        === this.quiz.questions[question_index].correct_answer_index)
+      if(this.userWasCorrect(
+        this.submission.quiz_answer_indices[question_index],
+        this.quiz.questions[question_index].correct_answer_indices))
         return "green-marker"
       else
         return "red-marker"
@@ -444,11 +453,11 @@ export default {
         window.alert("Sorry, something went wrong")
       }
     },
-    async updateQuizSubmission(selected_answer_index,
+    async updateQuizSubmission(selected_indices,
       user_was_correct) {
       try {
-        this.submission.quiz_answer_indices.push(
-          selected_answer_index)
+        this.submission.quiz_answer_indices[
+          this.current_question_index-1] = selected_indices
         if(user_was_correct)
           this.submission.num_correct_answers++
         this.updateMarkerColor(user_was_correct)

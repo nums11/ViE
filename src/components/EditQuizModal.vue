@@ -19,10 +19,10 @@
           </sui-form-field>
           <sui-form-field
           v-for="(choice,index) in question.answer_choices">
-            <div class="ui radio checkbox"
+            <div class="ui checkbox"
             style="float:left; width:1rem; margin-top:0.65rem;">
-              <input type="radio"
-              :checked="index === question.correct_answer_index"
+              <input type="checkbox"
+              :checked="question.correct_answer_indices.includes(index)"
               disabled />
               <label></label>
             </div>

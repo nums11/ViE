@@ -18,8 +18,14 @@
     <button @click="changeNotificationJobInstructorToArray" disabled>
       Convert notification job instructor into an array
     </button>
-    <button @click="addQuizzesToRealTimePortions">
+    <button @click="addQuizzesToRealTimePortions" disabled>
       Add quizzes to real time portions
+    </button>
+    <button @click="changeCorrectAnswerIndexToArray">
+      Change quiz question correct_answer_index to array
+    </button>
+    <button @click="changeQuizAnswerIndicecsTo2DArray">
+      Change submission quiz_answer_indices to 2D array
     </button>
   </div>
 </template>
@@ -28,10 +34,10 @@
 import MeetingAPI from '@/services/MeetingAPI.js';
 import NotificationAPI from '@/services/NotificationAPI.js';
 import UserAPI from '@/services/UserAPI.js';
-import GlobalCommandAPI from '@/services/GlobalCommandAPI'
+import MigrationAPI from '@/services/MigrationAPI'
 
 export default {
-  name: 'AdminGlobalCommands',
+  name: 'AdminMigrations',
   data() {
     return {
     }
@@ -81,7 +87,7 @@ export default {
     async changeCourseInstructorToArray() {
       try {
         const response = 
-          await GlobalCommandAPI.changeCourseInstructorToArray()
+          await MigrationAPI.changeCourseInstructorToArray()
         alert("Global command completed")
         console.log(response.data)
       } catch(error) {
@@ -92,7 +98,7 @@ export default {
     async changeNotificationJobInstructorToArray() {
       try {
         const response = 
-          await GlobalCommandAPI.changeNotificationJobInstructorToArray()
+          await MigrationAPI.changeNotificationJobInstructorToArray()
         alert("Global command completed")
         console.log(response.data)
       } catch(error) {
@@ -103,7 +109,29 @@ export default {
     async addQuizzesToRealTimePortions() {
       try {
         const response = 
-          await GlobalCommandAPI.addQuizzesToRealTimePortions()
+          await MigrationAPI.addQuizzesToRealTimePortions()
+        alert("Global command completed")
+        console.log(response.data)
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
+    },
+    async changeCorrectAnswerIndexToArray() {
+      try {
+        const response = 
+          await MigrationAPI.changeCorrectAnswerIndexToArray()
+        alert("Global command completed")
+        console.log(response.data)
+      } catch(error) {
+        console.log(error)
+        alert("Sorry, something went wrong")
+      }
+    },
+    async changeQuizAnswerIndicecsTo2DArray() {
+      try {
+        const response = 
+          await MigrationAPI.changeQuizAnswerIndicecsTo2DArray()
         alert("Global command completed")
         console.log(response.data)
       } catch(error) {

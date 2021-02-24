@@ -13,9 +13,10 @@ const Submission = new Schema({
 		type: String,
 		required: true
 	},
-	quiz_answer_indices: [{
-		type: Number
-	}],
+	quiz_answer_indices: {
+		type: Array,
+		required: true
+	},
 	num_correct_answers: {
 		type: Number,
 		default: 0

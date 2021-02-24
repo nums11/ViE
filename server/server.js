@@ -70,7 +70,7 @@ function start() {
     require('./RealTimePortion/RealTimePortion.route')
   const emailRouter = require('./Email/Email.route')
   const quizRouter = require('./Quiz/Quiz.route')
-  const globalCommandRouter = require('./GlobalCommands.route')
+  const migrationRouter = require('./Migrations.route')
 
   let io;
 
@@ -164,7 +164,7 @@ function start() {
   app.use('/qr_scans', qrScanRouter);
   app.use('/emails', emailRouter);
   app.use('/quizzes', quizRouter)
-  app.use('/global_commands', globalCommandRouter)
+  app.use('/migrations', migrationRouter)
 
   NotificationHelper.rescheduleAllNotificationJobs()
 }
