@@ -119,10 +119,11 @@ export default {
       this.uncheckAnswers()
     },
     uncheckAnswers() {
-      let checked_inputs = document.querySelector(
-        'input[name="correct_answer_index"]:checked')
-      if(checked_inputs != null)
-        checked_inputs.checked = false;
+      const checkboxes =
+        document.getElementsByName('correct_answer_index')
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = false
+      })
     },
     saveQuestion() {
       this.$emit('save-question', this.question)
