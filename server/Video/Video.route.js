@@ -29,6 +29,7 @@ videoRoutes.get('/get/:id', function (req, res, next) {
   }).
   exec((error,video) => {
     if(error){
+      console.log(`<ERROR> (videos/get) id ${id}`)
       next(error);
     } else if(video == null) {
       console.log(`<ERROR> (videos/get) Getting video with ID ${id}` +

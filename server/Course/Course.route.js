@@ -59,7 +59,9 @@ courseRoutes.get('/get/:id/:with_meetings?',
     ]
   }).
   exec((error,course) => {
-    if(error || course == null){
+    if(error){
+      console.log(`<ERROR> (courses/get) id ${id} with_meetings`
+        + ` ${with_meetings}`)
       next(error)
     } else if(course == null) {
       console.log(`<ERROR> (courses/get) Getting course with ID ${id}`
