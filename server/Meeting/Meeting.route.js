@@ -99,8 +99,8 @@ meetingRoutes.get('/get/:id', function (req, res, next) {
     }]
   }).
   exec((error,meeting) => {
-    console.log(`<ERROR> (meetings/get) id ${id}`)
     if(error){
+      console.log(`<ERROR> (meetings/get) id ${id}`)
       next(error);
     } else if(meeting == null) {
       console.log("<ERROR> (meetings/get) Getting meeting by ID", id,
