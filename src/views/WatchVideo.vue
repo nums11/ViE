@@ -260,8 +260,13 @@ export default {
           }
         }
       } else {
-        const quiz_answer_indices =
-          new Array(this.quiz.questions.length).fill([])
+        let quiz_answer_indices;
+        if(this.quiz == null)
+          quiz_answer_indices = []
+        else {
+          quiz_answer_indices =
+            new Array(this.quiz.questions.length).fill([])
+        }
         const submission = {
           submitter: this.state_user._id,
           quiz_answer_indices: quiz_answer_indices,
