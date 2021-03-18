@@ -71,12 +71,12 @@ export default {
               await SectionAPI.addStudentToSection(section._id, this.user._id,
                 section.has_open_enrollment)
               if(section.has_open_enrollment) {
-                this.sendNewStudentEmailToInstructors(section, true)
+                // this.sendNewStudentEmailToInstructors(section, true)
                 window.alert("Section successfully joined")
                 this.$router.push({name: 'course_info',
                   params: {id: section.course._id, reload_page: true}})
               } else {
-                this.sendNewStudentEmailToInstructors(section, false)
+                // this.sendNewStudentEmailToInstructors(section, false)
                 window.alert("Requested to join section. You will be notified when the instructor grants approval")
                 this.user.pending_approval_sections.push(section)
               }
