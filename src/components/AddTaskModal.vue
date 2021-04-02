@@ -278,8 +278,20 @@ export default {
       this.task.reminder_time = new_times[0]
     },
     setVideoFile (e) {
-      // todo check if valid file extension
-      this.task.video_file = e.target.files[0]
+      const file = e.target.files[0]
+      const four_hundred_mb = 1048576 * 400
+      if(file == null) {
+        this.task.video_file = file
+      } else {
+        if(file.size > four_hundred_mb) {
+          alert("File must be less than 400mb")
+          this.task.video_file = null
+          const file_input = document.getElementById('file-input')
+          file_input.value = ''
+        } else {
+          this.task.video_file = file
+        }
+      }
     },
     selectValue(value) {
       this.value = value
