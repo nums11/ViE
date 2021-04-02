@@ -81,7 +81,8 @@ export default {
     getAllStudentAttendanceByMeeting() {
       this.student_attendance_data.forEach(data => {
         this.all_student_attendance_by_meeting.push(
-          data.attendance_by_meeting)
+          [data.student_name, data.user_id].concat(data.attendance_by_meeting)
+        )
       })
     },
     exportTable() {
